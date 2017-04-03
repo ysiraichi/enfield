@@ -67,6 +67,9 @@ IsoPack backtrack(int k, vector<bool> assigned, vector<int> mapping) {
 
             IsoPack pack = backtrack(k+1, assigned, mapping);
 
+            if (pack.nonMapped == 0 && pack.errors == 0)
+                return pack;
+
             if (pack.nonMapped < best.nonMapped || (pack.nonMapped == best.nonMapped 
                         && pack.errors < best.errors))
                 best = pack;
