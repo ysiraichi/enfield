@@ -1,6 +1,6 @@
 
 objects = Analyser.o Isomorphism.o
-executable = analyser
+executable = enfield
 
 CC = clang++
 CXXFLAGS = -O0 -g -std=c++11
