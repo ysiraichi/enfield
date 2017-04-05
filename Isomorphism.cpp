@@ -28,15 +28,15 @@ IsoPack tryAssigning(vector<int> mapping) {
         if (mapping[i] != -1) {
             int v = mapping[i];
 
-            vector<int> &succProg = gProg->succ(i);
-            vector<int> &succPhys = gPhys->succ(v);
+            set<int> &succProg = gProg->succ(i);
+            set<int> &succPhys = gPhys->succ(v);
 
-            for (int j = 0, f = succProg.size(); j < f; ++j) {
-                int u = mapping[succProg[j]];
-                vector<int>::iterator it = find(succPhys.begin(), succPhys.end(), u);
-                if (it == succPhys.end())
+            for (int k : succProg) {
+                int u = mapping[k];
+                if (succPhys.find(u) == succPhys.end())
                     ++errors;
             }
+
         } else ++nonMapped;
     }
 

@@ -9,14 +9,14 @@
 class Graph {
     private:
         int n;
-        std::vector< std::vector<int> > successors;
-        std::vector< std::vector<int> > predecessors;
+        std::vector< std::set<int> > successors;
+        std::vector< std::set<int> > predecessors;
         std::set< std::pair<int, int> > reverseEdges;
 
     public:
         Graph(int n) : n(n) {
-            successors.assign(n, std::vector<int>());
-            predecessors.assign(n, std::vector<int>());
+            successors.assign(n, std::set<int>());
+            predecessors.assign(n, std::set<int>());
         }
 
         int inDegree(int i) const {
@@ -31,34 +31,32 @@ class Graph {
             return n;
         }
 
-        std::vector<int>& succ(int i) {
+        std::set<int>& succ(int i) {
             return successors[i];
         }
 
-        std::vector<int>& pred(int i) {
+        std::set<int>& pred(int i) {
             return predecessors[i];
         }
 
         bool hasEdge(int i, int j) {
-            std::vector<int>& succ = this->succ(i);
-            std::vector<int>::iterator it = std::find(succ.begin(), succ.end(), j);
-            return it != succ.end();
+            std::set<int>& succ = this->succ(i);
+            return succ.find(j) != succ.end();
         }
 
         void putEdge(int i, int j) {
-            std::vector<int>& succ = this->succ(i);
-            std::vector<int>& pred = this->pred(j);
+            std::set<int>& succ = this->succ(i);
+            std::set<int>& pred = this->pred(j);
 
-            succ.push_back(j);
-            pred.push_back(i);
+            succ.insert(j);
+            pred.insert(i);
         }
 
         void buildReverseGraph() {
             for (int i = 0; i < n; ++i) {
-                std::vector<int>& succ = this->succ(i);
+                std::set<int>& succ = this->succ(i);
 
-                for (int j = 0, f = succ.size(); j < f; ++j) {
-                    int k = succ[j];
+                for (int k : succ) {
                     if (!hasEdge(k, i)) {
                         putEdge(k, i);
                         reverseEdges.insert(std::pair<int, int>(k, i));
@@ -69,21 +67,17 @@ class Graph {
 
         void print() {
             for (int i = 0; i < n; ++i) {
-                const std::vector<int> &succ = successors[i];
-                const std::vector<int> &pred = predecessors[i];
+                const std::set<int> &succ = successors[i];
+                const std::set<int> &pred = predecessors[i];
 
                 std::cout << i << " -> ";
-                for (int i = 0, e = succ.size(); i < e; ++i) {
-                    std::cout << succ[i];
-                    if (i < e-1) std::cout << ", ";
-                }
+                for (int k : succ)
+                    std::cout << "(" << k << ") ";
                 std::cout << std::endl;
 
                 std::cout << i << " <- ";
-                for (int i = 0, e = pred.size(); i < e; ++i) {
-                    std::cout << pred[i];
-                    if (i < e-1) std::cout << ", ";
-                }
+                for (int k : pred)
+                    std::cout << "(" << k << ") ";
                 std::cout << std::endl;
             }
         }

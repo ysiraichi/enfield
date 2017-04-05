@@ -19,10 +19,8 @@ Graph* readGraph(string filename) {
 
     graph = new Graph(n);
 
-    for (int u, v; ifs >> u >> v;) {
-        graph->succ(u).push_back(v);
-        graph->pred(v).push_back(u);
-    }
+    for (int u, v; ifs >> u >> v;)
+        graph->putEdge(u, v);
 
     ifs.close();
     return graph;
@@ -60,12 +58,12 @@ vector<int> getPath(Graph &physGraph, int u, int v) {
 
         if (x == v) break;
 
-        vector<int> &succ = physGraph.succ(x);
-        for (int i = 0, e = succ.size(); i < e; ++i) {
-            if (!marked[succ[i]]) {
-                q.push(succ[i]);
-                marked[succ[i]] = true;
-                parent[succ[i]] = x;
+        set<int> &succ = physGraph.succ(x);
+        for (int k : succ) {
+            if (!marked[k]) {
+                q.push(k);
+                marked[k] = true;
+                parent[k] = x;
             }
         }
     }
