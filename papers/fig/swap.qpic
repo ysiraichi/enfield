@@ -1,0 +1,20 @@
+a W q_a q_a
+b W q_b q_b
+
+b a PERMUTE
+
+=
+
++a b
+a +b
++a b
+
+=
+
++a b
+a H
+b H
++a b
+a H
+b H
++a b
