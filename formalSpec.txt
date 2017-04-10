@@ -1,0 +1,15 @@
+
+Let G=(V, E) be the physical qubit graph, where V is the set of qubits and every
+(u, v) \in E represents that qubit 'u' can interact with qubit 'v'.
+
+Now, consider the graph Hi=(Vi, Ei) a graph of the program at a time 'i', with 
+i=0,1,2, .., n, where |Vi|=|V| and Ei represents the interaction of the qubits
+in Vi until this point in the program. In other words, given a program:
+
+                ----> i = 0
+cx q[0], q[1];  ----> i = 1
+cx q[1], q[2];  ----> i = 2
+
+E0={}, E1={(0,1)} and E2={(0,1),(1,2)}.
+
+So, for each 'i', at most one edge is added to the program graph.
