@@ -1,0 +1,24 @@
+** The formal specification of the problem **
+
+Let G=(V, E) be the physical qubit graph, where V is the set of qubits and
+(u, v) in E means that the qubit 'u' can interact with the qubit 'v', and V' 
+be a set of vertices such that V'!=V and |V'|=|V|. Also, let Q be a sequence 
+of a set of interactions in P(V'xV') where 'qi' represents the i-th element 
+of this sequence, such that 'i' in T={1..n}.
+
+Consider these two functions:
+- an initial mapping f:V'->V;
+- a function g:T->P(V'xV').
+
+For every (u,v)=qi:
+- if (f(u),f(v)) in V, do nothing;
+- else search for a path from f(v) to f(u) in the graph G. g(i) will be equal
+  the swaps done at time 'i' so that f(v) is adjacent of f(u).
+
+Notice that the swap operation creates a new function f:V'->V, so it must be
+updated so that the new mapping function used is 'fi' ('f' at time 'i'). Also, 
+for every time 'i', there can be a set of swaps, as the path can be greater 
+than 2.
+
+We want to find 'f' and 'g' such that it gives us the minimum number of swaps.
+
