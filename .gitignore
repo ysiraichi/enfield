@@ -2,3 +2,5 @@ enfield
 *.o
 *.swp
 .ycm_extra_conf.py
+
+build/
