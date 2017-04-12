@@ -1,13 +1,21 @@
+#include "Analyser.h"
 #include "Graph.h"
 #include "Isomorphism.h"
+#include "DynSolver.h"
 
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <queue>
 
 using namespace std;
+
+enum Method M;
+
+std::string PhysFilename;
+std::string ProgFilename;
 
 Graph* readGraph(string filename) {
     ifstream ifs(filename.c_str());
@@ -78,7 +86,7 @@ vector<int> getPath(Graph &physGraph, int u, int v) {
     return path;
 }
 
-void swapPath(Graph &physGraph, vector<int> &mapping, vector<int> path) {
+void swapPath(Graph &physGraph, vector<int> &mapping, vector<int> path, ostream &out) {
     vector<int> assigned(physGraph.size(), -1);
 
     for (int i = 0, e = mapping.size(); i < e; ++i)
@@ -91,21 +99,23 @@ void swapPath(Graph &physGraph, vector<int> &mapping, vector<int> path) {
         // (a, b) in Prog
         int a = assigned[u], b = assigned[v];
 
-        cout << "Swapping (" << a << ", " << b << ")" << endl;
+        out << "Swapping (" << a << ", " << b << ")" << endl;
 
         assigned[u] = b;
         assigned[v] = a;
 
-        mapping[a] = v;
-        mapping[b] = u;
+        if (a != -1)
+            mapping[a] = v;
+        if (b != -1)
+            mapping[b] = u;
 
         path[i-1] = v;
         path[i] = u;
     }
 }
 
-vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping, string filename) {
-    ifstream ifs(filename.c_str());
+vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping) {
+    ifstream ifs(ProgFilename.c_str());
 
     int n;
     ifs >> n;
@@ -133,7 +143,7 @@ vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping, string f
 
         vector<int> path = getPath(physGraph, u, v);
         if (path.size() > 1) {
-            swapPath(physGraph, current, path);
+            swapPath(physGraph, current, path, cout);
             mappings.push_back(current);
         }
 
@@ -153,30 +163,57 @@ void printMapping(vector<int> &mapping) {
     }
 }
 
-int main(int argc, char **argv) {
-    string physFilename = argv[1];
-    string progFilename = argv[2];
+void readArgs(int argc, char **argv) {
+    PhysFilename = argv[1];
+    ProgFilename = argv[2];
 
-    Graph *physGraph = readGraph(physFilename);
+    M = NONE;
+    for (int i = 1; i < argc; ++i) {
+        if (!strcmp(argv[i], "-iso")) M = ISO;
+        if (!strcmp(argv[i], "-dyn")) M = DYN;
+    }
+
+    if (M == NONE) M = DYN;
+}
+
+int main(int argc, char **argv) {
+    readArgs(argc, argv);
+
+    Graph *physGraph = readGraph(PhysFilename);
     physGraph->buildReverseGraph();
     physGraph->print();
 
     cout << endl;
 
-    Graph *progGraph = readGraph(progFilename);
+    Graph *progGraph = readGraph(ProgFilename);
     progGraph->print();
 
     cout << endl;
+    vector< vector<int> >  mappings;
 
-    vector<int> mapping = findIsomorphism(*physGraph, *progGraph);
+    cout << "--------------------------------" << endl;
+    vector<int> mapping;
+
+    switch (M) {
+        case ISO:
+            {
+                mapping = findIsomorphism(*physGraph, *progGraph);
+                break;
+            }
+
+        case DYN:
+            {
+                mapping = dynsolve(*physGraph);
+            }
+
+        default:
+            break;
+    }
+
     printMapping(mapping);
+    mappings = mapForEach(*physGraph, mapping);
 
     cout << "--------------------------------" << endl;
-
-    vector< vector<int> > mappings = mapForEach(*physGraph, mapping, progFilename);
-
-    cout << "--------------------------------" << endl;
-
     for (int i = 0, e = mappings.size(); i < e; ++i)
         printMapping(mappings[i]);
 
