@@ -40,7 +40,7 @@ void ArgsParser::addOpt(OptBase* opt) {
 }
 
 static std::shared_ptr<ArgsParser> Parser(nullptr);
-static efd::Opt<bool> PrintHelp("help", "Prints a list with the available commands.", false);
+static efd::Opt<bool> PrintHelp("help", "Prints a list with the available commands.", false, false);
 
 static std::shared_ptr<ArgsParser> getParser() {
     if (Parser.get() == nullptr)
@@ -96,9 +96,19 @@ void efd::Opt<std::string>::parse(int argc, char **argv) {
     mVal = std::string(argv[1]);
 }
 
-efd::OptBase::OptBase(std::string name, std::string description) : mName(name), mDescription(description) {
+efd::OptBase::OptBase(std::string name, std::string description, bool isRequired) : 
+    mName(name), mDescription(description), mIsRequired(isRequired), mIsParsed(false) {
+
     std::shared_ptr<ArgsParser> Parser = getParser();
     Parser->addOpt(this);
+}
+
+bool efd::OptBase::isParsed() {
+    return mIsParsed;
+}
+
+bool efd::OptBase::isRequired() {
+    return mIsRequired;
 }
 
 static void PrintCommandLineHelp() {
@@ -130,7 +140,17 @@ void efd::ParseArguments(int argc, char **argv) {
         }
     }
 
-    if (PrintHelp.getVal()) {
+    bool requirementsFulfilled = true;
+    for (auto pair : Parser->mArgMap) {
+        OptBase *opt = pair.second[0];
+        if (opt->isRequired() && !opt->isParsed()) {
+            requirementsFulfilled = false;
+            break;
+        }
+    }
+
+    if (PrintHelp.getVal() || !requirementsFulfilled) {
         PrintCommandLineHelp();
+        abort();
     }
 }

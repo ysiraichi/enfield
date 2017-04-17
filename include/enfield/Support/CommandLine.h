@@ -7,11 +7,18 @@
 namespace efd {
 
     class OptBase {
+        private:
+            bool mIsRequired;
+            bool mIsParsed;
+
         public:
             std::string mName;
             std::string mDescription;
 
-            OptBase(std::string name, std::string description);
+            OptBase(std::string name, std::string description, bool isRequired);
+
+            bool isParsed();
+            bool isRequired();
 
             virtual void parse(int argc, char **argv) = 0;
     };
@@ -22,8 +29,8 @@ namespace efd {
             T mVal;
 
         public:
-            Opt(std::string name, std::string description);
-            Opt(std::string name, std::string description, T def);
+            Opt(std::string name, std::string description, bool isRequired = false);
+            Opt(std::string name, std::string description, T def, bool isRequired = false);
 
             const T& getVal() const;
             void parse(int argc, char **argv) override;
@@ -57,10 +64,12 @@ namespace efd {
 };
 
 template <typename T>
-efd::Opt<T>::Opt(std::string name, std::string description) : OptBase(name, description) {}
+efd::Opt<T>::Opt(std::string name, std::string description, bool isRequired) :
+    OptBase(name, description, isRequired) {}
 
 template <typename T>
-efd::Opt<T>::Opt(std::string name, std::string description, T def) : OptBase(name, description), mVal(def) {}
+efd::Opt<T>::Opt(std::string name, std::string description, T def, bool isRequired) :
+    OptBase(name, description, isRequired), mVal(def) {}
 
 template <typename T>
 const T& efd::Opt<T>::getVal() const { return mVal; }
