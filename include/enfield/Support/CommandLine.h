@@ -36,7 +36,7 @@ namespace efd {
             void parse(int argc, char **argv) override;
     };
 
-    void ParseArguments(int argc, char **argv);
+    bool ParseArguments(int argc, char **argv);
 
     template class Opt<bool>;
     template <> void Opt<bool>::parse(int argc, char **argv);

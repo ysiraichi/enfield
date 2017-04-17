@@ -123,7 +123,7 @@ static void PrintCommandLineHelp() {
     }
 }
 
-void efd::ParseArguments(int argc, char **argv) {
+bool efd::ParseArguments(int argc, char **argv) {
     std::shared_ptr<ArgsParser> Parser = getParser();
 
     for (int i = 1; i < argc; ++i) {
@@ -151,6 +151,5 @@ void efd::ParseArguments(int argc, char **argv) {
 
     if (PrintHelp.getVal() || !requirementsFulfilled) {
         PrintCommandLineHelp();
-        abort();
     }
 }
