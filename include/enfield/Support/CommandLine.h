@@ -22,7 +22,7 @@ namespace efd {
             bool isRequired();
 
             virtual bool isBoolean() = 0;
-            virtual void parse(int argc, const char **argv) = 0;
+            virtual void parse(const int argc, const char **argv) = 0;
     };
 
     template <typename T>
@@ -36,35 +36,35 @@ namespace efd {
 
             const T& getVal() const;
             bool isBoolean() override;
-            void parse(int argc, const char **argv) override;
+            void parse(const int argc, const char **argv) override;
     };
 
-    void ParseArguments(int argc, const char **argv);
+    void ParseArguments(const int argc, const char **argv);
 
     template class Opt<bool>;
     template <> bool Opt<bool>::isBoolean();
-    template <> void Opt<bool>::parse(int argc, const char **argv);
+    template <> void Opt<bool>::parse(const int argc, const char **argv);
 
     template class Opt<int>;
-    template <> void Opt<int>::parse(int argc, const char **argv);
+    template <> void Opt<int>::parse(const int argc, const char **argv);
 
     template class Opt<unsigned>;
-    template <> void Opt<unsigned>::parse(int argc, const char **argv);
+    template <> void Opt<unsigned>::parse(const int argc, const char **argv);
 
     template class Opt<long long>;
-    template <> void Opt<long long>::parse(int argc, const char **argv);
+    template <> void Opt<long long>::parse(const int argc, const char **argv);
 
     template class Opt<unsigned long long>;
-    template <> void Opt<unsigned long long>::parse(int argc, const char **argv);
+    template <> void Opt<unsigned long long>::parse(const int argc, const char **argv);
 
     template class Opt<float>;
-    template <> void Opt<float>::parse(int argc, const char **argv);
+    template <> void Opt<float>::parse(const int argc, const char **argv);
 
     template class Opt<double>;
-    template <> void Opt<double>::parse(int argc, const char **argv);
+    template <> void Opt<double>::parse(const int argc, const char **argv);
 
     template class Opt<std::string>;
-    template <> void Opt<std::string>::parse(int argc, const char **argv);
+    template <> void Opt<std::string>::parse(const int argc, const char **argv);
 };
 
 template <typename T>
@@ -79,7 +79,7 @@ template <typename T>
 const T& efd::Opt<T>::getVal() const { return mVal; }
 
 template <typename T>
-void efd::Opt<T>::parse(int argc, const char **argv) {
+void efd::Opt<T>::parse(const int argc, const char **argv) {
     assert(false && "Option with 'parse' function not implemented.");
 }
 
