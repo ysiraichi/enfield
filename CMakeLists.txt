@@ -13,6 +13,7 @@ add_subdirectory (tools)
 option (ENABLE_TESTS "Enables the tests." off)
 
 if (ENABLE_TESTS)
+    enable_testing ()
     include (Tests)
     add_subdirectory (tests)
 endif()

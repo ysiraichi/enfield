@@ -11,7 +11,8 @@ function (efd_test TestName)
 
     target_link_libraries (${TestName} 
         ${ARGN} 
-        ${GTEST_LIBS})
+        ${GTEST_LIBS}
+        ${UTIL_LIBS})
 
     add_test (${TestName} ${TestName})
 endfunction ()
