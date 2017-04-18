@@ -6,25 +6,35 @@
 
 namespace efd {
 
+    /// \brief Base class for implementing command line options.
     class OptBase {
         private:
             bool mIsRequired;
             bool mIsParsed;
 
         public:
+            /// \brief Command line string that represents the option.
             std::string mName;
+            /// \brief Description of the command line option.
             std::string mDescription;
 
+            /// \brief Constructs and inserts itself in the command line options container.
             OptBase(std::string name, std::string description, bool isRequired);
+            /// \brief Destructs and removes itself from the command line options container.
             virtual ~OptBase();
 
+            /// \brief True if this option has already been parsed.
             bool isParsed();
+            /// \brief True if the option was constructed as 'required'.
             bool isRequired();
 
+            /// \brief True if this is a boolean option.
             virtual bool isBoolean() = 0;
+            /// \brief Type sensitive parsing of the arguments itself.
             virtual void parse(const int argc, const char **argv) = 0;
     };
 
+    /// \brief Class used to declare the command line options available.
     template <typename T>
     class Opt : OptBase {
         private:
@@ -34,11 +44,14 @@ namespace efd {
             Opt(std::string name, std::string description, bool isRequired = false);
             Opt(std::string name, std::string description, T def, bool isRequired = false);
 
+            /// \brief Gets a const reference to the value of this command line option.
             const T& getVal() const;
             bool isBoolean() override;
             void parse(const int argc, const char **argv) override;
     };
 
+    /// \brief Parses the command line arguments (this function should be used in the main
+    /// function).
     void ParseArguments(const int argc, const char **argv);
 
     template class Opt<bool>;
