@@ -8,6 +8,7 @@
     #include "location.hh"
     
     static efd::yy::location loc;
+
 %}
 
 %option noyywrap nounput batch debug noinput
@@ -66,9 +67,9 @@ blank [ \t]
 "->"        { return efd::yy::EfdParser::make_MARROW(loc); }
 ","         { return efd::yy::EfdParser::make_COMMA(loc); }
 
-{real}      {}
+{real}      { return efd::yy::EfdParser::make_REAL(yytext, loc); }
 
-{id}        {}
+{id}        { return efd::yy::EfdParser::make_ID(yytext, loc); }
 
 .           {}
 

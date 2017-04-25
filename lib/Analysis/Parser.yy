@@ -1,5 +1,22 @@
 %skeleton "lalr1.cc"
 
+%code {
+    #include <string>
+
+    // TODO:
+    // Move this struct outside.
+    namespace efd {
+        struct DoubleVal {
+            double mV;
+            std::string mStr;
+
+            DoubleVal(std::string s) : mStr(s) {
+                mV = std::stod(s);
+            }
+        };
+    };
+}
+
 %defines
 %define parser_class_name {EfdParser}
 %define api.namespace {efd::yy}
@@ -26,6 +43,9 @@
 %token MARROW COMMA;
 
 %token REAL ID;
+
+%type <std::string> ID;
+%type <efd::DoubleVal> REAL;
 
 %printer { yyoutput << $$; } <*>;
 
