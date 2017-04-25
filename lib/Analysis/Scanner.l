@@ -1,19 +1,19 @@
-
-
 %{
     #include <cerrno>
     #include <climits>
     #include <cstdlib>
     #include <string>
-    #include "Parser.h"
+
+    #include "Parser.hh"
+    #include "location.hh"
     
-    static yy::location loc;
+    static efd::yy::location loc;
 %}
 
 %option noyywrap nounput batch debug noinput
 
-id    [a-zA-Z][a-zA-Z_0-9]*
-int   [0-9]+
+id    [a-z][A-Za-z0-9_]*
+real  ([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?
 blank [ \t]
 
 %{
@@ -23,51 +23,54 @@ blank [ \t]
 %%
 
 %{
-    // Code run each time yylex is called.
     loc.step();
 %}
 
-{blank}+   loc.step ();
-[\n]+      loc.lines (yyleng); loc.step ();
+{blank}+    { loc.step(); }
 
-The rules are simple. The driver is used to report errors.
+[\n]+       {
+                loc.lines(yyleng); 
+                loc.step(); 
+            }
 
-"-"      return yy::calcxx_parser::make_MINUS(loc);
-"+"      return yy::calcxx_parser::make_PLUS(loc);
-"*"      return yy::calcxx_parser::make_STAR(loc);
-"/"      return yy::calcxx_parser::make_SLASH(loc);
-"("      return yy::calcxx_parser::make_LPAREN(loc);
-")"      return yy::calcxx_parser::make_RPAREN(loc);
-":="     return yy::calcxx_parser::make_ASSIGN(loc);
+"OpenQASM"  { return efd::yy::EfdParser::make_IBMQASM(loc); }
+"opaque"    { return efd::yy::EfdParser::make_OPAQUE(loc); }
+"if"        { return efd::yy::EfdParser::make_IF(loc); }
+"barrier"   { return efd::yy::EfdParser::make_BARRIER(loc); }
+"qreg"      { return efd::yy::EfdParser::make_QREG(loc); }
+"creg"      { return efd::yy::EfdParser::make_CREG(loc); }
+"gate"      { return efd::yy::EfdParser::make_GATE(loc); }
+"measure"   { return efd::yy::EfdParser::make_MEASURE(loc); }
+"reset"     { return efd::yy::EfdParser::make_RESET(loc); }
 
-{int}      {
-    errno = 0;
-    long n = strtol (yytext, NULL, 10);
-    if (! (INT_MIN <= n && n <= INT_MAX && errno != ERANGE))
-        driver.error (loc, "integer is out of range");
-    return yy::calcxx_parser::make_NUMBER(n, loc);
-           }
+"CX"        { return efd::yy::EfdParser::make_CX(loc); }
+"U"         { return efd::yy::EfdParser::make_U(loc); }
 
-{id}       return yy::calcxx_parser::make_IDENTIFIER(yytext, loc);
-.          driver.error (loc, "invalid character");
-<<EOF>>    return yy::calcxx_parser::make_END(loc);
+"sin"       { return efd::yy::EfdParser::make_SIN(loc); }
+"cos"       { return efd::yy::EfdParser::make_COS(loc); }
+"tan"       { return efd::yy::EfdParser::make_TAN(loc); }
+"exp"       { return efd::yy::EfdParser::make_EXP(loc); }
+"ln"        { return efd::yy::EfdParser::make_LN(loc); }
+"sqrt"      { return efd::yy::EfdParser::make_SQRT(loc); }
+
+"=="        { return efd::yy::EfdParser::make_EQUAL(loc); }
+"+"         { return efd::yy::EfdParser::make_ADD(loc); }
+"-"         { return efd::yy::EfdParser::make_SUB(loc); }
+"*"         { return efd::yy::EfdParser::make_MUL(loc); }
+"/"         { return efd::yy::EfdParser::make_DIV(loc); }
+"^"         { return efd::yy::EfdParser::make_POW(loc); }
+"("         { return efd::yy::EfdParser::make_LPAR(loc); }
+")"         { return efd::yy::EfdParser::make_RPAR(loc); }
+"["         { return efd::yy::EfdParser::make_LSBRAC(loc); }
+"]"         { return efd::yy::EfdParser::make_RSBRAC(loc); }
+"->"        { return efd::yy::EfdParser::make_MARROW(loc); }
+","         { return efd::yy::EfdParser::make_COMMA(loc); }
+
+{real}      {}
+
+{id}        {}
+
+.           {}
 
 %%
 
-void calcxx_driver::scan_begin ()
-{
-    yy_flex_debug = trace_scanning;
-    if (file.empty () || file == "-")
-        yyin = stdin;
-    else if (!(yyin = fopen (file.c_str (), "r")))
-    {
-        error ("cannot open " + file + ": " + strerror(errno));
-        exit (EXIT_FAILURE);
-    }
-}
-
-    void
-calcxx_driver::scan_end ()
-{
-    fclose (yyin);
-}
