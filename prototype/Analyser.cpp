@@ -169,7 +169,7 @@ void printMapping(vector<int> &mapping) {
 
     for (int i = 0; i < mapping.size(); ++i) {
         if (mapping[i] != -1)
-            cout << i << " -> " << mapping[i] << endl;
+            cout << i << " -> " << char('A' + mapping[i]) << endl;
     }
 }
 
@@ -186,11 +186,17 @@ void readArgs(int argc, char **argv) {
     if (M == NONE) M = DYN;
 }
 
+std::string toStrPhysGraph(int i) {
+    char c = 'A' + i;
+    return std::string("") + c;
+}
+
 int main(int argc, char **argv) {
     readArgs(argc, argv);
 
     Graph *physGraph = readGraph(PhysFilename);
     physGraph->buildReverseGraph();
+    physGraph->setToStrFn(toStrPhysGraph);
     physGraph->print();
 
     cout << endl;

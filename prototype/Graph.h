@@ -13,10 +13,20 @@ class Graph {
         std::vector< std::set<int> > predecessors;
         std::set< std::pair<int, int> > reverseEdges;
 
+        std::string (*toStrFn)(int);
+
+        static std::string toStrDef(int i) {
+            return std::to_string(i);
+        }
+
     public:
-        Graph(int n) : n(n) {
+        Graph(int n) : n(n), toStrFn(nullptr) {
             successors.assign(n, std::set<int>());
             predecessors.assign(n, std::set<int>());
+        }
+
+        void setToStrFn(std::string (*fn)(int)) {
+            toStrFn = fn;
         }
 
         int inDegree(int i) const {
@@ -70,18 +80,20 @@ class Graph {
         }
 
         void print() {
+            if (!toStrFn) toStrFn = toStrDef;
+
             for (int i = 0; i < n; ++i) {
                 const std::set<int> &succ = successors[i];
                 const std::set<int> &pred = predecessors[i];
 
-                std::cout << i << " -> ";
+                std::cout << (*toStrFn)(i) << " -> ";
                 for (int k : succ)
-                    std::cout << "(" << k << ") ";
+                    std::cout << "(" << (*toStrFn)(k) << ") ";
                 std::cout << std::endl;
 
-                std::cout << i << " <- ";
+                std::cout << (*toStrFn)(i) << " <- ";
                 for (int k : pred)
-                    std::cout << "(" << k << ") ";
+                    std::cout << "(" << (*toStrFn)(k) << ") ";
                 std::cout << std::endl;
             }
         }
