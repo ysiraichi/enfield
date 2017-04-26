@@ -131,8 +131,11 @@ vector<int> dynsolve(Graph &physGraph) {
             if (source->cost == UNREACH)
                 continue;
 
+            if (source->root == -1)
+                cout << "Error at comb:" << sourceIdx << " - t:" << t-1 << endl;
+
             SwapVal finalVal;
-            if (min(source->cost, finalVal.cost) == source->cost)
+            if (min(source->cost, target->cost) == source->cost)
                 finalVal = *source;
             else 
                 finalVal = *target;
@@ -155,7 +158,6 @@ vector<int> dynsolve(Graph &physGraph) {
                     finalVal = { source->root, newCalcCost };
                 else
                     finalVal = *target;
-
             }
 
             if (physGraph.isReverseEdge(u, v))
@@ -178,6 +180,5 @@ vector<int> dynsolve(Graph &physGraph) {
         minCost = (minVal == minCost.cost) ? minCost : swaps[i][depN];
     }
 
-    cout << "Minimum swap number: " << minCost.cost << endl;
     return *(permIdMap[minCost.root]);
 }
