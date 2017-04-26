@@ -17,6 +17,9 @@ enum Method M;
 std::string PhysFilename;
 std::string ProgFilename;
 
+const int SwapCost = 7;
+const int RevCost = 4;
+
 Graph* readGraph(string filename) {
     ifstream ifs(filename.c_str());
 
@@ -114,7 +117,7 @@ void swapPath(Graph &physGraph, vector<int> &mapping, vector<int> path, ostream 
     }
 }
 
-vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping) {
+vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping, int &cost) {
     ifstream ifs(ProgFilename.c_str());
 
     int n;
@@ -124,6 +127,8 @@ vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping) {
     for (int u, v; ifs >> u >> v;) {
         dependencies.push_back(pair<int, int>(u, v));
     }
+
+    cost = 0;
 
     vector< vector<int> > mappings = { mapping };
     for (int t = 0, e = dependencies.size(); t < e; ++t) {
@@ -143,9 +148,14 @@ vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping) {
 
         vector<int> path = getPath(physGraph, u, v);
         if (path.size() > 1) {
+            cost += ((path.size() - 1) * SwapCost);
+
             swapPath(physGraph, current, path, cout);
             mappings.push_back(current);
         }
+
+        if (physGraph.isReverseEdge(u, v))
+            cost += RevCost;
 
         cout << "Dep: " << dep.first << " -> " << dep.second << endl;
 
@@ -210,12 +220,16 @@ int main(int argc, char **argv) {
             break;
     }
 
+    int totalCost;
+
     printMapping(mapping);
-    mappings = mapForEach(*physGraph, mapping);
+    mappings = mapForEach(*physGraph, mapping, totalCost);
 
     cout << "--------------------------------" << endl;
     for (int i = 0, e = mappings.size(); i < e; ++i)
         printMapping(mappings[i]);
+
+    cout << "Cost: " << totalCost << endl;
 
     return 0;
 }
