@@ -52,6 +52,10 @@ class Graph {
             pred.insert(i);
         }
 
+        bool isReverseEdge(int i, int j) {
+            return reverseEdges.find(std::pair<int, int>(i, j)) != reverseEdges.end();
+        }
+
         void buildReverseGraph() {
             for (int i = 0; i < n; ++i) {
                 std::set<int>& succ = this->succ(i);
