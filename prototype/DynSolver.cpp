@@ -23,7 +23,7 @@ struct PermVal {
 
 struct SwapVal {
     int root;
-    int swaps;
+    int cost;
 };
 
 vector<int> getPath(Graph &physGraph, int u, int v);
@@ -42,8 +42,6 @@ unordered_map<string, PermVal> genPermutationMap(int phys, int prog) {
     vector<bool> selector(phys-prog, false);
     while (selector.size() != phys)
         selector.push_back(true);
-
-    
 
     int idx = 0;
     do {
@@ -67,19 +65,6 @@ vector<int> genAssign(vector<int> mapping) {
     for (int i = 0, e = mapping.size(); i < e; ++i)
         assign[mapping[i]] = i;
     return assign;
-}
-
-vector< pair<int, int> > readDependencies(string filename, int &qubits) {
-    ifstream ifs(filename.c_str());
-
-    ifs >> qubits;
-
-    vector< pair<int, int> > dependencies;
-    for (int u, v; ifs >> u >> v;)
-        dependencies.push_back(pair<int, int>(u, v));
-
-    ifs.close();
-    return dependencies;
 }
 
 vector<int> dynsolve(Graph &physGraph) {
@@ -130,11 +115,14 @@ vector<int> dynsolve(Graph &physGraph) {
             SwapVal *source = &swaps[sourceIdx][t-1];
             SwapVal *target = &swaps[targetIdx][t];
 
-            if (source->swaps == UNREACH)
+            if (source->cost == UNREACH)
                 continue;
 
+            if (source->root == -1)
+                cout << "Error at comb:" << sourceIdx << " - t:" << t-1 << endl;
+
             SwapVal finalVal;
-            if (min(source->swaps, finalVal.swaps) == source->swaps)
+            if (min(source->cost, target->cost) == source->cost)
                 finalVal = *source;
             else 
                 finalVal = *target;
@@ -150,15 +138,17 @@ vector<int> dynsolve(Graph &physGraph) {
                 targetIdx = permMap[vecToKey(newMapping)].idx;
                 target = &swaps[targetIdx][t];
 
-                int newCalcCost = source->swaps + (path.size() - 1);
-                int oldCalcCost = target->swaps;
+                int newCalcCost = source->cost + ((path.size() - 1) * SwapCost);
+                int oldCalcCost = target->cost;
 
                 if (min(newCalcCost, oldCalcCost) == newCalcCost)
                     finalVal = { source->root, newCalcCost };
                 else
                     finalVal = *target;
-
             }
+
+            if (physGraph.isReverseEdge(u, v))
+                finalVal.cost += RevCost;
 
             /*
             cout << "{ map:[ ";
@@ -171,12 +161,11 @@ vector<int> dynsolve(Graph &physGraph) {
         }
     }
 
-    SwapVal minSwaps = swaps[0][depN];
+    SwapVal minCost = swaps[0][depN];
     for (int i = 1; i < permN; ++i) {
-        int minVal = min(minSwaps.swaps, swaps[i][depN].swaps);
-        minSwaps = (minVal == minSwaps.swaps) ? minSwaps : swaps[i][depN];
+        int minVal = min(minCost.cost, swaps[i][depN].cost);
+        minCost = (minVal == minCost.cost) ? minCost : swaps[i][depN];
     }
 
-    cout << "Minimum swap number: " << minSwaps.swaps << endl;
-    return *(permIdMap[minSwaps.root]);
+    return *(permIdMap[minCost.root]);
 }

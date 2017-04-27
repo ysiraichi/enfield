@@ -6,4 +6,7 @@
 
 std::vector<int> dynsolve(Graph &physGraph); 
 
+extern const int SwapCost;
+extern const int RevCost;
+
 #endif

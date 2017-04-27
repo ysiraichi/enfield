@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <unordered_map>
 
 using namespace std;
 
@@ -17,7 +18,13 @@ enum Method M;
 std::string PhysFilename;
 std::string ProgFilename;
 
-Graph* readGraph(string filename) {
+std::vector<std::string> PhysVarNames;
+std::vector<std::string> ProgVarNames;
+
+const int SwapCost = 7;
+const int RevCost = 4;
+
+Graph* readGraph(string filename, vector<string> &var) {
     ifstream ifs(filename.c_str());
 
     int n;
@@ -25,13 +32,40 @@ Graph* readGraph(string filename) {
 
     ifs >> n;
 
+    var.assign(n, "");
     graph = new Graph(n);
 
-    for (int u, v; ifs >> u >> v;)
-        graph->putEdge(u, v);
+    int label = 0;
+    std::unordered_map<string, int> idxMap;
+    for (string u, v; ifs >> u >> v;) {
+        if (idxMap.find(u) == idxMap.end()) idxMap[u] = label++;
+        if (idxMap.find(v) == idxMap.end()) idxMap[v] = label++;
+        graph->putEdge(idxMap[u], idxMap[v]);
+    }
+
+    for (auto pair : idxMap)
+        var[pair.second] = pair.first;
 
     ifs.close();
     return graph;
+}
+
+vector< pair<int, int> > readDependencies(string filename, int &qubits) {
+    ifstream ifs(filename.c_str());
+
+    ifs >> qubits;
+
+    int label = 0;
+    unordered_map<string, int> idxMap;
+    vector< pair<int, int> > dependencies;
+    for (string u, v; ifs >> u >> v;) {
+        if (idxMap.find(u) == idxMap.end()) idxMap[u] = label++;
+        if (idxMap.find(v) == idxMap.end()) idxMap[v] = label++;
+        dependencies.push_back(pair<int, int>(idxMap[u], idxMap[v]));
+    }
+
+    ifs.close();
+    return dependencies;
 }
 
 int getFreeVertex(Graph &physGraph, vector<int> mapping) {
@@ -114,16 +148,11 @@ void swapPath(Graph &physGraph, vector<int> &mapping, vector<int> path, ostream 
     }
 }
 
-vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping) {
-    ifstream ifs(ProgFilename.c_str());
+vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping, int &cost) {
+    int qubits;
+    vector< pair<int, int> > dependencies = readDependencies(ProgFilename, qubits);
 
-    int n;
-    ifs >> n;
-
-    vector< pair<int, int> > dependencies;
-    for (int u, v; ifs >> u >> v;) {
-        dependencies.push_back(pair<int, int>(u, v));
-    }
+    cost = 0;
 
     vector< vector<int> > mappings = { mapping };
     for (int t = 0, e = dependencies.size(); t < e; ++t) {
@@ -143,11 +172,16 @@ vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping) {
 
         vector<int> path = getPath(physGraph, u, v);
         if (path.size() > 1) {
-            swapPath(physGraph, current, path, cout);
+            cost += ((path.size() - 1) * SwapCost);
+
+            swapPath(physGraph, current, path, cerr);
             mappings.push_back(current);
         }
 
-        cout << "Dep: " << dep.first << " -> " << dep.second << endl;
+        if (physGraph.isReverseEdge(u, v))
+            cost += RevCost;
+
+        cerr << "Dep: " << dep.first << " -> " << dep.second << endl;
 
     }
 
@@ -159,7 +193,7 @@ void printMapping(vector<int> &mapping) {
 
     for (int i = 0; i < mapping.size(); ++i) {
         if (mapping[i] != -1)
-            cout << i << " -> " << mapping[i] << endl;
+            cout << ProgVarNames[i] << " -> " << PhysVarNames[mapping[i]] << endl;
     }
 }
 
@@ -176,16 +210,26 @@ void readArgs(int argc, char **argv) {
     if (M == NONE) M = DYN;
 }
 
+std::string toStrPhysGraph(int i) {
+    return PhysVarNames[i];
+}
+
+std::string toStrProgGraph(int i) {
+    return ProgVarNames[i];
+}
+
 int main(int argc, char **argv) {
     readArgs(argc, argv);
 
-    Graph *physGraph = readGraph(PhysFilename);
+    Graph *physGraph = readGraph(PhysFilename, PhysVarNames);
     physGraph->buildReverseGraph();
+    physGraph->setToStrFn(toStrPhysGraph);
     physGraph->print();
 
     cout << endl;
 
-    Graph *progGraph = readGraph(ProgFilename);
+    Graph *progGraph = readGraph(ProgFilename, ProgVarNames);
+    progGraph->setToStrFn(toStrProgGraph);
     progGraph->print();
 
     cout << endl;
@@ -210,12 +254,18 @@ int main(int argc, char **argv) {
             break;
     }
 
+    int totalCost;
+
     printMapping(mapping);
-    mappings = mapForEach(*physGraph, mapping);
+    mappings = mapForEach(*physGraph, mapping, totalCost);
 
     cout << "--------------------------------" << endl;
-    for (int i = 0, e = mappings.size(); i < e; ++i)
+    for (int i = 0, e = mappings.size(); i < e; ++i) {
         printMapping(mappings[i]);
+        cout << endl;
+    }
+
+    cout << "Cost: " << totalCost << endl;
 
     return 0;
 }
