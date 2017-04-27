@@ -67,19 +67,6 @@ vector<int> genAssign(vector<int> mapping) {
     return assign;
 }
 
-vector< pair<int, int> > readDependencies(string filename, int &qubits) {
-    ifstream ifs(filename.c_str());
-
-    ifs >> qubits;
-
-    vector< pair<int, int> > dependencies;
-    for (int u, v; ifs >> u >> v;)
-        dependencies.push_back(pair<int, int>(u, v));
-
-    ifs.close();
-    return dependencies;
-}
-
 vector<int> dynsolve(Graph &physGraph) {
     int qubits;
     vector< pair<int, int> > dependencies = readDependencies(ProgFilename, qubits);
