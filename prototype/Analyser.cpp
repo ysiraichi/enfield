@@ -178,6 +178,7 @@ vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping, int &cos
             mappings.push_back(current);
         }
 
+        u = current[dep.first], v = current[dep.second];
         if (physGraph.isReverseEdge(u, v))
             cost += RevCost;
 

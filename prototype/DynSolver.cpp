@@ -145,8 +145,12 @@ vector<int> dynsolve(Graph &physGraph) {
                     finalVal = { source->root, newCalcCost };
                 else
                     finalVal = *target;
+
+                mapping = newMapping;
             }
 
+            u = mapping[dep.first];
+            v = mapping[dep.second];
             if (physGraph.isReverseEdge(u, v))
                 finalVal.cost += RevCost;
 
