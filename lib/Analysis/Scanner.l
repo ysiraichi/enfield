@@ -35,6 +35,7 @@ blank [ \t]
             }
 
 "OpenQASM"  { return efd::yy::EfdParser::make_IBMQASM(loc); }
+"include"   { return efd::yy::EfdParser::make_INCLUDE(loc); }
 "opaque"    { return efd::yy::EfdParser::make_OPAQUE(loc); }
 "if"        { return efd::yy::EfdParser::make_IF(loc); }
 "barrier"   { return efd::yy::EfdParser::make_BARRIER(loc); }
@@ -66,6 +67,7 @@ blank [ \t]
 "]"         { return efd::yy::EfdParser::make_RSBRAC(loc); }
 "->"        { return efd::yy::EfdParser::make_MARROW(loc); }
 ","         { return efd::yy::EfdParser::make_COMMA(loc); }
+";"         { return efd::yy::EfdParser::make_SEMICOL(loc); }
 
 {real}      { return efd::yy::EfdParser::make_REAL(yytext, loc); }
 

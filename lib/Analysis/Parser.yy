@@ -1,20 +1,7 @@
 %skeleton "lalr1.cc"
 
 %code {
-    #include <string>
-
-    // TODO:
-    // Move this struct outside.
-    namespace efd {
-        struct DoubleVal {
-            double mV;
-            std::string mStr;
-
-            DoubleVal(std::string s) : mStr(s) {
-                mV = std::stod(s);
-            }
-        };
-    };
+    #include "enfield/Support/DoubleVal.h"
 }
 
 %defines
@@ -31,7 +18,7 @@
 
 %define api.token.prefix {TOK_}
 
-%token IBMQASM;
+%token IBMQASM INCLUDE;
 %token QREG CREG;
 %token OPAQUE GATE;
 %token MEASURE BARRIER RESET IF;
@@ -40,7 +27,7 @@
 %token SIN COS TAN EXP LN SQRT;
 %token EQUAL ADD SUB MUL DIV POW;
 %token LPAR RPAR LSBRAC RSBRAC;
-%token MARROW COMMA;
+%token MARROW COMMA SEMICOL;
 
 %token REAL ID;
 
