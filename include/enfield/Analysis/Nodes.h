@@ -7,9 +7,14 @@
 
 namespace efd {
     class Node {
+        protected:
+            bool mIsEmpty;
+
         public:
             typedef std::vector< std::shared_ptr<Node> >::iterator iterator;
             typedef std::vector< std::shared_ptr<Node> >::const_iterator const_iterator;
+
+            Node(bool empty);
 
             std::vector< std::shared_ptr<Node> > mChild;
 
@@ -21,6 +26,8 @@ namespace efd {
 
             void print(std::ostream& O = std::cout, bool endl = false);
             void print(bool endl = false);
+
+            bool isEmpty() const;
 
             virtual std::string getOperation() const;
             virtual std::string toString(bool endl = false) const;
@@ -86,7 +93,42 @@ namespace efd {
             std::string toString(bool endl) const override;
     };
 
-    class NDQOpMeasure : public Node {
+    class NDQOp : public Node {
+        public:
+            enum QOpType {
+                QOP_RESET,
+                QOP_BARRIER,
+                QOP_MEASURE,
+                QOP_U,
+                QOP_CX,
+                QOP_GENERIC
+            };
+
+        private:
+            enum ChildType {
+                I_ID = 0,
+                I_ARGS,
+                I_QARGS
+            };
+
+            QOpType mT;
+
+        public:
+            NDQOp(QOpType type);
+
+            QOpType getQOpType() const;
+
+            virtual bool isReset() const;
+            virtual bool isBarrier() const;
+            virtual bool isMeasure() const;
+            virtual bool isU() const;
+            virtual bool isGeneric() const;
+
+            std::string getOperation() const override;
+            std::string toString(bool endl) const override;
+    };
+
+    class NDQOpMeasure : public NDQOp {
         private:
             enum ChildType {
                 I_QBIT = 0,
@@ -99,19 +141,19 @@ namespace efd {
             std::string toString(bool endl) const override;
     };
 
-    class NDQOpReset : public Node {
+    class NDQOpReset : public NDQOp {
         public:
             NDQOpReset();
             std::string getOperation() const override;
     };
 
-    class NDQOpBarrier : public Node {
+    class NDQOpBarrier : public NDQOp {
         public:
             NDQOpBarrier();
             std::string getOperation() const override;
     };
 
-    class NDQOpCall : public Node {
+    class NDQOpGeneric : public NDQOp {
         private:
             enum ChildType {
                 I_QBIT = 0,
@@ -119,9 +161,7 @@ namespace efd {
             };
 
         public:
-            NDQOpCall();
-            std::string getOperation() const override;
-            std::string toString(bool endl) const override;
+            NDQOpGeneric();
     };
 };
 

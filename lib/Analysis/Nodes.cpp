@@ -1,5 +1,8 @@
 #include "enfield/Analysis/Nodes.h"
 
+efd::Node::Node(bool empty) : mIsEmpty(empty) {
+}
+
 efd::Node::iterator efd::Node::begin() {
     return mChild.begin();
 }
@@ -38,7 +41,7 @@ std::string efd::Node::toString(bool pretty) const {
 }
 
 // -------------- Decl -----------------
-efd::NDDecl::NDDecl(Type t) : mT(t) {
+efd::NDDecl::NDDecl(Type t) : Node(false), mT(t) {
 }
 
 bool efd::NDDecl::isCReg() const {
@@ -66,7 +69,7 @@ std::string efd::NDDecl::toString(bool pretty) const {
 }
 
 // -------------- GateDecl -----------------
-efd::NDGateDecl::NDGateDecl() {
+efd::NDGateDecl::NDGateDecl() : Node(false) {
 }
 
 std::string efd::NDGateDecl::getOperation() const {
@@ -89,7 +92,7 @@ std::string efd::NDGateDecl::toString(bool pretty) const {
 }
 
 // -------------- GOpList -----------------
-efd::NDGOpList::NDGOpList() {
+efd::NDGOpList::NDGOpList() : Node(false) {
 }
 
 std::string efd::NDGOpList::toString(bool pretty) const {
@@ -104,7 +107,7 @@ std::string efd::NDGOpList::toString(bool pretty) const {
 }
 
 // -------------- Opaque -----------------
-efd::NDOpaque::NDOpaque() {
+efd::NDOpaque::NDOpaque() : Node(false) {
 }
 
 std::string efd::NDOpaque::getOperation() const {
@@ -120,13 +123,57 @@ std::string efd::NDOpaque::toString(bool pretty) const {
     if (!mChild[I_ARGS]->mChild.empty())
         str += " (" + mChild[I_ARGS]->toString(pretty) + ")";
 
-    str += " " + mChild[I_QARGS]->toString(pretty);
+    str += " " + mChild[I_QARGS]->toString(pretty) + ";";
+
+    return str;
+}
+
+// -------------- Qubit Operation -----------------
+efd::NDQOp::NDQOp(QOpType type) : Node(false), mT(type) {
+}
+
+efd::NDQOp::QOpType efd::NDQOp::getQOpType() const {
+    return mT;
+}
+
+bool efd::NDQOp::isReset() const {
+    return false;
+}
+
+bool efd::NDQOp::isBarrier() const {
+    return false;
+}
+
+bool efd::NDQOp::isMeasure() const {
+    return false;
+}
+
+bool efd::NDQOp::isU() const {
+    return false;
+}
+
+bool efd::NDQOp::isGeneric() const {
+    return false;
+}
+
+std::string efd::NDQOp::getOperation() const {
+    return mChild[I_ID]->toString();
+}
+
+std::string efd::NDQOp::toString(bool pretty) const {
+    std::string str(getOperation());
+    std::string endl = (pretty) ? "\n" : "";
+
+    if (!mChild[I_ARGS]->isEmpty())
+        str += "(" + mChild[I_ARGS]->toString(pretty) + ")";
+
+    str += " " + mChild[I_QARGS]->toString(pretty) + ";";
 
     return str;
 }
 
 // -------------- Qubit Operation: Measure -----------------
-efd::NDQOpMeasure::NDQOpMeasure() {
+efd::NDQOpMeasure::NDQOpMeasure() : NDQOp(QOP_MEASURE) {
 }
 
 std::string efd::NDQOpMeasure::getOperation() const {
@@ -139,13 +186,13 @@ std::string efd::NDQOpMeasure::toString(bool pretty) const {
 
     str += " " + mChild[I_QBIT]->toString(pretty);
     str += " ->";
-    str += " " + mChild[I_CBIT]->toString(pretty);
+    str += " " + mChild[I_CBIT]->toString(pretty) + ";";
 
     return str;
 }
 
 // -------------- Qubit Operation: Reset -----------------
-efd::NDQOpReset::NDQOpReset() {
+efd::NDQOpReset::NDQOpReset() : NDQOp(QOP_RESET) {
 }
 
 std::string efd::NDQOpReset::getOperation() const {
@@ -153,29 +200,14 @@ std::string efd::NDQOpReset::getOperation() const {
 }
 
 // -------------- Qubit Operation: Barrier -----------------
-efd::NDQOpBarrier::NDQOpBarrier() {
+efd::NDQOpBarrier::NDQOpBarrier() : NDQOp(QOP_BARRIER) {
 }
 
 std::string efd::NDQOpBarrier::getOperation() const {
     return "barrier";
 }
 
-// -------------- Qubit Operation: Call -----------------
-efd::NDQOpCall::NDQOpCall() {
-}
-
-std::string efd::NDQOpCall::getOperation() const {
-    return "measure";
-}
-
-std::string efd::NDQOpCall::toString(bool pretty) const {
-    std::string str(getOperation());
-    std::string endl = (pretty) ? "\n" : "";
-
-    str += " " + mChild[I_QBIT]->toString(pretty);
-    str += " ->";
-    str += " " + mChild[I_CBIT]->toString(pretty);
-
-    return str;
+// -------------- Qubit Operation: Generic -----------------
+efd::NDQOpGeneric::NDQOpGeneric() : NDQOp(QOP_GENERIC) {
 }
 
