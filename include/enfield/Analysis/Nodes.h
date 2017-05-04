@@ -1,6 +1,8 @@
 #ifndef __EFD_NODES_H__
 #define __EFD_NODES_H__
 
+#include "enfield/Support/DoubleVal.h"
+
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -163,6 +165,41 @@ namespace efd {
         public:
             NDQOpGeneric();
     };
+
+    template <typename T>
+    class NDLiteral : public Node {
+        private:
+            T mVal;
+
+        public:
+            NDLiteral(T val);
+
+            T getVal() const;
+            std::string getOperation() const override;
+    };
+
+    template class NDLiteral<int>;
+    template class NDLiteral<DoubleVal>;
+    template class NDLiteral<std::string>;
+
+    typedef NDLiteral<int> NDInt;
+    typedef NDLiteral<DoubleVal> NDReal;
+    typedef NDLiteral<std::string> NDId;
 };
+
+// -------------- Literal -----------------
+template <typename T>
+efd::NDLiteral<T>::NDLiteral(T val) : Node(false), mVal(val) {
+}
+
+template <typename T>
+T efd::NDLiteral<T>::getVal() const {
+    return mVal;
+}
+
+template <typename T>
+std::string efd::NDLiteral<T>::getOperation() const {
+    return std::to_string(mVal);
+}
 
 #endif
