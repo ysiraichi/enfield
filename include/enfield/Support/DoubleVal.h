@@ -18,4 +18,13 @@ namespace efd {
     };
 };
 
+namespace std {
+
+    /// \brief Overloading std::to_string to work with efd::DoubleVal.
+    string to_string(const efd::DoubleVal& val) {
+        return val.mStr;
+    }
+
+};
+
 #endif
