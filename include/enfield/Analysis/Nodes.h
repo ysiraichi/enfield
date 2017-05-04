@@ -8,30 +8,10 @@
 namespace efd {
     class Node {
         public:
-            enum NodeKind {
-                K_DECL,
-                K_GATEDECL,
-                K_GOPLIST,
-                K_OPAQUE,
-
-                K_QOP_MEASURE,
-                K_QOP_RESET,
-                K_QOP_BARRIER,
-                K_QOP_CALL
-            };
-
-        private:
-            NodeKind mK;
-
-        public:
             typedef std::vector< std::shared_ptr<Node> >::iterator iterator;
             typedef std::vector< std::shared_ptr<Node> >::const_iterator const_iterator;
 
             std::vector< std::shared_ptr<Node> > mChild;
-
-            Node(NodeKind k);
-
-            NodeKind getKind() const;
 
             iterator begin();
             iterator end();
@@ -53,16 +33,20 @@ namespace efd {
                 QUANTUM
             };
 
+        private:
             enum ChildType {
                 I_ID = 0,
                 I_SIZE
             };
 
-        private:
             Type mT;
 
         public:
             NDDecl(Type t);
+
+            bool isCReg() const;
+            bool isQReg() const;
+
             std::string getOperation() const override;
             std::string toString(bool endl) const override;
     };
@@ -127,7 +111,7 @@ namespace efd {
             std::string getOperation() const override;
     };
 
-    class NDQOpMeasure : public Node {
+    class NDQOpCall : public Node {
         private:
             enum ChildType {
                 I_QBIT = 0,
@@ -135,7 +119,7 @@ namespace efd {
             };
 
         public:
-            NDQOpMeasure();
+            NDQOpCall();
             std::string getOperation() const override;
             std::string toString(bool endl) const override;
     };
