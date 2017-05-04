@@ -166,6 +166,63 @@ namespace efd {
             NDQOpGeneric();
     };
 
+    class NDBinOp : public Node {
+        private:
+            enum ChildType {
+                I_LHS = 0,
+                I_RHS
+            };
+
+        public:
+            enum OpType {
+                OP_ADD = 0,
+                OP_SUB,
+                OP_MUL,
+                OP_DIV,
+                OP_POW
+            };
+
+        private:
+            OpType mT;
+
+        public:
+            NDBinOp(OpType t);
+
+            OpType getOpType() const;
+
+            std::string getOperation() const override;
+            std::string toString(bool endl) const override;
+    };
+
+    class NDUnaryOp : public Node {
+        private:
+            enum ChildType {
+                I_ONLY = 0
+            };
+
+        public:
+            enum UOpType {
+                UOP_NEG = 0,
+                UOP_SIN,
+                UOP_COS,
+                UOP_TAN,
+                UOP_EXP,
+                UOP_LN,
+                UOP_SQRT
+            };
+
+        private:
+            UOpType mT;
+
+        public:
+            NDUnaryOp(UOpType t);
+
+            UOpType getUOpType() const;
+
+            std::string getOperation() const override;
+            std::string toString(bool endl) const override;
+    };
+
     template <typename T>
     class NDLiteral : public Node {
         private:

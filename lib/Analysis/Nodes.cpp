@@ -211,3 +211,40 @@ std::string efd::NDQOpBarrier::getOperation() const {
 efd::NDQOpGeneric::NDQOpGeneric() : NDQOp(QOP_GENERIC) {
 }
 
+// -------------- Binary Operation -----------------
+efd::NDBinOp::NDBinOp(OpType t) : Node(false), mT(t) {
+}
+
+efd::NDBinOp::OpType efd::NDBinOp::getOpType() const {
+    return mT;
+}
+
+std::string efd::NDBinOp::getOperation() const {
+    switch (mT) {
+        case OP_ADD: return "ADD";
+        case OP_SUB: return "SUB";
+        case OP_MUL: return "MUL";
+        case OP_DIV: return "DIV";
+        case OP_POW: return "POW";
+    }
+}
+
+// -------------- Unary Operation -----------------
+efd::NDUnaryOp::NDUnaryOp(UOpType t) : Node(false), mT(t) {
+}
+
+efd::NDUnaryOp::UOpType efd::NDUnaryOp::getUOpType() const {
+    return mT;
+}
+
+std::string efd::NDUnaryOp::getOperation() const {
+    switch (mT) {
+        case UOP_NEG:   return "NEG";
+        case UOP_SIN:   return "SIN";
+        case UOP_COS:   return "COS";
+        case UOP_TAN:   return "TAN";
+        case UOP_EXP:   return "EXP";
+        case UOP_LN:    return "LN";
+        case UOP_SQRT:  return "SQRT";
+    }
+}
