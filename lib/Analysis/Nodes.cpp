@@ -219,6 +219,30 @@ efd::NDBinOp::OpType efd::NDBinOp::getOpType() const {
     return mT;
 }
 
+bool efd::NDBinOp::isAdd() const {
+    return mT == OP_ADD;
+}
+
+bool efd::NDBinOp::isSub() const {
+    return mT == OP_SUB;
+}
+
+bool efd::NDBinOp::isMul() const {
+    return mT == OP_MUL;
+}
+
+bool efd::NDBinOp::isDiv() const {
+    return mT == OP_DIV;
+}
+
+bool efd::NDBinOp::isPow() const {
+    return mT == OP_POW;
+}
+
+bool efd::NDBinOp::isNeg() const {
+    return mT == OP_NEG;
+}
+
 std::string efd::NDBinOp::getOperation() const {
     switch (mT) {
         case OP_ADD: return "+";
@@ -248,6 +272,30 @@ efd::NDUnaryOp::NDUnaryOp(UOpType t) : Node(false), mT(t) {
 
 efd::NDUnaryOp::UOpType efd::NDUnaryOp::getUOpType() const {
     return mT;
+}
+
+bool efd::NDUnaryOp::isSin() const {
+    return mT == UOP_SIN;
+}
+
+bool efd::NDUnaryOp::isCos() const {
+    return mT == UOP_COS;
+}
+
+bool efd::NDUnaryOp::isTan() const {
+    return mT == UOP_TAN;
+}
+
+bool efd::NDUnaryOp::isExp() const {
+    return mT == UOP_EXP;
+}
+
+bool efd::NDUnaryOp::isLn() const {
+    return mT == UOP_LN;
+}
+
+bool efd::NDUnaryOp::isSqrt() const {
+    return mT == UOP_SQRT;
 }
 
 std::string efd::NDUnaryOp::getOperation() const {
@@ -296,4 +344,6 @@ std::string efd::NDArgList::toString(bool pretty) const {
         for (auto &arg : *this)
             str += ", " + arg->toString(pretty);
     }
+
+    return str;
 }
