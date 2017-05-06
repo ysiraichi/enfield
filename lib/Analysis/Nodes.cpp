@@ -34,8 +34,8 @@ void efd::Node::print(bool pretty) {
 std::string efd::Node::toString(bool pretty) const {
     std::string str(getOperation());
 
-    for (auto Child : *this)
-        str += " " + Child->toString(pretty);
+    for (auto &child : *this)
+        str += " " + child->toString(pretty);
 
     return str;
 }
@@ -100,8 +100,8 @@ std::string efd::NDGOpList::toString(bool pretty) const {
     std::string endl = (pretty) ? "\n" : "";
     std::string tab = (pretty) ? "\t" : "";
 
-    for (auto Child : *this)
-        str += tab + Child->toString(pretty) + ";" + endl;
+    for (auto &child : *this)
+        str += tab + child->toString(pretty) + ";" + endl;
 
     return str;
 }
@@ -268,4 +268,32 @@ std::string efd::NDUnaryOp::toString(bool pretty) const {
     str += "(" + mChild[I_ONLY]->toString(pretty) + ")";
 
     return str;
+}
+
+// -------------- ID reference Operation -----------------
+efd::NDIdRef::NDIdRef() : Node(false) {
+}
+
+std::string efd::NDIdRef::toString(bool pretty) const {
+    std::string str;
+
+    str += mChild[I_ID]->toString(pretty);
+    str += "[" + mChild[I_N]->toString(pretty) + "]";
+
+    return str;
+}
+
+// -------------- Arg list Operation -----------------
+efd::NDArgList::NDArgList() : Node(false) {
+}
+
+std::string efd::NDArgList::toString(bool pretty) const {
+    std::string str;
+
+    if (!mChild.empty()) {
+        str += mChild[0]->toString(pretty);
+
+        for (auto &arg : *this)
+            str += ", " + arg->toString(pretty);
+    }
 }

@@ -13,12 +13,12 @@ namespace efd {
             bool mIsEmpty;
 
         public:
-            typedef std::vector< std::shared_ptr<Node> >::iterator iterator;
-            typedef std::vector< std::shared_ptr<Node> >::const_iterator const_iterator;
+            typedef std::vector< std::unique_ptr<Node> >::iterator iterator;
+            typedef std::vector< std::unique_ptr<Node> >::const_iterator const_iterator;
 
             Node(bool empty);
 
-            std::vector< std::shared_ptr<Node> > mChild;
+            std::vector< std::unique_ptr<Node> > mChild;
 
             iterator begin();
             iterator end();
@@ -26,13 +26,13 @@ namespace efd {
             const_iterator begin() const;
             const_iterator end() const;
 
-            void print(std::ostream& O = std::cout, bool endl = false);
-            void print(bool endl = false);
+            void print(std::ostream& O = std::cout, bool pretty = false);
+            void print(bool pretty = false);
 
             bool isEmpty() const;
 
             virtual std::string getOperation() const;
-            virtual std::string toString(bool endl = false) const;
+            virtual std::string toString(bool pretty = false) const;
     };
 
     class NDDecl : public Node {
@@ -57,7 +57,7 @@ namespace efd {
             bool isQReg() const;
 
             std::string getOperation() const override;
-            std::string toString(bool endl) const override;
+            std::string toString(bool pretty) const override;
     };
 
     class NDGateDecl : public Node {
@@ -72,13 +72,13 @@ namespace efd {
         public:
             NDGateDecl();
             std::string getOperation() const override;
-            std::string toString(bool endl) const override;
+            std::string toString(bool pretty) const override;
     };
 
     class NDGOpList : public Node {
         public:
             NDGOpList();
-            std::string toString(bool endl) const override;
+            std::string toString(bool pretty) const override;
     };
 
     class NDOpaque : public Node {
@@ -92,7 +92,7 @@ namespace efd {
         public:
             NDOpaque();
             std::string getOperation() const override;
-            std::string toString(bool endl) const override;
+            std::string toString(bool pretty) const override;
     };
 
     class NDQOp : public Node {
@@ -127,7 +127,7 @@ namespace efd {
             virtual bool isGeneric() const;
 
             std::string getOperation() const override;
-            std::string toString(bool endl) const override;
+            std::string toString(bool pretty) const override;
     };
 
     class NDQOpMeasure : public NDQOp {
@@ -140,7 +140,7 @@ namespace efd {
         public:
             NDQOpMeasure();
             std::string getOperation() const override;
-            std::string toString(bool endl) const override;
+            std::string toString(bool pretty) const override;
     };
 
     class NDQOpReset : public NDQOp {
@@ -192,7 +192,7 @@ namespace efd {
             OpType getOpType() const;
 
             std::string getOperation() const override;
-            std::string toString(bool endl) const override;
+            std::string toString(bool pretty) const override;
     };
 
     class NDUnaryOp : public Node {
@@ -220,7 +220,25 @@ namespace efd {
             UOpType getUOpType() const;
 
             std::string getOperation() const override;
-            std::string toString(bool endl) const override;
+            std::string toString(bool pretty) const override;
+    };
+
+    class NDIdRef : public Node {
+        private:
+            enum ChildType {
+                I_ID = 0,
+                I_N
+            };
+
+        public:
+            NDIdRef();
+            std::string toString(bool pretty) const override;
+    };
+
+    class NDArgList : public Node {
+        public:
+            NDArgList();
+            std::string toString(bool pretty) const override;
     };
 
     template <typename T>
