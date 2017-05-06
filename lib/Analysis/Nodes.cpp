@@ -221,12 +221,25 @@ efd::NDBinOp::OpType efd::NDBinOp::getOpType() const {
 
 std::string efd::NDBinOp::getOperation() const {
     switch (mT) {
-        case OP_ADD: return "ADD";
-        case OP_SUB: return "SUB";
-        case OP_MUL: return "MUL";
-        case OP_DIV: return "DIV";
-        case OP_POW: return "POW";
+        case OP_ADD: return "+";
+        case OP_SUB: return "-";
+        case OP_MUL: return "*";
+        case OP_DIV: return "/";
+        case OP_POW: return "^";
+        case OP_NEG: return "-";
     }
+}
+
+std::string efd::NDBinOp::toString(bool pretty) const {
+    std::string str;
+
+    if (!mChild[I_LHS]->isEmpty())
+        str += mChild[I_LHS]->toString(pretty) + " ";
+
+    str += getOperation();
+    str += " " + mChild[I_RHS]->toString(pretty);
+
+    return str;
 }
 
 // -------------- Unary Operation -----------------
@@ -239,12 +252,20 @@ efd::NDUnaryOp::UOpType efd::NDUnaryOp::getUOpType() const {
 
 std::string efd::NDUnaryOp::getOperation() const {
     switch (mT) {
-        case UOP_NEG:   return "NEG";
-        case UOP_SIN:   return "SIN";
-        case UOP_COS:   return "COS";
-        case UOP_TAN:   return "TAN";
-        case UOP_EXP:   return "EXP";
-        case UOP_LN:    return "LN";
-        case UOP_SQRT:  return "SQRT";
+        case UOP_SIN:   return "sin";
+        case UOP_COS:   return "con";
+        case UOP_TAN:   return "tan";
+        case UOP_EXP:   return "exp";
+        case UOP_LN:    return "ln";
+        case UOP_SQRT:  return "sqrt";
     }
+}
+
+std::string efd::NDUnaryOp::toString(bool pretty) const {
+    std::string str;
+
+    str += getOperation();
+    str += "(" + mChild[I_ONLY]->toString(pretty) + ")";
+
+    return str;
 }

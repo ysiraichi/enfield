@@ -179,7 +179,8 @@ namespace efd {
                 OP_SUB,
                 OP_MUL,
                 OP_DIV,
-                OP_POW
+                OP_POW,
+                OP_NEG
             };
 
         private:
@@ -202,8 +203,7 @@ namespace efd {
 
         public:
             enum UOpType {
-                UOP_NEG = 0,
-                UOP_SIN,
+                UOP_SIN = 0,
                 UOP_COS,
                 UOP_TAN,
                 UOP_EXP,
