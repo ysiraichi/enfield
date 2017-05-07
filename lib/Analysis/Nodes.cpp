@@ -1,6 +1,6 @@
 #include "enfield/Analysis/Nodes.h"
 
-efd::Node::Node(bool empty) : mIsEmpty(empty) {
+efd::Node::Node(Kind k, bool empty) : mK(k), mIsEmpty(empty) {
 }
 
 efd::Node::Iterator efd::Node::begin() {
@@ -19,10 +19,6 @@ efd::Node::ConstIterator efd::Node::end() const {
     return mChild.end();
 }
 
-std::string efd::Node::getOperation() const {
-    return "";
-}
-
 void efd::Node::print(std::ostream& O, bool pretty) {
     O << toString(pretty);
 }
@@ -32,7 +28,7 @@ void efd::Node::print(bool pretty) {
 }
 
 // -------------- Decl -----------------
-efd::NDDecl::NDDecl(Type t, NodeRef idNode, NodeRef sizeNode) : Node(false), mT(t) {
+efd::NDDecl::NDDecl(Type t, NodeRef idNode, NodeRef sizeNode) : Node(K_DECL), mT(t) {
     mChild.push_back(std::move(idNode));
     mChild.push_back(std::move(sizeNode));
 }
@@ -61,8 +57,16 @@ std::string efd::NDDecl::toString(bool pretty) const {
     return str;
 }
 
+efd::Node::Kind efd::NDDecl::getKind() const {
+    return K_DECL;
+}
+
+efd::Node::Kind efd::NDDecl::GetKind() {
+    return K_DECL;
+}
+
 // -------------- GateDecl -----------------
-efd::NDGateDecl::NDGateDecl(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode) : Node(false) {
+efd::NDGateDecl::NDGateDecl(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode) : Node(K_GATE_DECL) {
     mChild.push_back(std::move(idNode));
     mChild.push_back(std::move(aNode));
     mChild.push_back(std::move(qaNode));
@@ -88,8 +92,16 @@ std::string efd::NDGateDecl::toString(bool pretty) const {
     return str;
 }
 
+efd::Node::Kind efd::NDGateDecl::getKind() const {
+    return K_GATE_DECL;
+}
+
+efd::Node::Kind efd::NDGateDecl::GetKind() {
+    return K_GATE_DECL;
+}
+
 // -------------- Opaque -----------------
-efd::NDOpaque::NDOpaque(NodeRef idNode, NodeRef aNode, NodeRef qaNode) : Node(false) {
+efd::NDOpaque::NDOpaque(NodeRef idNode, NodeRef aNode, NodeRef qaNode) : Node(K_GATE_OPAQUE) {
     mChild.push_back(std::move(idNode));
     mChild.push_back(std::move(aNode));
     mChild.push_back(std::move(qaNode));
@@ -113,8 +125,16 @@ std::string efd::NDOpaque::toString(bool pretty) const {
     return str;
 }
 
+efd::Node::Kind efd::NDOpaque::getKind() const {
+    return K_GATE_OPAQUE;
+}
+
+efd::Node::Kind efd::NDOpaque::GetKind() {
+    return K_GATE_OPAQUE;
+}
+
 // -------------- Qubit Operation -----------------
-efd::NDQOp::NDQOp(QOpType type) : Node(false), mT(type) {
+efd::NDQOp::NDQOp(Kind k, QOpType type) : Node(k), mT(type) {
 }
 
 efd::NDQOp::QOpType efd::NDQOp::getQOpType() const {
@@ -142,7 +162,7 @@ bool efd::NDQOp::isGeneric() const {
 }
 
 // -------------- Qubit Operation: Measure -----------------
-efd::NDQOpMeasure::NDQOpMeasure(NodeRef qNode, NodeRef cNode) : NDQOp(QOP_MEASURE) {
+efd::NDQOpMeasure::NDQOpMeasure(NodeRef qNode, NodeRef cNode) : NDQOp(K_QOP_MEASURE, QOP_MEASURE) {
     mChild.push_back(std::move(qNode));
     mChild.push_back(std::move(cNode));
 }
@@ -162,8 +182,16 @@ std::string efd::NDQOpMeasure::toString(bool pretty) const {
     return str;
 }
 
+efd::Node::Kind efd::NDQOpMeasure::getKind() const {
+    return K_QOP_MEASURE;
+}
+
+efd::Node::Kind efd::NDQOpMeasure::GetKind() {
+    return K_QOP_MEASURE;
+}
+
 // -------------- Qubit Operation: Reset -----------------
-efd::NDQOpReset::NDQOpReset(NodeRef qaNode) : NDQOp(QOP_RESET) {
+efd::NDQOpReset::NDQOpReset(NodeRef qaNode) : NDQOp(K_QOP_RESET, QOP_RESET) {
     mChild.push_back(std::move(qaNode));
 }
 
@@ -180,8 +208,16 @@ std::string efd::NDQOpReset::toString(bool pretty) const {
     return str;
 }
 
+efd::Node::Kind efd::NDQOpReset::getKind() const {
+    return K_QOP_RESET;
+}
+
+efd::Node::Kind efd::NDQOpReset::GetKind() {
+    return K_QOP_RESET;
+}
+
 // -------------- Qubit Operation: Barrier -----------------
-efd::NDQOpBarrier::NDQOpBarrier(NodeRef qaNode) : NDQOp(QOP_BARRIER) {
+efd::NDQOpBarrier::NDQOpBarrier(NodeRef qaNode) : NDQOp(K_QOP_BARRIER, QOP_BARRIER) {
     mChild.push_back(std::move(qaNode));
 }
 
@@ -198,8 +234,16 @@ std::string efd::NDQOpBarrier::toString(bool pretty) const {
     return str;
 }
 
+efd::Node::Kind efd::NDQOpBarrier::getKind() const {
+    return K_QOP_BARRIER;
+}
+
+efd::Node::Kind efd::NDQOpBarrier::GetKind() {
+    return K_QOP_BARRIER;
+}
+
 // -------------- Qubit Operation: Generic -----------------
-efd::NDQOpGeneric::NDQOpGeneric(NodeRef idNode, NodeRef aNode, NodeRef qaNode) : NDQOp(QOP_GENERIC) {
+efd::NDQOpGeneric::NDQOpGeneric(NodeRef idNode, NodeRef aNode, NodeRef qaNode) : NDQOp(K_QOP_GENERIC, QOP_GENERIC) {
     mChild.push_back(std::move(idNode));
     mChild.push_back(std::move(aNode));
     mChild.push_back(std::move(qaNode));
@@ -222,8 +266,16 @@ std::string efd::NDQOpGeneric::toString(bool pretty) const {
     return str;
 }
 
+efd::Node::Kind efd::NDQOpGeneric::getKind() const {
+    return K_QOP_GENERIC;
+}
+
+efd::Node::Kind efd::NDQOpGeneric::GetKind() {
+    return K_QOP_GENERIC;
+}
+
 // -------------- Binary Operation -----------------
-efd::NDBinOp::NDBinOp(OpType t, NodeRef lhsNode, NodeRef rhsNode) : Node(false), mT(t) {
+efd::NDBinOp::NDBinOp(OpType t, NodeRef lhsNode, NodeRef rhsNode) : Node(K_BINOP), mT(t) {
     mChild.push_back(std::move(lhsNode));
     mChild.push_back(std::move(rhsNode));
 }
@@ -274,8 +326,16 @@ std::string efd::NDBinOp::toString(bool pretty) const {
     return str;
 }
 
+efd::Node::Kind efd::NDBinOp::getKind() const {
+    return K_BINOP;
+}
+
+efd::Node::Kind efd::NDBinOp::GetKind() {
+    return K_BINOP;
+}
+
 // -------------- Unary Operation -----------------
-efd::NDUnaryOp::NDUnaryOp(UOpType t, NodeRef oNode) : Node(false), mT(t) {
+efd::NDUnaryOp::NDUnaryOp(UOpType t, NodeRef oNode) : Node(K_UNARYOP), mT(t) {
     mChild.push_back(std::move(oNode));
 }
 
@@ -339,8 +399,16 @@ std::string efd::NDUnaryOp::toString(bool pretty) const {
     return str;
 }
 
+efd::Node::Kind efd::NDUnaryOp::getKind() const {
+    return K_UNARYOP;
+}
+
+efd::Node::Kind efd::NDUnaryOp::GetKind() {
+    return K_UNARYOP;
+}
+
 // -------------- ID reference Operation -----------------
-efd::NDIdRef::NDIdRef(NodeRef idNode, NodeRef sizeNode) : Node(false) {
+efd::NDIdRef::NDIdRef(NodeRef idNode, NodeRef sizeNode) : Node(K_ID_REF) {
     mChild.push_back(std::move(idNode));
     mChild.push_back(std::move(sizeNode));
 }
@@ -354,8 +422,16 @@ std::string efd::NDIdRef::toString(bool pretty) const {
     return str;
 }
 
+efd::Node::Kind efd::NDIdRef::getKind() const {
+    return K_ID_REF;
+}
+
+efd::Node::Kind efd::NDIdRef::GetKind() {
+    return K_ID_REF;
+}
+
 // -------------- Node List -----------------
-efd::NDList::NDList() : Node(false) {
+efd::NDList::NDList(Kind k) : Node(k) {
 }
 
 void efd::NDList::addChild(NodeRef child) {
@@ -363,6 +439,9 @@ void efd::NDList::addChild(NodeRef child) {
 }
 
 // -------------- Arg list Operation -----------------
+efd::NDArgList::NDArgList() : NDList(K_ARG_LIST) {
+}
+
 std::string efd::NDArgList::toString(bool pretty) const {
     std::string str;
 
@@ -376,7 +455,18 @@ std::string efd::NDArgList::toString(bool pretty) const {
     return str;
 }
 
+efd::Node::Kind efd::NDArgList::getKind() const {
+    return K_ARG_LIST;
+}
+
+efd::Node::Kind efd::NDArgList::GetKind() {
+    return K_ARG_LIST;
+}
+
 // -------------- GOpList -----------------
+efd::NDGOpList::NDGOpList() : NDList(K_GOP_LIST) {
+}
+
 std::string efd::NDGOpList::toString(bool pretty) const {
     std::string str;
     std::string endl = (pretty) ? "\n" : "";
@@ -386,4 +476,11 @@ std::string efd::NDGOpList::toString(bool pretty) const {
         str += tab + child->toString(pretty) + ";" + endl;
 
     return str;
+}
+
+efd::Node::Kind efd::NDGOpList::getKind() const {
+    return K_GOP_LIST;
+}
+efd::Node::Kind efd::NDGOpList::GetKind() {
+    return K_GOP_LIST;
 }
