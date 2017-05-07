@@ -11,26 +11,27 @@ namespace efd {
 
     /// \brief Base class for AST nodes.
     class Node {
+        public:
+            typedef std::unique_ptr<Node> NodeRef;
+            typedef std::vector<NodeRef>::iterator Iterator;
+            typedef std::vector<NodeRef>::const_iterator ConstIterator;
+
         protected:
             bool mIsEmpty;
-
-        public:
-            typedef std::vector< std::unique_ptr<Node> >::iterator iterator;
-            typedef std::vector< std::unique_ptr<Node> >::const_iterator const_iterator;
+            /// \brief The childrem nodes.
+            std::vector<NodeRef> mChild;
 
             /// \brief Constructs the node, initially empty (with no information).
             Node(bool empty);
 
-            /// \brief The childrem nodes.
-            std::vector< std::unique_ptr<Node> > mChild;
-
+        public:
             /// \brief Returns a iterator to the beginning of the vector.
-            iterator begin();
+            Iterator begin();
             /// \brief Returns a iterator to the end of the vector.
-            iterator end();
+            Iterator end();
 
-            const_iterator begin() const;
-            const_iterator end() const;
+            ConstIterator begin() const;
+            ConstIterator end() const;
 
             /// \brief Prints from this node, recursively to \p O.
             void print(std::ostream& O = std::cout, bool pretty = false);
@@ -43,7 +44,7 @@ namespace efd {
             /// \brief Returns a std::string representation of the operation.
             virtual std::string getOperation() const;
             /// \brief Returns a std::string representation of this Node and its childrem.
-            virtual std::string toString(bool pretty = false) const;
+            virtual std::string toString(bool pretty = false) const = 0;
     };
 
     /// \brief Node for declaration of registers (concrete and quantum).
@@ -64,7 +65,7 @@ namespace efd {
             Type mT;
 
         public:
-            NDDecl(Type t);
+            NDDecl(Type t, NodeRef idNode, NodeRef sizeNode);
 
             /// \brief Returns true if it is a concrete register declaration.
             bool isCReg() const;
@@ -72,7 +73,7 @@ namespace efd {
             bool isQReg() const;
 
             std::string getOperation() const override;
-            std::string toString(bool pretty) const override;
+            std::string toString(bool pretty = false) const override;
     };
 
     /// \brief Node for declaration of quantum gates.
@@ -86,15 +87,9 @@ namespace efd {
             };
 
         public:
-            NDGateDecl();
+            NDGateDecl(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode);
             std::string getOperation() const override;
-            std::string toString(bool pretty) const override;
-    };
-
-    class NDGOpList : public Node {
-        public:
-            NDGOpList();
-            std::string toString(bool pretty) const override;
+            std::string toString(bool pretty = false) const override;
     };
 
     /// \brief Node for declaration of opaque quantum gates.
@@ -107,9 +102,9 @@ namespace efd {
             };
 
         public:
-            NDOpaque();
+            NDOpaque(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
             std::string getOperation() const override;
-            std::string toString(bool pretty) const override;
+            std::string toString(bool pretty = false) const override;
     };
 
     /// \brief Base node for quantum operations.
@@ -126,11 +121,6 @@ namespace efd {
             };
 
         private:
-            enum ChildType {
-                I_ID = 0,
-                I_ARGS,
-                I_QARGS
-            };
 
             QOpType mT;
 
@@ -150,9 +140,6 @@ namespace efd {
             virtual bool isU() const;
             /// \brief Returns true if this is a generic node.
             virtual bool isGeneric() const;
-
-            std::string getOperation() const override;
-            std::string toString(bool pretty) const override;
     };
 
     /// \brief NDQOp specialized for measure operation.
@@ -164,35 +151,51 @@ namespace efd {
             };
 
         public:
-            NDQOpMeasure();
+            NDQOpMeasure(NodeRef qNode, NodeRef cNode);
             std::string getOperation() const override;
-            std::string toString(bool pretty) const override;
+            std::string toString(bool pretty = false) const override;
     };
 
     /// \brief NDQOp specialized for reset operation.
     class NDQOpReset : public NDQOp {
+        private:
+            enum ChildType {
+                I_ONLY = 0
+            };
+
         public:
-            NDQOpReset();
+            NDQOpReset(NodeRef qaNode);
             std::string getOperation() const override;
+            std::string toString(bool pretty = false) const override;
     };
 
     /// \brief NDQOp specialized for barrier operation.
     class NDQOpBarrier : public NDQOp {
+        private:
+            enum ChildType {
+                I_ONLY = 0
+            };
+
         public:
-            NDQOpBarrier();
+            NDQOpBarrier(NodeRef qaNode);
             std::string getOperation() const override;
+            std::string toString(bool pretty = false) const override;
     };
 
     /// \brief NDQOp specialized for generic operation.
     class NDQOpGeneric : public NDQOp {
         private:
             enum ChildType {
-                I_QBIT = 0,
-                I_CBIT
+                I_ID = 0,
+                I_ARGS,
+                I_QARGS
             };
 
         public:
-            NDQOpGeneric();
+            NDQOpGeneric(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
+
+            std::string getOperation() const override;
+            std::string toString(bool pretty = false) const override;
     };
 
     /// \brief Binary operation node.
@@ -210,15 +213,14 @@ namespace efd {
                 OP_SUB,
                 OP_MUL,
                 OP_DIV,
-                OP_POW,
-                OP_NEG
+                OP_POW
             };
 
         private:
             OpType mT;
 
         public:
-            NDBinOp(OpType t);
+            NDBinOp(OpType t, NodeRef lhsNode, NodeRef rhsNode);
 
             /// \brief Returns the type of the binary operation of this node.
             OpType getOpType() const;
@@ -233,11 +235,9 @@ namespace efd {
             bool isDiv() const;
             /// \brief Returns whether this is an pow operation.
             bool isPow() const;
-            /// \brief Returns whether this is an neg operation.
-            bool isNeg() const;
 
             std::string getOperation() const override;
-            std::string toString(bool pretty) const override;
+            std::string toString(bool pretty = false) const override;
     };
 
     /// \brief Unary operation node.
@@ -255,18 +255,21 @@ namespace efd {
                 UOP_TAN,
                 UOP_EXP,
                 UOP_LN,
-                UOP_SQRT
+                UOP_SQRT,
+                UOP_NEG
             };
 
         private:
             UOpType mT;
 
         public:
-            NDUnaryOp(UOpType t);
+            NDUnaryOp(UOpType t, NodeRef oNode);
 
             /// \brief Returns the unary operation type.
             UOpType getUOpType() const;
 
+            /// \brief Returns whether this is an neg operation.
+            bool isNeg() const;
             /// \brief Returns whether this is an sin operation.
             bool isSin() const;
             /// \brief Returns whether this is an cos operation.
@@ -281,7 +284,7 @@ namespace efd {
             bool isSqrt() const;
 
             std::string getOperation() const override;
-            std::string toString(bool pretty) const override;
+            std::string toString(bool pretty = false) const override;
     };
 
     /// \brief Node for id references (register specific positions).
@@ -293,15 +296,28 @@ namespace efd {
             };
 
         public:
-            NDIdRef();
-            std::string toString(bool pretty) const override;
+            NDIdRef(NodeRef idNode, NodeRef sizeNode);
+            std::string toString(bool pretty = false) const override;
+    };
+
+    /// \brief Base class for list of nodes.
+    class NDList : public Node {
+        public:
+            NDList();
+            /// \brief Appends a child to the end of the list.
+            void addChild(NodeRef child);
     };
 
     /// \brief Node for arg lists.
-    class NDArgList : public Node {
+    class NDArgList : public NDList {
         public:
-            NDArgList();
-            std::string toString(bool pretty) const override;
+            std::string toString(bool pretty = false) const override;
+    };
+
+    /// \brief Node for list of qubit operation sequences.
+    class NDGOpList : public NDList {
+        public:
+            std::string toString(bool pretty = false) const override;
     };
 
     /// \brief Node for literal types.
@@ -325,6 +341,7 @@ namespace efd {
     typedef NDLiteral<int> NDInt;
     typedef NDLiteral<DoubleVal> NDReal;
     typedef NDLiteral<std::string> NDId;
+
 };
 
 // -------------- Literal -----------------

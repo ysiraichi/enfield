@@ -3,19 +3,19 @@
 efd::Node::Node(bool empty) : mIsEmpty(empty) {
 }
 
-efd::Node::iterator efd::Node::begin() {
+efd::Node::Iterator efd::Node::begin() {
     return mChild.begin();
 }
 
-efd::Node::iterator efd::Node::end() {
+efd::Node::Iterator efd::Node::end() {
     return mChild.end();
 }
 
-efd::Node::const_iterator efd::Node::begin() const {
+efd::Node::ConstIterator efd::Node::begin() const {
     return mChild.begin();
 }
 
-efd::Node::const_iterator efd::Node::end() const {
+efd::Node::ConstIterator efd::Node::end() const {
     return mChild.end();
 }
 
@@ -31,17 +31,10 @@ void efd::Node::print(bool pretty) {
     std::cout << toString(pretty);
 }
 
-std::string efd::Node::toString(bool pretty) const {
-    std::string str(getOperation());
-
-    for (auto &child : *this)
-        str += " " + child->toString(pretty);
-
-    return str;
-}
-
 // -------------- Decl -----------------
-efd::NDDecl::NDDecl(Type t) : Node(false), mT(t) {
+efd::NDDecl::NDDecl(Type t, NodeRef idNode, NodeRef sizeNode) : Node(false), mT(t) {
+    mChild.push_back(std::move(idNode));
+    mChild.push_back(std::move(sizeNode));
 }
 
 bool efd::NDDecl::isCReg() const {
@@ -69,7 +62,11 @@ std::string efd::NDDecl::toString(bool pretty) const {
 }
 
 // -------------- GateDecl -----------------
-efd::NDGateDecl::NDGateDecl() : Node(false) {
+efd::NDGateDecl::NDGateDecl(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode) : Node(false) {
+    mChild.push_back(std::move(idNode));
+    mChild.push_back(std::move(aNode));
+    mChild.push_back(std::move(qaNode));
+    mChild.push_back(std::move(gopNode));
 }
 
 std::string efd::NDGateDecl::getOperation() const {
@@ -82,7 +79,7 @@ std::string efd::NDGateDecl::toString(bool pretty) const {
 
     str += " " + mChild[I_ID]->toString(pretty);
 
-    if (!mChild[I_ARGS]->mChild.empty())
+    if (!mChild[I_ARGS]->isEmpty())
         str += " (" + mChild[I_ARGS]->toString(pretty) + ")";
 
     str += " " + mChild[I_QARGS]->toString(pretty) + "{" + endl;
@@ -91,23 +88,11 @@ std::string efd::NDGateDecl::toString(bool pretty) const {
     return str;
 }
 
-// -------------- GOpList -----------------
-efd::NDGOpList::NDGOpList() : Node(false) {
-}
-
-std::string efd::NDGOpList::toString(bool pretty) const {
-    std::string str;
-    std::string endl = (pretty) ? "\n" : "";
-    std::string tab = (pretty) ? "\t" : "";
-
-    for (auto &child : *this)
-        str += tab + child->toString(pretty) + ";" + endl;
-
-    return str;
-}
-
 // -------------- Opaque -----------------
-efd::NDOpaque::NDOpaque() : Node(false) {
+efd::NDOpaque::NDOpaque(NodeRef idNode, NodeRef aNode, NodeRef qaNode) : Node(false) {
+    mChild.push_back(std::move(idNode));
+    mChild.push_back(std::move(aNode));
+    mChild.push_back(std::move(qaNode));
 }
 
 std::string efd::NDOpaque::getOperation() const {
@@ -120,7 +105,7 @@ std::string efd::NDOpaque::toString(bool pretty) const {
 
     str += " " + mChild[I_ID]->toString(pretty);
 
-    if (!mChild[I_ARGS]->mChild.empty())
+    if (!mChild[I_ARGS]->isEmpty())
         str += " (" + mChild[I_ARGS]->toString(pretty) + ")";
 
     str += " " + mChild[I_QARGS]->toString(pretty) + ";";
@@ -156,24 +141,10 @@ bool efd::NDQOp::isGeneric() const {
     return false;
 }
 
-std::string efd::NDQOp::getOperation() const {
-    return mChild[I_ID]->toString();
-}
-
-std::string efd::NDQOp::toString(bool pretty) const {
-    std::string str(getOperation());
-    std::string endl = (pretty) ? "\n" : "";
-
-    if (!mChild[I_ARGS]->isEmpty())
-        str += "(" + mChild[I_ARGS]->toString(pretty) + ")";
-
-    str += " " + mChild[I_QARGS]->toString(pretty) + ";";
-
-    return str;
-}
-
 // -------------- Qubit Operation: Measure -----------------
-efd::NDQOpMeasure::NDQOpMeasure() : NDQOp(QOP_MEASURE) {
+efd::NDQOpMeasure::NDQOpMeasure(NodeRef qNode, NodeRef cNode) : NDQOp(QOP_MEASURE) {
+    mChild.push_back(std::move(qNode));
+    mChild.push_back(std::move(cNode));
 }
 
 std::string efd::NDQOpMeasure::getOperation() const {
@@ -192,27 +163,69 @@ std::string efd::NDQOpMeasure::toString(bool pretty) const {
 }
 
 // -------------- Qubit Operation: Reset -----------------
-efd::NDQOpReset::NDQOpReset() : NDQOp(QOP_RESET) {
+efd::NDQOpReset::NDQOpReset(NodeRef qaNode) : NDQOp(QOP_RESET) {
+    mChild.push_back(std::move(qaNode));
 }
 
 std::string efd::NDQOpReset::getOperation() const {
     return "reset";
 }
 
+std::string efd::NDQOpReset::toString(bool pretty) const {
+    std::string str;
+
+    str += getOperation();
+    str += " " + mChild[I_ONLY]->toString(pretty);
+
+    return str;
+}
+
 // -------------- Qubit Operation: Barrier -----------------
-efd::NDQOpBarrier::NDQOpBarrier() : NDQOp(QOP_BARRIER) {
+efd::NDQOpBarrier::NDQOpBarrier(NodeRef qaNode) : NDQOp(QOP_BARRIER) {
+    mChild.push_back(std::move(qaNode));
 }
 
 std::string efd::NDQOpBarrier::getOperation() const {
     return "barrier";
 }
 
+std::string efd::NDQOpBarrier::toString(bool pretty) const {
+    std::string str;
+
+    str += getOperation();
+    str += " " + mChild[I_ONLY]->toString(pretty);
+
+    return str;
+}
+
 // -------------- Qubit Operation: Generic -----------------
-efd::NDQOpGeneric::NDQOpGeneric() : NDQOp(QOP_GENERIC) {
+efd::NDQOpGeneric::NDQOpGeneric(NodeRef idNode, NodeRef aNode, NodeRef qaNode) : NDQOp(QOP_GENERIC) {
+    mChild.push_back(std::move(idNode));
+    mChild.push_back(std::move(aNode));
+    mChild.push_back(std::move(qaNode));
+}
+
+std::string efd::NDQOpGeneric::getOperation() const {
+    return mChild[I_ID]->toString();
+}
+
+std::string efd::NDQOpGeneric::toString(bool pretty) const {
+    std::string str;
+
+    str += getOperation();
+
+    if (!mChild[I_ARGS]->isEmpty())
+        str += "(" + mChild[I_ARGS]->toString(pretty) + ")";
+
+    str += " " + mChild[I_QARGS]->toString(pretty) + ";";
+
+    return str;
 }
 
 // -------------- Binary Operation -----------------
-efd::NDBinOp::NDBinOp(OpType t) : Node(false), mT(t) {
+efd::NDBinOp::NDBinOp(OpType t, NodeRef lhsNode, NodeRef rhsNode) : Node(false), mT(t) {
+    mChild.push_back(std::move(lhsNode));
+    mChild.push_back(std::move(rhsNode));
 }
 
 efd::NDBinOp::OpType efd::NDBinOp::getOpType() const {
@@ -239,10 +252,6 @@ bool efd::NDBinOp::isPow() const {
     return mT == OP_POW;
 }
 
-bool efd::NDBinOp::isNeg() const {
-    return mT == OP_NEG;
-}
-
 std::string efd::NDBinOp::getOperation() const {
     switch (mT) {
         case OP_ADD: return "+";
@@ -250,24 +259,24 @@ std::string efd::NDBinOp::getOperation() const {
         case OP_MUL: return "*";
         case OP_DIV: return "/";
         case OP_POW: return "^";
-        case OP_NEG: return "-";
     }
 }
 
 std::string efd::NDBinOp::toString(bool pretty) const {
     std::string str;
 
-    if (!mChild[I_LHS]->isEmpty())
-        str += mChild[I_LHS]->toString(pretty) + " ";
-
-    str += getOperation();
-    str += " " + mChild[I_RHS]->toString(pretty);
+    str += "(";
+    str += mChild[I_LHS]->toString(pretty);
+    str += " " + getOperation() + " ";
+    str += mChild[I_RHS]->toString(pretty);
+    str += ")";
 
     return str;
 }
 
 // -------------- Unary Operation -----------------
-efd::NDUnaryOp::NDUnaryOp(UOpType t) : Node(false), mT(t) {
+efd::NDUnaryOp::NDUnaryOp(UOpType t, NodeRef oNode) : Node(false), mT(t) {
+    mChild.push_back(std::move(oNode));
 }
 
 efd::NDUnaryOp::UOpType efd::NDUnaryOp::getUOpType() const {
@@ -298,6 +307,10 @@ bool efd::NDUnaryOp::isSqrt() const {
     return mT == UOP_SQRT;
 }
 
+bool efd::NDUnaryOp::isNeg() const {
+    return mT == UOP_NEG;
+}
+
 std::string efd::NDUnaryOp::getOperation() const {
     switch (mT) {
         case UOP_SIN:   return "sin";
@@ -306,20 +319,30 @@ std::string efd::NDUnaryOp::getOperation() const {
         case UOP_EXP:   return "exp";
         case UOP_LN:    return "ln";
         case UOP_SQRT:  return "sqrt";
+        case UOP_NEG:   return "-";
     }
 }
 
 std::string efd::NDUnaryOp::toString(bool pretty) const {
     std::string str;
 
-    str += getOperation();
-    str += "(" + mChild[I_ONLY]->toString(pretty) + ")";
+    if (mT == UOP_NEG) {
+        str += "(";
+        str += getOperation();
+        str += mChild[I_ONLY]->toString(pretty);
+        str += ")";
+    } else {
+        str += getOperation();
+        str += "(" + mChild[I_ONLY]->toString(pretty) + ")";
+    }
 
     return str;
 }
 
 // -------------- ID reference Operation -----------------
-efd::NDIdRef::NDIdRef() : Node(false) {
+efd::NDIdRef::NDIdRef(NodeRef idNode, NodeRef sizeNode) : Node(false) {
+    mChild.push_back(std::move(idNode));
+    mChild.push_back(std::move(sizeNode));
 }
 
 std::string efd::NDIdRef::toString(bool pretty) const {
@@ -331,10 +354,15 @@ std::string efd::NDIdRef::toString(bool pretty) const {
     return str;
 }
 
-// -------------- Arg list Operation -----------------
-efd::NDArgList::NDArgList() : Node(false) {
+// -------------- Node List -----------------
+efd::NDList::NDList() : Node(false) {
 }
 
+void efd::NDList::addChild(NodeRef child) {
+    mChild.push_back(std::move(child));
+}
+
+// -------------- Arg list Operation -----------------
 std::string efd::NDArgList::toString(bool pretty) const {
     std::string str;
 
@@ -344,6 +372,18 @@ std::string efd::NDArgList::toString(bool pretty) const {
         for (auto &arg : *this)
             str += ", " + arg->toString(pretty);
     }
+
+    return str;
+}
+
+// -------------- GOpList -----------------
+std::string efd::NDGOpList::toString(bool pretty) const {
+    std::string str;
+    std::string endl = (pretty) ? "\n" : "";
+    std::string tab = (pretty) ? "\t" : "";
+
+    for (auto &child : *this)
+        str += tab + child->toString(pretty) + ";" + endl;
 
     return str;
 }
