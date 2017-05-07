@@ -415,8 +415,19 @@ namespace efd {
         };
 
     template class NDLiteral<int>;
+    template <> NDLiteral<int>::NDLiteral(int val);
+    template <> Node::Kind NDLiteral<int>::GetKind();
+    template <> Node::Kind NDLiteral<int>::getKind() const;
+
     template class NDLiteral<DoubleVal>;
+    template <> NDLiteral<DoubleVal>::NDLiteral(DoubleVal val);
+    template <> Node::Kind NDLiteral<DoubleVal>::GetKind();
+    template <> Node::Kind NDLiteral<DoubleVal>::getKind() const;
+
     template class NDLiteral<std::string>;
+    template <> NDLiteral<std::string>::NDLiteral(std::string val);
+    template <> Node::Kind NDLiteral<std::string>::GetKind();
+    template <> Node::Kind NDLiteral<std::string>::getKind() const;
 
     typedef NDLiteral<int> NDInt;
     typedef NDLiteral<DoubleVal> NDReal;
@@ -432,9 +443,9 @@ template <> efd::NDLiteral<int>::NDLiteral(int val) : Node(K_LIT_INT), mVal(val)
 template <> efd::Node::Kind efd::NDLiteral<int>::GetKind() { return K_LIT_INT; }
 template <> efd::Node::Kind efd::NDLiteral<int>::getKind() const { return K_LIT_INT; }
 
-template <> efd::NDLiteral<double>::NDLiteral(double val) : Node(K_LIT_REAL), mVal(val) {}
-template <> efd::Node::Kind efd::NDLiteral<double>::GetKind() { return K_LIT_REAL; }
-template <> efd::Node::Kind efd::NDLiteral<double>::getKind() const { return K_LIT_REAL; }
+template <> efd::NDLiteral<efd::DoubleVal>::NDLiteral(efd::DoubleVal val) : Node(K_LIT_REAL), mVal(val) {}
+template <> efd::Node::Kind efd::NDLiteral<efd::DoubleVal>::GetKind() { return K_LIT_REAL; }
+template <> efd::Node::Kind efd::NDLiteral<efd::DoubleVal>::getKind() const { return K_LIT_REAL; }
 
 template <> efd::NDLiteral<std::string>::NDLiteral(std::string val) : Node(K_LIT_STRING), mVal(val) {}
 template <> efd::Node::Kind efd::NDLiteral<std::string>::GetKind() { return K_LIT_STRING; }
