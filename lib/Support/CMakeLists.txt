@@ -1,2 +1,3 @@
 add_library (EfdSupport
-    CommandLine.cpp)
+    CommandLine.cpp
+    DoubleVal.cpp)

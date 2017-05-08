@@ -6,3 +6,7 @@ efd::DoubleVal::DoubleVal() : mV(0), mStr("") {
 efd::DoubleVal::DoubleVal(std::string str) : mStr(str) {
     mV = std::stod(mStr);
 }
+
+std::string std::to_string(const efd::DoubleVal& val) {
+    return val.mStr;
+}
