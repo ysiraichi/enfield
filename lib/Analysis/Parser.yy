@@ -1,6 +1,7 @@
 %skeleton "lalr1.cc"
 
-%code {
+%code requires {
+    #include "enfield/Analysis/Nodes.h"
     #include "enfield/Support/DoubleVal.h"
 }
 
