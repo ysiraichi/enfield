@@ -93,6 +93,8 @@ std::string efd::NDGateDecl::toString(bool pretty) const {
     std::string str(getOperation());
     std::string endl = (pretty) ? "\n" : "";
 
+    std::string s;
+
     str += " " + mChild[I_ID]->toString(pretty);
 
     if (!mChild[I_ARGS]->isEmpty())
@@ -541,4 +543,62 @@ efd::Node::Kind efd::NDGOpList::GetKind() {
 
 efd::Node::NodeRef efd::NDGOpList::create() {
     return NodeRef(new NDGOpList());
+}
+
+// -------------- Literal Specializations -----------------
+// -------------- Literal<int> -----------------
+template <> 
+efd::NDLiteral<int>::NDLiteral(int val) : Node(K_LIT_INT), mVal(val) {
+}
+
+template <> 
+efd::Node::Kind efd::NDLiteral<int>::GetKind() { 
+    return K_LIT_INT; 
+}
+
+template <> 
+efd::Node::Kind efd::NDLiteral<int>::getKind() const {
+    return K_LIT_INT; 
+}
+
+// -------------- Literal<DoubleVal> -----------------
+template <> 
+efd::NDLiteral<efd::DoubleVal>::NDLiteral(efd::DoubleVal val) : 
+    Node(K_LIT_REAL), mVal(val) {
+}
+
+template <> 
+efd::Node::Kind efd::NDLiteral<efd::DoubleVal>::GetKind() {
+    return K_LIT_REAL; 
+}
+
+template <> 
+efd::Node::Kind efd::NDLiteral<efd::DoubleVal>::getKind() const { 
+    return K_LIT_REAL; 
+}
+
+// -------------- Literal<std::string> -----------------
+template <> 
+efd::NDLiteral<std::string>::NDLiteral(std::string val) 
+    : Node(K_LIT_STRING), mVal(val) {
+}
+
+template <> 
+efd::Node::Kind efd::NDLiteral<std::string>::GetKind() {
+    return K_LIT_STRING; 
+}
+
+template <> 
+efd::Node::Kind efd::NDLiteral<std::string>::getKind() const {
+    return K_LIT_STRING; 
+}
+
+template <> 
+std::string efd::NDLiteral<std::string>::getOperation() const {
+    return mVal; 
+}
+
+template <> 
+std::string efd::NDLiteral<std::string>::toString(bool pretty) const {
+    return mVal; 
 }
