@@ -27,6 +27,14 @@ void efd::Node::print(bool pretty) {
     std::cout << toString(pretty);
 }
 
+bool efd::Node::isEmpty() const {
+    return mIsEmpty;  
+}
+
+std::string efd::Node::getOperation() const {
+    return "";
+}
+
 // -------------- Decl -----------------
 efd::NDDecl::NDDecl(Type t, NodeRef idNode, NodeRef sizeNode) : Node(K_DECL), mT(t) {
     mChild.push_back(std::move(idNode));
@@ -52,7 +60,7 @@ std::string efd::NDDecl::toString(bool pretty) const {
     std::string str(getOperation());
 
     str += " " + mChild[I_ID]->toString(pretty);
-    str += "[" + mChild[I_SIZE]->toString(pretty) + "]";
+    str += "[" + mChild[I_SIZE]->toString(pretty) + "];";
 
     return str;
 }
@@ -63,6 +71,10 @@ efd::Node::Kind efd::NDDecl::getKind() const {
 
 efd::Node::Kind efd::NDDecl::GetKind() {
     return K_DECL;
+}
+
+efd::Node::NodeRef efd::NDDecl::create(Type t, NodeRef idNode, NodeRef sizeNode) {
+    return NodeRef(new NDDecl(t, std::move(idNode), std::move(sizeNode)));
 }
 
 // -------------- GateDecl -----------------
@@ -86,7 +98,7 @@ std::string efd::NDGateDecl::toString(bool pretty) const {
     if (!mChild[I_ARGS]->isEmpty())
         str += " (" + mChild[I_ARGS]->toString(pretty) + ")";
 
-    str += " " + mChild[I_QARGS]->toString(pretty) + "{" + endl;
+    str += " " + mChild[I_QARGS]->toString(pretty) + " {" + endl;
     str += mChild[I_GOPLIST]->toString(pretty) + endl + "}" + endl;
 
     return str;
@@ -98,6 +110,10 @@ efd::Node::Kind efd::NDGateDecl::getKind() const {
 
 efd::Node::Kind efd::NDGateDecl::GetKind() {
     return K_GATE_DECL;
+}
+
+efd::Node::NodeRef efd::NDGateDecl::create(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode) {
+    return NodeRef(new NDGateDecl(std::move(idNode), std::move(aNode), std::move(qaNode), std::move(gopNode)));
 }
 
 // -------------- Opaque -----------------
@@ -118,7 +134,7 @@ std::string efd::NDOpaque::toString(bool pretty) const {
     str += " " + mChild[I_ID]->toString(pretty);
 
     if (!mChild[I_ARGS]->isEmpty())
-        str += " (" + mChild[I_ARGS]->toString(pretty) + ")";
+        str += "(" + mChild[I_ARGS]->toString(pretty) + ")";
 
     str += " " + mChild[I_QARGS]->toString(pretty) + ";";
 
@@ -131,6 +147,10 @@ efd::Node::Kind efd::NDOpaque::getKind() const {
 
 efd::Node::Kind efd::NDOpaque::GetKind() {
     return K_GATE_OPAQUE;
+}
+
+efd::Node::NodeRef efd::NDOpaque::create(NodeRef idNode, NodeRef aNode, NodeRef qaNode) {
+    return NodeRef(new NDOpaque(std::move(idNode), std::move(aNode), std::move(qaNode)));
 }
 
 // -------------- Qubit Operation -----------------
@@ -190,6 +210,10 @@ efd::Node::Kind efd::NDQOpMeasure::GetKind() {
     return K_QOP_MEASURE;
 }
 
+efd::Node::NodeRef efd::NDQOpMeasure::create(NodeRef qNode, NodeRef cNode) {
+    return NodeRef(new NDQOpMeasure(std::move(qNode), std::move(cNode)));
+}
+
 // -------------- Qubit Operation: Reset -----------------
 efd::NDQOpReset::NDQOpReset(NodeRef qaNode) : NDQOp(K_QOP_RESET, QOP_RESET) {
     mChild.push_back(std::move(qaNode));
@@ -203,7 +227,7 @@ std::string efd::NDQOpReset::toString(bool pretty) const {
     std::string str;
 
     str += getOperation();
-    str += " " + mChild[I_ONLY]->toString(pretty);
+    str += " " + mChild[I_ONLY]->toString(pretty) + ";";
 
     return str;
 }
@@ -214,6 +238,10 @@ efd::Node::Kind efd::NDQOpReset::getKind() const {
 
 efd::Node::Kind efd::NDQOpReset::GetKind() {
     return K_QOP_RESET;
+}
+
+efd::Node::NodeRef efd::NDQOpReset::create(NodeRef qaNode) {
+    return NodeRef(new NDQOpReset(std::move(qaNode)));
 }
 
 // -------------- Qubit Operation: Barrier -----------------
@@ -229,7 +257,7 @@ std::string efd::NDQOpBarrier::toString(bool pretty) const {
     std::string str;
 
     str += getOperation();
-    str += " " + mChild[I_ONLY]->toString(pretty);
+    str += " " + mChild[I_ONLY]->toString(pretty) + ";";
 
     return str;
 }
@@ -240,6 +268,10 @@ efd::Node::Kind efd::NDQOpBarrier::getKind() const {
 
 efd::Node::Kind efd::NDQOpBarrier::GetKind() {
     return K_QOP_BARRIER;
+}
+
+efd::Node::NodeRef efd::NDQOpBarrier::create(NodeRef qaNode) {
+    return NodeRef(new NDQOpBarrier(std::move(qaNode)));
 }
 
 // -------------- Qubit Operation: Generic -----------------
@@ -272,6 +304,10 @@ efd::Node::Kind efd::NDQOpGeneric::getKind() const {
 
 efd::Node::Kind efd::NDQOpGeneric::GetKind() {
     return K_QOP_GENERIC;
+}
+
+efd::Node::NodeRef efd::NDQOpGeneric::create(NodeRef idNode, NodeRef aNode, NodeRef qaNode) {
+    return NodeRef(new NDQOpGeneric(std::move(idNode), std::move(aNode), std::move(qaNode)));
 }
 
 // -------------- Binary Operation -----------------
@@ -334,6 +370,10 @@ efd::Node::Kind efd::NDBinOp::GetKind() {
     return K_BINOP;
 }
 
+efd::Node::NodeRef efd::NDBinOp::create(OpType t, NodeRef lhsNode, NodeRef rhsNode) {
+    return NodeRef(new NDBinOp(t, std::move(lhsNode), std::move(rhsNode)));
+}
+
 // -------------- Unary Operation -----------------
 efd::NDUnaryOp::NDUnaryOp(UOpType t, NodeRef oNode) : Node(K_UNARYOP), mT(t) {
     mChild.push_back(std::move(oNode));
@@ -374,7 +414,7 @@ bool efd::NDUnaryOp::isNeg() const {
 std::string efd::NDUnaryOp::getOperation() const {
     switch (mT) {
         case UOP_SIN:   return "sin";
-        case UOP_COS:   return "con";
+        case UOP_COS:   return "cos";
         case UOP_TAN:   return "tan";
         case UOP_EXP:   return "exp";
         case UOP_LN:    return "ln";
@@ -407,6 +447,10 @@ efd::Node::Kind efd::NDUnaryOp::GetKind() {
     return K_UNARYOP;
 }
 
+efd::Node::NodeRef efd::NDUnaryOp::create(UOpType t, NodeRef oNode) {
+    return NodeRef(new NDUnaryOp(t, std::move(oNode)));
+}
+
 // -------------- ID reference Operation -----------------
 efd::NDIdRef::NDIdRef(NodeRef idNode, NodeRef sizeNode) : Node(K_ID_REF) {
     mChild.push_back(std::move(idNode));
@@ -430,12 +474,17 @@ efd::Node::Kind efd::NDIdRef::GetKind() {
     return K_ID_REF;
 }
 
+efd::Node::NodeRef efd::NDIdRef::create(NodeRef idNode, NodeRef sizeNode) {
+    return NodeRef(new NDIdRef(std::move(idNode), std::move(sizeNode)));
+}
+
 // -------------- Node List -----------------
-efd::NDList::NDList(Kind k) : Node(k) {
+efd::NDList::NDList(Kind k) : Node(k, true) {
 }
 
 void efd::NDList::addChild(NodeRef child) {
     mChild.push_back(std::move(child));
+    Node::mIsEmpty = false;
 }
 
 // -------------- Arg list Operation -----------------
@@ -448,8 +497,8 @@ std::string efd::NDArgList::toString(bool pretty) const {
     if (!mChild.empty()) {
         str += mChild[0]->toString(pretty);
 
-        for (auto &arg : *this)
-            str += ", " + arg->toString(pretty);
+        for (auto it = mChild.begin() + 1, end = mChild.end(); it != end; ++it)
+            str += ", " + (*it)->toString(pretty);
     }
 
     return str;
@@ -463,6 +512,10 @@ efd::Node::Kind efd::NDArgList::GetKind() {
     return K_ARG_LIST;
 }
 
+efd::Node::NodeRef efd::NDArgList::create() {
+    return NodeRef(new NDArgList());
+}
+
 // -------------- GOpList -----------------
 efd::NDGOpList::NDGOpList() : NDList(K_GOP_LIST) {
 }
@@ -473,7 +526,7 @@ std::string efd::NDGOpList::toString(bool pretty) const {
     std::string tab = (pretty) ? "\t" : "";
 
     for (auto &child : *this)
-        str += tab + child->toString(pretty) + ";" + endl;
+        str += tab + child->toString(pretty) + endl;
 
     return str;
 }
@@ -481,6 +534,11 @@ std::string efd::NDGOpList::toString(bool pretty) const {
 efd::Node::Kind efd::NDGOpList::getKind() const {
     return K_GOP_LIST;
 }
+
 efd::Node::Kind efd::NDGOpList::GetKind() {
     return K_GOP_LIST;
+}
+
+efd::Node::NodeRef efd::NDGOpList::create() {
+    return NodeRef(new NDGOpList());
 }

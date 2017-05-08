@@ -62,10 +62,10 @@ namespace efd {
             /// \brief Returns whether this node has any information.
             bool isEmpty() const;
 
+            /// \brief Returns a std::string representation of the operation.
+            virtual std::string getOperation() const;
             /// \brief Returns the kind of this node.
             virtual Kind getKind() const = 0;
-            /// \brief Returns a std::string representation of the operation.
-            virtual std::string getOperation() const = 0;
             /// \brief Returns a std::string representation of this Node and its childrem.
             virtual std::string toString(bool pretty = false) const = 0;
     };
@@ -101,6 +101,8 @@ namespace efd {
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(Type t, NodeRef idNode, NodeRef sizeNode);
     };
 
     /// \brief Node for declaration of quantum gates.
@@ -121,6 +123,8 @@ namespace efd {
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode);
     };
 
     /// \brief Node for declaration of opaque quantum gates.
@@ -140,6 +144,8 @@ namespace efd {
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
     };
 
     /// \brief Base node for quantum operations.
@@ -193,6 +199,8 @@ namespace efd {
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(NodeRef qNode, NodeRef cNode);
     };
 
     /// \brief NDQOp specialized for reset operation.
@@ -210,6 +218,8 @@ namespace efd {
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(NodeRef qaNode);
     };
 
     /// \brief NDQOp specialized for barrier operation.
@@ -227,6 +237,8 @@ namespace efd {
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(NodeRef qaNode);
     };
 
     /// \brief NDQOp specialized for generic operation.
@@ -247,6 +259,8 @@ namespace efd {
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
     };
 
     /// \brief Binary operation node.
@@ -293,6 +307,8 @@ namespace efd {
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(OpType t, NodeRef lhsNode, NodeRef rhsNode);
     };
 
     /// \brief Unary operation node.
@@ -344,6 +360,8 @@ namespace efd {
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(UOpType t, NodeRef oNode);
     };
 
     /// \brief Node for id references (register specific positions).
@@ -354,14 +372,16 @@ namespace efd {
                 I_N
             };
 
-        public:
             NDIdRef(NodeRef idNode, NodeRef sizeNode);
 
+        public:
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(NodeRef idNode, NodeRef sizeNode);
     };
 
     /// \brief Base class for list of nodes.
@@ -374,26 +394,32 @@ namespace efd {
 
     /// \brief Node for arg lists.
     class NDArgList : public NDList {
-        public:
+        private:
             NDArgList();
 
+        public:
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create();
     };
 
     /// \brief Node for list of qubit operation sequences.
     class NDGOpList : public NDList {
-        public:
+        private:
             NDGOpList();
 
+        public:
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
             static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create();
     };
 
     /// \brief Node for literal types.
@@ -402,16 +428,21 @@ namespace efd {
             private:
                 T mVal;
 
-            public:
                 NDLiteral(T val);
+
+            public:
+                typedef std::unique_ptr< NDLiteral<T> > NDRef;
 
                 /// \brief Returns a copy to the setted value.
                 T getVal() const;
                 Kind getKind() const override;
                 std::string getOperation() const override;
+                std::string toString(bool pretty = false) const override;
 
                 /// \brief Returns the type of this class.
                 static Kind GetKind();
+                /// \brief Creates a new instance of this node.
+                static NodeRef create(T val);
         };
 
     template class NDLiteral<int>;
@@ -428,14 +459,12 @@ namespace efd {
     template <> NDLiteral<std::string>::NDLiteral(std::string val);
     template <> Node::Kind NDLiteral<std::string>::GetKind();
     template <> Node::Kind NDLiteral<std::string>::getKind() const;
+    template <> std::string NDLiteral<std::string>::getOperation() const;
+    template <> std::string NDLiteral<std::string>::toString(bool pretty) const;
 
     typedef NDLiteral<int> NDInt;
     typedef NDLiteral<DoubleVal> NDReal;
     typedef NDLiteral<std::string> NDId;
-
-    /// \brief Wrapper function that creates an instance of NodeRef.
-    template <typename T, typename... Tn>
-        Node::NodeRef CreateNode(Tn... args);
 };
 
 // -------------- Literal -----------------
@@ -450,6 +479,8 @@ template <> efd::Node::Kind efd::NDLiteral<efd::DoubleVal>::getKind() const { re
 template <> efd::NDLiteral<std::string>::NDLiteral(std::string val) : Node(K_LIT_STRING), mVal(val) {}
 template <> efd::Node::Kind efd::NDLiteral<std::string>::GetKind() { return K_LIT_STRING; }
 template <> efd::Node::Kind efd::NDLiteral<std::string>::getKind() const { return K_LIT_STRING; }
+template <> std::string efd::NDLiteral<std::string>::getOperation() const { return mVal; }
+template <> std::string efd::NDLiteral<std::string>::toString(bool pretty) const { return mVal; }
 
 template <typename T>
 T efd::NDLiteral<T>::getVal() const {
@@ -461,12 +492,14 @@ std::string efd::NDLiteral<T>::getOperation() const {
     return std::to_string(mVal);
 }
 
-// -------------- Create -----------------
-template <typename T, typename... Tn>
-efd::Node::NodeRef efd::CreateNode(Tn... args) {
-    Node::NodeRef ref(new T(args...));
-    return ref;
+template <typename T>
+std::string efd::NDLiteral<T>::toString(bool pretty) const {
+    return std::to_string(mVal);
 }
 
+template <typename T>
+efd::Node::NodeRef efd::NDLiteral<T>::create(T val) {
+    return NodeRef(new NDLiteral<T>(val));
+}
 
 #endif

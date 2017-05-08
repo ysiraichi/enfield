@@ -1,2 +1,2 @@
-add_library (EFDAnalysis
+add_library (EfdAnalysis
     Nodes.cpp)
