@@ -20,15 +20,15 @@ static NodeRef Id(std::string s) {
 }
 
 static NodeRef IdRef(std::string id, std::string sz) {
-    return NDIdRef::create(std::move(Id(id)), std::move(Int(sz)));
+    return NDIdRef::create(Id(id), Int(sz));
 }
 
 static NodeRef IdGate(std::string id, std::string par) {
     NodeRef refQAL = NDArgList::create();
     NodeRef refAL = NDArgList::create();
-    dynCast<NDArgList>(refQAL.get())->addChild(std::move(Id(id)));
-    dynCast<NDArgList>(refAL.get())->addChild(std::move(Int(par)));
-    return NDQOpGeneric::create(std::move(Id("id")), std::move(refAL), std::move(refQAL));
+    dynCast<NDArgList>(refQAL.get())->addChild(Id(id));
+    dynCast<NDArgList>(refAL.get())->addChild(Int(par));
+    return NDQOpGeneric::create(Id("id"), std::move(refAL), std::move(refQAL));
 }
 
 static NodeRef Int(std::string s) {
@@ -62,75 +62,75 @@ TEST(ASTNodeTests, LiteralCreationTest) {
     TestPrinting(refDv.get(), dStr);
 
     std::string rStr = "r0[3]";
-    NodeRef refIdRef = NDIdRef::create(std::move(Id("r0")), std::move(Int("3")));
+    NodeRef refIdRef = NDIdRef::create(Id("r0"), Int("3"));
     TestPrinting(refIdRef.get(), rStr);
 }
 
 TEST(ASTNodeTests, BinOpCreationTest) {
     std::string addStr = "(pi + 5)";
-    NodeRef refAdd = NDBinOp::create(NDBinOp::OP_ADD, std::move(Id("pi")), std::move(Int("5")));
+    NodeRef refAdd = NDBinOp::create(NDBinOp::OP_ADD, Id("pi"), Int("5"));
     TestPrinting(refAdd.get(), addStr);
 
     std::string subStr = "(pi - 5)";
-    NodeRef refSub = NDBinOp::create(NDBinOp::OP_SUB, std::move(Id("pi")), std::move(Int("5")));
+    NodeRef refSub = NDBinOp::create(NDBinOp::OP_SUB, Id("pi"), Int("5"));
     TestPrinting(refSub.get(), subStr);
 
     std::string mulStr = "(pi * 5)";
-    NodeRef refMul = NDBinOp::create(NDBinOp::OP_MUL, std::move(Id("pi")), std::move(Int("5")));
+    NodeRef refMul = NDBinOp::create(NDBinOp::OP_MUL, Id("pi"), Int("5"));
     TestPrinting(refMul.get(), mulStr);
 
     std::string divStr = "(pi / 5)";
-    NodeRef refDiv = NDBinOp::create(NDBinOp::OP_DIV, std::move(Id("pi")), std::move(Int("5")));
+    NodeRef refDiv = NDBinOp::create(NDBinOp::OP_DIV, Id("pi"), Int("5"));
     TestPrinting(refDiv.get(), divStr);
 
     std::string powStr = "(pi ^ 5)";
-    NodeRef refPow = NDBinOp::create(NDBinOp::OP_POW, std::move(Id("pi")), std::move(Int("5")));
+    NodeRef refPow = NDBinOp::create(NDBinOp::OP_POW, Id("pi"), Int("5"));
     TestPrinting(refPow.get(), powStr);
 
     std::string mixStr = "((pi ^ 5) / (2 * 5.8))";
-    NodeRef refLhs = NDBinOp::create(NDBinOp::OP_POW, std::move(Id("pi")), std::move(Int("5")));
-    NodeRef refRhs = NDBinOp::create(NDBinOp::OP_MUL, std::move(Int("2")), std::move(Real("5.8")));
+    NodeRef refLhs = NDBinOp::create(NDBinOp::OP_POW, Id("pi"), Int("5"));
+    NodeRef refRhs = NDBinOp::create(NDBinOp::OP_MUL, Int("2"), Real("5.8"));
     NodeRef refMix = NDBinOp::create(NDBinOp::OP_DIV, std::move(refLhs), std::move(refRhs));
     TestPrinting(refMix.get(), mixStr);
 }
 
 TEST(ASTNodeTests, UnaryOpCreationTest) {
     std::string sinStr = "sin(pi)";
-    NodeRef refSin = NDUnaryOp::create(NDUnaryOp::UOP_SIN, std::move(Id("pi")));
+    NodeRef refSin = NDUnaryOp::create(NDUnaryOp::UOP_SIN, Id("pi"));
     TestPrinting(refSin.get(), sinStr);
 
     std::string cosStr = "cos(pi)";
-    NodeRef refCos = NDUnaryOp::create(NDUnaryOp::UOP_COS, std::move(Id("pi")));
+    NodeRef refCos = NDUnaryOp::create(NDUnaryOp::UOP_COS, Id("pi"));
     TestPrinting(refCos.get(), cosStr);
 
     std::string tanStr = "tan(pi)";
-    NodeRef refTan = NDUnaryOp::create(NDUnaryOp::UOP_TAN, std::move(Id("pi")));
+    NodeRef refTan = NDUnaryOp::create(NDUnaryOp::UOP_TAN, Id("pi"));
     TestPrinting(refTan.get(), tanStr);
 
     std::string lnStr = "ln(pi)";
-    NodeRef refLn = NDUnaryOp::create(NDUnaryOp::UOP_LN, std::move(Id("pi")));
+    NodeRef refLn = NDUnaryOp::create(NDUnaryOp::UOP_LN, Id("pi"));
     TestPrinting(refLn.get(), lnStr);
 
     std::string negStr = "(-pi)";
-    NodeRef refNeg = NDUnaryOp::create(NDUnaryOp::UOP_NEG, std::move(Id("pi")));
+    NodeRef refNeg = NDUnaryOp::create(NDUnaryOp::UOP_NEG, Id("pi"));
     TestPrinting(refNeg.get(), negStr);
 
     std::string expStr = "exp(pi)";
-    NodeRef refExp = NDUnaryOp::create(NDUnaryOp::UOP_EXP, std::move(Id("pi")));
+    NodeRef refExp = NDUnaryOp::create(NDUnaryOp::UOP_EXP, Id("pi"));
     TestPrinting(refExp.get(), expStr);
 
     std::string sqrtStr = "sqrt(pi)";
-    NodeRef refSqrt = NDUnaryOp::create(NDUnaryOp::UOP_SQRT, std::move(Id("pi")));
+    NodeRef refSqrt = NDUnaryOp::create(NDUnaryOp::UOP_SQRT, Id("pi"));
     TestPrinting(refSqrt.get(), sqrtStr);
 }
 
 TEST(ASTNodeTests, DeclCreationTest) {
     std::string cStr = "creg r0[5];";
-    NodeRef refC = NDDecl::create(NDDecl::CONCRETE, std::move(Id("r0")), std::move(Int("5")));
+    NodeRef refC = NDDecl::create(NDDecl::CONCRETE, Id("r0"), Int("5"));
     TestPrinting(refC.get(), cStr);
 
     std::string qStr = "qreg r0[5];";
-    NodeRef refQ = NDDecl::create(NDDecl::QUANTUM, std::move(Id("r0")), std::move(Int("5")));
+    NodeRef refQ = NDDecl::create(NDDecl::QUANTUM, Id("r0"), Int("5"));
     TestPrinting(refQ.get(), qStr);
 }
 
@@ -140,21 +140,21 @@ TEST(ASTNodeTests, ArgListCreationTest) {
     NodeRef refQArgs = NDArgList::create();
     NDArgList* argList = dynCast<NDArgList>(refQArgs.get());
 
-    argList->addChild(std::move(Id("r0")));
-    argList->addChild(std::move(Id("r1")));
-    argList->addChild(std::move(IdRef("r2", "0")));
-    argList->addChild(std::move(IdRef("r3", "4")));
+    argList->addChild(Id("r0"));
+    argList->addChild(Id("r1"));
+    argList->addChild(IdRef("r2", "0"));
+    argList->addChild(IdRef("r3", "4"));
 
     TestPrinting(refQArgs.get(), argStr);
 }
 
 TEST(ASTNodeTests, QOpCreationTest) {
     std::string meaStr = "measure r0[2] -> c2[5];";
-    NodeRef refMeasure = NDQOpMeasure::create(std::move(IdRef("r0", "2")), std::move(IdRef("c2", "5")));
+    NodeRef refMeasure = NDQOpMeasure::create(IdRef("r0", "2"), IdRef("c2", "5"));
     TestPrinting(refMeasure.get(), meaStr);
 
     std::string resetStr = "reset r0[5];";
-    NodeRef refReset = NDQOpReset::create(std::move(IdRef("r0", "5")));
+    NodeRef refReset = NDQOpReset::create(IdRef("r0", "5"));
     TestPrinting(refReset.get(), resetStr);
 
     std::string barrierStr = "barrier r0[2], r1[5], r3, r5;";
@@ -162,10 +162,10 @@ TEST(ASTNodeTests, QOpCreationTest) {
     {
         NodeRef refArgList = NDArgList::create();
         NDArgList *list = dynCast<NDArgList>(refArgList.get());
-        list->addChild(std::move(IdRef("r0", "2")));
-        list->addChild(std::move(IdRef("r1", "5")));
-        list->addChild(std::move(Id("r3")));
-        list->addChild(std::move(Id("r5")));
+        list->addChild(IdRef("r0", "2"));
+        list->addChild(IdRef("r1", "5"));
+        list->addChild(Id("r3"));
+        list->addChild(Id("r5"));
         refBarrier = NDQOpBarrier::create(std::move(refArgList));
     }
     TestPrinting(refBarrier.get(), barrierStr);
@@ -175,9 +175,9 @@ TEST(ASTNodeTests, QOpCreationTest) {
     {
         NodeRef refArgList = NDArgList::create();
         NDArgList *list = dynCast<NDArgList>(refArgList.get());
-        list->addChild(std::move(Id("r0")));
-        list->addChild(std::move(Id("r5")));
-        refGeneric = NDQOpGeneric::create(std::move(Id("id")), std::move(NDArgList::create()), std::move(refArgList));
+        list->addChild(Id("r0"));
+        list->addChild(Id("r5"));
+        refGeneric = NDQOpGeneric::create(Id("id"), NDArgList::create(), std::move(refArgList));
     }
     TestPrinting(refGeneric.get(), genStr);
 }
@@ -188,9 +188,9 @@ TEST(ASTNodeTests, GOpListCreationTest) {
     NodeRef refGOp = NDGOpList::create();
     NDGOpList* gopList = dynCast<NDGOpList>(refGOp.get());
 
-    gopList->addChild(std::move(IdGate("r0", "3")));
-    gopList->addChild(std::move(IdGate("r5", "5")));
-    gopList->addChild(std::move(IdGate("r3", "7")));
+    gopList->addChild(IdGate("r0", "3"));
+    gopList->addChild(IdGate("r5", "5"));
+    gopList->addChild(IdGate("r3", "7"));
 
     TestPrinting(refGOp.get(), gopStr);
 }
@@ -200,16 +200,16 @@ TEST(ASTNodeTests, OpaqueGateDeclCreationTest) {
 
     NodeRef refQArgs = NDArgList::create();
     NDArgList* qaList = dynCast<NDArgList>(refQArgs.get());
-    qaList->addChild(std::move(Id("r0")));
-    qaList->addChild(std::move(Id("r5")));
+    qaList->addChild(Id("r0"));
+    qaList->addChild(Id("r5"));
 
     NodeRef refArgs = NDArgList::create();
     NDArgList* aList = dynCast<NDArgList>(refArgs.get());
-    aList->addChild(std::move(Int("10")));
-    aList->addChild(std::move(NDUnaryOp::create(NDUnaryOp::UOP_SIN, std::move(Id("pi")))));
-    aList->addChild(std::move(NDUnaryOp::create(NDUnaryOp::UOP_NEG, std::move(Real("3.14159")))));
+    aList->addChild(Int("10"));
+    aList->addChild(NDUnaryOp::create(NDUnaryOp::UOP_SIN, std::move(Id("pi"))));
+    aList->addChild(NDUnaryOp::create(NDUnaryOp::UOP_NEG, std::move(Real("3.14159"))));
 
-    NodeRef refOpaque = NDOpaque::create(std::move(Id("Ogate")), std::move(refArgs), std::move(refQArgs));
+    NodeRef refOpaque = NDOpaque::create(Id("Ogate"), std::move(refArgs), std::move(refQArgs));
     TestPrinting(refOpaque.get(), opaqueStr);
 }
 
@@ -217,9 +217,9 @@ TEST(ASTNodeTests, GateDeclCreationTest) {
     std::string idGateStr = "gate id r0 {}";
 
     NodeRef refQArgs = NDArgList::create();
-    dynCast<NDArgList>(refQArgs.get())->addChild(std::move(Id("r0")));
+    dynCast<NDArgList>(refQArgs.get())->addChild(Id("r0"));
 
-    NodeRef refIdGate = NDGateDecl::create(std::move(Id("id")), std::move(NDArgList::create()), std::move(refQArgs), 
-            std::move(NDGOpList::create()));
+    NodeRef refIdGate = NDGateDecl::create(Id("id"), NDArgList::create(), std::move(refQArgs), 
+            NDGOpList::create());
     TestPrinting(refIdGate.get(), idGateStr);
 }
