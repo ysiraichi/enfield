@@ -1,7 +1,7 @@
 #ifndef __EFD_NODES_H__
 #define __EFD_NODES_H__
 
-#include "enfield/Support/DoubleVal.h"
+#include "enfield/Support/WrapperVal.h"
 
 #include <iostream>
 #include <vector>
@@ -445,15 +445,15 @@ namespace efd {
                 static NodeRef create(T val);
         };
 
-    template class NDLiteral<int>;
-    template <> NDLiteral<int>::NDLiteral(int val);
-    template <> Node::Kind NDLiteral<int>::GetKind();
-    template <> Node::Kind NDLiteral<int>::getKind() const;
+    template class NDLiteral<IntVal>;
+    template <> NDLiteral<IntVal>::NDLiteral(IntVal val);
+    template <> Node::Kind NDLiteral<IntVal>::GetKind();
+    template <> Node::Kind NDLiteral<IntVal>::getKind() const;
 
-    template class NDLiteral<DoubleVal>;
-    template <> NDLiteral<DoubleVal>::NDLiteral(DoubleVal val);
-    template <> Node::Kind NDLiteral<DoubleVal>::GetKind();
-    template <> Node::Kind NDLiteral<DoubleVal>::getKind() const;
+    template class NDLiteral<RealVal>;
+    template <> NDLiteral<RealVal>::NDLiteral(RealVal val);
+    template <> Node::Kind NDLiteral<RealVal>::GetKind();
+    template <> Node::Kind NDLiteral<RealVal>::getKind() const;
 
     template class NDLiteral<std::string>;
     template <> NDLiteral<std::string>::NDLiteral(std::string val);
@@ -462,8 +462,8 @@ namespace efd {
     template <> std::string NDLiteral<std::string>::getOperation() const;
     template <> std::string NDLiteral<std::string>::toString(bool pretty) const;
 
-    typedef NDLiteral<int> NDInt;
-    typedef NDLiteral<DoubleVal> NDReal;
+    typedef NDLiteral<IntVal> NDInt;
+    typedef NDLiteral<RealVal> NDReal;
     typedef NDLiteral<std::string> NDId;
 };
 

@@ -546,34 +546,35 @@ efd::Node::NodeRef efd::NDGOpList::create() {
 }
 
 // -------------- Literal Specializations -----------------
-// -------------- Literal<int> -----------------
+// -------------- Literal<efd::IntVal> -----------------
 template <> 
-efd::NDLiteral<int>::NDLiteral(int val) : Node(K_LIT_INT), mVal(val) {
+efd::NDLiteral<efd::IntVal>::NDLiteral(efd::IntVal val) 
+    : Node(K_LIT_INT), mVal(val) {
 }
 
 template <> 
-efd::Node::Kind efd::NDLiteral<int>::GetKind() { 
+efd::Node::Kind efd::NDLiteral<efd::IntVal>::GetKind() { 
     return K_LIT_INT; 
 }
 
 template <> 
-efd::Node::Kind efd::NDLiteral<int>::getKind() const {
+efd::Node::Kind efd::NDLiteral<efd::IntVal>::getKind() const {
     return K_LIT_INT; 
 }
 
-// -------------- Literal<DoubleVal> -----------------
+// -------------- Literal<efd::RealVal> -----------------
 template <> 
-efd::NDLiteral<efd::DoubleVal>::NDLiteral(efd::DoubleVal val) : 
+efd::NDLiteral<efd::RealVal>::NDLiteral(efd::RealVal val) : 
     Node(K_LIT_REAL), mVal(val) {
 }
 
 template <> 
-efd::Node::Kind efd::NDLiteral<efd::DoubleVal>::GetKind() {
+efd::Node::Kind efd::NDLiteral<efd::RealVal>::GetKind() {
     return K_LIT_REAL; 
 }
 
 template <> 
-efd::Node::Kind efd::NDLiteral<efd::DoubleVal>::getKind() const { 
+efd::Node::Kind efd::NDLiteral<efd::RealVal>::getKind() const { 
     return K_LIT_REAL; 
 }
 

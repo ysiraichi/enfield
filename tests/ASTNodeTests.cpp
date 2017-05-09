@@ -32,7 +32,7 @@ static NodeRef IdGate(std::string id, std::string par) {
 }
 
 static NodeRef Int(std::string s) {
-    return NDInt::create(std::stoi(s));
+    return NDInt::create(s);
 }
 
 static NodeRef Real(std::string s) {
@@ -54,7 +54,7 @@ TEST(ASTNodeTests, LiteralCreationTest) {
     TestPrinting(refId.get(), idStr);
 
     std::string intStr = "10";
-    NodeRef refInt = NDInt::create(std::stoi(intStr));
+    NodeRef refInt = NDInt::create(intStr);
     TestPrinting(refInt.get(), intStr);
 
     std::string dStr = "3.14159";
