@@ -545,61 +545,61 @@ efd::Node::NodeRef efd::NDGOpList::create() {
     return NodeRef(new NDGOpList());
 }
 
-// -------------- Literal Specializations -----------------
-// -------------- Literal<efd::IntVal> -----------------
+// -------------- Value Specializations -----------------
+// -------------- Value<efd::IntVal> -----------------
 template <> 
-efd::NDLiteral<efd::IntVal>::NDLiteral(efd::IntVal val) 
+efd::NDValue<efd::IntVal>::NDValue(efd::IntVal val) 
     : Node(K_LIT_INT), mVal(val) {
 }
 
 template <> 
-efd::Node::Kind efd::NDLiteral<efd::IntVal>::GetKind() { 
+efd::Node::Kind efd::NDValue<efd::IntVal>::GetKind() { 
     return K_LIT_INT; 
 }
 
 template <> 
-efd::Node::Kind efd::NDLiteral<efd::IntVal>::getKind() const {
+efd::Node::Kind efd::NDValue<efd::IntVal>::getKind() const {
     return K_LIT_INT; 
 }
 
-// -------------- Literal<efd::RealVal> -----------------
+// -------------- Value<efd::RealVal> -----------------
 template <> 
-efd::NDLiteral<efd::RealVal>::NDLiteral(efd::RealVal val) : 
+efd::NDValue<efd::RealVal>::NDValue(efd::RealVal val) : 
     Node(K_LIT_REAL), mVal(val) {
 }
 
 template <> 
-efd::Node::Kind efd::NDLiteral<efd::RealVal>::GetKind() {
+efd::Node::Kind efd::NDValue<efd::RealVal>::GetKind() {
     return K_LIT_REAL; 
 }
 
 template <> 
-efd::Node::Kind efd::NDLiteral<efd::RealVal>::getKind() const { 
+efd::Node::Kind efd::NDValue<efd::RealVal>::getKind() const { 
     return K_LIT_REAL; 
 }
 
-// -------------- Literal<std::string> -----------------
+// -------------- Value<std::string> -----------------
 template <> 
-efd::NDLiteral<std::string>::NDLiteral(std::string val) 
+efd::NDValue<std::string>::NDValue(std::string val) 
     : Node(K_LIT_STRING), mVal(val) {
 }
 
 template <> 
-efd::Node::Kind efd::NDLiteral<std::string>::GetKind() {
+efd::Node::Kind efd::NDValue<std::string>::GetKind() {
     return K_LIT_STRING; 
 }
 
 template <> 
-efd::Node::Kind efd::NDLiteral<std::string>::getKind() const {
+efd::Node::Kind efd::NDValue<std::string>::getKind() const {
     return K_LIT_STRING; 
 }
 
 template <> 
-std::string efd::NDLiteral<std::string>::getOperation() const {
+std::string efd::NDValue<std::string>::getOperation() const {
     return mVal; 
 }
 
 template <> 
-std::string efd::NDLiteral<std::string>::toString(bool pretty) const {
+std::string efd::NDValue<std::string>::toString(bool pretty) const {
     return mVal; 
 }

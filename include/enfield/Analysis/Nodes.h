@@ -424,14 +424,14 @@ namespace efd {
 
     /// \brief Node for literal types.
     template <typename T>
-        class NDLiteral : public Node {
+        class NDValue : public Node {
             private:
                 T mVal;
 
-                NDLiteral(T val);
+                NDValue(T val);
 
             public:
-                typedef std::unique_ptr< NDLiteral<T> > NDRef;
+                typedef std::unique_ptr< NDValue<T> > NDRef;
 
                 /// \brief Returns a copy to the setted value.
                 T getVal() const;
@@ -445,47 +445,47 @@ namespace efd {
                 static NodeRef create(T val);
         };
 
-    template class NDLiteral<IntVal>;
-    template <> NDLiteral<IntVal>::NDLiteral(IntVal val);
-    template <> Node::Kind NDLiteral<IntVal>::GetKind();
-    template <> Node::Kind NDLiteral<IntVal>::getKind() const;
+    template class NDValue<IntVal>;
+    template <> NDValue<IntVal>::NDValue(IntVal val);
+    template <> Node::Kind NDValue<IntVal>::GetKind();
+    template <> Node::Kind NDValue<IntVal>::getKind() const;
 
-    template class NDLiteral<RealVal>;
-    template <> NDLiteral<RealVal>::NDLiteral(RealVal val);
-    template <> Node::Kind NDLiteral<RealVal>::GetKind();
-    template <> Node::Kind NDLiteral<RealVal>::getKind() const;
+    template class NDValue<RealVal>;
+    template <> NDValue<RealVal>::NDValue(RealVal val);
+    template <> Node::Kind NDValue<RealVal>::GetKind();
+    template <> Node::Kind NDValue<RealVal>::getKind() const;
 
-    template class NDLiteral<std::string>;
-    template <> NDLiteral<std::string>::NDLiteral(std::string val);
-    template <> Node::Kind NDLiteral<std::string>::GetKind();
-    template <> Node::Kind NDLiteral<std::string>::getKind() const;
-    template <> std::string NDLiteral<std::string>::getOperation() const;
-    template <> std::string NDLiteral<std::string>::toString(bool pretty) const;
+    template class NDValue<std::string>;
+    template <> NDValue<std::string>::NDValue(std::string val);
+    template <> Node::Kind NDValue<std::string>::GetKind();
+    template <> Node::Kind NDValue<std::string>::getKind() const;
+    template <> std::string NDValue<std::string>::getOperation() const;
+    template <> std::string NDValue<std::string>::toString(bool pretty) const;
 
-    typedef NDLiteral<IntVal> NDInt;
-    typedef NDLiteral<RealVal> NDReal;
-    typedef NDLiteral<std::string> NDId;
+    typedef NDValue<IntVal> NDInt;
+    typedef NDValue<RealVal> NDReal;
+    typedef NDValue<std::string> NDId;
 };
 
 // -------------- Literal -----------------
 template <typename T>
-T efd::NDLiteral<T>::getVal() const {
+T efd::NDValue<T>::getVal() const {
     return mVal;
 }
 
 template <typename T>
-std::string efd::NDLiteral<T>::getOperation() const {
+std::string efd::NDValue<T>::getOperation() const {
     return std::to_string(mVal);
 }
 
 template <typename T>
-std::string efd::NDLiteral<T>::toString(bool pretty) const {
+std::string efd::NDValue<T>::toString(bool pretty) const {
     return std::to_string(mVal);
 }
 
 template <typename T>
-efd::Node::NodeRef efd::NDLiteral<T>::create(T val) {
-    return NodeRef(new NDLiteral<T>(val));
+efd::Node::NodeRef efd::NDValue<T>::create(T val) {
+    return NodeRef(new NDValue<T>(val));
 }
 
 #endif
