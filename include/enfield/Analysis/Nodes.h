@@ -12,7 +12,7 @@ namespace efd {
     /// \brief Base class for AST nodes.
     class Node {
         public:
-            typedef std::unique_ptr<Node> NodeRef;
+            typedef std::shared_ptr<Node> NodeRef;
             typedef std::vector<NodeRef>::iterator Iterator;
             typedef std::vector<NodeRef>::const_iterator ConstIterator;
 
@@ -429,7 +429,7 @@ namespace efd {
                 NDValue(T val);
 
             public:
-                typedef std::unique_ptr< NDValue<T> > NDRef;
+                typedef std::shared_ptr< NDValue<T> > NDRef;
 
                 /// \brief Returns a copy to the setted value.
                 T getVal() const;
