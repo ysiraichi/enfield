@@ -2,20 +2,57 @@
 
 %code requires {
     #include "enfield/Analysis/Nodes.h"
+    #include "enfield/Analysis/Driver.h"
     #include "enfield/Support/WrapperVal.h"
     #include "enfield/Support/RTTI.h"
+
+    namespace efd {
+        class EfdScanner;
+    };
 
     typedef efd::Node::NodeRef NodeRef;
 }
 
+%code provides {
+    #if ! defined(yyFlexLexerOnce)
+    #include <FlexLexer.h>
+    #endif
+
+    #include <iostream>
+
+    namespace efd {
+        class EfdScanner : public yyFlexLexer {
+            public:
+                EfdScanner(std::istream& iStream, std::ostream& oStream);
+                yy::EfdParser::symbol_type lex();
+        };
+    }
+
+    #undef YY_DECL
+    #define YY_DECL \
+        efd::yy::EfdParser::symbol_type efd::EfdScanner::lex()
+}
+
 %defines
 %define parser_class_name {EfdParser}
-%define api.namespace {efd::yy}
 %define api.token.constructor
+%define api.namespace {efd::yy}
 %define api.value.type variant
 %define parse.assert
 
+%parse-param { efd::ASTWrapper &ast }
+%parse-param { efd::EfdScanner &scanner }
+
+%code {
+    #define _YYLEX_ scanner.lex
+    #define yylex _YYLEX_
+}
+
 %locations
+%initial-action {
+    @$.begin.filename = &ast.mFilename;
+    @$.end.filename = &ast.mFilename;
+}
 
 %define parse.trace
 %define parse.error verbose
@@ -52,6 +89,8 @@
 %token <efd::RealVal> REAL;
 %token <std::string> ID;
 
+%token EOF;
+
 %type <NodeRef> program program_ statement
 %type <NodeRef> decl gatedecl opaquedecl qop uop
 %type <NodeRef> barrier reset measure
@@ -73,140 +112,140 @@
 
 %start program;
 
-program: program_ statement    {
-                                    efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                                    $$ = std::move($1);
+program: program_ statement EOF {
+                                    efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                    $$ = $1;
                                 }
        ;
 program_: %empty                { $$ = efd::NDList::create(); }
         | program_ statement    {
-                                    efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                                    $$ = std::move($1);
+                                    efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                    $$ = $1;
                                 }
 
-statement: decl         { $$ = std::move($1); }
-         | gatedecl     { $$ = std::move($1); }
-         | opaquedecl   { $$ = std::move($1); }
-         | qop          { $$ = std::move($1); }
-         | barrier      { $$ = std::move($1); }
+statement: decl         { $$ = $1; }
+         | gatedecl     { $$ = $1; }
+         | opaquedecl   { $$ = $1; }
+         | qop          { $$ = $1; }
+         | barrier      { $$ = $1; }
          ;
 
 decl: QREG id "[" integer "]" ";"   { 
                                         $$ = efd::NDDecl::create
-                                        (efd::NDDecl::QUANTUM, std::move($2), std::move($4));
+                                        (efd::NDDecl::QUANTUM, $2, $4);
                                     }
     | CREG id "[" integer "]" ";"   { 
                                         $$ = efd::NDDecl::create
-                                        (efd::NDDecl::CONCRETE, std::move($2), std::move($4));
+                                        (efd::NDDecl::CONCRETE, $2, $4);
                                     }
     ;
 
 gatedecl: GATE id params idlist "{" goplist "}" { 
                                                     $$ = efd::NDGateDecl::create
-                                                    (std::move($2), std::move($3), 
-                                                    std::move($4), std::move($6));
+                                                    ($2, $3, 
+                                                    $4, $6);
                                                 }
         ;
 
 opaquedecl: OPAQUE id params idlist ";" { 
                                             $$ = efd::NDOpaque::create
-                                            (std::move($2), std::move($2), std::move($3));
+                                            ($2, $2, $3);
                                         }
           ;
 
-barrier: BARRIER idlist ";" { $$ = efd::NDQOpBarrier::create(std::move($2)); }
+barrier: BARRIER idlist ";" { $$ = efd::NDQOpBarrier::create($2); }
        ;
 
-reset: RESET arg ";"    { $$ = efd::NDQOpReset::create(std::move($2)); }
+reset: RESET arg ";"    { $$ = efd::NDQOpReset::create($2); }
      ;
 
-measure: MEASURE arg "->" arg ";"   { $$ = efd::NDQOpMeasure::create(std::move($2), std::move($4)); }
+measure: MEASURE arg "->" arg ";"   { $$ = efd::NDQOpMeasure::create($2, $4); }
        ;
 
 params: %empty          { $$ = efd::NDList::create(); }
-      | "(" idlist ")"  { $$ = std::move($2); }
+      | "(" idlist ")"  { $$ = $2; }
       ;
 
 goplist: %empty             { $$ = efd::NDGOpList::create(); }
        | goplist uop        {
-                                efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                                $$ = std::move($1);
+                                efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                $$ = $1;
                             }
        | goplist barrier    {
-                                efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                                $$ = std::move($1);
+                                efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                $$ = $1;
                             }
        ;
 
-qop: uop        { $$ = std::move($1); }
-   | measure    { $$ = std::move($1); }
-   | reset      { $$ = std::move($1); }
+qop: uop        { $$ = $1; }
+   | measure    { $$ = $1; }
+   | reset      { $$ = $1; }
    ;
 
 uop: id args anylist ";"    { 
                                 $$ = efd::NDQOpGeneric::create
-                                (std::move($1), std::move($2), std::move($3)); 
+                                ($1, $2, $3); 
                             }
    ;
 
 args: %empty            { $$ = efd::NDList::create(); }
-    | "(" explist ")"   { $$ = std::move($2); }
+    | "(" explist ")"   { $$ = $2; }
     ;
 
 idlist: idlist_ id      {
-                            efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                            $$ = std::move($1);
+                            efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                            $$ = $1;
                         }
       ;
 idlist_: %empty         { $$ = efd::NDList::create(); }
        | idlist_ id "," {
-                            efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                            $$ = std::move($1);
+                            efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                            $$ = $1;
                         }
        ;
 
 anylist: anylist_ id    {
-                            efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                            $$ = std::move($1);
+                            efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                            $$ = $1;
                         }
        | anylist_ idref {
-                            efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                            $$ = std::move($1);
+                            efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                            $$ = $1;
                         }
        ;
 anylist_: %empty                { $$ = efd::NDList::create(); }
         | anylist_ id ","       {
-                                    efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                                    $$ = std::move($1);
+                                    efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                    $$ = $1;
                                 }
         | anylist_ idref ","    {
-                                    efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                                    $$ = std::move($1);
+                                    efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                    $$ = $1;
                                 }
         ;
 
 explist: %empty         { $$ = efd::NDList::create(); }
        | explist_ exp   {
-                            efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                            $$ = std::move($1);
+                            efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                            $$ = $1;
                         }
        ;
 explist_: %empty            { $$ = efd::NDList::create(); }
         | explist_ exp ","  {
-                                efd::dynCast<efd::NDList>($1.get())->addChild(std::move($2));
-                                $$ = std::move($1);
+                                efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                $$ = $1;
                             }
 
-exp: real               { $$ = std::move($1); }
-   | integer            { $$ = std::move($1); }
-   | id                 { $$ = std::move($1); }
-   | unary "(" exp ")"  { $$ = efd::NDUnaryOp::create($1, std::move($3)); }
-   | "(" exp ")"        { $$ = std::move($2); }
-   | exp "+" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_ADD, std::move($1), std::move($3)); }
-   | exp "-" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_SUB, std::move($1), std::move($3)); }
-   | exp "*" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_MUL, std::move($1), std::move($3)); }
-   | exp "/" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_DIV, std::move($1), std::move($3)); }
-   | exp "^" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_POW, std::move($1), std::move($3)); }
+exp: real               { $$ = $1; }
+   | integer            { $$ = $1; }
+   | id                 { $$ = $1; }
+   | unary "(" exp ")"  { $$ = efd::NDUnaryOp::create($1, $3); }
+   | "(" exp ")"        { $$ = $2; }
+   | exp "+" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_ADD, $1, $3); }
+   | exp "-" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_SUB, $1, $3); }
+   | exp "*" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_MUL, $1, $3); }
+   | exp "/" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_DIV, $1, $3); }
+   | exp "^" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_POW, $1, $3); }
    ;
 
 unary: SIN  { $$ = efd::NDUnaryOp::UOP_SIN; }
@@ -217,11 +256,11 @@ unary: SIN  { $$ = efd::NDUnaryOp::UOP_SIN; }
      | SQRT { $$ = efd::NDUnaryOp::UOP_SQRT; }
      ;
 
-arg: id     { $$ = std::move($1); }
-   | idref  { $$ = std::move($1); }
+arg: id     { $$ = $1; }
+   | idref  { $$ = $1; }
    ;
 
-idref: id "[" integer "]" { $$ = efd::NDIdRef::create(std::move($1), std::move($3)); }
+idref: id "[" integer "]" { $$ = efd::NDIdRef::create($1, $3); }
      ;
 
 id: ID { $$ = efd::NDId::create($1); }
@@ -235,3 +274,6 @@ real: REAL { $$ = efd::NDReal::create($1); }
 
 %%
 
+efd::EfdScanner::EfdScanner(std::istream& iStream, std::ostream& oStream)
+   : yyFlexLexer(iStream, oStream) {
+}

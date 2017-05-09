@@ -1,10 +1,20 @@
 %{
-    #include <string>
-    static efd::yy::location loc;
+#include "EfdParser.hpp"
+#include <string>
+
+static efd::yy::location loc;
+
+#undef yyFlexLexer
+
+#undef YY_NULL
+#define YY_NULL efd::yy::EfdParser::make_EOF(loc)
+
 %}
 
 %option c++
 %option noyywrap nounput batch debug noinput
+%option yyclass="efd::EfdScanner"
+%option nodefault
 
 id    [a-z][A-Za-z0-9_]*
 real  ([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?
@@ -12,7 +22,7 @@ integer [1-9]+[0-9]*|0
 blank [ \t]
 
 %{
-    #define YY_USER_ACTION loc.columns(yyleng);
+#define YY_USER_ACTION loc.columns(yyleng);
 %}
 
 %%
@@ -65,9 +75,9 @@ blank [ \t]
 ","         { return efd::yy::EfdParser::make_COMMA(loc); }
 ";"         { return efd::yy::EfdParser::make_SEMICOL(loc); }
 
-{real}      { return efd::yy::EfdParser::make_REAL(yytext, loc); }
+{real}      { return efd::yy::EfdParser::make_REAL(std::string(yytext), loc); }
 
-{integer}   { return efd::yy::EfdParser::make_INT(yytext, loc); }
+{integer}   { return efd::yy::EfdParser::make_INT(std::string(yytext), loc); }
 
 {id}        { return efd::yy::EfdParser::make_ID(yytext, loc); }
 
