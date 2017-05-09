@@ -1,20 +1,14 @@
 %{
-    #include <cerrno>
-    #include <climits>
-    #include <cstdlib>
     #include <string>
-
-    #include "Parser.hh"
-    #include "location.hh"
-    
     static efd::yy::location loc;
-
 %}
 
+%option c++
 %option noyywrap nounput batch debug noinput
 
 id    [a-z][A-Za-z0-9_]*
 real  ([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?
+integer [1-9]+[0-9]*|0
 blank [ \t]
 
 %{
@@ -65,11 +59,15 @@ blank [ \t]
 ")"         { return efd::yy::EfdParser::make_RPAR(loc); }
 "["         { return efd::yy::EfdParser::make_LSBRAC(loc); }
 "]"         { return efd::yy::EfdParser::make_RSBRAC(loc); }
+"{"         { return efd::yy::EfdParser::make_LCBRAC(loc); }
+"}"         { return efd::yy::EfdParser::make_RCBRAC(loc); }
 "->"        { return efd::yy::EfdParser::make_MARROW(loc); }
 ","         { return efd::yy::EfdParser::make_COMMA(loc); }
 ";"         { return efd::yy::EfdParser::make_SEMICOL(loc); }
 
 {real}      { return efd::yy::EfdParser::make_REAL(yytext, loc); }
+
+{integer}   { return efd::yy::EfdParser::make_INT(yytext, loc); }
 
 {id}        { return efd::yy::EfdParser::make_ID(yytext, loc); }
 
