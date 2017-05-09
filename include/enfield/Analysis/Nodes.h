@@ -27,7 +27,7 @@ namespace efd {
                 K_BINOP,
                 K_UNARYOP,
                 K_ID_REF,
-                K_ARG_LIST,
+                K_LIST,
                 K_GOP_LIST,
                 K_LIT_INT,
                 K_LIT_REAL,
@@ -386,20 +386,18 @@ namespace efd {
 
     /// \brief Base class for list of nodes.
     class NDList : public Node {
-        public:
-            NDList(Kind k);
-            /// \brief Appends a child to the end of the list.
-            void addChild(NodeRef child);
-    };
-
-    /// \brief Node for arg lists.
-    class NDArgList : public NDList {
         private:
-            NDArgList();
+            NDList();
+
+        protected:
+            NDList(Kind k);
 
         public:
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
+
+            /// \brief Appends a child to the end of the list.
+            void addChild(NodeRef child);
 
             /// \brief Returns the type of this class.
             static Kind GetKind();

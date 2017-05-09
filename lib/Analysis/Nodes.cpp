@@ -481,6 +481,9 @@ efd::Node::NodeRef efd::NDIdRef::create(NodeRef idNode, NodeRef sizeNode) {
 }
 
 // -------------- Node List -----------------
+efd::NDList::NDList() : Node(K_LIST, true) {
+}
+
 efd::NDList::NDList(Kind k) : Node(k, true) {
 }
 
@@ -489,11 +492,7 @@ void efd::NDList::addChild(NodeRef child) {
     Node::mIsEmpty = false;
 }
 
-// -------------- Arg list Operation -----------------
-efd::NDArgList::NDArgList() : NDList(K_ARG_LIST) {
-}
-
-std::string efd::NDArgList::toString(bool pretty) const {
+std::string efd::NDList::toString(bool pretty) const {
     std::string str;
 
     if (!mChild.empty()) {
@@ -506,16 +505,16 @@ std::string efd::NDArgList::toString(bool pretty) const {
     return str;
 }
 
-efd::Node::Kind efd::NDArgList::getKind() const {
-    return K_ARG_LIST;
+efd::Node::Kind efd::NDList::getKind() const {
+    return K_LIST;
 }
 
-efd::Node::Kind efd::NDArgList::GetKind() {
-    return K_ARG_LIST;
+efd::Node::Kind efd::NDList::GetKind() {
+    return K_LIST;
 }
 
-efd::Node::NodeRef efd::NDArgList::create() {
-    return NodeRef(new NDArgList());
+efd::Node::NodeRef efd::NDList::create() {
+    return NodeRef(new NDList());
 }
 
 // -------------- GOpList -----------------

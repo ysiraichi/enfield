@@ -24,10 +24,10 @@ static NodeRef IdRef(std::string id, std::string sz) {
 }
 
 static NodeRef IdGate(std::string id, std::string par) {
-    NodeRef refQAL = NDArgList::create();
-    NodeRef refAL = NDArgList::create();
-    dynCast<NDArgList>(refQAL.get())->addChild(Id(id));
-    dynCast<NDArgList>(refAL.get())->addChild(Int(par));
+    NodeRef refQAL = NDList::create();
+    NodeRef refAL = NDList::create();
+    dynCast<NDList>(refQAL.get())->addChild(Id(id));
+    dynCast<NDList>(refAL.get())->addChild(Int(par));
     return NDQOpGeneric::create(Id("id"), std::move(refAL), std::move(refQAL));
 }
 
@@ -134,11 +134,11 @@ TEST(ASTNodeTests, DeclCreationTest) {
     TestPrinting(refQ.get(), qStr);
 }
 
-TEST(ASTNodeTests, ArgListCreationTest) {
+TEST(ASTNodeTests, ListCreationTest) {
     std::string argStr = "r0, r1, r2[0], r3[4]";
 
-    NodeRef refQArgs = NDArgList::create();
-    NDArgList* argList = dynCast<NDArgList>(refQArgs.get());
+    NodeRef refQArgs = NDList::create();
+    NDList* argList = dynCast<NDList>(refQArgs.get());
 
     argList->addChild(Id("r0"));
     argList->addChild(Id("r1"));
@@ -160,8 +160,8 @@ TEST(ASTNodeTests, QOpCreationTest) {
     std::string barrierStr = "barrier r0[2], r1[5], r3, r5;";
     NodeRef refBarrier;
     {
-        NodeRef refArgList = NDArgList::create();
-        NDArgList *list = dynCast<NDArgList>(refArgList.get());
+        NodeRef refArgList = NDList::create();
+        NDList *list = dynCast<NDList>(refArgList.get());
         list->addChild(IdRef("r0", "2"));
         list->addChild(IdRef("r1", "5"));
         list->addChild(Id("r3"));
@@ -173,11 +173,11 @@ TEST(ASTNodeTests, QOpCreationTest) {
     std::string genStr = "id r0, r5;";
     NodeRef refGeneric;
     {
-        NodeRef refArgList = NDArgList::create();
-        NDArgList *list = dynCast<NDArgList>(refArgList.get());
+        NodeRef refArgList = NDList::create();
+        NDList *list = dynCast<NDList>(refArgList.get());
         list->addChild(Id("r0"));
         list->addChild(Id("r5"));
-        refGeneric = NDQOpGeneric::create(Id("id"), NDArgList::create(), std::move(refArgList));
+        refGeneric = NDQOpGeneric::create(Id("id"), NDList::create(), std::move(refArgList));
     }
     TestPrinting(refGeneric.get(), genStr);
 }
@@ -198,13 +198,13 @@ TEST(ASTNodeTests, GOpListCreationTest) {
 TEST(ASTNodeTests, OpaqueGateDeclCreationTest) {
     std::string opaqueStr = "opaque Ogate(10, sin(pi), (-3.14159)) r0, r5;";
 
-    NodeRef refQArgs = NDArgList::create();
-    NDArgList* qaList = dynCast<NDArgList>(refQArgs.get());
+    NodeRef refQArgs = NDList::create();
+    NDList* qaList = dynCast<NDList>(refQArgs.get());
     qaList->addChild(Id("r0"));
     qaList->addChild(Id("r5"));
 
-    NodeRef refArgs = NDArgList::create();
-    NDArgList* aList = dynCast<NDArgList>(refArgs.get());
+    NodeRef refArgs = NDList::create();
+    NDList* aList = dynCast<NDList>(refArgs.get());
     aList->addChild(Int("10"));
     aList->addChild(NDUnaryOp::create(NDUnaryOp::UOP_SIN, std::move(Id("pi"))));
     aList->addChild(NDUnaryOp::create(NDUnaryOp::UOP_NEG, std::move(Real("3.14159"))));
@@ -216,10 +216,10 @@ TEST(ASTNodeTests, OpaqueGateDeclCreationTest) {
 TEST(ASTNodeTests, GateDeclCreationTest) {
     std::string idGateStr = "gate id r0 {}";
 
-    NodeRef refQArgs = NDArgList::create();
-    dynCast<NDArgList>(refQArgs.get())->addChild(Id("r0"));
+    NodeRef refQArgs = NDList::create();
+    dynCast<NDList>(refQArgs.get())->addChild(Id("r0"));
 
-    NodeRef refIdGate = NDGateDecl::create(Id("id"), NDArgList::create(), std::move(refQArgs), 
+    NodeRef refIdGate = NDGateDecl::create(Id("id"), NDList::create(), std::move(refQArgs), 
             NDGOpList::create());
     TestPrinting(refIdGate.get(), idGateStr);
 }
