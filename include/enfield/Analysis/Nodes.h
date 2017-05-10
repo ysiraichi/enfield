@@ -33,6 +33,7 @@ namespace efd {
                 K_LIST,
                 K_STMT_LIST,
                 K_GOP_LIST,
+                K_IF_STMT,
                 K_LIT_INT,
                 K_LIT_REAL,
                 K_LIT_STRING
@@ -103,7 +104,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(Type t, NodeRef idNode, NodeRef sizeNode);
@@ -125,7 +126,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode);
@@ -146,7 +147,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
@@ -170,7 +171,7 @@ namespace efd {
             /// \brief Returns true if this is a generic node.
             virtual bool isGeneric() const;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
     };
 
@@ -188,7 +189,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef qNode, NodeRef cNode);
@@ -207,7 +208,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef qaNode);
@@ -227,7 +228,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef aNode, NodeRef qaNode);
@@ -247,7 +248,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef srcNode, NodeRef tgtNode);
@@ -266,7 +267,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef qaNode);
@@ -288,7 +289,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
@@ -336,7 +337,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(OpType t, NodeRef lhsNode, NodeRef rhsNode);
@@ -389,7 +390,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(UOpType t, NodeRef oNode);
@@ -409,7 +410,7 @@ namespace efd {
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef idNode, NodeRef sizeNode);
@@ -430,7 +431,7 @@ namespace efd {
             /// \brief Appends a child to the end of the list.
             void addChild(NodeRef child);
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create();
@@ -445,7 +446,7 @@ namespace efd {
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create();
@@ -460,10 +461,33 @@ namespace efd {
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
 
-            /// \brief Returns the type of this class.
+            /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create();
+    };
+
+    /// \brief Node for conditional statement.
+    class NDIfStmt : public Node {
+        public:
+            enum ChildType {
+                I_COND_ID = 0,
+                I_COND_INT,
+                I_QOP
+            };
+
+        private:
+            NDIfStmt(NodeRef cidNode, NodeRef intNode, NodeRef qopNode);
+
+        public:
+            Kind getKind() const override;
+            std::string toString(bool pretty = false) const override;
+            std::string getOperation() const override;
+
+            /// \brief Returns whether the \p node is an instance of this class.
+            static bool ClassOf(const NodeRef node);
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(NodeRef cidNode, NodeRef intNode, NodeRef qopNode);
     };
 
     /// \brief Node for literal types.
@@ -483,7 +507,7 @@ namespace efd {
                 std::string getOperation() const override;
                 std::string toString(bool pretty = false) const override;
 
-                /// \brief Returns the type of this class.
+                /// \brief Returns whether the \p node is an instance of this class.
                 static bool ClassOf(const NodeRef node);
                 /// \brief Creates a new instance of this node.
                 static NodeRef create(T val);

@@ -106,7 +106,7 @@
 %token EOF 0 "end of file";
 
 %type <NodeRef> program program_ statement
-%type <NodeRef> decl gatedecl opaquedecl qop uop
+%type <NodeRef> decl gatedecl opaquedecl qop uop ifstmt
 %type <NodeRef> barrier reset measure
 %type <NodeRef> goplist
 %type <NodeRef> explist explist_ exp
@@ -142,6 +142,7 @@ statement: decl         { $$ = $1; }
          | opaquedecl   { $$ = $1; }
          | qop          { $$ = $1; }
          | barrier      { $$ = $1; }
+         | ifstmt       { $$ = $1; }
          ;
 
 decl: QREG id "[" integer "]" ";"   { $$ = efd::NDDecl::create(efd::NDDecl::QUANTUM, $2, $4); }
@@ -166,6 +167,8 @@ reset: RESET arg ";"    { $$ = efd::NDQOpReset::create($2); }
 
 measure: MEASURE arg "->" arg ";"   { $$ = efd::NDQOpMeasure::create($2, $4); }
        ;
+
+ifstmt: IF "(" id "==" integer ")" qop  { $$ = efd::NDIfStmt::create($3, $5, $7); }
 
 params: %empty          { $$ = efd::NDList::create(); }
       | "(" idlist ")"  { $$ = $2; }

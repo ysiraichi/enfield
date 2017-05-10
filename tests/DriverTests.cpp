@@ -328,6 +328,18 @@ generic((((1 + 3) * 5) + (pi * sin(pi)))) r0;\
     }
 }
 
+TEST(DriverTests, IfStmtTest) {
+    {
+        std::string ifStmt = 
+"\
+if (pi == 3) measure r0[4] -> c2[4];\
+";
+        NodeRef root = ParseString(ifStmt);
+        ASSERT_FALSE(root == nullptr);
+        ASSERT_EQ(root->toString(), ifStmt);
+    }
+}
+
 TEST(DriverTests, NonEmptyGateDeclTest) {
     {
         std::string gate = 

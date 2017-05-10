@@ -669,6 +669,46 @@ efd::NodeRef efd::NDGOpList::create() {
     return new NDGOpList();
 }
 
+// -------------- If Statement -----------------
+efd::NDIfStmt::NDIfStmt(NodeRef cidNode, NodeRef intNode, NodeRef qopNode) : Node(K_IF_STMT) {
+    mChild.push_back(cidNode);
+    mChild.push_back(intNode);
+    mChild.push_back(qopNode);
+}
+
+std::string efd::NDIfStmt::toString(bool pretty) const {
+    std::string str;
+    std::string endl = (pretty) ? "\n" : "";
+
+    str += getOperation() + " ";
+
+    str += "(";
+    str += mChild[I_COND_ID]->toString(pretty);
+    str += " == ";
+    str += mChild[I_COND_INT]->toString(pretty);
+    str += ")";
+
+    str += " " + mChild[I_QOP]->toString(pretty);
+
+    return str;
+}
+
+std::string efd::NDIfStmt::getOperation() const {
+    return "if";
+}
+
+efd::Node::Kind efd::NDIfStmt::getKind() const {
+    return K_IF_STMT;
+}
+
+bool efd::NDIfStmt::ClassOf(const NodeRef node) {
+    return node->getKind() == K_IF_STMT; 
+}
+
+efd::NodeRef efd::NDIfStmt::create(NodeRef cidNode, NodeRef intNode, NodeRef qopNode) {
+    return new NDIfStmt(cidNode, intNode, qopNode);
+}
+
 // -------------- Value Specializations -----------------
 // -------------- Value<efd::IntVal> -----------------
 template <> 

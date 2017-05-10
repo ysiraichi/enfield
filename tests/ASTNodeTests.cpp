@@ -235,3 +235,11 @@ TEST(ASTNodeTests, GateDeclCreationTest) {
             NDStmtList::create());
     TestPrinting(refIdGate, idGateStr);
 }
+
+TEST(ASTNodeTests, IfStmtTest) {
+    std::string ifStr = "if (someid == 1) reset otherid[0];";
+
+    NodeRef refReset = NDQOpReset::create(NDIdRef::create(Id("otherid"), Int("0")));
+    NodeRef refIf = NDIfStmt::create(Id("someid"), Int("1"), refReset);
+    TestPrinting(refIf, ifStr);
+}
