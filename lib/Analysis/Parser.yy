@@ -188,14 +188,8 @@ qop: uop        { $$ = $1; }
    ;
 
 uop: id args anylist ";"    { $$ = efd::NDQOpGeneric::create($1, $2, $3); }
-   | U args arg ";"         { 
-                                NodeRef cId = efd::NDId::create("U");
-                                $$ = efd::NDQOpGeneric::create(cId, $2, $3); 
-                            }
-   | CX args arg ";"        { 
-                                NodeRef cId = efd::NDId::create("CX");
-                                $$ = efd::NDQOpGeneric::create(cId, $2, $3); 
-                            }
+   | U args arg ";"         { $$ = efd::NDQOpU::create($2, $3); }
+   | CX args arg ";"        { $$ = efd::NDQOpCX::create($2, $3); }
    ;
 
 args: %empty            { $$ = efd::NDList::create(); }
