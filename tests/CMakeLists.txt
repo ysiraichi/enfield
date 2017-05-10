@@ -4,3 +4,6 @@ efd_test (CommandLineTests
 
 efd_test (ASTNodeTests
     EfdAnalysis EfdSupport)
+
+efd_test (DriverTests
+    EfdAnalysis EfdSupport)
