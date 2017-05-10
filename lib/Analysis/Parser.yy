@@ -40,7 +40,10 @@
     }
 
     void efd::yy::EfdParser::error(efd::yy::location const& loc, std::string const& err) {
-        std::cerr << "Error: " << err << std::endl;
+        std::string filename = "unknown";
+        if (loc.begin.filename) filename = *loc.begin.filename;
+        std::cerr << filename << ":" << loc.begin.line << ":" 
+            << loc.begin.column << ": " << err << std::endl;
     }
 }
 
@@ -100,7 +103,7 @@
 %token <efd::RealVal> REAL;
 %token <std::string> ID;
 
-%token EOF;
+%token EOF 0 "end of file";
 
 %type <NodeRef> program program_ statement
 %type <NodeRef> decl gatedecl opaquedecl qop uop
@@ -141,14 +144,8 @@ statement: decl         { $$ = $1; }
          | barrier      { $$ = $1; }
          ;
 
-decl: QREG id "[" integer "]" ";"   { 
-                                        $$ = efd::NDDecl::create
-                                        (efd::NDDecl::QUANTUM, $2, $4);
-                                    }
-    | CREG id "[" integer "]" ";"   { 
-                                        $$ = efd::NDDecl::create
-                                        (efd::NDDecl::CONCRETE, $2, $4);
-                                    }
+decl: QREG id "[" integer "]" ";"   { $$ = efd::NDDecl::create(efd::NDDecl::QUANTUM, $2, $4); }
+    | CREG id "[" integer "]" ";"   { $$ = efd::NDDecl::create(efd::NDDecl::CONCRETE, $2, $4); }
     ;
 
 gatedecl: GATE id params idlist "{" goplist "}" { 
@@ -158,10 +155,7 @@ gatedecl: GATE id params idlist "{" goplist "}" {
                                                 }
         ;
 
-opaquedecl: OPAQUE id params idlist ";" { 
-                                            $$ = efd::NDOpaque::create
-                                            ($2, $2, $3);
-                                        }
+opaquedecl: OPAQUE id params idlist ";" { $$ = efd::NDOpaque::create($2, $3, $4); }
           ;
 
 barrier: BARRIER idlist ";" { $$ = efd::NDQOpBarrier::create($2); }
@@ -193,9 +187,14 @@ qop: uop        { $$ = $1; }
    | reset      { $$ = $1; }
    ;
 
-uop: id args anylist ";"    { 
-                                $$ = efd::NDQOpGeneric::create
-                                ($1, $2, $3); 
+uop: id args anylist ";"    { $$ = efd::NDQOpGeneric::create($1, $2, $3); }
+   | U args arg ";"         { 
+                                NodeRef cId = efd::NDId::create("U");
+                                $$ = efd::NDQOpGeneric::create(cId, $2, $3); 
+                            }
+   | CX args arg ";"        { 
+                                NodeRef cId = efd::NDId::create("CX");
+                                $$ = efd::NDQOpGeneric::create(cId, $2, $3); 
                             }
    ;
 
@@ -257,6 +256,7 @@ exp: real               { $$ = $1; }
    | exp "*" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_MUL, $1, $3); }
    | exp "/" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_DIV, $1, $3); }
    | exp "^" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_POW, $1, $3); }
+   | "-" exp            { $$ = efd::NDUnaryOp::create(efd::NDUnaryOp::UOP_NEG, $2); }
    ;
 
 unary: SIN  { $$ = efd::NDUnaryOp::UOP_SIN; }
@@ -299,13 +299,13 @@ static int Parse(efd::ASTWrapper& ast) {
 
 efd::NodeRef efd::ParseFile(std::string filename, std::string path) {
     ASTWrapper ast { filename, path, nullptr };
-    if (!Parse(ast)) return nullptr;
+    if (Parse(ast)) return nullptr;
     return ast.mAST;
 }
 
 efd::NodeRef efd::ParseString(std::string program) {
     std::string filename = "qasm-" + std::to_string((unsigned long long) &program) + ".qasm";
-    std::string path =  "/tmp/" + filename;
+    std::string path =  "/tmp/";
 
     std::ofstream ofs((path + filename).c_str());
     ofs << program;
@@ -313,6 +313,6 @@ efd::NodeRef efd::ParseString(std::string program) {
     ofs.close();
 
     ASTWrapper ast { filename, path, nullptr };
-    if (!Parse(ast)) return nullptr;
+    if (Parse(ast)) return nullptr;
     return ast.mAST;
 }

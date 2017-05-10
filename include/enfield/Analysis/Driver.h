@@ -3,17 +3,18 @@
 
 #include "enfield/Analysis/Nodes.h"
 
+#include <iostream>
 #include <string>
 
 namespace efd {
     struct ASTWrapper {
-        ASTWrapper(std::string filename);
-
-        std::string mFilename;
-        std::shared_ptr<Node::NodeRef> mAST;
+        std::string mFile;
+        std::string mPath;
+        NodeRef mAST;
     };
 
-    int Parse(ASTWrapper& ast);
+    NodeRef ParseFile(std::string filename, std::string path = "./");
+    NodeRef ParseString(std::string program);
 };
 
 #endif
