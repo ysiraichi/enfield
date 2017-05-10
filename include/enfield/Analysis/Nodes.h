@@ -29,6 +29,7 @@ namespace efd {
                 K_UNARYOP,
                 K_ID_REF,
                 K_LIST,
+                K_STMT_LIST,
                 K_GOP_LIST,
                 K_LIT_INT,
                 K_LIT_REAL,
@@ -407,6 +408,21 @@ namespace efd {
     };
 
     /// \brief Node for list of qubit operation sequences.
+    class NDStmtList : public NDList {
+        private:
+            NDStmtList();
+
+        public:
+            Kind getKind() const override;
+            std::string toString(bool pretty = false) const override;
+
+            /// \brief Returns the type of this class.
+            static Kind GetKind();
+            /// \brief Creates a new instance of this node.
+            static NodeRef create();
+    };
+
+    /// \brief Node for list of qubit operation sequences inside gate declarations.
     class NDGOpList : public NDList {
         private:
             NDGOpList();

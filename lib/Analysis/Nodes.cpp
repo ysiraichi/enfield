@@ -517,8 +517,34 @@ efd::NodeRef efd::NDList::create() {
     return new NDList();
 }
 
+// -------------- StmtList -----------------
+efd::NDStmtList::NDStmtList() : NDList(K_STMT_LIST) {
+}
+
+std::string efd::NDStmtList::toString(bool pretty) const {
+    std::string str;
+    std::string endl = (pretty) ? "\n" : "";
+
+    for (auto &child : *this)
+        str += child->toString(pretty) + endl;
+
+    return str;
+}
+
+efd::Node::Kind efd::NDStmtList::getKind() const {
+    return K_STMT_LIST;
+}
+
+efd::Node::Kind efd::NDStmtList::GetKind() {
+    return K_STMT_LIST;
+}
+
+efd::NodeRef efd::NDStmtList::create() {
+    return new NDStmtList();
+}
+
 // -------------- GOpList -----------------
-efd::NDGOpList::NDGOpList() : NDList(K_GOP_LIST) {
+efd::NDGOpList::NDGOpList() : NDList(K_STMT_LIST) {
 }
 
 std::string efd::NDGOpList::toString(bool pretty) const {

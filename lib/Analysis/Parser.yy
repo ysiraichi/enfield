@@ -10,7 +10,7 @@
         class EfdScanner;
     };
 
-    typedef efd::Node::NodeRef NodeRef;
+    typedef efd::Node* NodeRef;
 }
 
 %code provides {
@@ -19,11 +19,12 @@
     #endif
 
     #include <iostream>
+    #include <fstream>
 
     namespace efd {
         class EfdScanner : public yyFlexLexer {
             public:
-                EfdScanner(std::istream& iStream, std::ostream& oStream);
+                EfdScanner(std::istream* iStream, std::ostream* oStream);
                 yy::EfdParser::symbol_type lex();
         };
     }
@@ -31,6 +32,16 @@
     #undef YY_DECL
     #define YY_DECL \
         efd::yy::EfdParser::symbol_type efd::EfdScanner::lex()
+}
+
+%code {
+    efd::EfdScanner::EfdScanner(std::istream* iStream, std::ostream* oStream)
+       : yyFlexLexer(iStream, oStream) {
+    }
+
+    void efd::yy::EfdParser::error(efd::yy::location const& loc, std::string const& err) {
+        std::cerr << "Error: " << err << std::endl;
+    }
 }
 
 %defines
@@ -50,8 +61,8 @@
 
 %locations
 %initial-action {
-    @$.begin.filename = &ast.mFilename;
-    @$.end.filename = &ast.mFilename;
+    @$.begin.filename = &ast.mFile;
+    @$.end.filename = &ast.mFile;
 }
 
 %define parse.trace
@@ -107,19 +118,19 @@
 %left "*" "/"
 %left "^"
 %right NEG
-
 %%
 
 %start program;
 
 program: program_ statement EOF {
-                                    efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                    efd::dynCast<efd::NDStmtList>($1)->addChild($2);
                                     $$ = $1;
+                                    ast.mAST = $1;
                                 }
        ;
-program_: %empty                { $$ = efd::NDList::create(); }
+program_: %empty                { $$ = efd::NDStmtList::create(); }
         | program_ statement    {
-                                    efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                    efd::dynCast<efd::NDStmtList>($1)->addChild($2);
                                     $$ = $1;
                                 }
 
@@ -168,11 +179,11 @@ params: %empty          { $$ = efd::NDList::create(); }
 
 goplist: %empty             { $$ = efd::NDGOpList::create(); }
        | goplist uop        {
-                                efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                efd::dynCast<efd::NDGOpList>($1)->addChild($2);
                                 $$ = $1;
                             }
        | goplist barrier    {
-                                efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                efd::dynCast<efd::NDGOpList>($1)->addChild($2);
                                 $$ = $1;
                             }
        ;
@@ -193,46 +204,46 @@ args: %empty            { $$ = efd::NDList::create(); }
     ;
 
 idlist: idlist_ id      {
-                            efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                            efd::dynCast<efd::NDList>($1)->addChild($2);
                             $$ = $1;
                         }
       ;
 idlist_: %empty         { $$ = efd::NDList::create(); }
        | idlist_ id "," {
-                            efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                            efd::dynCast<efd::NDList>($1)->addChild($2);
                             $$ = $1;
                         }
        ;
 
 anylist: anylist_ id    {
-                            efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                            efd::dynCast<efd::NDList>($1)->addChild($2);
                             $$ = $1;
                         }
        | anylist_ idref {
-                            efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                            efd::dynCast<efd::NDList>($1)->addChild($2);
                             $$ = $1;
                         }
        ;
 anylist_: %empty                { $$ = efd::NDList::create(); }
         | anylist_ id ","       {
-                                    efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                    efd::dynCast<efd::NDList>($1)->addChild($2);
                                     $$ = $1;
                                 }
         | anylist_ idref ","    {
-                                    efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                    efd::dynCast<efd::NDList>($1)->addChild($2);
                                     $$ = $1;
                                 }
         ;
 
 explist: %empty         { $$ = efd::NDList::create(); }
        | explist_ exp   {
-                            efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                            efd::dynCast<efd::NDList>($1)->addChild($2);
                             $$ = $1;
                         }
        ;
 explist_: %empty            { $$ = efd::NDList::create(); }
         | explist_ exp ","  {
-                                efd::dynCast<efd::NDList>($1.get())->addChild($2);
+                                efd::dynCast<efd::NDList>($1)->addChild($2);
                                 $$ = $1;
                             }
 
@@ -274,6 +285,34 @@ real: REAL { $$ = efd::NDReal::create($1); }
 
 %%
 
-efd::EfdScanner::EfdScanner(std::istream& iStream, std::ostream& oStream)
-   : yyFlexLexer(iStream, oStream) {
+static int Parse(efd::ASTWrapper& ast) {
+    std::ifstream ifs((ast.mPath + ast.mFile).c_str());
+
+    efd::EfdScanner scanner(&ifs, nullptr);
+    efd::yy::EfdParser parser(ast, scanner);
+
+    int ret = parser.parse();
+    ifs.close();
+
+    return ret;
+}
+
+efd::NodeRef efd::ParseFile(std::string filename, std::string path) {
+    ASTWrapper ast { filename, path, nullptr };
+    if (!Parse(ast)) return nullptr;
+    return ast.mAST;
+}
+
+efd::NodeRef efd::ParseString(std::string program) {
+    std::string filename = "qasm-" + std::to_string((unsigned long long) &program) + ".qasm";
+    std::string path =  "/tmp/" + filename;
+
+    std::ofstream ofs((path + filename).c_str());
+    ofs << program;
+    ofs.flush();
+    ofs.close();
+
+    ASTWrapper ast { filename, path, nullptr };
+    if (!Parse(ast)) return nullptr;
+    return ast.mAST;
 }

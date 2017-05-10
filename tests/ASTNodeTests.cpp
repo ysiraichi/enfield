@@ -194,6 +194,19 @@ TEST(ASTNodeTests, GOpListCreationTest) {
     TestPrinting(refGOp, gopStr);
 }
 
+TEST(ASTNodeTests, StmtListCreationTest) {
+    std::string stmtStr = "id(3) r0;id(5) r5;id(7) r3;";
+
+    NodeRef refStmt = NDStmtList::create();
+    NDStmtList* stmtList = dynCast<NDStmtList>(refStmt);
+
+    stmtList->addChild(IdGate("r0", "3"));
+    stmtList->addChild(IdGate("r5", "5"));
+    stmtList->addChild(IdGate("r3", "7"));
+
+    TestPrinting(refStmt, stmtStr);
+}
+
 TEST(ASTNodeTests, OpaqueGateDeclCreationTest) {
     std::string opaqueStr = "opaque Ogate(10, sin(pi), (-3.14159)) r0, r5;";
 
@@ -219,6 +232,6 @@ TEST(ASTNodeTests, GateDeclCreationTest) {
     dynCast<NDList>(refQArgs)->addChild(Id("r0"));
 
     NodeRef refIdGate = NDGateDecl::create(Id("id"), NDList::create(), refQArgs, 
-            NDGOpList::create());
+            NDStmtList::create());
     TestPrinting(refIdGate, idGateStr);
 }
