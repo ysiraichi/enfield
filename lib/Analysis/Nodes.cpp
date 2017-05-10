@@ -58,9 +58,11 @@ std::string efd::NDDecl::getOperation() const {
 
 std::string efd::NDDecl::toString(bool pretty) const {
     std::string str(getOperation());
+    std::string endl = (pretty) ? "\n" : "";
 
     str += " " + mChild[I_ID]->toString(pretty);
     str += "[" + mChild[I_SIZE]->toString(pretty) + "];";
+    str += endl;
 
     return str;
 }
@@ -98,10 +100,15 @@ std::string efd::NDGateDecl::toString(bool pretty) const {
     str += " " + mChild[I_ID]->toString(pretty);
 
     if (!mChild[I_ARGS]->isEmpty())
-        str += " (" + mChild[I_ARGS]->toString(pretty) + ")";
+        str += "(" + mChild[I_ARGS]->toString(pretty) + ")";
 
-    str += " " + mChild[I_QARGS]->toString(pretty) + " {" + endl;
-    str += mChild[I_GOPLIST]->toString(pretty) + endl + "}" + endl;
+    str += " " + mChild[I_QARGS]->toString(pretty) + " {";
+    str += endl;
+
+    if (!mChild[I_GOPLIST]->isEmpty())
+        str += mChild[I_GOPLIST]->toString(pretty);
+    str += "}";
+    str += endl;
 
     return str;
 }
@@ -139,6 +146,7 @@ std::string efd::NDOpaque::toString(bool pretty) const {
         str += "(" + mChild[I_ARGS]->toString(pretty) + ")";
 
     str += " " + mChild[I_QARGS]->toString(pretty) + ";";
+    str += endl;
 
     return str;
 }
@@ -201,6 +209,8 @@ std::string efd::NDQOpMeasure::toString(bool pretty) const {
     str += " ->";
     str += " " + mChild[I_CBIT]->toString(pretty) + ";";
 
+    str += endl;
+
     return str;
 }
 
@@ -227,9 +237,12 @@ std::string efd::NDQOpReset::getOperation() const {
 
 std::string efd::NDQOpReset::toString(bool pretty) const {
     std::string str;
+    std::string endl = (pretty) ? "\n" : "";
 
     str += getOperation();
     str += " " + mChild[I_ONLY]->toString(pretty) + ";";
+
+    str += endl;
 
     return str;
 }
@@ -257,9 +270,12 @@ std::string efd::NDQOpBarrier::getOperation() const {
 
 std::string efd::NDQOpBarrier::toString(bool pretty) const {
     std::string str;
+    std::string endl = (pretty) ? "\n" : "";
 
     str += getOperation();
     str += " " + mChild[I_ONLY]->toString(pretty) + ";";
+
+    str += endl;
 
     return str;
 }
@@ -289,6 +305,7 @@ std::string efd::NDQOpGeneric::getOperation() const {
 
 std::string efd::NDQOpGeneric::toString(bool pretty) const {
     std::string str;
+    std::string endl = (pretty) ? "\n" : "";
 
     str += getOperation();
 
@@ -296,6 +313,7 @@ std::string efd::NDQOpGeneric::toString(bool pretty) const {
         str += "(" + mChild[I_ARGS]->toString(pretty) + ")";
 
     str += " " + mChild[I_QARGS]->toString(pretty) + ";";
+    str += endl;
 
     return str;
 }
@@ -523,10 +541,9 @@ efd::NDStmtList::NDStmtList() : NDList(K_STMT_LIST) {
 
 std::string efd::NDStmtList::toString(bool pretty) const {
     std::string str;
-    std::string endl = (pretty) ? "\n" : "";
 
     for (auto &child : *this)
-        str += child->toString(pretty) + endl;
+        str += child->toString(pretty);
 
     return str;
 }
@@ -553,7 +570,8 @@ std::string efd::NDGOpList::toString(bool pretty) const {
     std::string tab = (pretty) ? "\t" : "";
 
     for (auto &child : *this)
-        str += tab + child->toString(pretty) + endl;
+        if (!child->isEmpty())
+            str += tab + child->toString(pretty);
 
     return str;
 }
