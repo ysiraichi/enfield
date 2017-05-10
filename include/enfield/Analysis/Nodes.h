@@ -8,11 +8,12 @@
 #include <memory>
 
 namespace efd {
+    class Node;
+    typedef Node* NodeRef;
 
     /// \brief Base class for AST nodes.
     class Node {
         public:
-            typedef std::shared_ptr<Node> NodeRef;
             typedef std::vector<NodeRef>::iterator Iterator;
             typedef std::vector<NodeRef>::const_iterator ConstIterator;
 
@@ -482,8 +483,8 @@ std::string efd::NDValue<T>::toString(bool pretty) const {
 }
 
 template <typename T>
-efd::Node::NodeRef efd::NDValue<T>::create(T val) {
-    return NodeRef(new NDValue<T>(val));
+efd::NodeRef efd::NDValue<T>::create(T val) {
+    return new NDValue<T>(val);
 }
 
 #endif
