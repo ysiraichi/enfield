@@ -25,6 +25,8 @@ namespace efd {
                 K_QOP_RESET,
                 K_QOP_BARRIER,
                 K_QOP_GENERIC,
+                K_QOP_CX,
+                K_QOP_U,
                 K_BINOP,
                 K_UNARYOP,
                 K_ID_REF,
@@ -102,7 +104,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(Type t, NodeRef idNode, NodeRef sizeNode);
     };
@@ -124,7 +126,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode);
     };
@@ -145,7 +147,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
     };
@@ -153,25 +155,7 @@ namespace efd {
     /// \brief Base node for quantum operations.
     class NDQOp : public Node {
         public:
-            /// \brief The types of quantum operations.
-            enum QOpType {
-                QOP_RESET,
-                QOP_BARRIER,
-                QOP_MEASURE,
-                QOP_U,
-                QOP_CX,
-                QOP_GENERIC
-            };
-
-        private:
-
-            QOpType mT;
-
-        public:
-            NDQOp(Kind k, QOpType type);
-
-            /// \brief Returns the type o the operation of this node.
-            QOpType getQOpType() const;
+            NDQOp(Kind k);
 
             /// \brief Returns true if this is a reset node.
             virtual bool isReset() const;
@@ -181,8 +165,13 @@ namespace efd {
             virtual bool isMeasure() const;
             /// \brief Returns true if this is a u node.
             virtual bool isU() const;
+            /// \brief Returns true if this is a cx node.
+            virtual bool isCX() const;
             /// \brief Returns true if this is a generic node.
             virtual bool isGeneric() const;
+
+            /// \brief Returns the type of this class.
+            static bool ClassOf(const NodeRef node);
     };
 
     /// \brief NDQOp specialized for measure operation.
@@ -200,7 +189,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef qNode, NodeRef cNode);
     };
@@ -219,9 +208,49 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef qaNode);
+    };
+
+    /// \brief NDQOp specialized for barrier operation.
+    class NDQOpU : public NDQOp {
+        private:
+            enum ChildType {
+                I_ARGS = 0,
+                I_QARGS
+            };
+
+        public:
+            NDQOpU(NodeRef aNode, NodeRef qaNode);
+            Kind getKind() const override;
+            std::string getOperation() const override;
+            std::string toString(bool pretty = false) const override;
+
+            /// \brief Returns the type of this class.
+            static bool ClassOf(const NodeRef node);
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(NodeRef aNode, NodeRef qaNode);
+    };
+
+    /// \brief NDQOp specialized for barrier operation.
+    class NDQOpCX : public NDQOp {
+        private:
+            enum ChildType {
+                I_LHS = 0,
+                I_RHS
+            };
+
+        public:
+            NDQOpCX(NodeRef srcNode, NodeRef tgtNode);
+            Kind getKind() const override;
+            std::string getOperation() const override;
+            std::string toString(bool pretty = false) const override;
+
+            /// \brief Returns the type of this class.
+            static bool ClassOf(const NodeRef node);
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(NodeRef srcNode, NodeRef tgtNode);
     };
 
     /// \brief NDQOp specialized for barrier operation.
@@ -238,7 +267,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef qaNode);
     };
@@ -260,7 +289,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
     };
@@ -308,7 +337,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(OpType t, NodeRef lhsNode, NodeRef rhsNode);
     };
@@ -361,7 +390,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(UOpType t, NodeRef oNode);
     };
@@ -381,7 +410,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef idNode, NodeRef sizeNode);
     };
@@ -402,7 +431,7 @@ namespace efd {
             void addChild(NodeRef child);
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create();
     };
@@ -417,7 +446,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create();
     };
@@ -432,7 +461,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             /// \brief Returns the type of this class.
-            static Kind GetKind();
+            static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create();
     };
@@ -455,24 +484,24 @@ namespace efd {
                 std::string toString(bool pretty = false) const override;
 
                 /// \brief Returns the type of this class.
-                static Kind GetKind();
+                static bool ClassOf(const NodeRef node);
                 /// \brief Creates a new instance of this node.
                 static NodeRef create(T val);
         };
 
     template class NDValue<IntVal>;
     template <> NDValue<IntVal>::NDValue(IntVal val);
-    template <> Node::Kind NDValue<IntVal>::GetKind();
+    template <> bool NDValue<IntVal>::ClassOf(const NodeRef node);
     template <> Node::Kind NDValue<IntVal>::getKind() const;
 
     template class NDValue<RealVal>;
     template <> NDValue<RealVal>::NDValue(RealVal val);
-    template <> Node::Kind NDValue<RealVal>::GetKind();
+    template <> bool NDValue<RealVal>::ClassOf(const NodeRef node);
     template <> Node::Kind NDValue<RealVal>::getKind() const;
 
     template class NDValue<std::string>;
     template <> NDValue<std::string>::NDValue(std::string val);
-    template <> Node::Kind NDValue<std::string>::GetKind();
+    template <> bool NDValue<std::string>::ClassOf(const NodeRef node);
     template <> Node::Kind NDValue<std::string>::getKind() const;
     template <> std::string NDValue<std::string>::getOperation() const;
     template <> std::string NDValue<std::string>::toString(bool pretty) const;
