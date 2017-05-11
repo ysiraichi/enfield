@@ -9,6 +9,8 @@
 
 namespace efd {
     class Node;
+    class NodeVisitor;
+
     typedef Node* NodeRef;
 
     /// \brief Base class for AST nodes.
@@ -73,6 +75,9 @@ namespace efd {
             virtual Kind getKind() const = 0;
             /// \brief Returns a std::string representation of this Node and its childrem.
             virtual std::string toString(bool pretty = false) const = 0;
+            /// \brief Used by visitor classes.
+            virtual void apply(NodeVisitor* visitor) = 0;
+
     };
 
     /// \brief Node for declaration of registers (concrete and quantum).
@@ -103,6 +108,7 @@ namespace efd {
             Kind getKind() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -125,6 +131,7 @@ namespace efd {
             Kind getKind() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -146,6 +153,7 @@ namespace efd {
             Kind getKind() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -188,6 +196,7 @@ namespace efd {
             Kind getKind() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -207,6 +216,7 @@ namespace efd {
             Kind getKind() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -227,6 +237,7 @@ namespace efd {
             Kind getKind() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -247,6 +258,7 @@ namespace efd {
             Kind getKind() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -266,6 +278,7 @@ namespace efd {
             Kind getKind() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -288,6 +301,7 @@ namespace efd {
             Kind getKind() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -336,6 +350,7 @@ namespace efd {
             Kind getKind() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -389,6 +404,7 @@ namespace efd {
             Kind getKind() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -409,6 +425,7 @@ namespace efd {
         public:
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -427,6 +444,7 @@ namespace efd {
         public:
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Appends a child to the end of the list.
             void addChild(NodeRef child);
@@ -445,6 +463,7 @@ namespace efd {
         public:
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -460,6 +479,7 @@ namespace efd {
         public:
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -482,6 +502,7 @@ namespace efd {
         public:
             Kind getKind() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
             std::string getOperation() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -506,6 +527,7 @@ namespace efd {
                 Kind getKind() const override;
                 std::string getOperation() const override;
                 std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
 
                 /// \brief Returns whether the \p node is an instance of this class.
                 static bool ClassOf(const NodeRef node);
@@ -517,11 +539,13 @@ namespace efd {
     template <> NDValue<IntVal>::NDValue(IntVal val);
     template <> bool NDValue<IntVal>::ClassOf(const NodeRef node);
     template <> Node::Kind NDValue<IntVal>::getKind() const;
+    template <> void NDValue<IntVal>::apply(NodeVisitor* visitor);
 
     template class NDValue<RealVal>;
     template <> NDValue<RealVal>::NDValue(RealVal val);
     template <> bool NDValue<RealVal>::ClassOf(const NodeRef node);
     template <> Node::Kind NDValue<RealVal>::getKind() const;
+    template <> void NDValue<RealVal>::apply(NodeVisitor* visitor);
 
     template class NDValue<std::string>;
     template <> NDValue<std::string>::NDValue(std::string val);
@@ -529,6 +553,7 @@ namespace efd {
     template <> Node::Kind NDValue<std::string>::getKind() const;
     template <> std::string NDValue<std::string>::getOperation() const;
     template <> std::string NDValue<std::string>::toString(bool pretty) const;
+    template <> void NDValue<std::string>::apply(NodeVisitor* visitor);
 
     typedef NDValue<IntVal> NDInt;
     typedef NDValue<RealVal> NDReal;

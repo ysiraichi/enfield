@@ -1,4 +1,5 @@
 #include "enfield/Analysis/Nodes.h"
+#include "enfield/Analysis/NodeVisitor.h"
 
 efd::Node::Node(Kind k, bool empty) : mK(k), mIsEmpty(empty) {
 }
@@ -56,6 +57,10 @@ std::string efd::NDDecl::getOperation() const {
     }
 }
 
+void efd::NDDecl::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::string efd::NDDecl::toString(bool pretty) const {
     std::string str(getOperation());
     std::string endl = (pretty) ? "\n" : "";
@@ -89,6 +94,10 @@ efd::NDGateDecl::NDGateDecl(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeR
 
 std::string efd::NDGateDecl::getOperation() const {
     return "gate";
+}
+
+void efd::NDGateDecl::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::string efd::NDGateDecl::toString(bool pretty) const {
@@ -134,6 +143,10 @@ efd::NDOpaque::NDOpaque(NodeRef idNode, NodeRef aNode, NodeRef qaNode) : Node(K_
 
 std::string efd::NDOpaque::getOperation() const {
     return "opaque";
+}
+
+void efd::NDOpaque::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::string efd::NDOpaque::toString(bool pretty) const {
@@ -210,6 +223,10 @@ std::string efd::NDQOpMeasure::getOperation() const {
     return "measure";
 }
 
+void efd::NDQOpMeasure::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::string efd::NDQOpMeasure::toString(bool pretty) const {
     std::string str(getOperation());
     std::string endl = (pretty) ? "\n" : "";
@@ -242,6 +259,10 @@ efd::NDQOpReset::NDQOpReset(NodeRef qaNode) : NDQOp(K_QOP_RESET) {
 
 std::string efd::NDQOpReset::getOperation() const {
     return "reset";
+}
+
+void efd::NDQOpReset::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::string efd::NDQOpReset::toString(bool pretty) const {
@@ -277,6 +298,10 @@ std::string efd::NDQOpBarrier::getOperation() const {
     return "barrier";
 }
 
+void efd::NDQOpBarrier::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::string efd::NDQOpBarrier::toString(bool pretty) const {
     std::string str;
     std::string endl = (pretty) ? "\n" : "";
@@ -309,6 +334,10 @@ efd::NDQOpCX::NDQOpCX(NodeRef srcNode, NodeRef tgtNode) : NDQOp(K_QOP_CX) {
 
 std::string efd::NDQOpCX::getOperation() const {
     return "CX";
+}
+
+void efd::NDQOpCX::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::string efd::NDQOpCX::toString(bool pretty) const {
@@ -346,6 +375,10 @@ std::string efd::NDQOpU::getOperation() const {
     return "U";
 }
 
+void efd::NDQOpU::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::string efd::NDQOpU::toString(bool pretty) const {
     std::string str;
     std::string endl = (pretty) ? "\n" : "";
@@ -380,6 +413,10 @@ efd::NDQOpGeneric::NDQOpGeneric(NodeRef idNode, NodeRef aNode, NodeRef qaNode) :
 
 std::string efd::NDQOpGeneric::getOperation() const {
     return mChild[I_ID]->toString();
+}
+
+void efd::NDQOpGeneric::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::string efd::NDQOpGeneric::toString(bool pretty) const {
@@ -447,6 +484,10 @@ std::string efd::NDBinOp::getOperation() const {
         case OP_DIV: return "/";
         case OP_POW: return "^";
     }
+}
+
+void efd::NDBinOp::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::string efd::NDBinOp::toString(bool pretty) const {
@@ -522,6 +563,10 @@ std::string efd::NDUnaryOp::getOperation() const {
     }
 }
 
+void efd::NDUnaryOp::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::string efd::NDUnaryOp::toString(bool pretty) const {
     std::string str;
 
@@ -554,6 +599,10 @@ efd::NodeRef efd::NDUnaryOp::create(UOpType t, NodeRef oNode) {
 efd::NDIdRef::NDIdRef(NodeRef idNode, NodeRef sizeNode) : Node(K_ID_REF) {
     mChild.push_back(idNode);
     mChild.push_back(sizeNode);
+}
+
+void efd::NDIdRef::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::string efd::NDIdRef::toString(bool pretty) const {
@@ -589,6 +638,10 @@ void efd::NDList::addChild(NodeRef child) {
     Node::mIsEmpty = false;
 }
 
+void efd::NDList::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::string efd::NDList::toString(bool pretty) const {
     std::string str;
 
@@ -620,6 +673,10 @@ efd::NodeRef efd::NDList::create() {
 efd::NDStmtList::NDStmtList() : NDList(K_STMT_LIST) {
 }
 
+void efd::NDStmtList::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::string efd::NDStmtList::toString(bool pretty) const {
     std::string str;
 
@@ -643,6 +700,10 @@ efd::NodeRef efd::NDStmtList::create() {
 
 // -------------- GOpList -----------------
 efd::NDGOpList::NDGOpList() : NDList(K_STMT_LIST) {
+}
+
+void efd::NDGOpList::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::string efd::NDGOpList::toString(bool pretty) const {
@@ -674,6 +735,10 @@ efd::NDIfStmt::NDIfStmt(NodeRef cidNode, NodeRef intNode, NodeRef qopNode) : Nod
     mChild.push_back(cidNode);
     mChild.push_back(intNode);
     mChild.push_back(qopNode);
+}
+
+void efd::NDIfStmt::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::string efd::NDIfStmt::toString(bool pretty) const {
@@ -726,6 +791,11 @@ efd::Node::Kind efd::NDValue<efd::IntVal>::getKind() const {
     return K_LIT_INT; 
 }
 
+template <> 
+void efd::NDValue<efd::IntVal>::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
+}
+
 // -------------- Value<efd::RealVal> -----------------
 template <> 
 efd::NDValue<efd::RealVal>::NDValue(efd::RealVal val) : 
@@ -740,6 +810,11 @@ bool efd::NDValue<efd::RealVal>::ClassOf(const NodeRef node) {
 template <> 
 efd::Node::Kind efd::NDValue<efd::RealVal>::getKind() const { 
     return K_LIT_REAL; 
+}
+
+template <> 
+void efd::NDValue<efd::RealVal>::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
 }
 
 // -------------- Value<std::string> -----------------
@@ -761,6 +836,11 @@ efd::Node::Kind efd::NDValue<std::string>::getKind() const {
 template <> 
 std::string efd::NDValue<std::string>::getOperation() const {
     return mVal; 
+}
+
+template <> 
+void efd::NDValue<std::string>::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
 }
 
 template <> 
