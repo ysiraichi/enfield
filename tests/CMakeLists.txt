@@ -1,9 +1,10 @@
 file (GLOB files "files/*.qasm")
-message (STATUS "${files}")
 
-foreach (f ${files})
-    message (STATUS "${f}")
-endforeach (f)
+foreach (qfile ${files})
+    get_filename_component (qfilename ${qfile} NAME)
+    configure_file ("files/${qfilename}" 
+        "${CMAKE_CURRENT_BINARY_DIR}/files/${qfilename}" COPYONLY)
+endforeach (qfile)
 
 efd_test (CommandLineTests
     EfdSupport)
