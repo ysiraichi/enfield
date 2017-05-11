@@ -284,6 +284,10 @@ real: REAL { $$ = efd::NDReal::create($1); }
 
 static int Parse(efd::ASTWrapper& ast) {
     std::ifstream ifs((ast.mPath + ast.mFile).c_str());
+    if (ifs.fail()) {
+        std::cerr << "Could not open file: " << ast.mPath + ast.mFile << std::endl;
+        return 1;
+    }
 
     efd::EfdScanner scanner(&ifs, nullptr);
     efd::yy::EfdParser parser(ast, scanner);
