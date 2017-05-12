@@ -105,7 +105,7 @@
 
 %token EOF 0 "end of file";
 
-%type <NodeRef> program program_ statement
+%type <NodeRef> program stmtlist stmtlist_ statement
 %type <NodeRef> decl gatedecl opaquedecl qop uop ifstmt
 %type <NodeRef> barrier reset measure
 %type <NodeRef> goplist
@@ -125,17 +125,20 @@
 
 %start program;
 
-program: program_ statement EOF {
-                                    efd::dynCast<efd::NDStmtList>($1)->addChild($2);
-                                    $$ = $1;
-                                    ast.mAST = $1;
-                                }
+program: stmtlist                   { $$ = $1; }
+       | IBMQASM real ";" stmtlist  { $$ = efd::NDQasmVersion::create($2, $4); }
+
+stmtlist: stmtlist_ statement EOF {
+                                      efd::dynCast<efd::NDStmtList>($1)->addChild($2);
+                                      $$ = $1;
+                                      ast.mAST = $1;
+                                  }
        ;
-program_: %empty                { $$ = efd::NDStmtList::create(); }
-        | program_ statement    {
-                                    efd::dynCast<efd::NDStmtList>($1)->addChild($2);
-                                    $$ = $1;
-                                }
+stmtlist_: %empty                { $$ = efd::NDStmtList::create(); }
+         | stmtlist_ statement   {
+                                     efd::dynCast<efd::NDStmtList>($1)->addChild($2);
+                                     $$ = $1;
+                                 }
 
 statement: decl         { $$ = $1; }
          | gatedecl     { $$ = $1; }

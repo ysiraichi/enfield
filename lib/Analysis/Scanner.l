@@ -38,7 +38,7 @@ blank [ \t]
                 loc.step(); 
             }
 
-"OpenQASM"  { return efd::yy::EfdParser::make_IBMQASM(loc); }
+"OPENQASM"  { return efd::yy::EfdParser::make_IBMQASM(loc); }
 "include"   { return efd::yy::EfdParser::make_INCLUDE(loc); }
 "opaque"    { return efd::yy::EfdParser::make_OPAQUE(loc); }
 "if"        { return efd::yy::EfdParser::make_IF(loc); }

@@ -8,6 +8,7 @@ namespace efd {
     /// \brief Interface class to be used as a visitor.
     class NodeVisitor {
         public:
+            virtual void visit(NDQasmVersion* v) = 0;
             virtual void visit(NDDecl* v) = 0;
             virtual void visit(NDGateDecl* v) = 0;
             virtual void visit(NDOpaque* v) = 0;
