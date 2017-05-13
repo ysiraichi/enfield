@@ -20,6 +20,7 @@ id    [a-z][A-Za-z0-9_]*
 real  ([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?
 integer [1-9]+[0-9]*|0
 blank [ \t]
+string \".*\"
 
 %{
 #define YY_USER_ACTION loc.columns(yyleng);
@@ -33,10 +34,12 @@ blank [ \t]
 
 {blank}+    { loc.step(); }
 
-[\n]+       {
+[\r\n]+     {
                 loc.lines(yyleng); 
                 loc.step(); 
             }
+
+"//".*      { loc.lines(1); }
 
 "OPENQASM"  { return efd::yy::EfdParser::make_IBMQASM(loc); }
 "include"   { return efd::yy::EfdParser::make_INCLUDE(loc); }
@@ -75,9 +78,13 @@ blank [ \t]
 ","         { return efd::yy::EfdParser::make_COMMA(loc); }
 ";"         { return efd::yy::EfdParser::make_SEMICOL(loc); }
 
+"//"        {}
+
 {real}      { return efd::yy::EfdParser::make_REAL(std::string(yytext), loc); }
 
 {integer}   { return efd::yy::EfdParser::make_INT(std::string(yytext), loc); }
+
+{string}    { return efd::yy::EfdParser::make_STRING(std::string(yytext), loc); }
 
 {id}        { return efd::yy::EfdParser::make_ID(yytext, loc); }
 

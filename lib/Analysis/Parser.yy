@@ -18,6 +18,23 @@
     #include <FlexLexer.h>
     #endif
 
+    #define YYDEBUG 1
+
+    #include <stdio.h>
+
+    /* Size of default input buffer. */
+    #ifndef YY_BUF_SIZE
+    #ifdef __ia64__
+    /* On IA-64, the buffer size is 16k, not 8k.
+     * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
+     * Ditto for the __ia64__ case accordingly.
+     */
+    #define YY_BUF_SIZE 32768
+    #else
+    #define YY_BUF_SIZE 16384
+    #endif /* __ia64__ */
+    #endif
+
     #include <iostream>
     #include <fstream>
 
@@ -68,7 +85,7 @@
     @$.end.filename = &ast.mFile;
 }
 
-%define parse.trace
+%define parse.trace true
 %define parse.error verbose
 
 %define api.token.prefix {TOK_}
@@ -102,18 +119,19 @@
 %token <efd::IntVal> INT;
 %token <efd::RealVal> REAL;
 %token <std::string> ID;
+%token <std::string> STRING;
 
 %token EOF 0 "end of file";
 
 %type <NodeRef> program stmtlist stmtlist_ statement
-%type <NodeRef> decl gatedecl opaquedecl qop uop ifstmt
+%type <NodeRef> decl gatedecl opaquedecl qop uop ifstmt include
 %type <NodeRef> barrier reset measure
 %type <NodeRef> goplist
 %type <NodeRef> explist explist_ exp
 %type <NodeRef> anylist anylist_
 %type <NodeRef> idlist idlist_
 %type <NodeRef> params args arg
-%type <NodeRef> id idref integer real
+%type <NodeRef> id idref integer real string
 
 %type <efd::NDUnaryOp::UOpType> unary
 
@@ -146,7 +164,33 @@ statement: decl         { $$ = $1; }
          | qop          { $$ = $1; }
          | barrier      { $$ = $1; }
          | ifstmt       { $$ = $1; }
+         | include      { $$ = $1; }
          ;
+
+include: INCLUDE string ";"     {
+                                    efd::ASTWrapper _ast { 
+                                        efd::dynCast<efd::NDString>($2)->getVal(), 
+                                        ast.mPath,
+                                        nullptr 
+                                    };
+
+                                    std::ifstream ifs((_ast.mPath + _ast.mFile).c_str());
+                                    if (ifs.fail()) {
+                                        error(@$, "Could not open file: " + _ast.mPath + _ast.mFile);
+                                        return 1;
+                                    }
+
+                                    std::cout << "Beginning include." << std::endl;
+                                    efd::yy::EfdParser parser(ast, scanner);
+                                    scanner.yypush_buffer_state(scanner.yy_create_buffer(&ifs, YY_BUF_SIZE));
+                                    if (parser.parse()) return 1;
+                                    scanner.yypop_buffer_state();
+                                    std::cout << "Finished include." << std::endl;
+
+                                    std::cout << "AST: " << ast.mAST << std::endl;
+                                    $$ = efd::NDInclude::create($2, ast.mAST); 
+                                }
+        ;
 
 decl: QREG id "[" integer "]" ";"   { $$ = efd::NDDecl::create(efd::NDDecl::QUANTUM, $2, $4); }
     | CREG id "[" integer "]" ";"   { $$ = efd::NDDecl::create(efd::NDDecl::CONCRETE, $2, $4); }
@@ -195,7 +239,7 @@ qop: uop        { $$ = $1; }
 
 uop: id args anylist ";"    { $$ = efd::NDQOpGeneric::create($1, $2, $3); }
    | U args arg ";"         { $$ = efd::NDQOpU::create($2, $3); }
-   | CX args arg ";"        { $$ = efd::NDQOpCX::create($2, $3); }
+   | CX arg "," arg ";"     { $$ = efd::NDQOpCX::create($2, $4); }
    ;
 
 args: %empty            { $$ = efd::NDList::create(); }
@@ -280,6 +324,8 @@ id: ID { $$ = efd::NDId::create($1); }
 integer: INT { $$ = efd::NDInt::create($1); }
        ;
 
+string: STRING { $$ = efd::NDString::create($1.substr(1, $1.length() - 2)); }
+
 real: REAL { $$ = efd::NDReal::create($1); }
     ;
 
@@ -309,7 +355,7 @@ efd::NodeRef efd::ParseFile(std::string filename, std::string path) {
 
 efd::NodeRef efd::ParseString(std::string program) {
     std::string filename = "qasm-" + std::to_string((unsigned long long) &program) + ".qasm";
-    std::string path =  "/tmp/";
+    std::string path =  "./";
 
     std::ofstream ofs((path + filename).c_str());
     ofs << program;
@@ -317,6 +363,9 @@ efd::NodeRef efd::ParseString(std::string program) {
     ofs.close();
 
     ASTWrapper ast { filename, path, nullptr };
-    if (Parse(ast)) return nullptr;
+    int ret = Parse(ast);
+    remove((path + filename).c_str());
+
+    if (ret) return nullptr;
     return ast.mAST;
 }

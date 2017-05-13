@@ -11,16 +11,16 @@ using namespace efd;
 
 const std::string dir = "files/";
 const std::vector<std::string> files = {
-    "_adder.qasm",
-    "_bigadder.qasm",
-    "_inverseqft1.qasm",
-    "_inverseqft2.qasm",
-    "_qec.qasm",
-    "_qft.qasm",
-    "_qpt.qasm",
-    "_rb.qasm",
-    "_teleport.qasm",
-    "_W-state.qasm"
+    "adder.qasm",
+    "bigadder.qasm",
+    "inverseqft1.qasm",
+    "inverseqft2.qasm",
+    "qec.qasm",
+    "qft.qasm",
+    "qpt.qasm",
+    "rb.qasm",
+    "teleport.qasm",
+    "W-state.qasm"
 };
 
 TEST(DriverFileTests, ParsingFilesTest) {

@@ -93,6 +93,56 @@ efd::NodeRef efd::NDQasmVersion::create(NodeRef vNode, NodeRef stmtsNode) {
     return new NDQasmVersion(vNode, stmtsNode);
 }
 
+// -------------- Include -----------------
+efd::NDInclude::NDInclude(NodeRef vNode, NodeRef stmtsNode) :
+    Node(K_QASM_VERSION, getChildNumber()) {
+    mChild[I_FILE] = vNode;
+    mChild[I_STMTS] = stmtsNode;
+}
+
+std::string efd::NDInclude::getOperation() const {
+    return "include";
+}
+
+unsigned efd::NDInclude::getChildNumber() const {
+    return 2;
+}
+
+void efd::NDInclude::apply(NodeVisitor* visitor) {
+    visitor->visit(this);
+}
+
+efd::NodeRef efd::NDInclude::getFilename() const {
+    return mChild[I_FILE];
+}
+
+efd::NodeRef efd::NDInclude::getStatements() const {
+    return mChild[I_STMTS];
+}
+
+std::string efd::NDInclude::toString(bool pretty) const {
+    std::string str;
+    std::string endl = (pretty) ? "\n" : "";
+
+    str += getOperation();
+    str += " \"" + getFilename()->toString(pretty) + "\";";
+    str += endl;
+
+    return str;
+}
+
+efd::Node::Kind efd::NDInclude::getKind() const {
+    return K_QASM_VERSION;
+}
+
+bool efd::NDInclude::ClassOf(const NodeRef node) {
+    return node->getKind() == K_DECL;
+}
+
+efd::NodeRef efd::NDInclude::create(NodeRef vNode, NodeRef stmtsNode) {
+    return new NDInclude(vNode, stmtsNode);
+}
+
 // -------------- Decl -----------------
 efd::NDDecl::NDDecl(Type t, NodeRef idNode, NodeRef sizeNode) : Node(K_DECL, getChildNumber()), mT(t) {
     mChild[I_ID] = idNode;

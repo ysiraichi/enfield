@@ -83,6 +83,8 @@ namespace efd {
 
     };
 
+    /// \brief Node that holds the current Qasm version and the
+    /// rest of the program.
     class NDQasmVersion : public Node {
         private:
             enum ChildType {
@@ -111,6 +113,39 @@ namespace efd {
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
             static NodeRef create(NodeRef vNode, NodeRef stmtsNode);
+    };
+
+    /// \brief Node used to parse another file.
+    /// 
+    /// The AST from this other file is a child of this node.
+    class NDInclude : public Node {
+        private:
+            enum ChildType {
+                I_FILE = 0,
+                I_STMTS
+            };
+
+            NDInclude(NodeRef fNode, NodeRef stmtsNode);
+
+        public:
+            /// \brief Gets the node that holds the filename.
+            NodeRef getFilename() const;
+            /// \brief Gets the node that holds the statements.
+            NodeRef getStatements() const;
+
+            Kind getKind() const override;
+
+            std::string getOperation() const override;
+            std::string toString(bool pretty = false) const override;
+
+            unsigned getChildNumber() const override;
+
+            void apply(NodeVisitor* visitor) override;
+
+            /// \brief Returns whether the \p node is an instance of this class.
+            static bool ClassOf(const NodeRef node);
+            /// \brief Creates a new instance of this node.
+            static NodeRef create(NodeRef fNode, NodeRef stmtsNode);
     };
 
     /// \brief Node for declaration of registers (concrete and quantum).
@@ -740,6 +775,7 @@ namespace efd {
     typedef NDValue<IntVal> NDInt;
     typedef NDValue<RealVal> NDReal;
     typedef NDValue<std::string> NDId;
+    typedef NDValue<std::string> NDString;
 };
 
 // -------------- Literal -----------------

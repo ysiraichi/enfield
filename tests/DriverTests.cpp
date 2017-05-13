@@ -261,6 +261,24 @@ generic(3.8, pi) r2, r3[2], r5;\n\
     }
 }
 
+TEST(DriverTests, IncludeTest) {
+    {
+        std::string generic = 
+"\
+include \"files/qelib1.inc\";\
+";
+
+        std::string genericPrt = 
+"\
+include \"files/qelib1.inc\";\n\
+";
+        NodeRef root = ParseString(generic);
+        ASSERT_FALSE(root == nullptr);
+        ASSERT_EQ(root->toString(), generic);
+        ASSERT_EQ(root->toString(true), genericPrt);
+    }
+}
+
 TEST(DriverTests, ExpTest) {
     {
         std::string exp = 

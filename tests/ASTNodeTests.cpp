@@ -243,3 +243,10 @@ TEST(ASTNodeTests, IfStmtTest) {
     NodeRef refIf = NDIfStmt::create(Id("someid"), Int("1"), refReset);
     TestPrinting(refIf, ifStr);
 }
+
+TEST(ASTNodeTests, IncludeTest) {
+    std::string includeStr = "include \"files/_qelib1.inc\";";
+
+    NodeRef refInclude = NDInclude::create(Id("files/_qelib1.inc"), NDStmtList::create());
+    TestPrinting(refInclude, includeStr);
+}
