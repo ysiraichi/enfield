@@ -1,4 +1,4 @@
-file (GLOB files "files/*.qasm")
+file (GLOB files "files/*")
 
 foreach (qfile ${files})
     get_filename_component (qfilename ${qfile} NAME)

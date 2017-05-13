@@ -1,4 +1,6 @@
-
+// quantum ripple-carry adder from Cuccaro et al, quant-ph/0410184
+OPENQASM 2.0;
+include "qelib1.inc";
 gate majority a,b,c 
 { 
   cx c,b; 
@@ -16,10 +18,10 @@ qreg a[4];
 qreg b[4];
 qreg cout[1];
 creg ans[5];
-
-x a[0]; 
-x b;    
-
+// set input states
+x a[0]; // a = 0001
+x b;    // b = 1111
+// add a to b, storing result in b
 majority cin[0],b[0],a[0];
 majority a[0],b[1],a[1];
 majority a[1],b[2],a[2];
