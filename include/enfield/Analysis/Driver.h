@@ -13,7 +13,9 @@ namespace efd {
         NodeRef mAST;
     };
 
+    /// \brief Parse \p filename at \p path.
     NodeRef ParseFile(std::string filename, std::string path = "./");
+    /// \brief Parse the string \p program.
     NodeRef ParseString(std::string program);
 };
 
