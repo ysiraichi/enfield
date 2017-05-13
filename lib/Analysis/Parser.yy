@@ -144,7 +144,7 @@
 %start program;
 
 program: stmtlist                   { $$ = $1; }
-       | IBMQASM real ";" stmtlist  { $$ = efd::NDQasmVersion::create($2, $4); }
+       | IBMQASM real ";" stmtlist  { $$ = efd::NDQasmVersion::Create($2, $4); }
 
 stmtlist: stmtlist_ statement EOF {
                                       efd::dynCast<efd::NDStmtList>($1)->addChild($2);
@@ -152,7 +152,7 @@ stmtlist: stmtlist_ statement EOF {
                                       ast.mAST = $1;
                                   }
        ;
-stmtlist_: %empty                { $$ = efd::NDStmtList::create(); }
+stmtlist_: %empty                { $$ = efd::NDStmtList::Create(); }
          | stmtlist_ statement   {
                                      efd::dynCast<efd::NDStmtList>($1)->addChild($2);
                                      $$ = $1;
@@ -188,40 +188,40 @@ include: INCLUDE string ";"     {
                                     std::cout << "Finished include." << std::endl;
 
                                     std::cout << "AST: " << ast.mAST << std::endl;
-                                    $$ = efd::NDInclude::create($2, ast.mAST); 
+                                    $$ = efd::NDInclude::Create($2, ast.mAST); 
                                 }
         ;
 
-decl: QREG id "[" integer "]" ";"   { $$ = efd::NDDecl::create(efd::NDDecl::QUANTUM, $2, $4); }
-    | CREG id "[" integer "]" ";"   { $$ = efd::NDDecl::create(efd::NDDecl::CONCRETE, $2, $4); }
+decl: QREG id "[" integer "]" ";"   { $$ = efd::NDDecl::Create(efd::NDDecl::QUANTUM, $2, $4); }
+    | CREG id "[" integer "]" ";"   { $$ = efd::NDDecl::Create(efd::NDDecl::CONCRETE, $2, $4); }
     ;
 
 gatedecl: GATE id params idlist "{" goplist "}" { 
-                                                    $$ = efd::NDGateDecl::create
+                                                    $$ = efd::NDGateDecl::Create
                                                     ($2, $3, 
                                                     $4, $6);
                                                 }
         ;
 
-opaquedecl: OPAQUE id params idlist ";" { $$ = efd::NDOpaque::create($2, $3, $4); }
+opaquedecl: OPAQUE id params idlist ";" { $$ = efd::NDOpaque::Create($2, $3, $4); }
           ;
 
-barrier: BARRIER idlist ";" { $$ = efd::NDQOpBarrier::create($2); }
+barrier: BARRIER idlist ";" { $$ = efd::NDQOpBarrier::Create($2); }
        ;
 
-reset: RESET arg ";"    { $$ = efd::NDQOpReset::create($2); }
+reset: RESET arg ";"    { $$ = efd::NDQOpReset::Create($2); }
      ;
 
-measure: MEASURE arg "->" arg ";"   { $$ = efd::NDQOpMeasure::create($2, $4); }
+measure: MEASURE arg "->" arg ";"   { $$ = efd::NDQOpMeasure::Create($2, $4); }
        ;
 
-ifstmt: IF "(" id "==" integer ")" qop  { $$ = efd::NDIfStmt::create($3, $5, $7); }
+ifstmt: IF "(" id "==" integer ")" qop  { $$ = efd::NDIfStmt::Create($3, $5, $7); }
 
-params: %empty          { $$ = efd::NDList::create(); }
+params: %empty          { $$ = efd::NDList::Create(); }
       | "(" idlist ")"  { $$ = $2; }
       ;
 
-goplist: %empty             { $$ = efd::NDGOpList::create(); }
+goplist: %empty             { $$ = efd::NDGOpList::Create(); }
        | goplist uop        {
                                 efd::dynCast<efd::NDGOpList>($1)->addChild($2);
                                 $$ = $1;
@@ -237,12 +237,12 @@ qop: uop        { $$ = $1; }
    | reset      { $$ = $1; }
    ;
 
-uop: id args anylist ";"    { $$ = efd::NDQOpGeneric::create($1, $2, $3); }
-   | U args arg ";"         { $$ = efd::NDQOpU::create($2, $3); }
-   | CX arg "," arg ";"     { $$ = efd::NDQOpCX::create($2, $4); }
+uop: id args anylist ";"    { $$ = efd::NDQOpGeneric::Create($1, $2, $3); }
+   | U args arg ";"         { $$ = efd::NDQOpU::Create($2, $3); }
+   | CX arg "," arg ";"     { $$ = efd::NDQOpCX::Create($2, $4); }
    ;
 
-args: %empty            { $$ = efd::NDList::create(); }
+args: %empty            { $$ = efd::NDList::Create(); }
     | "(" explist ")"   { $$ = $2; }
     ;
 
@@ -251,7 +251,7 @@ idlist: idlist_ id      {
                             $$ = $1;
                         }
       ;
-idlist_: %empty         { $$ = efd::NDList::create(); }
+idlist_: %empty         { $$ = efd::NDList::Create(); }
        | idlist_ id "," {
                             efd::dynCast<efd::NDList>($1)->addChild($2);
                             $$ = $1;
@@ -267,7 +267,7 @@ anylist: anylist_ id    {
                             $$ = $1;
                         }
        ;
-anylist_: %empty                { $$ = efd::NDList::create(); }
+anylist_: %empty                { $$ = efd::NDList::Create(); }
         | anylist_ id ","       {
                                     efd::dynCast<efd::NDList>($1)->addChild($2);
                                     $$ = $1;
@@ -278,13 +278,13 @@ anylist_: %empty                { $$ = efd::NDList::create(); }
                                 }
         ;
 
-explist: %empty         { $$ = efd::NDList::create(); }
+explist: %empty         { $$ = efd::NDList::Create(); }
        | explist_ exp   {
                             efd::dynCast<efd::NDList>($1)->addChild($2);
                             $$ = $1;
                         }
        ;
-explist_: %empty            { $$ = efd::NDList::create(); }
+explist_: %empty            { $$ = efd::NDList::Create(); }
         | explist_ exp ","  {
                                 efd::dynCast<efd::NDList>($1)->addChild($2);
                                 $$ = $1;
@@ -293,14 +293,14 @@ explist_: %empty            { $$ = efd::NDList::create(); }
 exp: real               { $$ = $1; }
    | integer            { $$ = $1; }
    | id                 { $$ = $1; }
-   | unary "(" exp ")"  { $$ = efd::NDUnaryOp::create($1, $3); }
+   | unary "(" exp ")"  { $$ = efd::NDUnaryOp::Create($1, $3); }
    | "(" exp ")"        { $$ = $2; }
-   | exp "+" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_ADD, $1, $3); }
-   | exp "-" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_SUB, $1, $3); }
-   | exp "*" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_MUL, $1, $3); }
-   | exp "/" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_DIV, $1, $3); }
-   | exp "^" exp        { $$ = efd::NDBinOp::create(efd::NDBinOp::OP_POW, $1, $3); }
-   | "-" exp            { $$ = efd::NDUnaryOp::create(efd::NDUnaryOp::UOP_NEG, $2); }
+   | exp "+" exp        { $$ = efd::NDBinOp::Create(efd::NDBinOp::OP_ADD, $1, $3); }
+   | exp "-" exp        { $$ = efd::NDBinOp::Create(efd::NDBinOp::OP_SUB, $1, $3); }
+   | exp "*" exp        { $$ = efd::NDBinOp::Create(efd::NDBinOp::OP_MUL, $1, $3); }
+   | exp "/" exp        { $$ = efd::NDBinOp::Create(efd::NDBinOp::OP_DIV, $1, $3); }
+   | exp "^" exp        { $$ = efd::NDBinOp::Create(efd::NDBinOp::OP_POW, $1, $3); }
+   | "-" exp            { $$ = efd::NDUnaryOp::Create(efd::NDUnaryOp::UOP_NEG, $2); }
    ;
 
 unary: SIN  { $$ = efd::NDUnaryOp::UOP_SIN; }
@@ -315,18 +315,18 @@ arg: id     { $$ = $1; }
    | idref  { $$ = $1; }
    ;
 
-idref: id "[" integer "]" { $$ = efd::NDIdRef::create($1, $3); }
+idref: id "[" integer "]" { $$ = efd::NDIdRef::Create($1, $3); }
      ;
 
-id: ID { $$ = efd::NDId::create($1); }
+id: ID { $$ = efd::NDId::Create($1); }
   ;
 
-integer: INT { $$ = efd::NDInt::create($1); }
+integer: INT { $$ = efd::NDInt::Create($1); }
        ;
 
-string: STRING { $$ = efd::NDString::create($1.substr(1, $1.length() - 2)); }
+string: STRING { $$ = efd::NDString::Create($1.substr(1, $1.length() - 2)); }
 
-real: REAL { $$ = efd::NDReal::create($1); }
+real: REAL { $$ = efd::NDReal::Create($1); }
     ;
 
 %%

@@ -112,7 +112,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef vNode, NodeRef stmtsNode);
+            static NodeRef Create(NodeRef vNode, NodeRef stmtsNode);
     };
 
     /// \brief Node used to parse another file.
@@ -145,7 +145,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef fNode, NodeRef stmtsNode);
+            static NodeRef Create(NodeRef fNode, NodeRef stmtsNode);
     };
 
     /// \brief Node for declaration of registers (concrete and quantum).
@@ -190,7 +190,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(Type t, NodeRef idNode, NodeRef sizeNode);
+            static NodeRef Create(Type t, NodeRef idNode, NodeRef sizeNode);
     };
 
     /// \brief Node for declaration of quantum gates.
@@ -227,7 +227,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode);
+            static NodeRef Create(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode);
     };
 
     /// \brief Node for declaration of opaque quantum gates.
@@ -261,7 +261,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
+            static NodeRef Create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
     };
 
     /// \brief Base node for quantum operations.
@@ -315,7 +315,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef qNode, NodeRef cNode);
+            static NodeRef Create(NodeRef qNode, NodeRef cNode);
     };
 
     /// \brief NDQOp specialized for reset operation.
@@ -343,7 +343,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef qaNode);
+            static NodeRef Create(NodeRef qaNode);
     };
 
     /// \brief NDQOp specialized for barrier operation.
@@ -371,7 +371,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef qaNode);
+            static NodeRef Create(NodeRef qaNode);
     };
 
     /// \brief NDQOp specialized for barrier operation.
@@ -402,7 +402,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef lhsNode, NodeRef rhsNode);
+            static NodeRef Create(NodeRef lhsNode, NodeRef rhsNode);
     };
 
     /// \brief NDQOp specialized for barrier operation.
@@ -433,7 +433,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef aNode, NodeRef qaNode);
+            static NodeRef Create(NodeRef aNode, NodeRef qaNode);
     };
 
     /// \brief NDQOp specialized for generic operation.
@@ -467,7 +467,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
+            static NodeRef Create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
     };
 
     /// \brief Binary operation node.
@@ -525,7 +525,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(OpType t, NodeRef lhsNode, NodeRef rhsNode);
+            static NodeRef Create(OpType t, NodeRef lhsNode, NodeRef rhsNode);
     };
 
     /// \brief Unary operation node.
@@ -586,7 +586,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(UOpType t, NodeRef oNode);
+            static NodeRef Create(UOpType t, NodeRef oNode);
     };
 
     /// \brief Node for id references (register specific positions).
@@ -616,7 +616,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef idNode, NodeRef nNode);
+            static NodeRef Create(NodeRef idNode, NodeRef nNode);
     };
 
     /// \brief Base class for list of nodes.
@@ -645,7 +645,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create();
+            static NodeRef Create();
     };
 
     /// \brief Node for list of qubit operation sequences.
@@ -665,7 +665,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create();
+            static NodeRef Create();
     };
 
     /// \brief Node for list of qubit operation sequences inside gate declarations.
@@ -685,7 +685,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create();
+            static NodeRef Create();
     };
 
     /// \brief Node for conditional statement.
@@ -720,7 +720,7 @@ namespace efd {
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
-            static NodeRef create(NodeRef cidNode, NodeRef nNode, NodeRef qopNode);
+            static NodeRef Create(NodeRef cidNode, NodeRef nNode, NodeRef qopNode);
     };
 
     /// \brief Node for literal types.
@@ -749,7 +749,7 @@ namespace efd {
                 /// \brief Returns whether the \p node is an instance of this class.
                 static bool ClassOf(const NodeRef node);
                 /// \brief Creates a new instance of this node.
-                static NodeRef create(T val);
+                static NodeRef Create(T val);
         };
 
     template class NDValue<IntVal>;
@@ -800,7 +800,7 @@ unsigned efd::NDValue<T>::getChildNumber() const {
 }
 
 template <typename T>
-efd::NodeRef efd::NDValue<T>::create(T val) {
+efd::NodeRef efd::NDValue<T>::Create(T val) {
     return new NDValue<T>(val);
 }
 

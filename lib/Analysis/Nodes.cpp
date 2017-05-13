@@ -89,7 +89,7 @@ bool efd::NDQasmVersion::ClassOf(const NodeRef node) {
     return node->getKind() == K_DECL;
 }
 
-efd::NodeRef efd::NDQasmVersion::create(NodeRef vNode, NodeRef stmtsNode) {
+efd::NodeRef efd::NDQasmVersion::Create(NodeRef vNode, NodeRef stmtsNode) {
     return new NDQasmVersion(vNode, stmtsNode);
 }
 
@@ -139,7 +139,7 @@ bool efd::NDInclude::ClassOf(const NodeRef node) {
     return node->getKind() == K_DECL;
 }
 
-efd::NodeRef efd::NDInclude::create(NodeRef vNode, NodeRef stmtsNode) {
+efd::NodeRef efd::NDInclude::Create(NodeRef vNode, NodeRef stmtsNode) {
     return new NDInclude(vNode, stmtsNode);
 }
 
@@ -200,7 +200,7 @@ bool efd::NDDecl::ClassOf(const NodeRef node) {
     return node->getKind() == K_DECL;
 }
 
-efd::NodeRef efd::NDDecl::create(Type t, NodeRef idNode, NodeRef sizeNode) {
+efd::NodeRef efd::NDDecl::Create(Type t, NodeRef idNode, NodeRef sizeNode) {
     return new NDDecl(t, idNode, sizeNode);
 }
 
@@ -271,7 +271,7 @@ bool efd::NDGateDecl::ClassOf(const NodeRef node) {
     return node->getKind() == K_GATE_DECL;
 }
 
-efd::NodeRef efd::NDGateDecl::create(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode) {
+efd::NodeRef efd::NDGateDecl::Create(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode) {
     return new NDGateDecl(idNode, aNode, qaNode, gopNode);
 }
 
@@ -331,7 +331,7 @@ bool efd::NDOpaque::ClassOf(const NodeRef node) {
     return node->getKind() == K_GATE_OPAQUE;
 }
 
-efd::NodeRef efd::NDOpaque::create(NodeRef idNode, NodeRef aNode, NodeRef qaNode) {
+efd::NodeRef efd::NDOpaque::Create(NodeRef idNode, NodeRef aNode, NodeRef qaNode) {
     return new NDOpaque(idNode, aNode, qaNode);
 }
 
@@ -421,7 +421,7 @@ bool efd::NDQOpMeasure::ClassOf(const NodeRef node) {
     return node->getKind() == K_QOP_MEASURE;
 }
 
-efd::NodeRef efd::NDQOpMeasure::create(NodeRef qNode, NodeRef cNode) {
+efd::NodeRef efd::NDQOpMeasure::Create(NodeRef qNode, NodeRef cNode) {
     return new NDQOpMeasure(qNode, cNode);
 }
 
@@ -466,7 +466,7 @@ bool efd::NDQOpReset::ClassOf(const NodeRef node) {
     return node->getKind() == K_QOP_RESET;
 }
 
-efd::NodeRef efd::NDQOpReset::create(NodeRef qaNode) {
+efd::NodeRef efd::NDQOpReset::Create(NodeRef qaNode) {
     return new NDQOpReset(qaNode);
 }
 
@@ -511,7 +511,7 @@ bool efd::NDQOpBarrier::ClassOf(const NodeRef node) {
     return node->getKind() == K_QOP_BARRIER;
 }
 
-efd::NodeRef efd::NDQOpBarrier::create(NodeRef qaNode) {
+efd::NodeRef efd::NDQOpBarrier::Create(NodeRef qaNode) {
     return new NDQOpBarrier(qaNode);
 }
 
@@ -562,7 +562,7 @@ bool efd::NDQOpCX::ClassOf(const NodeRef node) {
     return node->getKind() == K_QOP_CX;
 }
 
-efd::NodeRef efd::NDQOpCX::create(NodeRef lhsNode, NodeRef rhsNode) {
+efd::NodeRef efd::NDQOpCX::Create(NodeRef lhsNode, NodeRef rhsNode) {
     return new NDQOpCX(lhsNode, rhsNode);
 }
 
@@ -613,7 +613,7 @@ bool efd::NDQOpU::ClassOf(const NodeRef node) {
     return node->getKind() == K_QOP_U;
 }
 
-efd::NodeRef efd::NDQOpU::create(NodeRef aNode, NodeRef qaNode) {
+efd::NodeRef efd::NDQOpU::Create(NodeRef aNode, NodeRef qaNode) {
     return new NDQOpU(aNode, qaNode);
 }
 
@@ -673,7 +673,7 @@ bool efd::NDQOpGeneric::ClassOf(const NodeRef node) {
     return node->getKind() == K_QOP_GENERIC;
 }
 
-efd::NodeRef efd::NDQOpGeneric::create(NodeRef idNode, NodeRef aNode, NodeRef qaNode) {
+efd::NodeRef efd::NDQOpGeneric::Create(NodeRef idNode, NodeRef aNode, NodeRef qaNode) {
     return new NDQOpGeneric(idNode, aNode, qaNode);
 }
 
@@ -753,7 +753,7 @@ bool efd::NDBinOp::ClassOf(const NodeRef node) {
     return node->getKind() == K_BINOP;
 }
 
-efd::NodeRef efd::NDBinOp::create(OpType t, NodeRef lhsNode, NodeRef rhsNode) {
+efd::NodeRef efd::NDBinOp::Create(OpType t, NodeRef lhsNode, NodeRef rhsNode) {
     return new NDBinOp(t, lhsNode, rhsNode);
 }
 
@@ -843,7 +843,7 @@ bool efd::NDUnaryOp::ClassOf(const NodeRef node) {
     return node->getKind() == K_UNARYOP;
 }
 
-efd::NodeRef efd::NDUnaryOp::create(UOpType t, NodeRef oNode) {
+efd::NodeRef efd::NDUnaryOp::Create(UOpType t, NodeRef oNode) {
     return new NDUnaryOp(t, oNode);
 }
 
@@ -886,7 +886,7 @@ bool efd::NDIdRef::ClassOf(const NodeRef node) {
     return node->getKind() == K_ID_REF;
 }
 
-efd::NodeRef efd::NDIdRef::create(NodeRef idNode, NodeRef sizeNode) {
+efd::NodeRef efd::NDIdRef::Create(NodeRef idNode, NodeRef sizeNode) {
     return new NDIdRef(idNode, sizeNode);
 }
 
@@ -937,7 +937,7 @@ bool efd::NDList::ClassOf(const NodeRef node) {
         node->getKind() == K_GOP_LIST;
 }
 
-efd::NodeRef efd::NDList::create() {
+efd::NodeRef efd::NDList::Create() {
     return new NDList();
 }
 
@@ -970,7 +970,7 @@ bool efd::NDStmtList::ClassOf(const NodeRef node) {
     return node->getKind() == K_STMT_LIST; 
 }
 
-efd::NodeRef efd::NDStmtList::create() {
+efd::NodeRef efd::NDStmtList::Create() {
     return new NDStmtList();
 }
 
@@ -1006,7 +1006,7 @@ bool efd::NDGOpList::ClassOf(const NodeRef node) {
     return node->getKind() == K_GOP_LIST; 
 }
 
-efd::NodeRef efd::NDGOpList::create() {
+efd::NodeRef efd::NDGOpList::Create() {
     return new NDGOpList();
 }
 
@@ -1066,7 +1066,7 @@ bool efd::NDIfStmt::ClassOf(const NodeRef node) {
     return node->getKind() == K_IF_STMT; 
 }
 
-efd::NodeRef efd::NDIfStmt::create(NodeRef cidNode, NodeRef intNode, NodeRef qopNode) {
+efd::NodeRef efd::NDIfStmt::Create(NodeRef cidNode, NodeRef intNode, NodeRef qopNode) {
     return new NDIfStmt(cidNode, intNode, qopNode);
 }
 
