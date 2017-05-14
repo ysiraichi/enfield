@@ -17,3 +17,6 @@ efd_test (DriverTests
 
 efd_test (DriverFileTests
     EfdAnalysis EfdSupport)
+
+efd_test (QModuleTests
+    EfdAnalysis EfdSupport)

@@ -1,7 +1,8 @@
 #include "enfield/Analysis/Driver.h"
 #include "enfield/Analysis/QModule.h"
+#include "enfield/Analysis/QModulefyPass.h"
 
-efd::QModule::QModule(NodeRef ref) : mAST(ref) {
+efd::QModule::QModule() : mAST(nullptr), mVersion(nullptr) {
 }
 
 efd::QModule::Iterator efd::QModule::reg_begin() {
@@ -52,7 +53,20 @@ efd::QModule::ConstIterator efd::QModule::stmt_end() const {
     return mStatements.end();
 }
 
+void efd::QModule::print(std::ostream& O, bool pretty) const {
+    O << toString(pretty);
+}
+
+std::string efd::QModule::toString(bool pretty) const {
+    return mAST->toString(pretty);
+}
+
 std::unique_ptr<efd::QModule> efd::QModule::GetFromAST(NodeRef ref) {
+    QModulefyPass* pass = QModulefyPass::Create();
+    ref->apply(pass);
+    std::unique_ptr<QModule> qmod(pass->mMod);
+    qmod->mAST = ref;
+    return qmod;
 }
 
 std::unique_ptr<efd::QModule> efd::QModule::Parse(std::string filename, std::string path) {

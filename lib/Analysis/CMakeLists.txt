@@ -8,4 +8,7 @@ ADD_FLEX_BISON_DEPENDENCY (EfdScanner EfdParser)
 add_library (EfdAnalysis
     Nodes.cpp
     ${BISON_EfdParser_OUTPUTS}
-    ${FLEX_EfdScanner_OUTPUTS})
+    ${FLEX_EfdScanner_OUTPUTS}
+    QModule.cpp
+    QModulefyPass.cpp
+    NodeVisitor.cpp)
