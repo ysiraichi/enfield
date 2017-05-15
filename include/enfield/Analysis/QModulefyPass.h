@@ -5,6 +5,7 @@
 #include "enfield/Analysis/QModule.h"
 
 namespace efd {
+    class IdTable;
 
     class QModulefyPass : public NodeVisitor {
         private:
@@ -12,6 +13,7 @@ namespace efd {
 
         public:
             QModule* mMod;
+            IdTable* mCurrentTable;
 
             void visit(NDQasmVersion* ref) override;
             void visit(NDInclude* ref) override;
