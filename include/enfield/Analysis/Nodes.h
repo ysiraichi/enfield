@@ -11,6 +11,26 @@ namespace efd {
     class Node;
     class NodeVisitor;
 
+    class NDQasmVersion;
+    class NDInclude;
+    class NDDecl;
+    class NDGateDecl;
+    class NDOpaque;
+    class NDQOp;
+    class NDQOpMeasure;
+    class NDQOpReset;
+    class NDQOpBarrier;
+    class NDQOpCX;
+    class NDQOpU;
+    class NDQOpGeneric;
+    class NDBinOp;
+    class NDUnaryOp;
+    class NDIdRef;
+    class NDList;
+    class NDStmtList;
+    class NDGOpList;
+    class NDIfStmt;
+
     typedef Node* NodeRef;
 
     /// \brief Base class for AST nodes.
@@ -83,6 +103,60 @@ namespace efd {
 
     };
 
+    /// \brief Node for literal types.
+    template <typename T>
+        class NDValue : public Node {
+            private:
+                T mVal;
+
+                NDValue(T val);
+
+            public:
+                typedef std::shared_ptr< NDValue<T> > NDRef;
+
+                /// \brief Returns a copy to the setted value.
+                T getVal() const;
+
+                Kind getKind() const override;
+
+                std::string getOperation() const override;
+                std::string toString(bool pretty = false) const override;
+
+                unsigned getChildNumber() const override;
+
+                void apply(NodeVisitor* visitor) override;
+
+                /// \brief Returns whether the \p node is an instance of this class.
+                static bool ClassOf(const NodeRef node);
+                /// \brief Creates a new instance of this node.
+                static NodeRef Create(T val);
+        };
+
+    template class NDValue<IntVal>;
+    template <> NDValue<IntVal>::NDValue(IntVal val);
+    template <> bool NDValue<IntVal>::ClassOf(const NodeRef node);
+    template <> Node::Kind NDValue<IntVal>::getKind() const;
+    template <> void NDValue<IntVal>::apply(NodeVisitor* visitor);
+
+    template class NDValue<RealVal>;
+    template <> NDValue<RealVal>::NDValue(RealVal val);
+    template <> bool NDValue<RealVal>::ClassOf(const NodeRef node);
+    template <> Node::Kind NDValue<RealVal>::getKind() const;
+    template <> void NDValue<RealVal>::apply(NodeVisitor* visitor);
+
+    template class NDValue<std::string>;
+    template <> NDValue<std::string>::NDValue(std::string val);
+    template <> bool NDValue<std::string>::ClassOf(const NodeRef node);
+    template <> Node::Kind NDValue<std::string>::getKind() const;
+    template <> std::string NDValue<std::string>::getOperation() const;
+    template <> std::string NDValue<std::string>::toString(bool pretty) const;
+    template <> void NDValue<std::string>::apply(NodeVisitor* visitor);
+
+    typedef NDValue<IntVal> NDInt;
+    typedef NDValue<RealVal> NDReal;
+    typedef NDValue<std::string> NDId;
+    typedef NDValue<std::string> NDString;
+
     /// \brief Node that holds the current Qasm version and the
     /// rest of the program.
     class NDQasmVersion : public Node {
@@ -96,9 +170,9 @@ namespace efd {
 
         public:
             /// \brief Gets the node that holds the version.
-            NodeRef getVersion() const;
+            NDReal* getVersion() const;
             /// \brief Gets the node that holds the statements.
-            NodeRef getStatements() const;
+            NDStmtList* getStatements() const;
 
             Kind getKind() const override;
 
@@ -129,9 +203,9 @@ namespace efd {
 
         public:
             /// \brief Gets the node that holds the filename.
-            NodeRef getFilename() const;
+            NDString* getFilename() const;
             /// \brief Gets the node that holds the statements.
-            NodeRef getStatements() const;
+            NDStmtList* getStatements() const;
 
             Kind getKind() const override;
 
@@ -169,9 +243,9 @@ namespace efd {
 
         public:
             /// \brief Gets the id node.
-            NodeRef getId() const;
+            NDId* getId() const;
             /// \brief Gets the size node.
-            NodeRef getSize() const;
+            NDInt* getSize() const;
 
             /// \brief Returns true if it is a concrete register declaration.
             bool isCReg() const;
@@ -207,13 +281,13 @@ namespace efd {
 
         public:
             /// \brief Gets the id node.
-            NodeRef getId() const;
+            NDId* getId() const;
             /// \brief Gets the args node.
-            NodeRef getArgs() const;
+            NDList* getArgs() const;
             /// \brief Gets the qargs node.
-            NodeRef getQArgs() const;
+            NDList* getQArgs() const;
             /// \brief Gets the goplist node.
-            NodeRef getGOpList() const;
+            NDGOpList* getGOpList() const;
 
             Kind getKind() const override;
 
@@ -243,11 +317,11 @@ namespace efd {
 
         public:
             /// \brief Gets the id node.
-            NodeRef getId() const;
+            NDId* getId() const;
             /// \brief Gets the args node.
-            NodeRef getArgs() const;
+            NDList* getArgs() const;
             /// \brief Gets the qargs node.
-            NodeRef getQArgs() const;
+            NDList* getQArgs() const;
 
             Kind getKind() const override;
 
@@ -357,7 +431,7 @@ namespace efd {
 
         public:
             /// \brief Gets the quantum arguments.
-            NodeRef getQArgs() const;
+            NDList* getQArgs() const;
 
             Kind getKind() const override;
 
@@ -449,11 +523,11 @@ namespace efd {
 
         public:
             /// \brief Gets the id.
-            NodeRef getId() const;
+            NDId* getId() const;
             /// \brief Gets the arguments.
-            NodeRef getArgs() const;
+            NDList* getArgs() const;
             /// \brief Gets the quantum arguments.
-            NodeRef getQArgs() const;
+            NDList* getQArgs() const;
 
             Kind getKind() const override;
 
@@ -601,9 +675,9 @@ namespace efd {
 
         public:
             /// \brief Gets the id.
-            NodeRef getId() const;
+            NDId* getId() const;
             /// \brief Gets an integer representing the position.
-            NodeRef getN() const;
+            NDInt* getN() const;
 
             Kind getKind() const override;
 
@@ -702,9 +776,9 @@ namespace efd {
 
         public:
             /// \brief Gets the id inside the conditional.
-            NodeRef getCondId() const;
+            NDId* getCondId() const;
             /// \brief Gets the int inside the conditional.
-            NodeRef getCondN() const;
+            NDInt* getCondN() const;
             /// \brief Gets the qop.
             NodeRef getQOp() const;
 
@@ -722,60 +796,6 @@ namespace efd {
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef cidNode, NodeRef nNode, NodeRef qopNode);
     };
-
-    /// \brief Node for literal types.
-    template <typename T>
-        class NDValue : public Node {
-            private:
-                T mVal;
-
-                NDValue(T val);
-
-            public:
-                typedef std::shared_ptr< NDValue<T> > NDRef;
-
-                /// \brief Returns a copy to the setted value.
-                T getVal() const;
-
-                Kind getKind() const override;
-
-                std::string getOperation() const override;
-                std::string toString(bool pretty = false) const override;
-
-                unsigned getChildNumber() const override;
-
-                void apply(NodeVisitor* visitor) override;
-
-                /// \brief Returns whether the \p node is an instance of this class.
-                static bool ClassOf(const NodeRef node);
-                /// \brief Creates a new instance of this node.
-                static NodeRef Create(T val);
-        };
-
-    template class NDValue<IntVal>;
-    template <> NDValue<IntVal>::NDValue(IntVal val);
-    template <> bool NDValue<IntVal>::ClassOf(const NodeRef node);
-    template <> Node::Kind NDValue<IntVal>::getKind() const;
-    template <> void NDValue<IntVal>::apply(NodeVisitor* visitor);
-
-    template class NDValue<RealVal>;
-    template <> NDValue<RealVal>::NDValue(RealVal val);
-    template <> bool NDValue<RealVal>::ClassOf(const NodeRef node);
-    template <> Node::Kind NDValue<RealVal>::getKind() const;
-    template <> void NDValue<RealVal>::apply(NodeVisitor* visitor);
-
-    template class NDValue<std::string>;
-    template <> NDValue<std::string>::NDValue(std::string val);
-    template <> bool NDValue<std::string>::ClassOf(const NodeRef node);
-    template <> Node::Kind NDValue<std::string>::getKind() const;
-    template <> std::string NDValue<std::string>::getOperation() const;
-    template <> std::string NDValue<std::string>::toString(bool pretty) const;
-    template <> void NDValue<std::string>::apply(NodeVisitor* visitor);
-
-    typedef NDValue<IntVal> NDInt;
-    typedef NDValue<RealVal> NDReal;
-    typedef NDValue<std::string> NDId;
-    typedef NDValue<std::string> NDString;
 };
 
 // -------------- Literal -----------------

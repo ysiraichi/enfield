@@ -232,7 +232,7 @@ TEST(ASTNodeTests, GateDeclCreationTest) {
     dynCast<NDList>(refQArgs)->addChild(Id("r0"));
 
     NodeRef refIdGate = NDGateDecl::Create(Id("id"), NDList::Create(), refQArgs, 
-            NDStmtList::Create());
+            NDGOpList::Create());
     TestPrinting(refIdGate, idGateStr);
 }
 

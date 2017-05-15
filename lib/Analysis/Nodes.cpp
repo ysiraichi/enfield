@@ -1,5 +1,6 @@
 #include "enfield/Analysis/Nodes.h"
 #include "enfield/Analysis/NodeVisitor.h"
+#include "enfield/Support/RTTI.h"
 
 efd::Node::Node(Kind k, unsigned size, bool empty) : mK(k), mIsEmpty(empty),
     mChild(size, nullptr) {
@@ -60,12 +61,12 @@ void efd::NDQasmVersion::apply(NodeVisitor* visitor) {
     visitor->visit(this);
 }
 
-efd::NodeRef efd::NDQasmVersion::getVersion() const {
-    return mChild[I_VERSION];
+efd::NDReal* efd::NDQasmVersion::getVersion() const {
+    return dynCast<NDReal>(mChild[I_VERSION]);
 }
 
-efd::NodeRef efd::NDQasmVersion::getStatements() const {
-    return mChild[I_STMTS];
+efd::NDStmtList* efd::NDQasmVersion::getStatements() const {
+    return dynCast<NDStmtList>(mChild[I_STMTS]);
 }
 
 std::string efd::NDQasmVersion::toString(bool pretty) const {
@@ -112,12 +113,12 @@ void efd::NDInclude::apply(NodeVisitor* visitor) {
     visitor->visit(this);
 }
 
-efd::NodeRef efd::NDInclude::getFilename() const {
-    return mChild[I_FILE];
+efd::NDString* efd::NDInclude::getFilename() const {
+    return dynCast<NDString>(mChild[I_FILE]);
 }
 
-efd::NodeRef efd::NDInclude::getStatements() const {
-    return mChild[I_STMTS];
+efd::NDStmtList* efd::NDInclude::getStatements() const {
+    return dynCast<NDStmtList>(mChild[I_STMTS]);
 }
 
 std::string efd::NDInclude::toString(bool pretty) const {
@@ -149,12 +150,12 @@ efd::NDDecl::NDDecl(Type t, NodeRef idNode, NodeRef sizeNode) : Node(K_DECL, get
     mChild[I_SIZE] = sizeNode;
 }
 
-efd::NodeRef efd::NDDecl::getId() const {
-    return mChild[I_ID];
+efd::NDId* efd::NDDecl::getId() const {
+    return dynCast<NDId>(mChild[I_ID]);
 }
 
-efd::NodeRef efd::NDDecl::getSize() const {
-    return mChild[I_SIZE];
+efd::NDInt* efd::NDDecl::getSize() const {
+    return dynCast<NDInt>(mChild[I_SIZE]);
 }
 
 bool efd::NDDecl::isCReg() const {
@@ -212,20 +213,20 @@ efd::NDGateDecl::NDGateDecl(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeR
     mChild[I_GOPLIST] = gopNode;
 }
 
-efd::NodeRef efd::NDGateDecl::getId() const {
-    return mChild[I_ID];
+efd::NDId* efd::NDGateDecl::getId() const {
+    return dynCast<NDId>(mChild[I_ID]);
 }
 
-efd::NodeRef efd::NDGateDecl::getArgs() const {
-    return mChild[I_ARGS];
+efd::NDList* efd::NDGateDecl::getArgs() const {
+    return dynCast<NDList>(mChild[I_ARGS]);
 }
 
-efd::NodeRef efd::NDGateDecl::getQArgs() const {
-    return mChild[I_QARGS];
+efd::NDList* efd::NDGateDecl::getQArgs() const {
+    return dynCast<NDList>(mChild[I_QARGS]);
 }
 
-efd::NodeRef efd::NDGateDecl::getGOpList() const {
-    return mChild[I_GOPLIST];
+efd::NDGOpList* efd::NDGateDecl::getGOpList() const {
+    return dynCast<NDGOpList>(mChild[I_GOPLIST]);
 }
 
 std::string efd::NDGateDecl::getOperation() const {
@@ -282,16 +283,16 @@ efd::NDOpaque::NDOpaque(NodeRef idNode, NodeRef aNode, NodeRef qaNode) : Node(K_
     mChild[I_QARGS] = qaNode;
 }
 
-efd::NodeRef efd::NDOpaque::getId() const {
-    return mChild[I_ID];
+efd::NDId* efd::NDOpaque::getId() const {
+    return dynCast<NDId>(mChild[I_ID]);
 }
 
-efd::NodeRef efd::NDOpaque::getArgs() const {
-    return mChild[I_ARGS];
+efd::NDList* efd::NDOpaque::getArgs() const {
+    return dynCast<NDList>(mChild[I_ARGS]);
 }
 
-efd::NodeRef efd::NDOpaque::getQArgs() const {
-    return mChild[I_QARGS];
+efd::NDList* efd::NDOpaque::getQArgs() const {
+    return dynCast<NDList>(mChild[I_QARGS]);
 }
 
 std::string efd::NDOpaque::getOperation() const {
@@ -475,8 +476,8 @@ efd::NDQOpBarrier::NDQOpBarrier(NodeRef qaNode) : NDQOp(K_QOP_BARRIER, getChildN
     mChild[I_ONLY] = qaNode;
 }
 
-efd::NodeRef efd::NDQOpBarrier::getQArgs() const {
-    return mChild[I_ONLY];
+efd::NDList* efd::NDQOpBarrier::getQArgs() const {
+    return dynCast<NDList>(mChild[I_ONLY]);
 }
 
 std::string efd::NDQOpBarrier::getOperation() const {
@@ -625,16 +626,16 @@ efd::NDQOpGeneric::NDQOpGeneric(NodeRef idNode, NodeRef aNode, NodeRef qaNode) :
     mChild[I_QARGS] = qaNode;
 }
 
-efd::NodeRef efd::NDQOpGeneric::getId() const {
-    return mChild[I_ID];
+efd::NDId* efd::NDQOpGeneric::getId() const {
+    return dynCast<NDId>(mChild[I_ID]);
 }
 
-efd::NodeRef efd::NDQOpGeneric::getArgs() const {
-    return mChild[I_ARGS];
+efd::NDList* efd::NDQOpGeneric::getArgs() const {
+    return dynCast<NDList>(mChild[I_ARGS]);
 }
 
-efd::NodeRef efd::NDQOpGeneric::getQArgs() const {
-    return mChild[I_QARGS];
+efd::NDList* efd::NDQOpGeneric::getQArgs() const {
+    return dynCast<NDList>(mChild[I_QARGS]);
 }
 
 std::string efd::NDQOpGeneric::getOperation() const {
@@ -853,12 +854,12 @@ efd::NDIdRef::NDIdRef(NodeRef idNode, NodeRef nNode) : Node(K_ID_REF, getChildNu
     mChild[I_N] = nNode;
 }
 
-efd::NodeRef efd::NDIdRef::getId() const {
-    return mChild[I_ID];
+efd::NDId* efd::NDIdRef::getId() const {
+    return dynCast<NDId>(mChild[I_ID]);
 }
 
-efd::NodeRef efd::NDIdRef::getN() const {
-    return mChild[I_N];
+efd::NDInt* efd::NDIdRef::getN() const {
+    return dynCast<NDInt>(mChild[I_N]);
 }
 
 unsigned efd::NDIdRef::getChildNumber() const {
@@ -1017,12 +1018,12 @@ efd::NDIfStmt::NDIfStmt(NodeRef cidNode, NodeRef nNode, NodeRef qopNode) : Node(
     mChild[I_QOP] = qopNode;
 }
 
-efd::NodeRef efd::NDIfStmt::getCondId() const {
-    return mChild[I_COND_ID];
+efd::NDId* efd::NDIfStmt::getCondId() const {
+    return dynCast<NDId>(mChild[I_COND_ID]);
 }
 
-efd::NodeRef efd::NDIfStmt::getCondN() const {
-    return mChild[I_COND_N];
+efd::NDInt* efd::NDIfStmt::getCondN() const {
+    return dynCast<NDInt>(mChild[I_COND_N]);
 }
 
 efd::NodeRef efd::NDIfStmt::getQOp() const {
