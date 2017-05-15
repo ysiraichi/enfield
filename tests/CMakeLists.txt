@@ -20,3 +20,6 @@ efd_test (DriverFileTests
 
 efd_test (QModuleTests
     EfdAnalysis EfdSupport)
+
+efd_test (IdTableTests
+    EfdAnalysis EfdSupport)

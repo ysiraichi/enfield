@@ -11,4 +11,5 @@ add_library (EfdAnalysis
     ${FLEX_EfdScanner_OUTPUTS}
     QModule.cpp
     QModulefyPass.cpp
-    NodeVisitor.cpp)
+    NodeVisitor.cpp
+    IdTable.cpp)

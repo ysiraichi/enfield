@@ -180,14 +180,11 @@ include: INCLUDE string ";"     {
                                         return 1;
                                     }
 
-                                    std::cout << "Beginning include." << std::endl;
                                     efd::yy::EfdParser parser(ast, scanner);
                                     scanner.yypush_buffer_state(scanner.yy_create_buffer(&ifs, YY_BUF_SIZE));
                                     if (parser.parse()) return 1;
                                     scanner.yypop_buffer_state();
-                                    std::cout << "Finished include." << std::endl;
 
-                                    std::cout << "AST: " << ast.mAST << std::endl;
                                     $$ = efd::NDInclude::Create($2, ast.mAST); 
                                 }
         ;

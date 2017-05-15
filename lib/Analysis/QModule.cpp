@@ -1,8 +1,10 @@
 #include "enfield/Analysis/Driver.h"
 #include "enfield/Analysis/QModule.h"
 #include "enfield/Analysis/QModulefyPass.h"
+#include "enfield/Analysis/IdTable.h"
 
 efd::QModule::QModule() : mAST(nullptr), mVersion(nullptr) {
+    mTable = IdTable::create();
 }
 
 efd::QModule::Iterator efd::QModule::reg_begin() {
@@ -61,6 +63,20 @@ std::string efd::QModule::toString(bool pretty) const {
     return mAST->toString(pretty);
 }
 
+efd::IdTable* efd::QModule::getIdTable(NodeRef ref) {
+    if (mIdTableMap.find(ref) != mIdTableMap.end())
+        return mIdTableMap[ref];
+    return nullptr;
+}
+
+efd::NodeRef efd::QModule::getQVar(std::string id, bool recursive) {
+    return mTable->getQVar(id, recursive);
+}
+
+efd::NodeRef efd::QModule::getQGate(std::string id, bool recursive) {
+    return mTable->getQGate(id, recursive);
+}
+
 std::unique_ptr<efd::QModule> efd::QModule::GetFromAST(NodeRef ref) {
     QModulefyPass* pass = QModulefyPass::Create();
     ref->apply(pass);
@@ -71,6 +87,15 @@ std::unique_ptr<efd::QModule> efd::QModule::GetFromAST(NodeRef ref) {
 
 std::unique_ptr<efd::QModule> efd::QModule::Parse(std::string filename, std::string path) {
     NodeRef ast = efd::ParseFile(filename, path);
+
+    if (ast != nullptr)
+        return GetFromAST(ast);
+
+    return std::unique_ptr<QModule>(nullptr);
+}
+
+std::unique_ptr<efd::QModule> efd::QModule::ParseString(std::string program) {
+    NodeRef ast = efd::ParseString(program);
 
     if (ast != nullptr)
         return GetFromAST(ast);

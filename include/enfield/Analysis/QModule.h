@@ -7,6 +7,7 @@
 
 namespace efd {
     class QModulefyPass;
+    class IdTable;
 
     /// \brief Qasm module representation.
     class QModule {
@@ -17,6 +18,9 @@ namespace efd {
             std::vector<NodeRef> mRegDecls;
             std::vector<NodeRef> mGates;
             std::vector<NodeRef> mStatements;
+
+            IdTable* mTable;
+            std::unordered_map<NodeRef, IdTable*> mIdTableMap;
 
             QModule();
 
@@ -59,10 +63,20 @@ namespace efd {
             /// \brief Returns a std::string representation of the QModule.
             std::string toString(bool pretty = false) const;
 
+            /// \brief Gets the mapped IdTable.
+            IdTable* getIdTable(NodeRef ref);
+
+            /// \brief Gets the quantum variable mapped to \p id.
+            NodeRef getQVar(std::string id, bool recursive = true);
+            /// \brief Gets the quantum gate mapped to \p id.
+            NodeRef getQGate(std::string id, bool recursive = true);
+
             /// \brief Process the AST in order to obtain the QModule.
             static std::unique_ptr<QModule> GetFromAST(NodeRef ref);
             /// \brief Parses the file \p filename and returns a QModule.
             static std::unique_ptr<QModule> Parse(std::string filename, std::string path = "./");
+            /// \brief Parses the string \p program and returns a QModule.
+            static std::unique_ptr<QModule> ParseString(std::string program);
 
 
             friend class QModulefyPass;
