@@ -699,7 +699,7 @@ namespace efd {
             NDList();
 
         protected:
-            NDList(Kind k);
+            NDList(Kind k, unsigned size);
 
         public:
             /// \brief Gets the i-th child.
