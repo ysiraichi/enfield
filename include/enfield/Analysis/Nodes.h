@@ -732,8 +732,6 @@ namespace efd {
 
             std::string toString(bool pretty = false) const override;
 
-            unsigned getChildNumber() const override;
-
             void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -751,8 +749,6 @@ namespace efd {
             Kind getKind() const override;
 
             std::string toString(bool pretty = false) const override;
-
-            unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
 

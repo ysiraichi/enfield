@@ -908,7 +908,7 @@ void efd::NDList::addChild(NodeRef child) {
 }
 
 unsigned efd::NDList::getChildNumber() const {
-    return 0;
+    return mChild.size();
 }
 
 void efd::NDList::apply(NodeVisitor* visitor) {
@@ -946,10 +946,6 @@ efd::NodeRef efd::NDList::Create() {
 efd::NDStmtList::NDStmtList() : NDList(K_STMT_LIST) {
 }
 
-unsigned efd::NDStmtList::getChildNumber() const {
-    return 0;
-}
-
 void efd::NDStmtList::apply(NodeVisitor* visitor) {
     visitor->visit(this);
 }
@@ -977,10 +973,6 @@ efd::NodeRef efd::NDStmtList::Create() {
 
 // -------------- GOpList -----------------
 efd::NDGOpList::NDGOpList() : NDList(K_STMT_LIST) {
-}
-
-unsigned efd::NDGOpList::getChildNumber() const {
-    return 0;
 }
 
 void efd::NDGOpList::apply(NodeVisitor* visitor) {
