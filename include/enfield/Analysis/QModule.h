@@ -8,6 +8,7 @@
 namespace efd {
     class QModulefyPass;
     class IdTable;
+    class Pass;
 
     /// \brief Qasm module representation.
     class QModule {
@@ -70,6 +71,10 @@ namespace efd {
             NodeRef getQVar(std::string id, bool recursive = true);
             /// \brief Gets the quantum gate mapped to \p id.
             NodeRef getQGate(std::string id, bool recursive = true);
+
+            /// \brief Applies the pass in the QModule. If the pass has already been applied,
+            /// it won't be applied again unless \p force is set.
+            void runPass(Pass* pass, bool force = false);
 
             /// \brief Process the AST in order to obtain the QModule.
             static std::unique_ptr<QModule> GetFromAST(NodeRef ref);

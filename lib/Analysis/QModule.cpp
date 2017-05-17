@@ -2,6 +2,7 @@
 #include "enfield/Analysis/QModule.h"
 #include "enfield/Analysis/QModulefyPass.h"
 #include "enfield/Analysis/IdTable.h"
+#include "enfield/Analysis/Pass.h"
 
 efd::QModule::QModule() : mAST(nullptr), mVersion(nullptr) {
     mTable = IdTable::create();
@@ -75,6 +76,27 @@ efd::NodeRef efd::QModule::getQVar(std::string id, bool recursive) {
 
 efd::NodeRef efd::QModule::getQGate(std::string id, bool recursive) {
     return mTable->getQGate(id, recursive);
+}
+
+void efd::QModule::runPass(Pass* pass, bool force) {
+    if (pass->wasApplied() && !force)
+        return;
+
+    pass->init();
+
+    if (pass->isASTPass()) {
+        mAST->apply(pass);
+    } else if (pass->isRegDeclPass()) {
+        for (auto regdecl : mRegDecls)
+            regdecl->apply(pass);
+    } else if (pass->isGatePass()) {
+        for (auto gate : mGates)
+            gate->apply(pass);
+    } else {
+        // if (pass->isStatementPass())
+        for (auto stmt : mStatements)
+            stmt->apply(pass);
+    }
 }
 
 std::unique_ptr<efd::QModule> efd::QModule::GetFromAST(NodeRef ref) {

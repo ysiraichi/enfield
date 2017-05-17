@@ -3,6 +3,10 @@
 #include "enfield/Support/RTTI.h"
 
 efd::QModulefyPass::QModulefyPass() {
+    mUK = Pass::K_AST_PASS;
+}
+
+void efd::QModulefyPass::initImpl() {
     mMod = new QModule();
     mCurrentTable = mMod->mTable;
 }
