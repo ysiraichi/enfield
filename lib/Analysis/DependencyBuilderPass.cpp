@@ -75,6 +75,11 @@ efd::DependencyBuilderPass::DependencyBuilderPass(QModule* mod, QbitToNumberPass
         mQbitMap = QbitToNumberPass::create();
 }
 
+void efd::DependencyBuilderPass::initImpl() {
+    mCurrentGate = nullptr;
+    mMod->runPass(mQbitMap);
+}
+
 unsigned efd::DependencyBuilderPass::getUId(NodeRef ref) {
     std::string _id;
 
@@ -159,8 +164,16 @@ void efd::DependencyBuilderPass::visit(NDQOpGeneric* ref) {
     }
 }
 
-void efd::DependencyBuilderPass::init() {
-    mCurrentGate = nullptr;
+const efd::DependencyBuilderPass::DepsSet& efd::DependencyBuilderPass::getDependencies(NDGateDecl* ref) const {
+    const DepsSet* deps = &mGDeps;
+
+    if (ref != nullptr) {
+        assert(mLDeps.find(ref) != mLDeps.end() && \
+                "No dependencies found for this gate.");
+        deps = &mLDeps.at(ref);
+    }
+
+    return *deps;
 }
 
 efd::DependencyBuilderPass* efd::DependencyBuilderPass::create(QModule* mod, QbitToNumberPass* pass) {
