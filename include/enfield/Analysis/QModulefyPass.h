@@ -9,7 +9,7 @@ namespace efd {
 
     class QModulefyPass : public Pass {
         private:
-            QModulefyPass();
+            QModulefyPass(QModule* qmod);
 
         protected:
             void initImpl() override;
@@ -32,7 +32,7 @@ namespace efd {
             void visit(NDStmtList* ref) override;
             void visit(NDIfStmt* ref) override;
 
-            static QModulefyPass* Create();
+            static QModulefyPass* Create(QModule* qmod);
     };
 };
 

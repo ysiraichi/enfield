@@ -23,7 +23,7 @@ namespace efd {
             IdTable* mTable;
             std::unordered_map<NodeRef, IdTable*> mIdTableMap;
 
-            QModule();
+            QModule(NodeRef ref);
 
         public:
             typedef std::vector<NodeRef>::iterator Iterator;
