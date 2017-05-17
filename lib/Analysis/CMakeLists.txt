@@ -13,4 +13,5 @@ add_library (EfdAnalysis
     QModulefyPass.cpp
     NodeVisitor.cpp
     IdTable.cpp
-    DependencyBuilderPass.cpp)
+    DependencyBuilderPass.cpp
+    Pass.cpp)
