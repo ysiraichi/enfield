@@ -19,13 +19,16 @@ namespace efd {
     /// Note that if "qreg r[10];" declaration exists, then "r" is not a qbit, but
     /// "r[n]" is (where "n" is in "{0 .. 9}").
     class QbitToNumberPass : public Pass {
-        private:
+        public:
             typedef std::vector<std::string> QbitMap;
 
+        private:
             std::unordered_map<NDGateDecl*, QbitMap> mLIdMap;
             QbitMap mGIdMap;
 
             QbitToNumberPass();
+
+            const QbitMap* getMap(NDGateDecl* gate) const;
 
         public:
             void visit(NDDecl* ref) override;
@@ -33,11 +36,14 @@ namespace efd {
 
             /// \brief Returns an unsigned number representing the id
             /// in this specific gate (if any).
-            unsigned getUId(std::string id, NDGateDecl* gateRef = nullptr) const;
+            unsigned getUId(std::string id, NDGateDecl* gate = nullptr) const;
+
+            /// \brief Returns the number of qbits in a given gate (if any).
+            unsigned getSize(NDGateDecl* gate = nullptr) const;
 
             /// \brief Returns the std::string id representation of the
             /// corresponding unsigned id in the specific gate (if any).
-            std::string getStrId(unsigned id, NDGateDecl* gateRef = nullptr) const;
+            std::string getStrId(unsigned id, NDGateDecl* gate = nullptr) const;
 
             /// \brief Returns a new instance of this class.
             static QbitToNumberPass* create();
@@ -46,9 +52,10 @@ namespace efd {
     /// \brief Keep track of the dependencies of each qbit for the whole program,
     /// as well as the dependencies for every gate.
     class DependencyBuilderPass : public Pass {
-        private:
+        public:
             typedef std::vector<std::set<unsigned>> DepsSet;
 
+        private:
             QModule* mMod;
             NDGateDecl* mCurrentGate;
             QbitToNumberPass* mQbitMap;
@@ -62,7 +69,8 @@ namespace efd {
             unsigned getUId(NodeRef ref);
             /// \brief Gets the DepsSet corresponding to the current quantum gate,
             /// or the global (if current gate is null).
-            DepsSet* getCurrentDepsSet();
+            const DepsSet* getDepsSet(NDGateDecl* gate = nullptr) const;
+            DepsSet* getDepsSet(NDGateDecl* gate = nullptr);
 
         protected:
             void initImpl() override;

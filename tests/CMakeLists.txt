@@ -23,3 +23,6 @@ efd_test (QModuleTests
 
 efd_test (IdTableTests
     EfdAnalysis EfdSupport)
+
+efd_test (DependencyBuilderPassTests
+    EfdAnalysis EfdSupport)
