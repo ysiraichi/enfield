@@ -1,4 +1,5 @@
 #include "enfield/Analysis/IdTable.h"
+#include "enfield/Support/RTTI.h"
 
 efd::IdTable::IdTable(IdTable* parent) : mParent(parent) {
 }
@@ -25,11 +26,11 @@ efd::NodeRef efd::IdTable::getQVar(std::string id, bool recursive) {
     return nullptr;
 }
 
-efd::NodeRef efd::IdTable::getQGate(std::string id, bool recursive) {
+efd::NDGateDecl* efd::IdTable::getQGate(std::string id, bool recursive) {
     if (mMap.find(id) != mMap.end()) {
         Record record = mMap[id];
         if (record.mIsGate)
-            return record.mNode;
+            return dynCast<NDGateDecl>(record.mNode);
     }
 
     if (recursive && mParent != nullptr) {

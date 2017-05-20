@@ -1,6 +1,6 @@
 #include "enfield/Analysis/Pass.h"
 
-efd::Pass::Pass() : mApplied(false) {
+efd::Pass::Pass() : mApplied(false), mUK(0) {
 }
 
 bool efd::Pass::isGatePass() const {

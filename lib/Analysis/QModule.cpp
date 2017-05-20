@@ -64,17 +64,18 @@ std::string efd::QModule::toString(bool pretty) const {
     return mAST->toString(pretty);
 }
 
-efd::IdTable* efd::QModule::getIdTable(NodeRef ref) {
-    if (mIdTableMap.find(ref) != mIdTableMap.end())
+efd::IdTable* efd::QModule::getIdTable(NDGateDecl* ref) {
+    if (ref != nullptr && mIdTableMap.find(ref) != mIdTableMap.end())
         return mIdTableMap[ref];
-    return nullptr;
+    return mTable;
 }
 
-efd::NodeRef efd::QModule::getQVar(std::string id, bool recursive) {
-    return mTable->getQVar(id, recursive);
+efd::NodeRef efd::QModule::getQVar(std::string id, NDGateDecl* gate, bool recursive) {
+    IdTable* gTable = getIdTable(gate);
+    return gTable->getQVar(id, recursive);
 }
 
-efd::NodeRef efd::QModule::getQGate(std::string id, bool recursive) {
+efd::NDGateDecl* efd::QModule::getQGate(std::string id, bool recursive) {
     return mTable->getQGate(id, recursive);
 }
 
@@ -86,16 +87,21 @@ void efd::QModule::runPass(Pass* pass, bool force) {
 
     if (pass->isASTPass()) {
         mAST->apply(pass);
-    } else if (pass->isRegDeclPass()) {
-        for (auto regdecl : mRegDecls)
-            regdecl->apply(pass);
-    } else if (pass->isGatePass()) {
-        for (auto gate : mGates)
-            gate->apply(pass);
     } else {
-        // if (pass->isStatementPass())
-        for (auto stmt : mStatements)
-            stmt->apply(pass);
+        if (pass->isRegDeclPass()) {
+            for (auto regdecl : mRegDecls)
+                regdecl->apply(pass);
+        }
+        
+        if (pass->isGatePass()) {
+            for (auto gate : mGates)
+                gate->apply(pass);
+        }
+
+        if (pass->isStatementPass()) {
+            for (auto stmt : mStatements)
+                stmt->apply(pass);
+        }
     }
 }
 

@@ -65,12 +65,12 @@ namespace efd {
             std::string toString(bool pretty = false) const;
 
             /// \brief Gets the mapped IdTable.
-            IdTable* getIdTable(NodeRef ref);
+            IdTable* getIdTable(NDGateDecl* ref);
 
-            /// \brief Gets the quantum variable mapped to \p id.
-            NodeRef getQVar(std::string id, bool recursive = true);
+            /// \brief Gets the quantum variable mapped to \p id from some gate.
+            NodeRef getQVar(std::string id, NDGateDecl* gate = nullptr, bool recursive = true);
             /// \brief Gets the quantum gate mapped to \p id.
-            NodeRef getQGate(std::string id, bool recursive = true);
+            NDGateDecl* getQGate(std::string id, bool recursive = true);
 
             /// \brief Applies the pass in the QModule. If the pass has already been applied,
             /// it won't be applied again unless \p force is set.
