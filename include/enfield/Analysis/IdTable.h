@@ -31,7 +31,7 @@ namespace efd {
             /// \brief Gets the quantum variable mapped to \p id.
             NodeRef getQVar(std::string id, bool recursive = true);
             /// \brief Gets the quantum gate mapped to \p id.
-            NodeRef getQGate(std::string id, bool recursive = true);
+            NDGateDecl* getQGate(std::string id, bool recursive = true);
 
             /// \brief Returns the parent table.
             IdTable* getParent();

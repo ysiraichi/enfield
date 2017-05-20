@@ -892,10 +892,10 @@ efd::NodeRef efd::NDIdRef::Create(NodeRef idNode, NodeRef sizeNode) {
 }
 
 // -------------- Node List -----------------
-efd::NDList::NDList() : Node(K_LIST, getChildNumber(), true) {
+efd::NDList::NDList() : Node(K_LIST, 0, true) {
 }
 
-efd::NDList::NDList(Kind k) : Node(k, getChildNumber(), true) {
+efd::NDList::NDList(Kind k, unsigned size) : Node(k, size, true) {
 }
 
 efd::NodeRef efd::NDList::getChild(unsigned i) const {
@@ -908,7 +908,7 @@ void efd::NDList::addChild(NodeRef child) {
 }
 
 unsigned efd::NDList::getChildNumber() const {
-    return 0;
+    return mChild.size();
 }
 
 void efd::NDList::apply(NodeVisitor* visitor) {
@@ -943,11 +943,7 @@ efd::NodeRef efd::NDList::Create() {
 }
 
 // -------------- StmtList -----------------
-efd::NDStmtList::NDStmtList() : NDList(K_STMT_LIST) {
-}
-
-unsigned efd::NDStmtList::getChildNumber() const {
-    return 0;
+efd::NDStmtList::NDStmtList() : NDList(K_STMT_LIST, 0) {
 }
 
 void efd::NDStmtList::apply(NodeVisitor* visitor) {
@@ -976,11 +972,7 @@ efd::NodeRef efd::NDStmtList::Create() {
 }
 
 // -------------- GOpList -----------------
-efd::NDGOpList::NDGOpList() : NDList(K_STMT_LIST) {
-}
-
-unsigned efd::NDGOpList::getChildNumber() const {
-    return 0;
+efd::NDGOpList::NDGOpList() : NDList(K_GOP_LIST, 0) {
 }
 
 void efd::NDGOpList::apply(NodeVisitor* visitor) {

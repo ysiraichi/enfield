@@ -1,15 +1,18 @@
 #ifndef __EFD_QMODULEFY_PASS_H__
 #define __EFD_QMODULEFY_PASS_H__
 
-#include "enfield/Analysis/NodeVisitor.h"
+#include "enfield/Analysis/Pass.h"
 #include "enfield/Analysis/QModule.h"
 
 namespace efd {
     class IdTable;
 
-    class QModulefyPass : public NodeVisitor {
+    class QModulefyPass : public Pass {
         private:
-            QModulefyPass();
+            QModulefyPass(QModule* qmod);
+
+        protected:
+            void initImpl() override;
 
         public:
             QModule* mMod;
@@ -29,7 +32,7 @@ namespace efd {
             void visit(NDStmtList* ref) override;
             void visit(NDIfStmt* ref) override;
 
-            static QModulefyPass* Create();
+            static QModulefyPass* Create(QModule* qmod);
     };
 };
 

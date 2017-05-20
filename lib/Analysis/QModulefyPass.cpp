@@ -2,8 +2,11 @@
 #include "enfield/Analysis/IdTable.h"
 #include "enfield/Support/RTTI.h"
 
-efd::QModulefyPass::QModulefyPass() {
-    mMod = new QModule();
+efd::QModulefyPass::QModulefyPass(QModule* qmod) : mMod(qmod) {
+    mUK = Pass::K_AST_PASS;
+}
+
+void efd::QModulefyPass::initImpl() {
     mCurrentTable = mMod->mTable;
 }
 
@@ -81,7 +84,7 @@ void efd::QModulefyPass::visit(NDIfStmt* ref) {
     mMod->mStatements.push_back(ref);
 }
 
-efd::QModulefyPass* efd::QModulefyPass::Create() {
-    return new QModulefyPass();
+efd::QModulefyPass* efd::QModulefyPass::Create(QModule* qmod) {
+    return new QModulefyPass(qmod);
 }
 
