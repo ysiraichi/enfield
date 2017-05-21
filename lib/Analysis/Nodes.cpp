@@ -49,6 +49,10 @@ efd::NDQasmVersion::NDQasmVersion(NodeRef vNode, NodeRef stmtsNode) :
     mChild[I_STMTS] = stmtsNode;
 }
 
+efd::NodeRef efd::NDQasmVersion::clone() const {
+    return NDQasmVersion::Create(getVersion()->clone(), getStatements()->clone());
+}
+
 std::string efd::NDQasmVersion::getOperation() const {
     return "OPENQASM";
 }
@@ -101,6 +105,10 @@ efd::NDInclude::NDInclude(NodeRef vNode, NodeRef stmtsNode) :
     mChild[I_STMTS] = stmtsNode;
 }
 
+efd::NodeRef efd::NDInclude::clone() const {
+    return NDInclude::Create(getFilename()->clone(), getStatements()->clone());
+}
+
 std::string efd::NDInclude::getOperation() const {
     return "include";
 }
@@ -148,6 +156,10 @@ efd::NodeRef efd::NDInclude::Create(NodeRef vNode, NodeRef stmtsNode) {
 efd::NDDecl::NDDecl(Type t, NodeRef idNode, NodeRef sizeNode) : Node(K_DECL, getChildNumber()), mT(t) {
     mChild[I_ID] = idNode;
     mChild[I_SIZE] = sizeNode;
+}
+
+efd::NodeRef efd::NDDecl::clone() const {
+    return NDDecl::Create(mT, getId()->clone(), getSize()->clone());
 }
 
 efd::NDId* efd::NDDecl::getId() const {
@@ -211,6 +223,13 @@ efd::NDGateDecl::NDGateDecl(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeR
     mChild[I_ARGS] = aNode;
     mChild[I_QARGS] = qaNode;
     mChild[I_GOPLIST] = gopNode;
+}
+
+efd::NodeRef efd::NDGateDecl::clone() const {
+    return NDGateDecl::Create(
+            getId()->clone(), getArgs()->clone(), 
+            getQArgs()->clone(), getGOpList()->clone()
+        );
 }
 
 efd::NDId* efd::NDGateDecl::getId() const {
@@ -281,6 +300,10 @@ efd::NDOpaque::NDOpaque(NodeRef idNode, NodeRef aNode, NodeRef qaNode) : Node(K_
     mChild[I_ID] = idNode;
     mChild[I_ARGS] = aNode;
     mChild[I_QARGS] = qaNode;
+}
+
+efd::NodeRef efd::NDOpaque::clone() const {
+    return NDOpaque::Create(getId()->clone(), getArgs()->clone(), getQArgs()->clone());
 }
 
 efd::NDId* efd::NDOpaque::getId() const {
@@ -379,6 +402,10 @@ efd::NDQOpMeasure::NDQOpMeasure(NodeRef qNode, NodeRef cNode) : NDQOp(K_QOP_MEAS
     mChild[I_CBIT] = cNode;
 }
 
+efd::NodeRef efd::NDQOpMeasure::clone() const {
+    return NDQOpMeasure::Create(getQBit()->clone(), getCBit()->clone());
+}
+
 efd::NodeRef efd::NDQOpMeasure::getQBit() const {
     return mChild[I_QBIT];
 }
@@ -431,6 +458,10 @@ efd::NDQOpReset::NDQOpReset(NodeRef qaNode) : NDQOp(K_QOP_RESET, getChildNumber(
     mChild[I_ONLY] = qaNode;
 }
 
+efd::NodeRef efd::NDQOpReset::clone() const {
+    return NDQOpReset::Create(getQArg()->clone());
+}
+
 efd::NodeRef efd::NDQOpReset::getQArg() const {
     return mChild[I_ONLY];
 }
@@ -474,6 +505,10 @@ efd::NodeRef efd::NDQOpReset::Create(NodeRef qaNode) {
 // -------------- Qubit Operation: Barrier -----------------
 efd::NDQOpBarrier::NDQOpBarrier(NodeRef qaNode) : NDQOp(K_QOP_BARRIER, getChildNumber()) {
     mChild[I_ONLY] = qaNode;
+}
+
+efd::NodeRef efd::NDQOpBarrier::clone() const {
+    return NDQOpBarrier::Create(getQArgs()->clone());
 }
 
 efd::NDList* efd::NDQOpBarrier::getQArgs() const {
@@ -520,6 +555,10 @@ efd::NodeRef efd::NDQOpBarrier::Create(NodeRef qaNode) {
 efd::NDQOpCX::NDQOpCX(NodeRef lhsNode, NodeRef rhsNode) : NDQOp(K_QOP_CX, getChildNumber()) {
     mChild[I_LHS] = lhsNode;
     mChild[I_RHS] = rhsNode;
+}
+
+efd::NodeRef efd::NDQOpCX::clone() const {
+    return NDQOpCX::Create(getLhs()->clone(), getRhs()->clone());
 }
 
 efd::NodeRef efd::NDQOpCX::getLhs() const {
@@ -573,6 +612,10 @@ efd::NDQOpU::NDQOpU(NodeRef aNode, NodeRef qaNode) : NDQOp(K_QOP_U, getChildNumb
     mChild[I_QARG] = qaNode;
 }
 
+efd::NodeRef efd::NDQOpU::clone() const {
+    return NDQOpU::Create(getArgs()->clone(), getQArg()->clone());
+}
+
 efd::NodeRef efd::NDQOpU::getArgs() const {
     return mChild[I_ARGS];
 }
@@ -624,6 +667,10 @@ efd::NDQOpGeneric::NDQOpGeneric(NodeRef idNode, NodeRef aNode, NodeRef qaNode) :
     mChild[I_ID] = idNode;
     mChild[I_ARGS] = aNode;
     mChild[I_QARGS] = qaNode;
+}
+
+efd::NodeRef efd::NDQOpGeneric::clone() const {
+    return NDQOpGeneric::Create(getId()->clone(), getArgs()->clone(), getQArgs()->clone());
 }
 
 efd::NDId* efd::NDQOpGeneric::getId() const {
@@ -682,6 +729,10 @@ efd::NodeRef efd::NDQOpGeneric::Create(NodeRef idNode, NodeRef aNode, NodeRef qa
 efd::NDBinOp::NDBinOp(OpType t, NodeRef lhsNode, NodeRef rhsNode) : Node(K_BINOP, getChildNumber()), mT(t) {
     mChild[I_LHS] = lhsNode;
     mChild[I_RHS] = rhsNode;
+}
+
+efd::NodeRef efd::NDBinOp::clone() const {
+    return NDBinOp::Create(mT, getLhs()->clone(), getRhs()->clone());
 }
 
 efd::NodeRef efd::NDBinOp::getLhs() const {
@@ -761,6 +812,10 @@ efd::NodeRef efd::NDBinOp::Create(OpType t, NodeRef lhsNode, NodeRef rhsNode) {
 // -------------- Unary Operation -----------------
 efd::NDUnaryOp::NDUnaryOp(UOpType t, NodeRef oNode) : Node(K_UNARYOP, getChildNumber()), mT(t) {
     mChild[I_ONLY] = oNode;
+}
+
+efd::NodeRef efd::NDUnaryOp::clone() const {
+    return NDUnaryOp::Create(mT, getOperand()->clone());
 }
 
 efd::NodeRef efd::NDUnaryOp::getOperand() const {
@@ -854,6 +909,10 @@ efd::NDIdRef::NDIdRef(NodeRef idNode, NodeRef nNode) : Node(K_ID_REF, getChildNu
     mChild[I_N] = nNode;
 }
 
+efd::NodeRef efd::NDIdRef::clone() const {
+    return NDIdRef::Create(getId()->clone(), getN()->clone());
+}
+
 efd::NDId* efd::NDIdRef::getId() const {
     return dynCast<NDId>(mChild[I_ID]);
 }
@@ -896,6 +955,18 @@ efd::NDList::NDList() : Node(K_LIST, 0, true) {
 }
 
 efd::NDList::NDList(Kind k, unsigned size) : Node(k, size, true) {
+}
+
+void efd::NDList::cloneChildremTo(NDList* list) const {
+    for (auto child : *this) {
+        list->addChild(child->clone());
+    }
+}
+
+efd::NodeRef efd::NDList::clone() const {
+    NDList* list = dynCast<NDList>(NDList::Create());
+    cloneChildremTo(list);
+    return list;
 }
 
 efd::NodeRef efd::NDList::getChild(unsigned i) const {
@@ -946,6 +1017,12 @@ efd::NodeRef efd::NDList::Create() {
 efd::NDStmtList::NDStmtList() : NDList(K_STMT_LIST, 0) {
 }
 
+efd::NodeRef efd::NDStmtList::clone() const {
+    NDList* list = dynCast<NDList>(NDStmtList::Create());
+    cloneChildremTo(list);
+    return list;
+}
+
 void efd::NDStmtList::apply(NodeVisitor* visitor) {
     visitor->visit(this);
 }
@@ -973,6 +1050,12 @@ efd::NodeRef efd::NDStmtList::Create() {
 
 // -------------- GOpList -----------------
 efd::NDGOpList::NDGOpList() : NDList(K_GOP_LIST, 0) {
+}
+
+efd::NodeRef efd::NDGOpList::clone() const {
+    NDList* list = dynCast<NDList>(NDGOpList::Create());
+    cloneChildremTo(list);
+    return list;
 }
 
 void efd::NDGOpList::apply(NodeVisitor* visitor) {
@@ -1008,6 +1091,10 @@ efd::NDIfStmt::NDIfStmt(NodeRef cidNode, NodeRef nNode, NodeRef qopNode) : Node(
     mChild[I_COND_ID] = cidNode;
     mChild[I_COND_N] = nNode;
     mChild[I_QOP] = qopNode;
+}
+
+efd::NodeRef efd::NDIfStmt::clone() const {
+    return NDIfStmt::Create(getCondId()->clone(), getCondN()->clone(), getQOp()->clone());
 }
 
 efd::NDId* efd::NDIfStmt::getCondId() const {
