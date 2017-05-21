@@ -47,90 +47,119 @@ static void TestPrinting(Node* node, std::string rhs) {
     ASSERT_EQ(ss.str(), rhs);
 }
 
+static void TestFind(NodeRef ref) {
+    for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
+        NodeRef child = ref->getChild(i);
+
+        ASSERT_TRUE(child->getParent() == ref);
+        ASSERT_FALSE(ref->findChild(child) == ref->end());
+        TestFind(child);
+    }
+}
+
 TEST(ASTNodeTests, LiteralCreationTest) {
     std::string idStr = "r0";
     NodeRef refId = NDId::Create(idStr);
     TestPrinting(refId, idStr);
+    TestFind(refId);
 
     std::string intStr = "10";
     NodeRef refInt = NDInt::Create(intStr);
     TestPrinting(refInt, intStr);
+    TestFind(refInt);
 
     std::string dStr = "3.14159";
     NodeRef refDv = NDReal::Create(dStr);
     TestPrinting(refDv, dStr);
+    TestFind(refDv);
 
     std::string rStr = "r0[3]";
     NodeRef refIdRef = NDIdRef::Create(Id("r0"), Int("3"));
     TestPrinting(refIdRef, rStr);
+    TestFind(refIdRef);
 }
 
 TEST(ASTNodeTests, BinOpCreationTest) {
     std::string addStr = "(pi + 5)";
     NodeRef refAdd = NDBinOp::Create(NDBinOp::OP_ADD, Id("pi"), Int("5"));
     TestPrinting(refAdd, addStr);
+    TestFind(refAdd);
 
     std::string subStr = "(pi - 5)";
     NodeRef refSub = NDBinOp::Create(NDBinOp::OP_SUB, Id("pi"), Int("5"));
     TestPrinting(refSub, subStr);
+    TestFind(refSub);
 
     std::string mulStr = "(pi * 5)";
     NodeRef refMul = NDBinOp::Create(NDBinOp::OP_MUL, Id("pi"), Int("5"));
     TestPrinting(refMul, mulStr);
+    TestFind(refMul);
 
     std::string divStr = "(pi / 5)";
     NodeRef refDiv = NDBinOp::Create(NDBinOp::OP_DIV, Id("pi"), Int("5"));
     TestPrinting(refDiv, divStr);
+    TestFind(refDiv);
 
     std::string powStr = "(pi ^ 5)";
     NodeRef refPow = NDBinOp::Create(NDBinOp::OP_POW, Id("pi"), Int("5"));
     TestPrinting(refPow, powStr);
+    TestFind(refPow);
 
     std::string mixStr = "((pi ^ 5) / (2 * 5.8))";
     NodeRef refLhs = NDBinOp::Create(NDBinOp::OP_POW, Id("pi"), Int("5"));
     NodeRef refRhs = NDBinOp::Create(NDBinOp::OP_MUL, Int("2"), Real("5.8"));
     NodeRef refMix = NDBinOp::Create(NDBinOp::OP_DIV, refLhs, refRhs);
     TestPrinting(refMix, mixStr);
+    TestFind(refMix);
 }
 
 TEST(ASTNodeTests, UnaryOpCreationTest) {
     std::string sinStr = "sin(pi)";
     NodeRef refSin = NDUnaryOp::Create(NDUnaryOp::UOP_SIN, Id("pi"));
     TestPrinting(refSin, sinStr);
+    TestFind(refSin);
 
     std::string cosStr = "cos(pi)";
     NodeRef refCos = NDUnaryOp::Create(NDUnaryOp::UOP_COS, Id("pi"));
     TestPrinting(refCos, cosStr);
+    TestFind(refCos);
 
     std::string tanStr = "tan(pi)";
     NodeRef refTan = NDUnaryOp::Create(NDUnaryOp::UOP_TAN, Id("pi"));
     TestPrinting(refTan, tanStr);
+    TestFind(refTan);
 
     std::string lnStr = "ln(pi)";
     NodeRef refLn = NDUnaryOp::Create(NDUnaryOp::UOP_LN, Id("pi"));
     TestPrinting(refLn, lnStr);
+    TestFind(refLn);
 
     std::string negStr = "(-pi)";
     NodeRef refNeg = NDUnaryOp::Create(NDUnaryOp::UOP_NEG, Id("pi"));
     TestPrinting(refNeg, negStr);
+    TestFind(refNeg);
 
     std::string expStr = "exp(pi)";
     NodeRef refExp = NDUnaryOp::Create(NDUnaryOp::UOP_EXP, Id("pi"));
     TestPrinting(refExp, expStr);
+    TestFind(refExp);
 
     std::string sqrtStr = "sqrt(pi)";
     NodeRef refSqrt = NDUnaryOp::Create(NDUnaryOp::UOP_SQRT, Id("pi"));
     TestPrinting(refSqrt, sqrtStr);
+    TestFind(refSqrt);
 }
 
 TEST(ASTNodeTests, DeclCreationTest) {
     std::string cStr = "creg r0[5];";
     NodeRef refC = NDDecl::Create(NDDecl::CONCRETE, Id("r0"), Int("5"));
     TestPrinting(refC, cStr);
+    TestFind(refC);
 
     std::string qStr = "qreg r0[5];";
     NodeRef refQ = NDDecl::Create(NDDecl::QUANTUM, Id("r0"), Int("5"));
     TestPrinting(refQ, qStr);
+    TestFind(refQ);
 }
 
 TEST(ASTNodeTests, ListCreationTest) {
@@ -145,16 +174,19 @@ TEST(ASTNodeTests, ListCreationTest) {
     argList->addChild(IdRef("r3", "4"));
 
     TestPrinting(refQArgs, argStr);
+    TestFind(refQArgs);
 }
 
 TEST(ASTNodeTests, QOpCreationTest) {
     std::string meaStr = "measure r0[2] -> c2[5];";
     NodeRef refMeasure = NDQOpMeasure::Create(IdRef("r0", "2"), IdRef("c2", "5"));
     TestPrinting(refMeasure, meaStr);
+    TestFind(refMeasure);
 
     std::string resetStr = "reset r0[5];";
     NodeRef refReset = NDQOpReset::Create(IdRef("r0", "5"));
     TestPrinting(refReset, resetStr);
+    TestFind(refReset);
 
     std::string barrierStr = "barrier r0[2], r1[5], r3, r5;";
     NodeRef refBarrier;
@@ -168,6 +200,7 @@ TEST(ASTNodeTests, QOpCreationTest) {
         refBarrier = NDQOpBarrier::Create(refArgList);
     }
     TestPrinting(refBarrier, barrierStr);
+    TestFind(refBarrier);
 
     std::string genStr = "id r0, r5;";
     NodeRef refGeneric;
@@ -179,6 +212,7 @@ TEST(ASTNodeTests, QOpCreationTest) {
         refGeneric = NDQOpGeneric::Create(Id("id"), NDList::Create(), refArgList);
     }
     TestPrinting(refGeneric, genStr);
+    TestFind(refGeneric);
 }
 
 TEST(ASTNodeTests, GOpListCreationTest) {
@@ -192,6 +226,7 @@ TEST(ASTNodeTests, GOpListCreationTest) {
     gopList->addChild(IdGate("r3", "7"));
 
     TestPrinting(refGOp, gopStr);
+    TestFind(refGOp);
 }
 
 TEST(ASTNodeTests, StmtListCreationTest) {
@@ -205,6 +240,7 @@ TEST(ASTNodeTests, StmtListCreationTest) {
     stmtList->addChild(IdGate("r3", "7"));
 
     TestPrinting(refStmt, stmtStr);
+    TestFind(refStmt);
 }
 
 TEST(ASTNodeTests, OpaqueGateDeclCreationTest) {
@@ -223,6 +259,7 @@ TEST(ASTNodeTests, OpaqueGateDeclCreationTest) {
 
     NodeRef refOpaque = NDOpaque::Create(Id("Ogate"), refArgs, refQArgs);
     TestPrinting(refOpaque, opaqueStr);
+    TestFind(refOpaque);
 }
 
 TEST(ASTNodeTests, GateDeclCreationTest) {
@@ -234,6 +271,7 @@ TEST(ASTNodeTests, GateDeclCreationTest) {
     NodeRef refIdGate = NDGateDecl::Create(Id("id"), NDList::Create(), refQArgs, 
             NDGOpList::Create());
     TestPrinting(refIdGate, idGateStr);
+    TestFind(refIdGate);
 }
 
 TEST(ASTNodeTests, IfStmtTest) {
@@ -242,6 +280,7 @@ TEST(ASTNodeTests, IfStmtTest) {
     NodeRef refReset = NDQOpReset::Create(NDIdRef::Create(Id("otherid"), Int("0")));
     NodeRef refIf = NDIfStmt::Create(Id("someid"), Int("1"), refReset);
     TestPrinting(refIf, ifStr);
+    TestFind(refIf);
 }
 
 TEST(ASTNodeTests, IncludeTest) {
@@ -249,4 +288,5 @@ TEST(ASTNodeTests, IncludeTest) {
 
     NodeRef refInclude = NDInclude::Create(Id("files/_qelib1.inc"), NDStmtList::Create());
     TestPrinting(refInclude, includeStr);
+    TestFind(refInclude);
 }

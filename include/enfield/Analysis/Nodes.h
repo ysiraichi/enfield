@@ -69,11 +69,19 @@ namespace efd {
             bool mIsEmpty;
             /// \brief The childrem nodes.
             std::vector<NodeRef> mChild;
+            NodeRef mParent;
 
             /// \brief Constructs the node, initially empty (with no information).
             Node(Kind k, unsigned size = 0, bool empty = false);
 
         public:
+            /// \brief Gets the i-th child.
+            NodeRef getChild(unsigned i) const;
+            /// \brief Sets the i-th child.
+            void setChild(unsigned i, NodeRef ref);
+            /// \brief Returns a iterator pointing to the given child.
+            Iterator findChild(NodeRef ref);
+
             /// \brief Returns a iterator to the beginning of the vector.
             Iterator begin();
             /// \brief Returns a iterator to the end of the vector.
@@ -89,6 +97,11 @@ namespace efd {
 
             /// \brief Returns whether this node has any information.
             bool isEmpty() const;
+
+            /// \brief Returns the parent node of the current node.
+            NodeRef getParent() const;
+            /// \brief Sets the parent node of the current node.
+            void setParent(NodeRef ref);
 
             /// \brief Returns a std::string representation of the operation.
             virtual std::string getOperation() const;
@@ -796,10 +809,6 @@ namespace efd {
             void cloneChildremTo(NDList* list) const;
 
         public:
-            /// \brief Gets the i-th child.
-            NodeRef getChild(unsigned i) const;
-            /// \brief Sets the i-th child.
-            void setChild(unsigned i, NodeRef ref);
 
             Kind getKind() const override;
 
@@ -813,6 +822,10 @@ namespace efd {
 
             /// \brief Appends a child to the end of the list.
             void addChild(NodeRef child);
+            /// \brief Inserts a child in the iterator \p It.
+            void addChild(Iterator& It, NodeRef child);
+            /// \brief Removes the child in the iterator \p It.
+            void removeChild(Iterator& It);
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
