@@ -143,14 +143,13 @@
 
 %start program;
 
-program: stmtlist                   { $$ = $1; }
-       | IBMQASM real ";" stmtlist  { $$ = efd::NDQasmVersion::Create($2, $4); }
+program: stmtlist                   { $$ = $1; ast.mAST = $$; }
+       | IBMQASM real ";" stmtlist  { 
+                                        $$ = efd::NDQasmVersion::Create($2, $4);
+                                        ast.mAST = $$;
+                                    }
 
-stmtlist: stmtlist_ statement EOF {
-                                      efd::dynCast<efd::NDStmtList>($1)->addChild($2);
-                                      $$ = $1;
-                                      ast.mAST = $1;
-                                  }
+stmtlist: stmtlist_ EOF { $$ = $1; }
        ;
 stmtlist_: %empty                { $$ = efd::NDStmtList::Create(); }
          | stmtlist_ statement   {

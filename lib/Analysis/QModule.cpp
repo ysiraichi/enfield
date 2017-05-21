@@ -105,6 +105,11 @@ void efd::QModule::runPass(Pass* pass, bool force) {
     }
 }
 
+std::unique_ptr<efd::QModule> efd::QModule::clone() const {
+    NodeRef newAST = mAST->clone();
+    return GetFromAST(newAST);
+}
+
 std::unique_ptr<efd::QModule> efd::QModule::GetFromAST(NodeRef ref) {
     std::unique_ptr<QModule> qmod(new QModule(ref));
     QModulefyPass* pass = QModulefyPass::Create(qmod.get());

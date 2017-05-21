@@ -101,6 +101,8 @@ namespace efd {
             /// \brief Used by visitor classes.
             virtual void apply(NodeVisitor* visitor) = 0;
 
+            /// \brief Clones the current node (deep copy).
+            virtual NodeRef clone() const = 0;
     };
 
     /// \brief Node for literal types.
@@ -125,6 +127,8 @@ namespace efd {
                 unsigned getChildNumber() const override;
 
                 void apply(NodeVisitor* visitor) override;
+
+                NodeRef clone() const override;
 
                 /// \brief Returns whether the \p node is an instance of this class.
                 static bool ClassOf(const NodeRef node);
@@ -171,8 +175,13 @@ namespace efd {
         public:
             /// \brief Gets the node that holds the version.
             NDReal* getVersion() const;
+            /// \brief Sets the node that holds the version.
+            void setVersion(NDReal* ref);
+
             /// \brief Gets the node that holds the statements.
             NDStmtList* getStatements() const;
+            /// \brief Sets the node that holds the statements.
+            void setStatements(NDStmtList* ref);
 
             Kind getKind() const override;
 
@@ -182,6 +191,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -204,8 +215,12 @@ namespace efd {
         public:
             /// \brief Gets the node that holds the filename.
             NDString* getFilename() const;
+            /// \brief Sets the node that holds the filename.
+            void setFilename(NDString* ref);
             /// \brief Gets the node that holds the statements.
             NDStmtList* getStatements() const;
+            /// \brief Sets the node that holds the statements.
+            void setStatements(NDStmtList* ref);
 
             Kind getKind() const override;
 
@@ -215,6 +230,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -244,8 +261,12 @@ namespace efd {
         public:
             /// \brief Gets the id node.
             NDId* getId() const;
+            /// \brief Sets the id node.
+            void setId(NDId* ref);
             /// \brief Gets the size node.
             NDInt* getSize() const;
+            /// \brief Sets the size node.
+            void setSize(NDInt* ref);
 
             /// \brief Returns true if it is a concrete register declaration.
             bool isCReg() const;
@@ -260,6 +281,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -282,12 +305,20 @@ namespace efd {
         public:
             /// \brief Gets the id node.
             NDId* getId() const;
+            /// \brief Sets the id node.
+            void setId(NDId* ref);
             /// \brief Gets the args node.
             NDList* getArgs() const;
+            /// \brief Sets the args node.
+            void setArgs(NDList* ref);
             /// \brief Gets the qargs node.
             NDList* getQArgs() const;
+            /// \brief Sets the qargs node.
+            void setQArgs(NDList* ref);
             /// \brief Gets the goplist node.
             NDGOpList* getGOpList() const;
+            /// \brief Sets the goplist node.
+            void setGOpList(NDGOpList* ref);
 
             Kind getKind() const override;
 
@@ -297,6 +328,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -318,10 +351,16 @@ namespace efd {
         public:
             /// \brief Gets the id node.
             NDId* getId() const;
+            /// \brief Sets the id node.
+            void setId(NDId* ref);
             /// \brief Gets the args node.
             NDList* getArgs() const;
+            /// \brief Sets the args node.
+            void setArgs(NDList* ref);
             /// \brief Gets the qargs node.
             NDList* getQArgs() const;
+            /// \brief Sets the qargs node.
+            void setQArgs(NDList* ref);
 
             Kind getKind() const override;
 
@@ -331,6 +370,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -374,8 +415,12 @@ namespace efd {
         public:
             /// \brief Gets the qbit node.
             NodeRef getQBit() const;
+            /// \brief Sets the qbit node.
+            void setQBit(NodeRef ref);
             /// \brief Gets the cbit node.
             NodeRef getCBit() const;
+            /// \brief Sets the cbit node.
+            void setCBit(NodeRef ref);
 
             Kind getKind() const override;
 
@@ -385,6 +430,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -404,6 +451,8 @@ namespace efd {
         public:
             /// \brief Gets the quantum argument.
             NodeRef getQArg() const;
+            /// \brief Sets the quantum argument.
+            void setQArg(NodeRef ref);
 
             Kind getKind() const override;
 
@@ -413,6 +462,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -432,6 +483,8 @@ namespace efd {
         public:
             /// \brief Gets the quantum arguments.
             NDList* getQArgs() const;
+            /// \brief Sets the quantum arguments.
+            void setQArgs(NDList* ref);
 
             Kind getKind() const override;
 
@@ -441,6 +494,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -461,8 +516,12 @@ namespace efd {
         public:
             /// \brief Gets the left hand side of the gate.
             NodeRef getLhs() const;
+            /// \brief Sets the left hand side of the gate.
+            void setLhs(NodeRef ref);
             /// \brief Gets the right hand side of the gate.
             NodeRef getRhs() const;
+            /// \brief Sets the right hand side of the gate.
+            void setRhs(NodeRef ref);
 
             Kind getKind() const override;
 
@@ -472,6 +531,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -492,8 +553,12 @@ namespace efd {
         public:
             /// \brief Gets the arguments.
             NodeRef getArgs() const;
+            /// \brief Sets the arguments.
+            void setArgs(NodeRef ref);
             /// \brief Gets the quantum argument.
             NodeRef getQArg() const;
+            /// \brief Sets the quantum argument.
+            void setQArg(NodeRef ref);
 
             Kind getKind() const override;
 
@@ -503,6 +568,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -524,10 +591,16 @@ namespace efd {
         public:
             /// \brief Gets the id.
             NDId* getId() const;
+            /// \brief Sets the id.
+            void setId(NDId* ref);
             /// \brief Gets the arguments.
             NDList* getArgs() const;
+            /// \brief Sets the arguments.
+            void setArgs(NDList* ref);
             /// \brief Gets the quantum arguments.
             NDList* getQArgs() const;
+            /// \brief Sets the quantum arguments.
+            void setQArgs(NDList* ref);
 
             Kind getKind() const override;
 
@@ -537,6 +610,8 @@ namespace efd {
             unsigned getChildNumber() const override;
             
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -570,8 +645,12 @@ namespace efd {
         public:
             /// \brief Gets the left hand side argument.
             NodeRef getLhs() const;
+            /// \brief Sets the left hand side argument.
+            void setLhs(NodeRef ref);
             /// \brief Gets the right hand side argument.
             NodeRef getRhs() const;
+            /// \brief Sets the right hand side argument.
+            void setRhs(NodeRef ref);
 
             /// \brief Returns the type of the binary operation of this node.
             OpType getOpType() const;
@@ -595,6 +674,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -629,6 +710,8 @@ namespace efd {
         public:
             /// \brief Gets the only operand.
             NodeRef getOperand() const;
+            /// \brief Sets the only operand.
+            void setOperand(NodeRef ref);
 
             /// \brief Returns the unary operation type.
             UOpType getUOpType() const;
@@ -657,6 +740,8 @@ namespace efd {
 
             void apply(NodeVisitor* visitor) override;
 
+            NodeRef clone() const override;
+
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
@@ -676,8 +761,12 @@ namespace efd {
         public:
             /// \brief Gets the id.
             NDId* getId() const;
+            /// \brief Sets the id.
+            void setId(NDId* ref);
             /// \brief Gets an integer representing the position.
             NDInt* getN() const;
+            /// \brief Sets an integer representing the position.
+            void setN(NDInt* ref);
 
             Kind getKind() const override;
 
@@ -686,6 +775,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -701,9 +792,14 @@ namespace efd {
         protected:
             NDList(Kind k, unsigned size);
 
+            /// \brief Deep-copies the childrem.
+            void cloneChildremTo(NDList* list) const;
+
         public:
             /// \brief Gets the i-th child.
             NodeRef getChild(unsigned i) const;
+            /// \brief Sets the i-th child.
+            void setChild(unsigned i, NodeRef ref);
 
             Kind getKind() const override;
 
@@ -712,6 +808,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Appends a child to the end of the list.
             void addChild(NodeRef child);
@@ -734,6 +832,8 @@ namespace efd {
 
             void apply(NodeVisitor* visitor) override;
 
+            NodeRef clone() const override;
+
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
             /// \brief Creates a new instance of this node.
@@ -751,6 +851,8 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -773,10 +875,16 @@ namespace efd {
         public:
             /// \brief Gets the id inside the conditional.
             NDId* getCondId() const;
+            /// \brief Sets the id inside the conditional.
+            void setCondId(NDId* ref);
             /// \brief Gets the int inside the conditional.
             NDInt* getCondN() const;
+            /// \brief Sets the int inside the conditional.
+            void setCondN(NDInt* ref);
             /// \brief Gets the qop.
             NodeRef getQOp() const;
+            /// \brief Sets the qop.
+            void setQOp(NodeRef ref);
 
             Kind getKind() const override;
 
@@ -786,6 +894,8 @@ namespace efd {
             unsigned getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
+
+            NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const NodeRef node);
@@ -813,6 +923,11 @@ std::string efd::NDValue<T>::toString(bool pretty) const {
 template <typename T>
 unsigned efd::NDValue<T>::getChildNumber() const {
     return 0;
+}
+
+template <typename T>
+efd::NodeRef efd::NDValue<T>::clone() const {
+    return NDValue<T>::Create(getVal());
 }
 
 template <typename T>
