@@ -76,6 +76,9 @@ namespace efd {
             /// it won't be applied again unless \p force is set.
             void runPass(Pass* pass, bool force = false);
 
+            /// \brief Clones the current qmodule.
+            std::unique_ptr<QModule> clone() const;
+
             /// \brief Process the AST in order to obtain the QModule.
             static std::unique_ptr<QModule> GetFromAST(NodeRef ref);
             /// \brief Parses the file \p filename and returns a QModule.
