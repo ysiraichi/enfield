@@ -124,9 +124,12 @@ gate cnot x, y {\
         ASSERT_FALSE(gate == nullptr);
 
         const DependencyBuilderPass::DepsSet* deps = &pass->getDependencies(gate);
+        // Has only one parallel dependency.
         ASSERT_EQ(deps->size(), 1);
-        ASSERT_EQ((*deps)[0].from, x);
-        ASSERT_EQ((*deps)[0].to, y);
+        // The only parallel dependency has only one parallel dependency.
+        ASSERT_EQ((*deps)[0].size(), 1);
+        ASSERT_EQ((*deps)[0][0].from, x);
+        ASSERT_EQ((*deps)[0][0].to, y);
     }
 
     {
@@ -155,13 +158,19 @@ gate cnot x, y {\
         const DependencyBuilderPass::DepsSet* cxDeps = &pass->getDependencies(cxGate);
         const DependencyBuilderPass::DepsSet* cnotDeps = &pass->getDependencies(cnotGate);
 
+        // Has only one parallel dependency.
         ASSERT_EQ(cxDeps->size(), 1);
-        ASSERT_EQ((*cxDeps)[0].from, x);
-        ASSERT_EQ((*cxDeps)[0].to, y);
+        // The only parallel dependency has only one parallel dependency.
+        ASSERT_EQ((*cxDeps)[0].size(), 1);
+        ASSERT_EQ((*cxDeps)[0][0].from, x);
+        ASSERT_EQ((*cxDeps)[0][0].to, y);
 
+        // Has only one parallel dependency.
         ASSERT_EQ(cnotDeps->size(), 1);
-        ASSERT_EQ((*cnotDeps)[0].from, x);
-        ASSERT_EQ((*cnotDeps)[0].to, y);
+        // The only parallel dependency has only one parallel dependency.
+        ASSERT_EQ((*cnotDeps)[0].size(), 1);
+        ASSERT_EQ((*cnotDeps)[0][0].from, x);
+        ASSERT_EQ((*cnotDeps)[0][0].to, y);
     }
 }
 
@@ -182,9 +191,12 @@ CX q[0], q[1];\
 
         const DependencyBuilderPass::DepsSet* deps = &pass->getDependencies();
 
+        // Has only one parallel dependency.
         ASSERT_EQ(deps->size(), 1);
-        ASSERT_EQ((*deps)[0].from, q0);
-        ASSERT_EQ((*deps)[0].to, q1);
+        // The only parallel dependency has only one parallel dependency.
+        ASSERT_EQ((*deps)[0].size(), 1);
+        ASSERT_EQ((*deps)[0][0].from, q0);
+        ASSERT_EQ((*deps)[0][0].to, q1);
     }
 
     {
@@ -244,8 +256,8 @@ measure carry[0] -> carryout[0];\
         qmod->runPass(pass);
 
 
-        std::unordered_map<std::string, unsigned> gatesInfo = {
-            { "ccx", 6 }, { "cx", 1 }, { "x", 0 }, { "majority", 8 }, { "add4", 65 }, { "unmaj", 8 }
+        std::unordered_map<std::string, std::pair<unsigned, unsigned>> gatesInfo = {
+            { "ccx", { 6, 6 } }, { "cx", { 1, 1 } }, { "x", { 0, 0 } }, { "majority", { 3, 8 } }, { "add4", { 9, 65 } }, { "unmaj", { 3, 8 } }
         };
 
         const DependencyBuilderPass::DepsSet* deps;
@@ -256,7 +268,11 @@ measure carry[0] -> carryout[0];\
             deps = &pass->getDependencies(gate);
             ASSERT_FALSE(deps == nullptr);
 
-            ASSERT_EQ(deps->size(), pair.second);
+            ASSERT_EQ(deps->size(), pair.second.first);
+
+            unsigned sum = 0;
+            for (auto v : *deps) sum += v.size();
+            ASSERT_EQ(sum, pair.second.second);
         }
     }
 

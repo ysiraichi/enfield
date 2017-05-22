@@ -51,14 +51,19 @@ namespace efd {
 
     /// \brief Keep track of the dependencies of each qbit for the whole program,
     /// as well as the dependencies for every gate.
+    ///
+    /// Each gate, as well as the whole program have one 'DepsSet' variable. The idea is
+    /// to store a sequence of parallel dependencies. Here, parallel dependency is a
+    /// dependency that can't be broken down (unless the gate is inlined).
     class DependencyBuilderPass : public Pass {
         public:
+            /// \brief Structure for abstracting dependencies.
             struct Dep {
                 unsigned from;
                 unsigned to;
             };
 
-            typedef std::vector<Dep> DepsSet;
+            typedef std::vector<std::vector<Dep>> DepsSet;
 
         private:
             QModule* mMod;
