@@ -80,6 +80,7 @@ namespace efd {
             void visit(NDGOpList* ref) override;
             void visit(NDQOpCX* ref) override;
             void visit(NDQOpGeneric* ref) override;
+            void visit(NDIfStmt* ref) override;
 
             /// \brief Gets the dependencies for some gate declaration. If it is a
             /// nullptr, then it is returned the dependencies for the whole program.

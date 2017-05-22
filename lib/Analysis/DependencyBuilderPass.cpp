@@ -170,6 +170,10 @@ void efd::DependencyBuilderPass::visit(NDQOpGeneric* ref) {
     }
 }
 
+void efd::DependencyBuilderPass::visit(NDIfStmt* ref) {
+    ref->getQOp()->apply(this);
+}
+
 const efd::DependencyBuilderPass::DepsSet& efd::DependencyBuilderPass::getDependencies(NDGateDecl* ref) const {
     const DepsSet* deps = const_cast<DepsSet*>(getDepsSet(ref));
     return *deps;
