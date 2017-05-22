@@ -3,6 +3,7 @@
 #include "enfield/Support/RTTI.h"
 
 #include <algorithm>
+#include <cassert>
 
 efd::Node::Node(Kind k, unsigned size, bool empty) : mK(k), mIsEmpty(empty),
     mChild(size, nullptr) {
@@ -121,7 +122,7 @@ efd::Node::Kind efd::NDQasmVersion::getKind() const {
     return K_QASM_VERSION;
 }
 
-bool efd::NDQasmVersion::ClassOf(const NodeRef node) {
+bool efd::NDQasmVersion::ClassOf(const Node* node) {
     return node->getKind() == K_DECL;
 }
 
@@ -183,7 +184,7 @@ efd::Node::Kind efd::NDInclude::getKind() const {
     return K_QASM_VERSION;
 }
 
-bool efd::NDInclude::ClassOf(const NodeRef node) {
+bool efd::NDInclude::ClassOf(const Node* node) {
     return node->getKind() == K_DECL;
 }
 
@@ -256,7 +257,7 @@ efd::Node::Kind efd::NDDecl::getKind() const {
     return K_DECL;
 }
 
-bool efd::NDDecl::ClassOf(const NodeRef node) {
+bool efd::NDDecl::ClassOf(const Node* node) {
     return node->getKind() == K_DECL;
 }
 
@@ -350,7 +351,7 @@ efd::Node::Kind efd::NDGateDecl::getKind() const {
     return K_GATE_DECL;
 }
 
-bool efd::NDGateDecl::ClassOf(const NodeRef node) {
+bool efd::NDGateDecl::ClassOf(const Node* node) {
     return node->getKind() == K_GATE_DECL;
 }
 
@@ -426,7 +427,7 @@ efd::Node::Kind efd::NDOpaque::getKind() const {
     return K_GATE_OPAQUE;
 }
 
-bool efd::NDOpaque::ClassOf(const NodeRef node) {
+bool efd::NDOpaque::ClassOf(const Node* node) {
     return node->getKind() == K_GATE_OPAQUE;
 }
 
@@ -462,7 +463,7 @@ bool efd::NDQOp::isGeneric() const {
     return getKind() == K_QOP_GENERIC;
 }
 
-bool efd::NDQOp::ClassOf(const NodeRef node) {
+bool efd::NDQOp::ClassOf(const Node* node) {
     return node->getKind() == K_QOP_MEASURE ||
         node->getKind() == K_QOP_RESET ||
         node->getKind() == K_QOP_BARRIER ||
@@ -528,7 +529,7 @@ efd::Node::Kind efd::NDQOpMeasure::getKind() const {
     return K_QOP_MEASURE;
 }
 
-bool efd::NDQOpMeasure::ClassOf(const NodeRef node) {
+bool efd::NDQOpMeasure::ClassOf(const Node* node) {
     return node->getKind() == K_QOP_MEASURE;
 }
 
@@ -581,7 +582,7 @@ efd::Node::Kind efd::NDQOpReset::getKind() const {
     return K_QOP_RESET;
 }
 
-bool efd::NDQOpReset::ClassOf(const NodeRef node) {
+bool efd::NDQOpReset::ClassOf(const Node* node) {
     return node->getKind() == K_QOP_RESET;
 }
 
@@ -634,7 +635,7 @@ efd::Node::Kind efd::NDQOpBarrier::getKind() const {
     return K_QOP_BARRIER;
 }
 
-bool efd::NDQOpBarrier::ClassOf(const NodeRef node) {
+bool efd::NDQOpBarrier::ClassOf(const Node* node) {
     return node->getKind() == K_QOP_BARRIER;
 }
 
@@ -697,7 +698,7 @@ efd::Node::Kind efd::NDQOpCX::getKind() const {
     return K_QOP_CX;
 }
 
-bool efd::NDQOpCX::ClassOf(const NodeRef node) {
+bool efd::NDQOpCX::ClassOf(const Node* node) {
     return node->getKind() == K_QOP_CX;
 }
 
@@ -760,7 +761,7 @@ efd::Node::Kind efd::NDQOpU::getKind() const {
     return K_QOP_U;
 }
 
-bool efd::NDQOpU::ClassOf(const NodeRef node) {
+bool efd::NDQOpU::ClassOf(const Node* node) {
     return node->getKind() == K_QOP_U;
 }
 
@@ -836,7 +837,7 @@ efd::Node::Kind efd::NDQOpGeneric::getKind() const {
     return K_QOP_GENERIC;
 }
 
-bool efd::NDQOpGeneric::ClassOf(const NodeRef node) {
+bool efd::NDQOpGeneric::ClassOf(const Node* node) {
     return node->getKind() == K_QOP_GENERIC;
 }
 
@@ -928,7 +929,7 @@ efd::Node::Kind efd::NDBinOp::getKind() const {
     return K_BINOP;
 }
 
-bool efd::NDBinOp::ClassOf(const NodeRef node) {
+bool efd::NDBinOp::ClassOf(const Node* node) {
     return node->getKind() == K_BINOP;
 }
 
@@ -1026,7 +1027,7 @@ efd::Node::Kind efd::NDUnaryOp::getKind() const {
     return K_UNARYOP;
 }
 
-bool efd::NDUnaryOp::ClassOf(const NodeRef node) {
+bool efd::NDUnaryOp::ClassOf(const Node* node) {
     return node->getKind() == K_UNARYOP;
 }
 
@@ -1081,7 +1082,7 @@ efd::Node::Kind efd::NDIdRef::getKind() const {
     return K_ID_REF;
 }
 
-bool efd::NDIdRef::ClassOf(const NodeRef node) {
+bool efd::NDIdRef::ClassOf(const Node* node) {
     return node->getKind() == K_ID_REF;
 }
 
@@ -1126,6 +1127,15 @@ void efd::NDList::removeChild(Iterator& It) {
         Node::mIsEmpty = true;
 }
 
+void efd::NDList::removeChild(NodeRef ref) {
+    auto It = findChild(ref);
+    assert(It != end() && "Can't remove inexistent child.");
+
+    removeChild(It);
+    if (mChild.empty())
+        Node::mIsEmpty = true;
+}
+
 unsigned efd::NDList::getChildNumber() const {
     return mChild.size();
 }
@@ -1151,7 +1161,7 @@ efd::Node::Kind efd::NDList::getKind() const {
     return K_LIST;
 }
 
-bool efd::NDList::ClassOf(const NodeRef node) {
+bool efd::NDList::ClassOf(const Node* node) {
     return node->getKind() == K_LIST ||
         node->getKind() == K_STMT_LIST ||
         node->getKind() == K_GOP_LIST;
@@ -1188,7 +1198,7 @@ efd::Node::Kind efd::NDStmtList::getKind() const {
     return K_STMT_LIST;
 }
 
-bool efd::NDStmtList::ClassOf(const NodeRef node) {
+bool efd::NDStmtList::ClassOf(const Node* node) {
     return node->getKind() == K_STMT_LIST; 
 }
 
@@ -1226,7 +1236,7 @@ efd::Node::Kind efd::NDGOpList::getKind() const {
     return K_GOP_LIST;
 }
 
-bool efd::NDGOpList::ClassOf(const NodeRef node) {
+bool efd::NDGOpList::ClassOf(const Node* node) {
     return node->getKind() == K_GOP_LIST; 
 }
 
@@ -1302,7 +1312,7 @@ efd::Node::Kind efd::NDIfStmt::getKind() const {
     return K_IF_STMT;
 }
 
-bool efd::NDIfStmt::ClassOf(const NodeRef node) {
+bool efd::NDIfStmt::ClassOf(const Node* node) {
     return node->getKind() == K_IF_STMT; 
 }
 
@@ -1318,7 +1328,7 @@ efd::NDValue<efd::IntVal>::NDValue(efd::IntVal val)
 }
 
 template <> 
-bool efd::NDValue<efd::IntVal>::ClassOf(const NodeRef node) { 
+bool efd::NDValue<efd::IntVal>::ClassOf(const Node* node) { 
     return node->getKind() == K_LIT_INT; 
 }
 
@@ -1339,7 +1349,7 @@ efd::NDValue<efd::RealVal>::NDValue(efd::RealVal val) :
 }
 
 template <> 
-bool efd::NDValue<efd::RealVal>::ClassOf(const NodeRef node) {
+bool efd::NDValue<efd::RealVal>::ClassOf(const Node* node) {
     return node->getKind() == K_LIT_REAL; 
 }
 
@@ -1360,7 +1370,7 @@ efd::NDValue<std::string>::NDValue(std::string val)
 }
 
 template <> 
-bool efd::NDValue<std::string>::ClassOf(const NodeRef node) {
+bool efd::NDValue<std::string>::ClassOf(const Node* node) {
     return node->getKind() == K_LIT_STRING; 
 }
 

@@ -144,26 +144,26 @@ namespace efd {
                 NodeRef clone() const override;
 
                 /// \brief Returns whether the \p node is an instance of this class.
-                static bool ClassOf(const NodeRef node);
+                static bool ClassOf(const Node* node);
                 /// \brief Creates a new instance of this node.
                 static NodeRef Create(T val);
         };
 
     template class NDValue<IntVal>;
     template <> NDValue<IntVal>::NDValue(IntVal val);
-    template <> bool NDValue<IntVal>::ClassOf(const NodeRef node);
+    template <> bool NDValue<IntVal>::ClassOf(const Node* node);
     template <> Node::Kind NDValue<IntVal>::getKind() const;
     template <> void NDValue<IntVal>::apply(NodeVisitor* visitor);
 
     template class NDValue<RealVal>;
     template <> NDValue<RealVal>::NDValue(RealVal val);
-    template <> bool NDValue<RealVal>::ClassOf(const NodeRef node);
+    template <> bool NDValue<RealVal>::ClassOf(const Node* node);
     template <> Node::Kind NDValue<RealVal>::getKind() const;
     template <> void NDValue<RealVal>::apply(NodeVisitor* visitor);
 
     template class NDValue<std::string>;
     template <> NDValue<std::string>::NDValue(std::string val);
-    template <> bool NDValue<std::string>::ClassOf(const NodeRef node);
+    template <> bool NDValue<std::string>::ClassOf(const Node* node);
     template <> Node::Kind NDValue<std::string>::getKind() const;
     template <> std::string NDValue<std::string>::getOperation() const;
     template <> std::string NDValue<std::string>::toString(bool pretty) const;
@@ -208,7 +208,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef vNode, NodeRef stmtsNode);
     };
@@ -247,7 +247,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef fNode, NodeRef stmtsNode);
     };
@@ -298,7 +298,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(Type t, NodeRef idNode, NodeRef sizeNode);
     };
@@ -345,7 +345,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef idNode, NodeRef aNode, NodeRef qaNode, NodeRef gopNode);
     };
@@ -387,7 +387,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
     };
@@ -412,7 +412,7 @@ namespace efd {
             virtual bool isGeneric() const;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
     };
 
     /// \brief NDQOp specialized for measure operation.
@@ -447,7 +447,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef qNode, NodeRef cNode);
     };
@@ -479,7 +479,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef qaNode);
     };
@@ -511,7 +511,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef qaNode);
     };
@@ -548,7 +548,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef lhsNode, NodeRef rhsNode);
     };
@@ -585,7 +585,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef aNode, NodeRef qaNode);
     };
@@ -627,7 +627,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef idNode, NodeRef aNode, NodeRef qaNode);
     };
@@ -691,7 +691,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(OpType t, NodeRef lhsNode, NodeRef rhsNode);
     };
@@ -756,7 +756,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(UOpType t, NodeRef oNode);
     };
@@ -792,7 +792,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef idNode, NodeRef nNode);
     };
@@ -822,13 +822,17 @@ namespace efd {
 
             /// \brief Appends a child to the end of the list.
             void addChild(NodeRef child);
-            /// \brief Inserts a child in the iterator \p It.
+            /// \brief Inserts a child in the iterator \p It. The iterator goes to
+            /// the new inserted element.
             void addChild(Iterator& It, NodeRef child);
-            /// \brief Removes the child in the iterator \p It.
+            /// \brief Removes the child in the iterator \p It. The iterator moves
+            /// to the next element.
             void removeChild(Iterator& It);
+            /// \brief Removes the \p child (must exist).
+            void removeChild(NodeRef child);
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create();
     };
@@ -848,7 +852,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create();
     };
@@ -868,7 +872,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create();
     };
@@ -911,7 +915,7 @@ namespace efd {
             NodeRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const NodeRef node);
+            static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static NodeRef Create(NodeRef cidNode, NodeRef nNode, NodeRef qopNode);
     };
