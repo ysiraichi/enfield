@@ -1,7 +1,7 @@
 #ifndef __EFD_FLATTEN_PASS_H__
 #define __EFD_FLATTEN_PASS_H__
 
-#include "enfield/Analysis/Pass.h"
+#include "enfield/Pass.h"
 #include "enfield/Analysis/QModule.h"
 
 namespace efd {

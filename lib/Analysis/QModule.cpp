@@ -2,7 +2,7 @@
 #include "enfield/Analysis/QModule.h"
 #include "enfield/Analysis/QModulefyPass.h"
 #include "enfield/Analysis/IdTable.h"
-#include "enfield/Analysis/Pass.h"
+#include "enfield/Pass.h"
 
 efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr) {
     mTable = IdTable::create();

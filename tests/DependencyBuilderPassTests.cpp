@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Analysis/QModule.h"
-#include "enfield/Analysis/DependencyBuilderPass.h"
+#include "enfield/Transform/DependencyBuilderPass.h"
 
 #include <string>
 #include <unordered_map>

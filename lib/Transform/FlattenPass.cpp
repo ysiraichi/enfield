@@ -1,4 +1,4 @@
-#include "enfield/Analysis/FlattenPass.h"
+#include "enfield/Transform/FlattenPass.h"
 #include "enfield/Support/RTTI.h"
 
 #include <cassert>

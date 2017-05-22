@@ -1,8 +1,8 @@
 #ifndef __EFD_DEPENDENCY_BUILDER_PASS_H__
 #define __EFD_DEPENDENCY_BUILDER_PASS_H__
 
+#include "enfield/Pass.h"
 #include "enfield/Analysis/Nodes.h"
-#include "enfield/Analysis/Pass.h"
 #include "enfield/Analysis/QModule.h"
 
 #include <unordered_map>

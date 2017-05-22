@@ -1,4 +1,4 @@
-#include "enfield/Analysis/Pass.h"
+#include "enfield/Pass.h"
 
 efd::Pass::Pass() : mApplied(false), mUK(0) {
 }

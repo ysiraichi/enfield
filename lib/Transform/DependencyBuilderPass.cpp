@@ -1,4 +1,4 @@
-#include "enfield/Analysis/DependencyBuilderPass.h"
+#include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Support/RTTI.h"
 
 #include <cassert>

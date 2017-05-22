@@ -19,16 +19,16 @@ efd_test (DriverFileTests
     EfdAnalysis EfdSupport)
 
 efd_test (QModuleTests
-    EfdAnalysis EfdSupport)
+    EfdAnalysis EfdCore EfdSupport)
 
 efd_test (IdTableTests
-    EfdAnalysis EfdSupport)
-
-efd_test (DependencyBuilderPassTests
-    EfdAnalysis EfdSupport)
+    EfdAnalysis EfdCore EfdSupport)
 
 efd_test (QModuleCloneTests
-    EfdAnalysis EfdSupport)
+    EfdAnalysis EfdCore EfdSupport)
+
+efd_test (DependencyBuilderPassTests
+    EfdTransform EfdAnalysis EfdCore EfdSupport)
 
 efd_test (FlattenPassTests
-    EfdAnalysis EfdSupport)
+    EfdTransform EfdAnalysis EfdCore EfdSupport)

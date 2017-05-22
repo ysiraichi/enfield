@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 
+#include "enfield/Pass.h"
 #include "enfield/Analysis/Nodes.h"
 #include "enfield/Analysis/QModule.h"
-#include "enfield/Analysis/Pass.h"
 #include "enfield/Support/RTTI.h"
 
 #include <string>

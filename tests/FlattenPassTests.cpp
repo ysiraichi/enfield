@@ -1,7 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include "enfield/Analysis/FlattenPass.h"
+#include "enfield/Transform/FlattenPass.h"
 #include "enfield/Analysis/QModule.h"
 
 #include <string>

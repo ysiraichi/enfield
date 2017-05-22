@@ -1,7 +1,7 @@
 #ifndef __EFD_QMODULEFY_PASS_H__
 #define __EFD_QMODULEFY_PASS_H__
 
-#include "enfield/Analysis/Pass.h"
+#include "enfield/Pass.h"
 #include "enfield/Analysis/QModule.h"
 
 namespace efd {
