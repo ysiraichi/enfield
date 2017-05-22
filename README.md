@@ -1,6 +1,31 @@
 # Enfield
 -----------------------------------------------------
 
+This project was built on top of [Bison](https://www.gnu.org/software/bison/) (v3.0.2) 
+and [Flex](https://github.com/westes/flex) (2.5.39).
+
+## Building
+
+Enfield uses CMake. So, in order to build this project, issue the following commands:
+
+```
+$ mkdir build && cd build
+$ cmake ../
+$ make
+```
+
+## Testing
+
+Enfield uses the [Google test framework](https://github.com/google/googletest) to test its components.
+To enable automated tests, you should issue the ```cmake``` command as follows:
+
+```
+$ cmake ../ -DENABLE_TESTS=on
+$ make && make test
+```
+
+### Prototype
+
 For compiling, use the ```make``` command.
 
 It will generate an executable called ```enfield```. This executable needs two parameters for correct execution:
@@ -17,4 +42,3 @@ Enfield has two modes of execution: ```dyn``` and ```iso```. Both are used to fi
 | ```-dyn``` | This is a dynamic programming approach that tests all possibilities. |
 
 Note that both uses a BFS algorithm in order to find a path between two vertices.
-
