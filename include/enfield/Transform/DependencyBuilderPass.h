@@ -53,7 +53,12 @@ namespace efd {
     /// as well as the dependencies for every gate.
     class DependencyBuilderPass : public Pass {
         public:
-            typedef std::vector<std::set<unsigned>> DepsSet;
+            struct Dep {
+                unsigned from;
+                unsigned to;
+            };
+
+            typedef std::vector<Dep> DepsSet;
 
         private:
             QModule* mMod;
@@ -81,6 +86,9 @@ namespace efd {
             void visit(NDQOpCX* ref) override;
             void visit(NDQOpGeneric* ref) override;
             void visit(NDIfStmt* ref) override;
+
+            /// \brief Returns the pass that mapped the qbits.
+            QbitToNumberPass* getUIdPass();
 
             /// \brief Gets the dependencies for some gate declaration. If it is a
             /// nullptr, then it is returned the dependencies for the whole program.

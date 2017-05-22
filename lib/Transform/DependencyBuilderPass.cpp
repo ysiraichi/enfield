@@ -90,7 +90,6 @@ efd::DependencyBuilderPass::DependencyBuilderPass(QModule* mod, QbitToNumberPass
 void efd::DependencyBuilderPass::initImpl() {
     mCurrentGate = nullptr;
     mMod->runPass(mQbitMap);
-    mGDeps.assign(mQbitMap->getSize(), std::set<unsigned>());
 }
 
 unsigned efd::DependencyBuilderPass::getUId(NodeRef ref) {
@@ -115,7 +114,7 @@ efd::DependencyBuilderPass::DepsSet* efd::DependencyBuilderPass::getDepsSet(NDGa
 }
 
 void efd::DependencyBuilderPass::visit(NDGateDecl* ref) {
-    mLDeps[ref] = DepsSet(mQbitMap->getSize(ref), std::set<unsigned>());
+    mLDeps[ref] = DepsSet();
 
     mCurrentGate = ref;
     ref->getGOpList()->apply(this);
@@ -134,7 +133,7 @@ void efd::DependencyBuilderPass::visit(NDQOpCX* ref) {
     unsigned controlQ = getUId(ref->getLhs());
     unsigned invertQ = getUId(ref->getRhs());
 
-    (*deps)[controlQ].insert(invertQ);
+    deps->push_back(Dep { controlQ, invertQ });
 }
 
 void efd::DependencyBuilderPass::visit(NDQOpGeneric* ref) {
@@ -155,23 +154,20 @@ void efd::DependencyBuilderPass::visit(NDQOpGeneric* ref) {
 
     DepsSet& gDeps = mLDeps[gRef];
     // For every qarg unsigned representation
-    for (unsigned i = 0, end = gDeps.size(); i < end; ++i) {
-        // The uid of the i-th qarg
-        unsigned u = uidVector[i];
-
-        // For every dependency unsigned representation
-        for (auto it = gDeps[i].begin(), end = gDeps[i].end(); it != end; ++it) {
-            // The uid of the it-th dependency
-            unsigned v = uidVector[*it];
-
-            // Inserting dependency (u, v)
-            (*deps)[u].insert(v);
-        }
+    for (auto dep : gDeps) {
+        // Getting the uid's of the qubit interaction (u, v)
+        unsigned u = uidVector[dep.from];
+        unsigned v = uidVector[dep.to];
+        deps->push_back(Dep { u, v });
     }
 }
 
 void efd::DependencyBuilderPass::visit(NDIfStmt* ref) {
     ref->getQOp()->apply(this);
+}
+
+efd::QbitToNumberPass* efd::DependencyBuilderPass::getUIdPass() {
+    return mQbitMap;
 }
 
 const efd::DependencyBuilderPass::DepsSet& efd::DependencyBuilderPass::getDependencies(NDGateDecl* ref) const {
