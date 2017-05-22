@@ -124,9 +124,12 @@ gate cnot x, y {\
         ASSERT_FALSE(gate == nullptr);
 
         const DependencyBuilderPass::DepsSet* deps = &pass->getDependencies(gate);
-        ASSERT_TRUE((*deps)[x].size() == 1);
-        ASSERT_TRUE(*((*deps)[x].begin()) == y);
-        ASSERT_TRUE((*deps)[y].size() == 0);
+        // Has only one parallel dependency.
+        ASSERT_EQ(deps->size(), 1);
+        // The only parallel dependency has only one parallel dependency.
+        ASSERT_EQ((*deps)[0].size(), 1);
+        ASSERT_EQ((*deps)[0][0].from, x);
+        ASSERT_EQ((*deps)[0][0].to, y);
     }
 
     {
@@ -155,13 +158,19 @@ gate cnot x, y {\
         const DependencyBuilderPass::DepsSet* cxDeps = &pass->getDependencies(cxGate);
         const DependencyBuilderPass::DepsSet* cnotDeps = &pass->getDependencies(cnotGate);
 
-        ASSERT_TRUE((*cxDeps)[x].size() == 1);
-        ASSERT_TRUE(*((*cxDeps)[x].begin()) == y);
-        ASSERT_TRUE((*cxDeps)[y].size() == 0);
+        // Has only one parallel dependency.
+        ASSERT_EQ(cxDeps->size(), 1);
+        // The only parallel dependency has only one parallel dependency.
+        ASSERT_EQ((*cxDeps)[0].size(), 1);
+        ASSERT_EQ((*cxDeps)[0][0].from, x);
+        ASSERT_EQ((*cxDeps)[0][0].to, y);
 
-        ASSERT_TRUE((*cnotDeps)[x].size() == 1);
-        ASSERT_TRUE(*((*cnotDeps)[x].begin()) == y);
-        ASSERT_TRUE((*cnotDeps)[y].size() == 0);
+        // Has only one parallel dependency.
+        ASSERT_EQ(cnotDeps->size(), 1);
+        // The only parallel dependency has only one parallel dependency.
+        ASSERT_EQ((*cnotDeps)[0].size(), 1);
+        ASSERT_EQ((*cnotDeps)[0][0].from, x);
+        ASSERT_EQ((*cnotDeps)[0][0].to, y);
     }
 }
 
@@ -182,9 +191,12 @@ CX q[0], q[1];\
 
         const DependencyBuilderPass::DepsSet* deps = &pass->getDependencies();
 
-        ASSERT_TRUE((*deps)[q0].size() == 1);
-        ASSERT_TRUE(*((*deps)[q0].begin()) == q1);
-        ASSERT_TRUE((*deps)[q1].size() == 0);
+        // Has only one parallel dependency.
+        ASSERT_EQ(deps->size(), 1);
+        // The only parallel dependency has only one parallel dependency.
+        ASSERT_EQ((*deps)[0].size(), 1);
+        ASSERT_EQ((*deps)[0][0].from, q0);
+        ASSERT_EQ((*deps)[0][0].to, q1);
     }
 
     {
@@ -244,8 +256,8 @@ measure carry[0] -> carryout[0];\
         qmod->runPass(pass);
 
 
-        std::unordered_map<std::string, unsigned> gatesInfo = {
-            { "ccx", 3 }, { "cx", 2 }, { "x", 1 }, { "majority", 3 }, { "add4", 10 }, { "unmaj", 3 }
+        std::unordered_map<std::string, std::pair<unsigned, unsigned>> gatesInfo = {
+            { "ccx", { 6, 6 } }, { "cx", { 1, 1 } }, { "x", { 0, 0 } }, { "majority", { 3, 8 } }, { "add4", { 9, 65 } }, { "unmaj", { 3, 8 } }
         };
 
         const DependencyBuilderPass::DepsSet* deps;
@@ -256,7 +268,11 @@ measure carry[0] -> carryout[0];\
             deps = &pass->getDependencies(gate);
             ASSERT_FALSE(deps == nullptr);
 
-            ASSERT_EQ(deps->size(), pair.second);
+            ASSERT_EQ(deps->size(), pair.second.first);
+
+            unsigned sum = 0;
+            for (auto v : *deps) sum += v.size();
+            ASSERT_EQ(sum, pair.second.second);
         }
     }
 
