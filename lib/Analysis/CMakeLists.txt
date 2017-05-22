@@ -17,4 +17,5 @@ add_library (EfdAnalysis
     NodeVisitor.cpp
     IdTable.cpp
     DependencyBuilderPass.cpp
-    Pass.cpp)
+    Pass.cpp
+    FlattenPass.cpp)
