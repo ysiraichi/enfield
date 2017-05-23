@@ -16,7 +16,7 @@ qreg q[5];\
 ";
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        QbitToNumberPass* pass = QbitToNumberPass::create();
+        QbitToNumberPass* pass = QbitToNumberPass::Create();
         qmod->runPass(pass);
 
         ASSERT_DEATH({ pass->getUId("q"); }, "Id not found");
@@ -36,7 +36,7 @@ gate mygate(a, b, c) x, y, z {\
 ";
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        QbitToNumberPass* pass = QbitToNumberPass::create();
+        QbitToNumberPass* pass = QbitToNumberPass::Create();
         qmod->runPass(pass);
 
         NDGateDecl* gate = qmod->getQGate("mygate");
@@ -73,7 +73,7 @@ measure q[4] -> c[4];\
 ";
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        QbitToNumberPass* pass = QbitToNumberPass::create();
+        QbitToNumberPass* pass = QbitToNumberPass::Create();
         qmod->runPass(pass);
 
         NDGateDecl* idGate = qmod->getQGate("id");
@@ -114,7 +114,7 @@ gate cnot x, y {\
 ";
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        DependencyBuilderPass* pass = DependencyBuilderPass::create(qmod.get());
+        DependencyBuilderPass* pass = DependencyBuilderPass::Create(qmod.get());
         qmod->runPass(pass);
 
         unsigned x = 0;
@@ -127,9 +127,11 @@ gate cnot x, y {\
         // Has only one parallel dependency.
         ASSERT_EQ(deps->size(), 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ((*deps)[0].size(), 1);
-        ASSERT_EQ((*deps)[0][0].from, x);
-        ASSERT_EQ((*deps)[0][0].to, y);
+        ASSERT_EQ((*deps)[0].getSize(), 1);
+        ASSERT_EQ((*deps)[0][0].mFrom, x);
+        ASSERT_EQ((*deps)[0][0].mTo, y);
+
+        ASSERT_TRUE((*deps)[0].mCallPoint == nullptr);
     }
 
     {
@@ -144,13 +146,13 @@ gate cnot x, y {\
 ";
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        DependencyBuilderPass* pass = DependencyBuilderPass::create(qmod.get());
+        DependencyBuilderPass* pass = DependencyBuilderPass::Create(qmod.get());
         qmod->runPass(pass);
 
         unsigned x = 0;
         unsigned y = 1;
 
-        NDGateDecl* cxGate = qmod->getQGate("cnot");
+        NDGateDecl* cxGate = qmod->getQGate("cx");
         ASSERT_FALSE(cxGate == nullptr);
         NDGateDecl* cnotGate = qmod->getQGate("cnot");
         ASSERT_FALSE(cnotGate == nullptr);
@@ -161,16 +163,20 @@ gate cnot x, y {\
         // Has only one parallel dependency.
         ASSERT_EQ(cxDeps->size(), 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ((*cxDeps)[0].size(), 1);
-        ASSERT_EQ((*cxDeps)[0][0].from, x);
-        ASSERT_EQ((*cxDeps)[0][0].to, y);
+        ASSERT_EQ((*cxDeps)[0].getSize(), 1);
+        ASSERT_EQ((*cxDeps)[0][0].mFrom, x);
+        ASSERT_EQ((*cxDeps)[0][0].mTo, y);
+
+        ASSERT_TRUE((*cxDeps)[0].mCallPoint == nullptr);
 
         // Has only one parallel dependency.
         ASSERT_EQ(cnotDeps->size(), 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ((*cnotDeps)[0].size(), 1);
-        ASSERT_EQ((*cnotDeps)[0][0].from, x);
-        ASSERT_EQ((*cnotDeps)[0][0].to, y);
+        ASSERT_EQ((*cnotDeps)[0].getSize(), 1);
+        ASSERT_EQ((*cnotDeps)[0][0].mFrom, x);
+        ASSERT_EQ((*cnotDeps)[0][0].mTo, y);
+
+        ASSERT_FALSE((*cnotDeps)[0].mCallPoint == nullptr);
     }
 }
 
@@ -183,7 +189,7 @@ CX q[0], q[1];\
 ";
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        DependencyBuilderPass* pass = DependencyBuilderPass::create(qmod.get());
+        DependencyBuilderPass* pass = DependencyBuilderPass::Create(qmod.get());
         qmod->runPass(pass);
 
         unsigned q0 = 0;
@@ -194,9 +200,11 @@ CX q[0], q[1];\
         // Has only one parallel dependency.
         ASSERT_EQ(deps->size(), 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ((*deps)[0].size(), 1);
-        ASSERT_EQ((*deps)[0][0].from, q0);
-        ASSERT_EQ((*deps)[0][0].to, q1);
+        ASSERT_EQ((*deps)[0].getSize(), 1);
+        ASSERT_EQ((*deps)[0][0].mFrom, q0);
+        ASSERT_EQ((*deps)[0][0].mTo, q1);
+
+        ASSERT_TRUE((*deps)[0].mCallPoint == nullptr);
     }
 
     {
@@ -252,7 +260,7 @@ measure carry[0] -> carryout[0];\
 ";
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        DependencyBuilderPass* pass = DependencyBuilderPass::create(qmod.get());
+        DependencyBuilderPass* pass = DependencyBuilderPass::Create(qmod.get());
         qmod->runPass(pass);
 
 
@@ -271,7 +279,7 @@ measure carry[0] -> carryout[0];\
             ASSERT_EQ(deps->size(), pair.second.first);
 
             unsigned sum = 0;
-            for (auto v : *deps) sum += v.size();
+            for (auto v : *deps) sum += v.getSize();
             ASSERT_EQ(sum, pair.second.second);
         }
     }

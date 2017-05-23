@@ -46,7 +46,43 @@ namespace efd {
             std::string getStrId(unsigned id, NDGateDecl* gate = nullptr) const;
 
             /// \brief Returns a new instance of this class.
-            static QbitToNumberPass* create();
+            static QbitToNumberPass* Create();
+    };
+
+    /// \brief Structure for abstracting dependencies.
+    struct Dep {
+        unsigned mFrom;
+        unsigned mTo;
+    };
+
+    /// \brief Represents a sequence of dependencies (should be treated as
+    /// parallel dependencies) for each node.
+    struct Dependencies {
+        typedef std::vector<Dep>::iterator Iterator;
+        typedef std::vector<Dep>::const_iterator ConstIterator;
+
+        std::vector<Dep> mDeps;
+        NDQOpGeneric* mCallPoint;
+
+        /// \brief Forwards to the \em mDeps attribute.
+        const Dep& operator[](unsigned i) const;
+        /// \brief Forwards to the \em mDeps attribute.
+        Dep& operator[](unsigned i);
+
+        /// \brief Forwards to the \em mDeps attribute.
+        bool isEmpty() const;
+
+        /// \brief Forwards to the \em mDeps attribute.
+        unsigned getSize() const;
+
+        /// \brief Forwards to the \em mDeps attribute.
+        Iterator begin();
+        /// \brief Forwards to the \em mDeps attribute.
+        ConstIterator begin() const;
+        /// \brief Forwards to the \em mDeps attribute.
+        Iterator end();
+        /// \brief Forwards to the \em mDeps attribute.
+        ConstIterator end() const;
     };
 
     /// \brief Keep track of the dependencies of each qbit for the whole program,
@@ -57,13 +93,7 @@ namespace efd {
     /// dependency that can't be broken down (unless the gate is inlined).
     class DependencyBuilderPass : public Pass {
         public:
-            /// \brief Structure for abstracting dependencies.
-            struct Dep {
-                unsigned from;
-                unsigned to;
-            };
-
-            typedef std::vector<std::vector<Dep>> DepsSet;
+            typedef std::vector<Dependencies> DepsSet;
 
         private:
             QModule* mMod;
@@ -98,9 +128,10 @@ namespace efd {
             /// \brief Gets the dependencies for some gate declaration. If it is a
             /// nullptr, then it is returned the dependencies for the whole program.
             const DepsSet& getDependencies(NDGateDecl* ref = nullptr) const;
+            DepsSet getDependencies(NDGateDecl* ref = nullptr);
 
             /// \brief Returns a new instance of this class.
-            static DependencyBuilderPass* create(QModule* mod, QbitToNumberPass* pass = nullptr);
+            static DependencyBuilderPass* Create(QModule* mod, QbitToNumberPass* pass = nullptr);
     };
 };
 
