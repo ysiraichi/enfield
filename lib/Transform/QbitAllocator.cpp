@@ -8,7 +8,7 @@ void efd::QbitAllocator::updateDepSet() {
     mDepSet = mDepPass->getDependencies();
 }
 
-efd::QbitAllocator::QbitAllocator(QModule* qmod, Graph* pGraph, SwapFinding* sFind, 
+efd::QbitAllocator::QbitAllocator(QModule* qmod, Graph* pGraph, SwapFinder* sFind, 
         DependencyBuilderPass* depPass) : mMod(qmod), mPhysGraph(pGraph), 
                                           mSFind(sFind), mDepPass(depPass), mRun(false) {
     if (mDepPass == nullptr)

@@ -2,7 +2,7 @@
 #define __EFD_QBIT_ALLOCATOR_H__
 
 #include "enfield/Support/Graph.h"
-#include "enfield/Support/SwapFinding.h"
+#include "enfield/Support/SwapFinder.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
 
 namespace efd {
@@ -27,9 +27,9 @@ namespace efd {
         protected:
             QModule* mMod;
             Graph* mPhysGraph;
-            SwapFinding* mSFind;
+            SwapFinder* mSFind;
 
-            QbitAllocator(QModule* qmod, Graph* pGraph, SwapFinding* sFind,
+            QbitAllocator(QModule* qmod, Graph* pGraph, SwapFinder* sFind,
                     DependencyBuilderPass* depPass);
 
             /// \brief Inlines the gate call that generates the dependencies that are
