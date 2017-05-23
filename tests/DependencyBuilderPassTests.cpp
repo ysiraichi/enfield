@@ -123,15 +123,15 @@ gate cnot x, y {\
         NDGateDecl* gate = qmod->getQGate("cnot");
         ASSERT_FALSE(gate == nullptr);
 
-        const DependencyBuilderPass::DepsSet* deps = &pass->getDependencies(gate);
+        DependencyBuilderPass::DepsSet deps = pass->getDependencies(gate);
         // Has only one parallel dependency.
-        ASSERT_EQ(deps->size(), 1);
-        // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ((*deps)[0].getSize(), 1);
-        ASSERT_EQ((*deps)[0][0].mFrom, x);
-        ASSERT_EQ((*deps)[0][0].mTo, y);
+        ASSERT_EQ(deps.size(), 1);
+        // The only paralel dependency has only one parallel dependency.
+        ASSERT_EQ(deps[0].getSize(), 1);
+        ASSERT_EQ(deps[0][0].mFrom, x);
+        ASSERT_EQ(deps[0][0].mTo, y);
 
-        ASSERT_TRUE((*deps)[0].mCallPoint == nullptr);
+        ASSERT_TRUE(deps[0].mCallPoint == nullptr);
     }
 
     {
@@ -157,26 +157,26 @@ gate cnot x, y {\
         NDGateDecl* cnotGate = qmod->getQGate("cnot");
         ASSERT_FALSE(cnotGate == nullptr);
 
-        const DependencyBuilderPass::DepsSet* cxDeps = &pass->getDependencies(cxGate);
-        const DependencyBuilderPass::DepsSet* cnotDeps = &pass->getDependencies(cnotGate);
+        DependencyBuilderPass::DepsSet cxDeps = pass->getDependencies(cxGate);
+        DependencyBuilderPass::DepsSet cnotDeps = pass->getDependencies(cnotGate);
 
         // Has only one parallel dependency.
-        ASSERT_EQ(cxDeps->size(), 1);
+        ASSERT_EQ(cxDeps.size(), 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ((*cxDeps)[0].getSize(), 1);
-        ASSERT_EQ((*cxDeps)[0][0].mFrom, x);
-        ASSERT_EQ((*cxDeps)[0][0].mTo, y);
+        ASSERT_EQ(cxDeps[0].getSize(), 1);
+        ASSERT_EQ(cxDeps[0][0].mFrom, x);
+        ASSERT_EQ(cxDeps[0][0].mTo, y);
 
-        ASSERT_TRUE((*cxDeps)[0].mCallPoint == nullptr);
+        ASSERT_TRUE(cxDeps[0].mCallPoint == nullptr);
 
         // Has only one parallel dependency.
-        ASSERT_EQ(cnotDeps->size(), 1);
+        ASSERT_EQ(cnotDeps.size(), 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ((*cnotDeps)[0].getSize(), 1);
-        ASSERT_EQ((*cnotDeps)[0][0].mFrom, x);
-        ASSERT_EQ((*cnotDeps)[0][0].mTo, y);
+        ASSERT_EQ(cnotDeps[0].getSize(), 1);
+        ASSERT_EQ(cnotDeps[0][0].mFrom, x);
+        ASSERT_EQ(cnotDeps[0][0].mTo, y);
 
-        ASSERT_FALSE((*cnotDeps)[0].mCallPoint == nullptr);
+        ASSERT_FALSE(cnotDeps[0].mCallPoint == nullptr);
     }
 }
 
@@ -195,16 +195,16 @@ CX q[0], q[1];\
         unsigned q0 = 0;
         unsigned q1 = 1;
 
-        const DependencyBuilderPass::DepsSet* deps = &pass->getDependencies();
+        DependencyBuilderPass::DepsSet deps = pass->getDependencies();
 
         // Has only one parallel dependency.
-        ASSERT_EQ(deps->size(), 1);
+        ASSERT_EQ(deps.size(), 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ((*deps)[0].getSize(), 1);
-        ASSERT_EQ((*deps)[0][0].mFrom, q0);
-        ASSERT_EQ((*deps)[0][0].mTo, q1);
+        ASSERT_EQ(deps[0].getSize(), 1);
+        ASSERT_EQ(deps[0][0].mFrom, q0);
+        ASSERT_EQ(deps[0][0].mTo, q1);
 
-        ASSERT_TRUE((*deps)[0].mCallPoint == nullptr);
+        ASSERT_TRUE(deps[0].mCallPoint == nullptr);
     }
 
     {
@@ -268,18 +268,16 @@ measure carry[0] -> carryout[0];\
             { "ccx", { 6, 6 } }, { "cx", { 1, 1 } }, { "x", { 0, 0 } }, { "majority", { 3, 8 } }, { "add4", { 9, 65 } }, { "unmaj", { 3, 8 } }
         };
 
-        const DependencyBuilderPass::DepsSet* deps;
+        DependencyBuilderPass::DepsSet deps;
         for (auto pair : gatesInfo) {
             NDGateDecl* gate = qmod->getQGate(pair.first);
             ASSERT_FALSE(gate == nullptr);
 
-            deps = &pass->getDependencies(gate);
-            ASSERT_FALSE(deps == nullptr);
-
-            ASSERT_EQ(deps->size(), pair.second.first);
+            deps = pass->getDependencies(gate);
+            ASSERT_EQ(deps.size(), pair.second.first);
 
             unsigned sum = 0;
-            for (auto v : *deps) sum += v.getSize();
+            for (auto v : deps) sum += v.getSize();
             ASSERT_EQ(sum, pair.second.second);
         }
     }
