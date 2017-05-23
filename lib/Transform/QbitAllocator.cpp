@@ -1,5 +1,5 @@
 #include "enfield/Transform/QbitAllocator.h"
-#include "enfield/Transform/GateInline.h"
+#include "enfield/Transform/Utils.h"
 
 #include <iterator>
 #include <cassert>

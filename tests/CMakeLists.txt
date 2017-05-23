@@ -42,6 +42,6 @@ efd_test (DependencyBuilderPassTests
 efd_test (FlattenPassTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
 
-efd_test (GateInlineTests
+efd_test (TransformUtilsTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
 

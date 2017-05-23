@@ -1,10 +1,42 @@
-#include "enfield/Transform/GateInline.h"
+#include "enfield/Transform/Utils.h"
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
 
 #include <cassert>
 #include <unordered_map>
+#include <iterator>
 
+
+namespace efd {
+    const NodeRef SWAP_ID_NODE = efd::NDId::Create("__swap__"); 
+
+    /// \brief Enum that indicates where to place a instruction.
+    enum Loc {
+        LOC_BEFORE, LOC_AFTER
+    };
+
+    /// \brief Inserts the node wherever \where is indicating.
+    void InsertNode(Node::Iterator& it, NodeRef node, Loc where);
+    /// \brief Inserts a swap wherever \where is indicating.
+    void InsertSwap(NodeRef prev, NodeRef lhs, NodeRef rhs, Loc where);
+}
+
+void efd::InsertNode(Node::Iterator& it, NodeRef node, Loc where) {
+    NDList* parent = dynCast<NDList>((*it)->getParent());
+    assert(parent != nullptr && "Parent node must be of type NDList.");
+    if (where == LOC_AFTER) ++it;
+    parent->addChild(it, node);
+}
+
+void efd::InsertNodeAfter(Node::Iterator& it, NodeRef node) {
+    efd::InsertNode(it, node, LOC_AFTER);
+}
+
+void efd::InsertNodeBefore(Node::Iterator& it, NodeRef node) {
+    efd::InsertNode(it, node, LOC_BEFORE);
+}
+
+// ==--------------- Inlining ---------------==
 typedef std::unordered_map<std::string, efd::NodeRef> VarMap;
 
 namespace {
@@ -106,26 +138,73 @@ std::vector<efd::NodeRef> efd::CloneGOp(NDGateDecl* gateDecl) {
 }
 
 void efd::ReplaceNodes(NodeRef ref, std::vector<NodeRef> nodes) {
+    unsigned dist;
+    Node::Iterator it;
+
     if (NDList* parent = dynCast<NDList>(ref->getParent())) {
-        auto It = parent->findChild(ref);
-        for (auto child : nodes) {
-            parent->addChild(It, child);
-            ++It;
-        }
-        parent->removeChild(ref);
+
+        it = parent->findChild(ref);
+        dist = std::distance(parent->begin(), it);
+        for (auto child : nodes)
+            efd::InsertNodeAfter(it, child);
+
+        auto old = parent->begin() + dist;
+        parent->removeChild(old);
+
     } else if (NDIfStmt* parent = dynCast<NDIfStmt>(ref->getParent())) {
         NDList* ifParent = dynCast<NDList>(parent->getParent());
         assert(ifParent != nullptr && "The parent of an If node has to be a NDList.");
 
-        auto It = ifParent->findChild(parent);
-        for (auto child : nodes) {
-            ifParent->addChild(It, NDIfStmt::Create(parent->getCondId()->clone(), 
+        it = ifParent->findChild(parent);
+        dist = std::distance(ifParent->begin(), it);
+        for (auto child : nodes)
+            efd::InsertNodeAfter(it, NDIfStmt::Create(parent->getCondId()->clone(), 
                         parent->getCondN()->clone(), child));
-            ++It;
-        }
+
+        auto old = ifParent->begin() + dist;
         ifParent->removeChild(parent);
 
     } else {
         assert(false && "Unreacheable. Node must be either If or List.");
     }
+}
+
+// ==--------------- InsertSwap ---------------==
+void efd::InsertSwap(NodeRef prev, NodeRef lhs, NodeRef rhs, Loc where) {
+    NodeRef parent = prev->getParent();
+
+    NDList* qArgs = dynCast<NDList>(NDList::Create());
+    qArgs->addChild(lhs->clone());
+    qArgs->addChild(rhs->clone());
+    NodeRef callNode = NDQOpGeneric::Create(SWAP_ID_NODE->clone(), NDList::Create(), qArgs);
+
+    if (NDList* parent = dynCast<NDList>(parent)) {
+        auto it = parent->findChild(prev);
+        if (where == LOC_AFTER)
+            efd::InsertNodeAfter(it, callNode);
+        else if (where == LOC_BEFORE)
+            efd::InsertNodeBefore(it, callNode);
+
+    } else if (NDIfStmt* parent = dynCast<NDIfStmt>(parent)) {
+        NDList* ifParent = dynCast<NDList>(parent->getParent());
+        assert(ifParent != nullptr && "The parent of an If node has to be a NDList.");
+        auto it = ifParent->findChild(prev);
+
+        // In this case, the swap must be global, and not in the if scope.
+        if (where == LOC_AFTER)
+            efd::InsertNodeAfter(it, callNode);
+        else if (where == LOC_BEFORE)
+            efd::InsertNodeBefore(it, callNode);
+
+    } else {
+        assert(false && "Unreacheable. Node must be either If or List.");
+    }
+}
+
+void efd::InsertSwapAfter(NodeRef prev, NodeRef lhs, NodeRef rhs) {
+    efd::InsertSwap(prev, lhs, rhs, LOC_AFTER);
+}
+
+void efd::InsertSwapBefore(NodeRef prev, NodeRef lhs, NodeRef rhs) {
+    efd::InsertSwap(prev, lhs, rhs, LOC_BEFORE);
 }
