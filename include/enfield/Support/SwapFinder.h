@@ -15,11 +15,16 @@ namespace efd {
         public:
             /// \brief Struct for representing swaps.
             struct Swap {
-                unsigned u;
-                unsigned v;
+                unsigned mU;
+                unsigned mV;
             };
 
-            typedef std::vector<std::pair<unsigned, unsigned>> RestrictionVector;
+            struct Rest {
+                unsigned mFrom;
+                unsigned mTo;
+            };
+
+            typedef std::vector<Rest> RestrictionVector;
             typedef std::vector<Swap> SwapVector;
 
             /// \brief Given a std::vector of restrictions (edges in a graph), it returns
