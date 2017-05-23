@@ -6,9 +6,14 @@ foreach (qfile ${files})
         "${CMAKE_CURRENT_BINARY_DIR}/files/${qfilename}" COPYONLY)
 endforeach (qfile)
 
+# ==-------- Support ----------==
 efd_test (CommandLineTests
     EfdSupport)
 
+efd_test (GraphTests
+    EfdSupport)
+
+# ==-------- Analysis ----------==
 efd_test (ASTNodeTests
     EfdAnalysis EfdSupport)
 
@@ -27,6 +32,7 @@ efd_test (IdTableTests
 efd_test (QModuleCloneTests
     EfdAnalysis EfdCore EfdSupport)
 
+# ==-------- Transforms ----------==
 efd_test (DependencyBuilderPassTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
 
@@ -35,3 +41,4 @@ efd_test (FlattenPassTests
 
 efd_test (GateInlineTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
+
