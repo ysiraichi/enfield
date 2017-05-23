@@ -72,16 +72,48 @@ std::string efd::QbitToNumberPass::getStrId(unsigned id, NDGateDecl* gate) const
     return map->at(id);
 }
 
-efd::QbitToNumberPass* efd::QbitToNumberPass::create() {
+efd::QbitToNumberPass* efd::QbitToNumberPass::Create() {
     return new QbitToNumberPass();
 }
 
-// --------------------- DependencyBuilderPass ------------------------
+// --------------------- Dependencies ------------------------
+bool efd::Dependencies::isEmpty() const {
+    return mDeps.empty();
+}
 
+unsigned efd::Dependencies::getSize() const {
+    return mDeps.size();
+}
+
+const efd::Dep& efd::Dependencies::operator[](unsigned i) const {
+    return mDeps[i];
+}
+
+efd::Dep& efd::Dependencies::operator[](unsigned i) {
+    return mDeps[i];
+}
+
+efd::Dependencies::Iterator efd::Dependencies::begin() {
+    return mDeps.begin();
+}
+
+efd::Dependencies::ConstIterator efd::Dependencies::begin() const {
+    return mDeps.begin();
+}
+
+efd::Dependencies::Iterator efd::Dependencies::end() {
+    return mDeps.end();
+}
+
+efd::Dependencies::ConstIterator efd::Dependencies::end() const {
+    return mDeps.end();
+}
+
+// --------------------- DependencyBuilderPass ------------------------
 efd::DependencyBuilderPass::DependencyBuilderPass(QModule* mod, QbitToNumberPass* pass) 
     : mMod(mod), mQbitMap(pass) {
     if (mQbitMap == nullptr)
-        mQbitMap = QbitToNumberPass::create();
+        mQbitMap = QbitToNumberPass::Create();
 
     mUK += Pass::K_GATE_PASS;
     mUK += Pass::K_STMT_PASS;
@@ -89,6 +121,9 @@ efd::DependencyBuilderPass::DependencyBuilderPass(QModule* mod, QbitToNumberPass
 
 void efd::DependencyBuilderPass::initImpl() {
     mCurrentGate = nullptr;
+    mLDeps.clear();
+    mGDeps.clear();
+
     mMod->runPass(mQbitMap);
 }
 
@@ -133,7 +168,7 @@ void efd::DependencyBuilderPass::visit(NDQOpCX* ref) {
     unsigned controlQ = getUId(ref->getLhs());
     unsigned invertQ = getUId(ref->getRhs());
 
-    std::vector<Dep> depV { Dep { controlQ, invertQ } };
+    Dependencies depV { { Dep { controlQ, invertQ } }, nullptr };
     deps->push_back(depV);
 }
 
@@ -154,18 +189,18 @@ void efd::DependencyBuilderPass::visit(NDQOpGeneric* ref) {
     assert(gRef != nullptr && "There is no quantum gate with this id.");
 
     DepsSet& gDeps = mLDeps[gRef];
-    std::vector<Dep> thisDeps;
+    Dependencies thisDeps;
     // For every qarg unsigned representation
     for (auto parallelDeps : gDeps) {
         for (auto dep : parallelDeps) {
             // Getting the uid's of the qubit interaction (u, v)
-            unsigned u = uidVector[dep.from];
-            unsigned v = uidVector[dep.to];
-            thisDeps.push_back(Dep { u, v });
+            unsigned u = uidVector[dep.mFrom];
+            unsigned v = uidVector[dep.mTo];
+            thisDeps.mDeps.push_back(Dep { u, v });
         }
     }
 
-    if (!thisDeps.empty())
+    if (!thisDeps.isEmpty())
         deps->push_back(thisDeps);
 }
 
@@ -182,8 +217,10 @@ const efd::DependencyBuilderPass::DepsSet& efd::DependencyBuilderPass::getDepend
     return *deps;
 }
 
-efd::DependencyBuilderPass* efd::DependencyBuilderPass::create(QModule* mod, QbitToNumberPass* pass) {
-    if (pass == nullptr)
-        pass = QbitToNumberPass::create();
+efd::DependencyBuilderPass::DepsSet efd::DependencyBuilderPass::getDependencies(NDGateDecl* ref) {
+    return *getDepsSet(ref);
+}
+
+efd::DependencyBuilderPass* efd::DependencyBuilderPass::Create(QModule* mod, QbitToNumberPass* pass) {
     return new DependencyBuilderPass(mod, pass);
 }
