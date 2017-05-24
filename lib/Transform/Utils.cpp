@@ -6,9 +6,9 @@
 #include <unordered_map>
 #include <iterator>
 
-
 namespace efd {
     const NodeRef SWAP_ID_NODE = efd::NDId::Create("__swap__"); 
+    const NodeRef H_ID_NODE = efd::NDId::Create("h"); 
 
     /// \brief Enum that indicates where to place a instruction.
     enum Loc {
@@ -207,4 +207,47 @@ void efd::InsertSwapAfter(NodeRef prev, NodeRef lhs, NodeRef rhs) {
 
 void efd::InsertSwapBefore(NodeRef prev, NodeRef lhs, NodeRef rhs) {
     efd::InsertSwap(prev, lhs, rhs, LOC_BEFORE);
+}
+
+// ==--------------- Reverse Gate ---------------==
+void efd::ReverseCNode(NodeRef node) {
+    std::vector<NodeRef> qArgs;
+
+    switch (node->getKind()) {
+        case Node::K_QOP_CX:
+            {
+                NDQOpCX* refCX = dynCast<NDQOpCX>(node);
+                assert(refCX != nullptr && "Malformed node.");
+                qArgs.push_back(refCX->getLhs());
+                qArgs.push_back(refCX->getRhs());
+            }
+            break;
+
+        case Node::K_QOP_GENERIC:
+            {
+                NDQOpGeneric* refGen = dynCast<NDQOpGeneric>(node);
+                assert(refGen != nullptr && "Malformed node.");
+                for (auto child : *refGen->getQArgs())
+                    qArgs.push_back(child);
+            }
+            break;
+
+        default:
+            assert(false && "Can't reverse any other node, but CX and QOpGeneric.");
+    }
+
+    NodeRef parent = node->getParent();
+    Node::Iterator it = parent->findChild(node), oldIt = it;
+    for (auto qbit : qArgs) {
+        NDList* qArgs = dynCast<NDList>(NDList::Create());
+        qArgs->addChild(qbit);
+
+        efd::InsertNodeBefore(it, NDQOpGeneric::Create(H_ID_NODE->clone(), 
+                    NDList::Create(), qArgs->clone()));
+        it = oldIt;
+
+        efd::InsertNodeAfter(it, NDQOpGeneric::Create(H_ID_NODE->clone(), 
+                    NDList::Create(), qArgs->clone()));
+        it = oldIt;
+    }
 }

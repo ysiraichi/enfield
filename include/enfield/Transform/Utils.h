@@ -28,6 +28,9 @@ namespace efd {
     /// The cnot gate used can be specified by \p gate. If it is null,
     /// the default will be the CX gate.
     void InsertInlinedSwap(NodeRef prev, NodeRef lhs, NodeRef rhs, NDId* gateId = nullptr);
+
+    /// \brief Applies the Hadammard gate on all qbits of this statement.
+    void ReverseCNode(NodeRef node);
 }
 
 #endif
