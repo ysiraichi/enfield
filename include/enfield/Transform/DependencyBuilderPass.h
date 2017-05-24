@@ -19,8 +19,14 @@ namespace efd {
     /// Note that if "qreg r[10];" declaration exists, then "r" is not a qbit, but
     /// "r[n]" is (where "n" is in "{0 .. 9}").
     class QbitToNumberPass : public Pass {
+        private:
+            struct QbitInfo {
+                std::string mKey;
+                NodeRef mRef;
+            };
+
         public:
-            typedef std::vector<std::string> QbitMap;
+            typedef std::vector<QbitInfo> QbitMap;
 
         private:
             std::unordered_map<NDGateDecl*, QbitMap> mLIdMap;
@@ -44,6 +50,9 @@ namespace efd {
             /// \brief Returns the std::string id representation of the
             /// corresponding unsigned id in the specific gate (if any).
             std::string getStrId(unsigned id, NDGateDecl* gate = nullptr) const;
+
+            /// \brief Get a NodeRef, representing that qbit.
+            NodeRef getNode(unsigned id, NDGateDecl* gate = nullptr) const;
 
             /// \brief Returns a new instance of this class.
             static QbitToNumberPass* Create();
