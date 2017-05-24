@@ -4,7 +4,7 @@
 #include "enfield/Analysis/IdTable.h"
 #include "enfield/Pass.h"
 
-efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr) {
+efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr), mValid(true) {
     mTable = IdTable::create();
 }
 
@@ -79,9 +79,32 @@ efd::NDGateDecl* efd::QModule::getQGate(std::string id, bool recursive) {
     return mTable->getQGate(id, recursive);
 }
 
+void efd::QModule::invalidate() {
+    mVersion = nullptr;
+    mRegDecls.clear();
+    mGates.clear();
+    mStatements.clear();
+    mValid = false;
+}
+
+void efd::QModule::validate() {
+    if (mQModulefy == nullptr)
+        mQModulefy = QModulefyPass::Create(this);
+
+    mQModulefy->init();
+    mAST->apply(mQModulefy);
+    mValid = true;
+}
+
+bool efd::QModule::isValid() {
+    return mValid;
+}
+
 void efd::QModule::runPass(Pass* pass, bool force) {
     if (pass->wasApplied() && !force)
         return;
+
+    if (!isValid()) validate();
 
     pass->init();
 
