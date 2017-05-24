@@ -171,21 +171,21 @@ void efd::ReplaceNodes(NodeRef ref, std::vector<NodeRef> nodes) {
 
 // ==--------------- InsertSwap ---------------==
 void efd::InsertSwap(NodeRef prev, NodeRef lhs, NodeRef rhs, Loc where) {
-    NodeRef parent = prev->getParent();
+    NodeRef baseParent = prev->getParent();
 
     NDList* qArgs = dynCast<NDList>(NDList::Create());
     qArgs->addChild(lhs->clone());
     qArgs->addChild(rhs->clone());
     NodeRef callNode = NDQOpGeneric::Create(SWAP_ID_NODE->clone(), NDList::Create(), qArgs);
 
-    if (NDList* parent = dynCast<NDList>(parent)) {
+    if (NDList* parent = dynCast<NDList>(baseParent)) {
         auto it = parent->findChild(prev);
         if (where == LOC_AFTER)
             efd::InsertNodeAfter(it, callNode);
         else if (where == LOC_BEFORE)
             efd::InsertNodeBefore(it, callNode);
 
-    } else if (NDIfStmt* parent = dynCast<NDIfStmt>(parent)) {
+    } else if (NDIfStmt* parent = dynCast<NDIfStmt>(baseParent)) {
         NDList* ifParent = dynCast<NDList>(parent->getParent());
         assert(ifParent != nullptr && "The parent of an If node has to be a NDList.");
         auto it = ifParent->findChild(prev);
