@@ -9,24 +9,6 @@ void efd::QbitAllocator::updateDepSet() {
     mDepSet = mDepPass->getDependencies();
 }
 
-efd::NodeRef efd::QbitAllocator::getIdNodeFromString(std::string s) {
-    NodeRef node = nullptr;
-
-    std::size_t idEnd = s.find("[");
-    if (idEnd == std::string::npos) {
-        // Is a NDId
-        node = NDId::Create(s);
-    } else {
-        // Is a NDIdRef
-        std::string id = s.substr(0, idEnd);
-        std::size_t szEnd = s.find("]");
-        std::string size = s.substr(idEnd+1, szEnd - idEnd - 1);
-        node = NDIdRef::Create(NDId::Create(id), NDInt::Create(size));
-    }
-
-    return node;
-}
-
 efd::QbitAllocator::QbitAllocator(QModule* qmod, Graph* pGraph, SwapFinder* sFind, 
         DependencyBuilderPass* depPass) : mMod(qmod), mPhysGraph(pGraph), 
                                           mSFind(sFind), mDepPass(depPass), mRun(false) {
@@ -52,8 +34,8 @@ efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(Iterator it) {
 
 void efd::QbitAllocator::insertSwapBefore(Dependencies& deps, unsigned u, unsigned v) {
     QbitToNumberPass* qbitPass = mDepPass->getUIdPass();
-    NodeRef lhs = getIdNodeFromString(qbitPass->getStrId(u));
-    NodeRef rhs = getIdNodeFromString(qbitPass->getStrId(v));
+    NodeRef lhs = qbitPass->getNode(u);
+    NodeRef rhs = qbitPass->getNode(v);
     InsertSwapBefore(deps.mCallPoint, lhs, rhs);
 }
 

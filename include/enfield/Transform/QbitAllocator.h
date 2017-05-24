@@ -30,9 +30,6 @@ namespace efd {
             /// running the DependencyBuilderPass.
             void updateDepSet();
 
-            /// \brief Constructs a node from an unsigned id.
-            NodeRef getIdNodeFromString(std::string s);
-
         protected:
             QModule* mMod;
             Graph* mPhysGraph;
