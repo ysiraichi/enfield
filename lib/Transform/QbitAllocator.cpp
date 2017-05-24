@@ -23,6 +23,7 @@ efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(Iterator it) {
         unsigned dist = std::distance(mDepSet.begin(), it);
 
         efd::InlineGate(mMod, refCall);
+        mMod->invalidate();
         mMod->runPass(mDepPass, true);
         updateDepSet();
 
@@ -37,6 +38,10 @@ void efd::QbitAllocator::insertSwapBefore(Dependencies& deps, unsigned u, unsign
     NodeRef lhs = qbitPass->getNode(u);
     NodeRef rhs = qbitPass->getNode(v);
     InsertSwapBefore(deps.mCallPoint, lhs, rhs);
+}
+
+unsigned efd::QbitAllocator::getNumQbits() {
+    return mDepPass->getUIdPass()->getSize();
 }
 
 void efd::QbitAllocator::run() {

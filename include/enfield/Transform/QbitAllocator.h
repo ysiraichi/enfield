@@ -46,6 +46,9 @@ namespace efd {
             /// the indexes of the program's qbit)
             virtual void insertSwapBefore(Dependencies& deps, unsigned u, unsigned v);
 
+            /// \brief Returns the number of qbits in the program.
+            unsigned getNumQbits();
+
         public:
             /// \brief Runs the allocator;
             void run();
