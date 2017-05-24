@@ -2,6 +2,7 @@
 
 #include "enfield/Analysis/QModule.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
+#include "enfield/Support/RTTI.h"
 
 #include <string>
 #include <unordered_map>
@@ -131,7 +132,8 @@ gate cnot x, y {\
         ASSERT_EQ(deps[0][0].mFrom, x);
         ASSERT_EQ(deps[0][0].mTo, y);
 
-        ASSERT_TRUE(deps[0].mCallPoint == nullptr);
+        ASSERT_FALSE(deps[0].mCallPoint == nullptr);
+        ASSERT_TRUE(efd::instanceOf<NDQOpCX>(deps[0].mCallPoint));
     }
 
     {
@@ -167,7 +169,8 @@ gate cnot x, y {\
         ASSERT_EQ(cxDeps[0][0].mFrom, x);
         ASSERT_EQ(cxDeps[0][0].mTo, y);
 
-        ASSERT_TRUE(cxDeps[0].mCallPoint == nullptr);
+        ASSERT_FALSE(cxDeps[0].mCallPoint == nullptr);
+        ASSERT_TRUE(efd::instanceOf<NDQOpCX>(cxDeps[0].mCallPoint));
 
         // Has only one parallel dependency.
         ASSERT_EQ(cnotDeps.size(), 1);
@@ -177,6 +180,7 @@ gate cnot x, y {\
         ASSERT_EQ(cnotDeps[0][0].mTo, y);
 
         ASSERT_FALSE(cnotDeps[0].mCallPoint == nullptr);
+        ASSERT_TRUE(efd::instanceOf<NDQOpGeneric>(cnotDeps[0].mCallPoint));
     }
 }
 
@@ -204,7 +208,8 @@ CX q[0], q[1];\
         ASSERT_EQ(deps[0][0].mFrom, q0);
         ASSERT_EQ(deps[0][0].mTo, q1);
 
-        ASSERT_TRUE(deps[0].mCallPoint == nullptr);
+        ASSERT_FALSE(deps[0].mCallPoint == nullptr);
+        ASSERT_TRUE(efd::instanceOf<NDQOpCX>(deps[0].mCallPoint));
     }
 
     {
