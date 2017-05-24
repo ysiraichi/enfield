@@ -168,7 +168,7 @@ void efd::DependencyBuilderPass::visit(NDQOpCX* ref) {
     unsigned controlQ = getUId(ref->getLhs());
     unsigned invertQ = getUId(ref->getRhs());
 
-    Dependencies depV { { Dep { controlQ, invertQ } }, nullptr };
+    Dependencies depV { { Dep { controlQ, invertQ } }, ref };
     deps->push_back(depV);
 }
 
@@ -189,7 +189,7 @@ void efd::DependencyBuilderPass::visit(NDQOpGeneric* ref) {
     assert(gRef != nullptr && "There is no quantum gate with this id.");
 
     DepsSet& gDeps = mLDeps[gRef];
-    Dependencies thisDeps;
+    Dependencies thisDeps { {}, ref };
     // For every qarg unsigned representation
     for (auto parallelDeps : gDeps) {
         for (auto dep : parallelDeps) {

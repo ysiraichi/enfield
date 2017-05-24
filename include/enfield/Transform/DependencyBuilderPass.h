@@ -62,7 +62,7 @@ namespace efd {
         typedef std::vector<Dep>::const_iterator ConstIterator;
 
         std::vector<Dep> mDeps;
-        NDQOpGeneric* mCallPoint;
+        NodeRef mCallPoint;
 
         /// \brief Forwards to the \em mDeps attribute.
         const Dep& operator[](unsigned i) const;
