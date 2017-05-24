@@ -3,4 +3,5 @@ add_library (EfdTransform
     FlattenPass.cpp
     Utils.cpp
     QbitAllocator.cpp
-    DynProgQbitAllocator.cpp)
+    DynProgQbitAllocator.cpp
+    RenameQbitsPass.cpp)
