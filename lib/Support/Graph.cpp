@@ -46,6 +46,7 @@ unsigned efd::Graph::putVertex(std::string s) {
     if (mStrToId.find(s) != mStrToId.end())
         return mStrToId[s];
     unsigned idx = mStrToId.size();
+    mId[idx] = s;
     mStrToId[s] = idx;
     return idx;
 }
