@@ -7,8 +7,8 @@
 #include <iterator>
 
 namespace efd {
-    const NodeRef SWAP_ID_NODE = efd::NDId::Create("__swap__"); 
-    const NodeRef H_ID_NODE = efd::NDId::Create("h"); 
+    extern const NodeRef SWAP_ID_NODE = efd::NDId::Create("__swap__"); 
+    extern const NodeRef H_ID_NODE = efd::NDId::Create("h"); 
 
     /// \brief Enum that indicates where to place a instruction.
     enum Loc {
@@ -176,7 +176,10 @@ void efd::InsertSwap(NodeRef prev, NodeRef lhs, NodeRef rhs, Loc where) {
     NDList* qArgs = dynCast<NDList>(NDList::Create());
     qArgs->addChild(lhs->clone());
     qArgs->addChild(rhs->clone());
+
+    // Creating swap node, and setting the generated property.
     NodeRef callNode = NDQOpGeneric::Create(SWAP_ID_NODE->clone(), NDList::Create(), qArgs);
+    callNode->setGenerated();
 
     if (NDList* parent = dynCast<NDList>(baseParent)) {
         auto it = parent->findChild(prev);
