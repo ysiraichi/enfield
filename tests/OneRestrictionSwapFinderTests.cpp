@@ -65,9 +65,8 @@ TEST(OneRestrictionSwapFinderTests, SwapTests) {
         SwapFinder* finder = OneRestrictionSwapFinder::Create(graph.get());
         SwapFinder::SwapVector swaps = finder->findSwaps(rV);
         ASSERT_FALSE(swaps.empty());
-        ASSERT_EQ(swaps.size(), 2);
+        ASSERT_EQ(swaps.size(), 1);
         ASSERT_TRUE(SwapEqual(swaps[0], SwapFinder::Swap { 1, 4 }));
-        ASSERT_TRUE(SwapEqual(swaps[1], SwapFinder::Swap { 0, 1 }));
     }
 
     {
@@ -86,10 +85,9 @@ TEST(OneRestrictionSwapFinderTests, SwapTests) {
         SwapFinder* finder = OneRestrictionSwapFinder::Create(graph.get());
         SwapFinder::SwapVector swaps = finder->findSwaps(rV);
         ASSERT_FALSE(swaps.empty());
-        ASSERT_EQ(swaps.size(), 4);
+        ASSERT_EQ(swaps.size(), 3);
         ASSERT_TRUE(SwapEqual(swaps[0], SwapFinder::Swap { 0, 1 }));
         ASSERT_TRUE(SwapEqual(swaps[1], SwapFinder::Swap { 1, 2 }));
         ASSERT_TRUE(SwapEqual(swaps[2], SwapFinder::Swap { 2, 3 }));
-        ASSERT_TRUE(SwapEqual(swaps[3], SwapFinder::Swap { 3, 4 }));
     }
 }
