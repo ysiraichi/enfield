@@ -35,6 +35,10 @@ efd_test (IdTableTests
 efd_test (QModuleCloneTests
     EfdAnalysis EfdCore EfdSupport)
 
+# ==-------- Arch ----------==
+efd_test (ArchGraphTests
+    EfdArch EfdAnalysis EfdCore EfdSupport)
+
 # ==-------- Transforms ----------==
 efd_test (DependencyBuilderPassTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
