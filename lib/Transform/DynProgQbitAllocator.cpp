@@ -249,14 +249,7 @@ efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet
         }
     }
 
-    std::vector<std::string> finalMapping;    
-    unsigned i = 0;
-    for (unsigned u : uMap) {
-        finalMapping.push_back(mArchGraph->getSId(u));
-        // std::cout << "map[" << i++ << "] = " << mArchGraph->getSId(u) << std::endl;
-    }
-
-    return finalMapping;
+    return uMap;
 }
 
 efd::DynProgQbitAllocator* efd::DynProgQbitAllocator::Create

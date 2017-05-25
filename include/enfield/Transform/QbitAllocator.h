@@ -10,7 +10,7 @@ namespace efd {
     /// the qbits that are in the physical architecture.
     class QbitAllocator {
         public:
-            typedef std::vector<std::string> Mapping;
+            typedef std::vector<unsigned> Mapping;
 
             typedef efd::SwapFinder::RestrictionVector RestrictionVector;
             typedef efd::SwapFinder::Rest Rest;
@@ -36,7 +36,7 @@ namespace efd {
             SwapFinder* mSFind;
 
             QbitAllocator(QModule* qmod, Graph* pGraph, SwapFinder* sFind,
-                    DependencyBuilderPass* depPass);
+                   DependencyBuilderPass* depPass);
 
             /// \brief Inlines the gate call that generates the dependencies that are
             /// referenced by \p it. If the node is not an NDQOpGeneric, it does nothing.

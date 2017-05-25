@@ -1,6 +1,7 @@
 #include "enfield/Transform/QbitAllocator.h"
 #include "enfield/Transform/RenameQbitsPass.h"
 #include "enfield/Transform/Utils.h"
+#include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
 
 #include <iterator>
@@ -55,9 +56,16 @@ void efd::QbitAllocator::run() {
     QbitToNumberPass* uidPass = mDepPass->getUIdPass();
 
     RenameQbitPass::ArchMap map;
-    for (unsigned i = 0, e = getNumQbits(); i < e; ++i) {
-        std::string id = uidPass->getStrId(i);
-        map[id] = uidPass->getNode(i);
+    if (ArchGraph* arch = dynCast<ArchGraph>(mArchGraph)) {
+        for (unsigned i = 0, e = getNumQbits(); i < e; ++i) {
+            std::string id = uidPass->getStrId(i);
+            map[id] = arch->getNode(mMapping[i]);
+        }
+    } else {
+        for (unsigned i = 0, e = getNumQbits(); i < e; ++i) {
+            std::string id = uidPass->getStrId(i);
+            map[id] = uidPass->getNode(i);
+        }
     }
 
     RenameQbitPass* renamePass = RenameQbitPass::Create(map);
