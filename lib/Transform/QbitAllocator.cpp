@@ -1,4 +1,5 @@
 #include "enfield/Transform/QbitAllocator.h"
+#include "enfield/Transform/RenameQbitsPass.h"
 #include "enfield/Transform/Utils.h"
 #include "enfield/Support/RTTI.h"
 
@@ -10,7 +11,7 @@ void efd::QbitAllocator::updateDepSet() {
 }
 
 efd::QbitAllocator::QbitAllocator(QModule* qmod, Graph* pGraph, SwapFinder* sFind, 
-        DependencyBuilderPass* depPass) : mMod(qmod), mPhysGraph(pGraph), 
+        DependencyBuilderPass* depPass) : mMod(qmod), mArchGraph(pGraph), 
                                           mSFind(sFind), mDepPass(depPass), mRun(false) {
     if (mDepPass == nullptr)
         mDepPass = DependencyBuilderPass::Create(mMod);
@@ -49,6 +50,19 @@ void efd::QbitAllocator::run() {
     updateDepSet();
 
     mMapping = solveDependencies(mDepSet);
+    mMod->invalidate();
+
+    QbitToNumberPass* uidPass = mDepPass->getUIdPass();
+
+    RenameQbitPass::ArchMap map;
+    for (unsigned i = 0, e = getNumQbits(); i < e; ++i) {
+        std::string id = uidPass->getStrId(i);
+        map[id] = uidPass->getNode(i);
+    }
+
+    RenameQbitPass* renamePass = RenameQbitPass::Create(map);
+    mMod->runPass(renamePass);
+
     mRun = true;
 }
 

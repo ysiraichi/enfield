@@ -32,7 +32,7 @@ namespace efd {
 
         protected:
             QModule* mMod;
-            Graph* mPhysGraph;
+            Graph* mArchGraph;
             SwapFinder* mSFind;
 
             QbitAllocator(QModule* qmod, Graph* pGraph, SwapFinder* sFind,
@@ -50,8 +50,11 @@ namespace efd {
             unsigned getNumQbits();
 
         public:
-            /// \brief Runs the allocator;
-            void run();
+            /// \brief Runs the allocator.
+            ///
+            /// This should run insert the swaps where needed and also rename the program's
+            /// qbit to the architecture defined qbits.
+            virtual void run();
             /// \brief Returns the final mapping.
             Mapping getMapping();
 

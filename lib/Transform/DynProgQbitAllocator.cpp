@@ -111,7 +111,7 @@ static void printSV(unsigned idx, std::vector<unsigned> map, SwapVal& sv, bool e
 
 std::vector<unsigned> efd::DynProgQbitAllocator::getUMapping(DepsSet& deps) {
     std::unordered_map<std::string, PermVal> permMap = genPermutationMap
-        (mPhysGraph->size(), getNumQbits());
+        (mArchGraph->size(), getNumQbits());
 
     int permN = permMap.size();
     int depN = deps.size();
@@ -173,7 +173,7 @@ std::vector<unsigned> efd::DynProgQbitAllocator::getUMapping(DepsSet& deps) {
 
             unsigned u = mapping[dep.mTo];
             unsigned v = mapping[dep.mFrom];
-            if (!mPhysGraph->hasEdge(u, v)) {
+            if (!mArchGraph->hasEdge(u, v)) {
                 std::vector<unsigned> newMapping = mapping;
 
                 std::vector<Swap> swapSet = mSFind->findSwaps
@@ -196,7 +196,7 @@ std::vector<unsigned> efd::DynProgQbitAllocator::getUMapping(DepsSet& deps) {
 
             u = mapping[dep.mFrom];
             v = mapping[dep.mTo];
-            if (mPhysGraph->isReverseEdge(u, v))
+            if (mArchGraph->isReverseEdge(u, v))
                 finalVal.cost += REV_COST;
 
             /*
@@ -234,7 +234,7 @@ efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet
         unsigned archU = uMap[progU];
         unsigned archV = uMap[progV];
 
-        if (!mPhysGraph->hasEdge(archU, archV)) {
+        if (!mArchGraph->hasEdge(archU, archV)) {
             RestrictionVector restV { Rest { archU, archV }};
             SwapVector swapV = mSFind->findSwaps(restV);
 
@@ -252,8 +252,8 @@ efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet
     std::vector<std::string> finalMapping;    
     unsigned i = 0;
     for (unsigned u : uMap) {
-        finalMapping.push_back(mPhysGraph->getSId(u));
-        // std::cout << "map[" << i++ << "] = " << mPhysGraph->getSId(u) << std::endl;
+        finalMapping.push_back(mArchGraph->getSId(u));
+        // std::cout << "map[" << i++ << "] = " << mArchGraph->getSId(u) << std::endl;
     }
 
     return finalMapping;

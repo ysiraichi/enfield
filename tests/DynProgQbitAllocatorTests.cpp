@@ -17,12 +17,12 @@ Graph* getGraph() {
     const std::string gStr =
 "\
 5\n\
-0 1\n\
-1 2\n\
-0 2\n\
-3 2\n\
-4 2\n\
-3 4\n\
+q[0] q[1]\n\
+q[1] q[2]\n\
+q[0] q[2]\n\
+q[3] q[2]\n\
+q[4] q[2]\n\
+q[3] q[4]\n\
 ";
 
     g =  Graph::ReadString(gStr);
@@ -145,10 +145,10 @@ CX q[0], q[1];\
 CX q[0], q[2];\
 CX q[1], q[2];\
 __swap__ q[1], q[2];\
-CX q[4], q[1];\
-__swap__ q[0], q[1];\
-CX q[4], q[0];\
-CX q[1], q[0];\
+CX q[4], q[2];\
+__swap__ q[0], q[2];\
+CX q[4], q[2];\
+CX q[0], q[2];\
 ";
 
         Graph* graph = getGraph();

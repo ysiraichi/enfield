@@ -45,8 +45,9 @@ efd_test (FlattenPassTests
 efd_test (TransformUtilsTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
 
+efd_test (RenameQbitsPassTests
+    EfdTransform EfdAnalysis EfdCore EfdSupport)
+
 efd_test (DynProgQbitAllocatorTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
 
-efd_test (RenameQbitsPassTests
-    EfdTransform EfdAnalysis EfdCore EfdSupport)
