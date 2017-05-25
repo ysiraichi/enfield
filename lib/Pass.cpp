@@ -30,3 +30,7 @@ void efd::Pass::init() {
     initImpl();
     mApplied = true;
 }
+
+bool efd::Pass::doesInvalidatesModule() const {
+    return false;
+}

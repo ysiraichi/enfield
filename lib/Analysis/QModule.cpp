@@ -4,7 +4,8 @@
 #include "enfield/Analysis/IdTable.h"
 #include "enfield/Pass.h"
 
-efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr), mValid(true) {
+efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr), 
+    mQModulefy(nullptr), mValid(true) {
     mTable = IdTable::create();
 }
 
@@ -91,9 +92,10 @@ void efd::QModule::validate() {
     if (mQModulefy == nullptr)
         mQModulefy = QModulefyPass::Create(this);
 
-    mQModulefy->init();
-    mAST->apply(mQModulefy);
+    // mValid must be set before calling 'runPass'. Otherwise,
+    // infinite loop!.
     mValid = true;
+    runPass(mQModulefy, true);
 }
 
 bool efd::QModule::isValid() {
@@ -126,6 +128,11 @@ void efd::QModule::runPass(Pass* pass, bool force) {
                 stmt->apply(pass);
         }
     }
+
+    // Invalidates itself it the pass does invalidate. e.g.: modifies the nodes
+    // inside the module.
+    if (pass->doesInvalidatesModule())
+        invalidate();
 }
 
 std::unique_ptr<efd::QModule> efd::QModule::clone() const {
@@ -135,8 +142,7 @@ std::unique_ptr<efd::QModule> efd::QModule::clone() const {
 
 std::unique_ptr<efd::QModule> efd::QModule::GetFromAST(NodeRef ref) {
     std::unique_ptr<QModule> qmod(new QModule(ref));
-    QModulefyPass* pass = QModulefyPass::Create(qmod.get());
-    qmod->runPass(pass);
+    qmod->validate();
     return qmod;
 }
 

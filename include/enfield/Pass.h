@@ -17,23 +17,38 @@ namespace efd {
             };
 
         private:
+            /// \brief Shows whether this pass was already applied.
             bool mApplied;
 
         protected:
+            /// \brief A combination of \p Kinds that represents where this pass
+            /// should be run.
             unsigned mUK;
+            /// \brief The implementation that should be overrided if the child pass
+            /// has to set any variables before running the pass.
             virtual void initImpl();
 
-        public:
             Pass();
 
+        public:
+            /// \brief Returns true if this pass should be applied on gate declarations.
             bool isGatePass() const;
+            /// \brief Returns true if this pass should be applied on register 
+            /// declarations.
             bool isRegDeclPass() const;
+            /// \brief Returns true if this pass should be applied on statements.
             bool isStatementPass() const;
+            /// \brief Returns true if this pass should be applied on the whole AST.
             bool isASTPass() const;
 
+            /// \brief Returns true if the pass was already applied.
             bool wasApplied() const;
 
+            /// \brief Initializes the pass. Note that this function calls \em initImpl.
             void init();
+
+            /// \brief Returns true if the pass invalidates the module.
+            virtual bool doesInvalidatesModule() const;
     };
 };
 

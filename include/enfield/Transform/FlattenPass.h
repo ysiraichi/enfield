@@ -43,6 +43,8 @@ namespace efd {
 
             void initImpl() override;
 
+            bool doesInvalidatesModule() const override;
+
             static FlattenPass* Create(QModule* qmod);
     };
 }

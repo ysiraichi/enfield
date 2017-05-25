@@ -140,6 +140,10 @@ void efd::FlattenPass::initImpl() {
     mIfNewNodes.clear();
 }
 
+bool efd::FlattenPass::doesInvalidatesModule() const {
+    return true;
+}
+
 efd::FlattenPass* efd::FlattenPass::Create(QModule* qmod) {
     return new FlattenPass(qmod);
 }
