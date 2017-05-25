@@ -6,7 +6,7 @@
 #include <cassert>
 
 // ----------------------------- Graph -------------------------------
-efd::Graph::Graph(unsigned n) : mN(n) {
+efd::Graph::Graph(unsigned n) : mN(n), mGID(0) {
     mSuccessors.assign(n, std::set<unsigned>());
     mPredecessors.assign(n, std::set<unsigned>());
     mId.assign(n, std::string());
@@ -45,7 +45,7 @@ void efd::Graph::putEdge(unsigned i, unsigned j) {
 unsigned efd::Graph::putVertex(std::string s) {
     if (mStrToId.find(s) != mStrToId.end())
         return mStrToId[s];
-    unsigned idx = mStrToId.size();
+    unsigned idx = mGID++;
     mId[idx] = s;
     mStrToId[s] = idx;
     return idx;

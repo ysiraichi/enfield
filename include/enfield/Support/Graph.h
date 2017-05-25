@@ -18,6 +18,9 @@ namespace efd {
             std::vector<std::string> mId; 
             std::unordered_map<std::string, unsigned> mStrToId;
     
+        protected:
+            unsigned mGID;
+
             Graph(unsigned n);
 
         public:
