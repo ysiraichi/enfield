@@ -38,6 +38,8 @@ namespace efd {
 
             /// \brief Parses the string \p graphStr into a ArchGraph representation.
             static std::unique_ptr<ArchGraph> ReadString(std::string graphStr);
+
+            static bool ClassOf(Graph* graph);
     };
 }
 

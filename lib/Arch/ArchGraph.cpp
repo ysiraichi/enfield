@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 
-efd::ArchGraph::ArchGraph(unsigned n) : Graph(n), mNodes(n, nullptr) {
+efd::ArchGraph::ArchGraph(unsigned n) : Graph(n, K_ARCH_GRAPH), mNodes(n, nullptr) {
 }
 
 void efd::ArchGraph::preprocessVertexString(unsigned i, std::string s) {
@@ -73,4 +73,8 @@ std::unique_ptr<efd::ArchGraph> efd::ArchGraph::Read(std::string filepath) {
 std::unique_ptr<efd::ArchGraph> efd::ArchGraph::ReadString(std::string graphStr) {
     std::stringstream in(graphStr);
     return ReadFromIn(in);
+}
+
+bool efd::ArchGraph::ClassOf(Graph* g) {
+    return g->getKind() == K_ARCH_GRAPH;
 }
