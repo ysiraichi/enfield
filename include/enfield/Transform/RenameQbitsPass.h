@@ -34,6 +34,8 @@ namespace efd {
             void visit(NDQOpGeneric* ref) override;
             void visit(NDList* ref) override;
 
+            bool doesInvalidatesModule() const override;
+
             /// \brief Creates a new instance of this pass.
             static RenameQbitPass* Create(ArchMap map);
     };

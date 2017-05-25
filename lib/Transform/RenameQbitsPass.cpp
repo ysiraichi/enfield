@@ -7,6 +7,7 @@ namespace efd {
 }
 
 efd::RenameQbitPass::RenameQbitPass(ArchMap map) : mAMap(map) {
+    mUK += Pass::K_STMT_PASS;
 }
 
 efd::NodeRef efd::RenameQbitPass::getNodeFromOld(NodeRef old) {
@@ -41,23 +42,35 @@ void efd::RenameQbitPass::visit(NDQOpBarrier* ref) {
 }
 
 void efd::RenameQbitPass::visit(NDQOpGeneric* ref) {
-    ref->getQArgs()->apply(this);
-    if (ref->wasGenerated() && isSwapGate(ref)) {
+    std::string lhs, rhs;
+
+    // Will only swap the values in the map if this is a swap call, and
+    // this call was created by the compiler.
+    bool applySwapBetweenQbits = ref->wasGenerated() && isSwapGate(ref);
+    if (applySwapBetweenQbits) {
         auto qArgs = ref->getQArgs();
-        auto childLhs = qArgs->getChild(0);
-        auto childRhs = qArgs->getChild(1);
-        assert(mAMap.find(childLhs->toString()) != mAMap.end() &&
-                "Swap LHS node mapping not found.");
-        assert(mAMap.find(childRhs->toString()) != mAMap.end() &&
-                "Swap RHS node mapping not found.");
-        std::swap(mAMap[childLhs->toString()], mAMap[childRhs->toString()]);
+        assert(qArgs->getChildNumber() == 2 && "Swap with more than two childrem.");
+        // Must get the references before renaming.
+        lhs = qArgs->getChild(0)->toString();
+        rhs = qArgs->getChild(1)->toString();
     }
+
+    // Rename the quantum arguments before swapping in order to preserve
+    // the order.
+    ref->getQArgs()->apply(this);
+
+    if (applySwapBetweenQbits)
+        std::swap(mAMap[lhs], mAMap[rhs]);
 }
 
 void efd::RenameQbitPass::visit(NDList* ref) {
     for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
         ref->setChild(i, getNodeFromOld(ref->getChild(i)));
     }
+}
+
+bool efd::RenameQbitPass::doesInvalidatesModule() const {
+    return true;
 }
 
 efd::RenameQbitPass* efd::RenameQbitPass::Create(ArchMap map) {
