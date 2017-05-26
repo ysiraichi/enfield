@@ -76,7 +76,7 @@ namespace efd {
             /// \brief Parses the string \p graphStr into a Graph representation.
             static std::unique_ptr<Graph> ReadString(std::string graphStr);
 
-            static bool ClassOf(Graph* g);
+            static bool ClassOf(const Graph* g);
     };
 }
 

@@ -117,7 +117,7 @@ std::unique_ptr<efd::Graph> efd::Graph::ReadString(std::string graphStr) {
     return ReadFromIn(in);
 }
 
-bool efd::Graph::ClassOf(Graph* g) {
+bool efd::Graph::ClassOf(const Graph* g) {
     return g->getKind() == K_GRAPH ||
         g->getKind() == K_ARCH_GRAPH;
 }

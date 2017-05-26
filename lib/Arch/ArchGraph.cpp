@@ -24,7 +24,8 @@ void efd::ArchGraph::preprocessVertexString(unsigned i, std::string s) {
 
     if (mRegs.find(id) == mRegs.end())
         mRegs[id] = dynCast<NDId>(refId);
-    mNodes[mGID] = NDIdRef::Create(refId, refInt);
+
+    mNodes[i] = NDIdRef::Create(refId, refInt);
 }
 
 efd::NodeRef efd::ArchGraph::getNode(unsigned i) const {
@@ -75,6 +76,6 @@ std::unique_ptr<efd::ArchGraph> efd::ArchGraph::ReadString(std::string graphStr)
     return ReadFromIn(in);
 }
 
-bool efd::ArchGraph::ClassOf(Graph* g) {
+bool efd::ArchGraph::ClassOf(const Graph* g) {
     return g->getKind() == K_ARCH_GRAPH;
 }
