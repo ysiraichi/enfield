@@ -1,2 +1,3 @@
 add_library (EfdArch
-    ArchGraph.cpp)
+    ArchGraph.cpp
+    Architectures.cpp)

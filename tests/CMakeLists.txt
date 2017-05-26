@@ -39,6 +39,9 @@ efd_test (QModuleCloneTests
 efd_test (ArchGraphTests
     EfdArch EfdAnalysis EfdCore EfdSupport)
 
+efd_test (IBMQX2Tests
+    EfdArch EfdAnalysis EfdCore EfdSupport)
+
 # ==-------- Transforms ----------==
 efd_test (DependencyBuilderPassTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
