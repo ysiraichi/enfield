@@ -59,8 +59,7 @@ TEST(CommandLineTest, RequiredAssertTest) {
 
     CREATE_ARGS(nArgs, "RequiredAssertTest",
             "-int", "0");
-    ASSERT_DEATH({ efd::ParseArguments(nArgs, argv); }, 
-            "ArgsParser not able to parse arguments correctly.");
+    ASSERT_EXIT({ efd::ParseArguments(nArgs, argv); }, ::testing::ExitedWithCode(0), "");
 }
 
 TEST(CommandLineTest, NotEnoughArgumentsTest) {
@@ -87,7 +86,7 @@ TEST(CommandLineTest, NoParserImplementedTest) {
 }
 
 namespace efd {
-    template <> void Opt<std::vector<int>>::parse(int argc, const char **argv) {
+    template <> void Opt<std::vector<int>>::parseImpl(int argc, const char **argv) {
         std::string sVector = argv[1];
         std::istringstream iVector(sVector);
 
