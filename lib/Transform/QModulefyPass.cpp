@@ -1,5 +1,5 @@
-#include "enfield/Analysis/QModulefyPass.h"
-#include "enfield/Analysis/IdTable.h"
+#include "enfield/Transform/QModulefyPass.h"
+#include "enfield/Transform/IdTable.h"
 #include "enfield/Support/RTTI.h"
 
 efd::QModulefyPass::QModulefyPass(QModule* qmod) : mMod(qmod) {

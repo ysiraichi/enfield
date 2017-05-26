@@ -1,8 +1,13 @@
 #include "enfield/Analysis/Driver.h"
-#include "enfield/Analysis/QModule.h"
-#include "enfield/Analysis/QModulefyPass.h"
-#include "enfield/Analysis/IdTable.h"
+#include "enfield/Transform/QModule.h"
+#include "enfield/Transform/QModulefyPass.h"
+#include "enfield/Transform/IdTable.h"
+#include "enfield/Transform/Utils.h"
+#include "enfield/Support/RTTI.h"
 #include "enfield/Pass.h"
+
+#include <cassert>
+#include <iterator>
 
 efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr), 
     mQModulefy(nullptr), mValid(true) {
@@ -10,6 +15,50 @@ efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr),
 
 efd::NodeRef efd::QModule::getVersion() {
     return mVersion;
+}
+
+efd::QModule::Iterator efd::QModule::insertGate(NDGateDecl* gate) {
+    NDStmtList* stmts;
+    Iterator it;
+
+    if (auto version = dynCast<NDQasmVersion>(mAST))
+        stmts = version->getStatements();
+    else
+        stmts = dynCast<NDStmtList>(mAST);
+
+    if (stmts == nullptr) {
+        assert(mAST == nullptr &&
+                "AST root node is neither the version nor a statement list.");
+        stmts = dynCast<NDStmtList>(NDStmtList::Create());
+    }
+
+    it = stmts->begin();
+    stmts->addChild(it, gate);
+
+    invalidate();
+    return it;
+}
+
+efd::QModule::Iterator efd::QModule::inlineCall(NDQOpGeneric* call) {
+    NodeRef parent = call->getParent();
+    Iterator it = parent->findChild(call);
+    unsigned dist = std::distance(parent->begin(), it);
+
+    InlineGate(this, call);
+    invalidate();
+    return parent->begin() + dist;
+}
+
+efd::QModule::Iterator efd::QModule::insertNodeAfter(Iterator it, NodeRef ref) {
+    InsertNodeAfter(it, ref);
+    invalidate();
+    return it;
+}
+
+efd::QModule::Iterator efd::QModule::insertNodeBefore(Iterator it, NodeRef ref) {
+    InsertNodeBefore(it, ref);
+    invalidate();
+    return it;
 }
 
 efd::QModule::Iterator efd::QModule::reg_begin() {

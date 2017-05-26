@@ -8,8 +8,11 @@
 
 namespace efd {
     struct ASTWrapper {
+        // The parser input
         std::string mFile;
         std::string mPath;
+
+        // The parser output
         NodeRef mAST;
     };
 

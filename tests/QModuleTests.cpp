@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Analysis/Driver.h"
-#include "enfield/Analysis/QModule.h"
+#include "enfield/Transform/QModule.h"
 #include "enfield/Support/RTTI.h"
 
 #include <string>

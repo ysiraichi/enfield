@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
-#include "enfield/Analysis/IdTable.h"
-#include "enfield/Analysis/QModule.h"
+#include "enfield/Transform/IdTable.h"
+#include "enfield/Transform/QModule.h"
 #include "enfield/Support/RTTI.h"
 
 #include <string>

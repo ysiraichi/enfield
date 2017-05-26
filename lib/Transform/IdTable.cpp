@@ -1,4 +1,4 @@
-#include "enfield/Analysis/IdTable.h"
+#include "enfield/Transform/IdTable.h"
 #include "enfield/Support/RTTI.h"
 
 efd::IdTable::IdTable(IdTable* parent) : mParent(parent) {

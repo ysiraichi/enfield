@@ -3,7 +3,7 @@
 
 #include "enfield/Pass.h"
 #include "enfield/Analysis/Nodes.h"
-#include "enfield/Analysis/QModule.h"
+#include "enfield/Transform/QModule.h"
 
 #include <unordered_map>
 #include <vector>

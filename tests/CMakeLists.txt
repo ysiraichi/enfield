@@ -26,15 +26,6 @@ efd_test (DriverTests
 efd_test (DriverFileTests
     EfdAnalysis EfdSupport)
 
-efd_test (QModuleTests
-    EfdAnalysis EfdCore EfdSupport)
-
-efd_test (IdTableTests
-    EfdAnalysis EfdCore EfdSupport)
-
-efd_test (QModuleCloneTests
-    EfdAnalysis EfdCore EfdSupport)
-
 # ==-------- Arch ----------==
 efd_test (ArchGraphTests
     EfdArch EfdAnalysis EfdCore EfdSupport)
@@ -43,6 +34,15 @@ efd_test (IBMQX2Tests
     EfdArch EfdAnalysis EfdCore EfdSupport)
 
 # ==-------- Transforms ----------==
+efd_test (QModuleTests
+    EfdTransform EfdAnalysis EfdCore EfdSupport)
+
+efd_test (IdTableTests
+    EfdTransform EfdAnalysis EfdCore EfdSupport)
+
+efd_test (QModuleCloneTests
+    EfdTransform EfdAnalysis EfdCore EfdSupport)
+
 efd_test (DependencyBuilderPassTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
 

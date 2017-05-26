@@ -15,8 +15,11 @@
 }
 
 %code provides {
-    static efd::Opt<std::vector<std::string>> IncludePath
-        ("I", "The include path.", std::vector<std::string>(), false);
+    #include <unordered_map>
+    #include <sstream>
+
+    extern efd::Opt<std::vector<std::string>> IncludePath;
+    extern std::unordered_map<std::string, std::string> StdLib;
 }
 
 %code provides {
@@ -173,34 +176,42 @@ statement: decl         { $$ = $1; }
          ;
 
 include: INCLUDE string ";"     {
+                                    std::istream* istr = nullptr;
                                     std::ifstream ifs;
+                                    std::istringstream iss;
                                     efd::ASTWrapper _ast;
 
-                                    std::vector<std::string> includePaths = IncludePath.getVal();
-                                    includePaths.push_back(ast.mPath);
+                                    std::string file = efd::dynCast<efd::NDString>($2)->getVal();
 
-                                    for (auto path : includePaths) {
-                                        _ast = efd::ASTWrapper { 
-                                            efd::dynCast<efd::NDString>($2)->getVal(), 
-                                            path,
-                                            nullptr 
-                                        };
+                                    if (StdLib.find(file) != StdLib.end()) {
+                                        _ast = efd::ASTWrapper { file, "./", nullptr };
+                                        iss.str(StdLib[file]);
+                                        istr = &iss;
+                                    } else {
+                                        std::vector<std::string> includePaths = IncludePath.getVal();
+                                        includePaths.push_back(ast.mPath);
 
-                                        ifs.open((_ast.mPath + _ast.mFile).c_str());
-                                        if (!ifs.fail()) break;
+                                        for (auto path : includePaths) {
+                                            _ast = efd::ASTWrapper { file, path, nullptr };
+                                            ifs.open((_ast.mPath + _ast.mFile).c_str());
+                                            if (!ifs.fail()) {
+                                                istr = &ifs;
+                                                break;
+                                            }
+                                        }
                                     }
 
-                                    if (ifs.fail()) {
+                                    if (istr == nullptr) {
                                         error(@$, "Could not open file: " + _ast.mPath + _ast.mFile);
                                         return 1;
                                     }
 
-                                    efd::yy::EfdParser parser(ast, scanner);
-                                    scanner.yypush_buffer_state(scanner.yy_create_buffer(&ifs, YY_BUF_SIZE));
+                                    efd::yy::EfdParser parser(_ast, scanner);
+                                    scanner.yypush_buffer_state(scanner.yy_create_buffer(istr, YY_BUF_SIZE));
                                     if (parser.parse()) return 1;
                                     scanner.yypop_buffer_state();
 
-                                    $$ = efd::NDInclude::Create($2, ast.mAST); 
+                                    $$ = efd::NDInclude::Create($2, _ast.mAST); 
                                 }
         ;
 

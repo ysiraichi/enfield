@@ -2,7 +2,7 @@
 #define __EFD_UTILS_H__
 
 #include "enfield/Analysis/Nodes.h"
-#include "enfield/Analysis/QModule.h"
+#include "enfield/Transform/QModule.h"
 
 namespace efd {
     /// \brief Inserts a node after \p it.

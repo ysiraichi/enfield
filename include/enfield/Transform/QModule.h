@@ -2,7 +2,7 @@
 #define __EFD_QMODULE_H__
 
 #include "enfield/Analysis/Nodes.h"
-#include "enfield/Analysis/IdTable.h"
+#include "enfield/Transform/IdTable.h"
 
 #include <unordered_map>
 
@@ -34,6 +34,15 @@ namespace efd {
 
             /// \brief Gets the qasm version.
             NodeRef getVersion();
+
+            /// \brief Inserts \p gate, and returns an iterator to this node.
+            Iterator insertGate(NDGateDecl* gate);
+            /// \brief Inlines \p call and returns an iterator to the first node inserted.
+            Iterator inlineCall(NDQOpGeneric* call);
+            /// \brief Inserts \p ref after \p it, and returns a iterator to this node.
+            Iterator insertNodeAfter(Iterator it, NodeRef ref);
+            /// \brief Inserts \p ref before \p it, and returns a iterator to this node.
+            Iterator insertNodeBefore(Iterator it, NodeRef ref);
 
             /// \brief Iterator to the beginning of the register node vector.
             Iterator reg_begin();

@@ -2,7 +2,7 @@
 #define __EFD_FLATTEN_PASS_H__
 
 #include "enfield/Pass.h"
-#include "enfield/Analysis/QModule.h"
+#include "enfield/Transform/QModule.h"
 
 namespace efd {
     /// \brief Flattens the given QModule.
