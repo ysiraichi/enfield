@@ -24,6 +24,15 @@ std::vector<std::string> ProgVarNames;
 const int SwapCost = 7;
 const int RevCost = 4;
 
+void printMapping(vector<int> &mapping) {
+    cout << "Prog -> Phys" << endl;
+
+    for (int i = 0; i < mapping.size(); ++i) {
+        if (mapping[i] != -1)
+            cout << ProgVarNames[i] << " -> " << PhysVarNames[mapping[i]] << endl;
+    }
+}
+
 Graph* readGraph(string filename, vector<string> &var) {
     ifstream ifs(filename.c_str());
 
@@ -142,9 +151,6 @@ void swapPath(Graph &physGraph, vector<int> &mapping, vector<int> path, ostream 
             mapping[a] = v;
         if (b != -1)
             mapping[b] = u;
-
-        path[i-1] = v;
-        path[i] = u;
     }
 }
 
@@ -159,6 +165,7 @@ vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping, int &cos
         pair<int, int> dep = dependencies[t];
         vector<int> current = mappings.back();
 
+        // (u, v) is in Phys
         int u = current[dep.first], v = current[dep.second];
         if (u == -1) {
             u = getFreeVertex(physGraph, current);
@@ -187,15 +194,6 @@ vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping, int &cos
     }
 
     return mappings;
-}
-
-void printMapping(vector<int> &mapping) {
-    cout << "Prog -> Phys" << endl;
-
-    for (int i = 0; i < mapping.size(); ++i) {
-        if (mapping[i] != -1)
-            cout << ProgVarNames[i] << " -> " << PhysVarNames[mapping[i]] << endl;
-    }
 }
 
 void readArgs(int argc, char **argv) {
