@@ -73,16 +73,16 @@ static unsigned getNQbits(efd::QbitAllocator::DepsSet& deps) {
     return qbitSet.size();
 }
 
-static std::vector<unsigned> genAssign(std::vector<unsigned> mapping) {
-    std::vector<unsigned> assign(mapping.size(), -1);
+static std::vector<unsigned> genAssign(unsigned archQbits, std::vector<unsigned> mapping) {
+    std::vector<unsigned> assign(archQbits, -1);
     for (int i = 0, e = mapping.size(); i < e; ++i)
         assign[mapping[i]] = i;
     return assign;
 }
 
-static void swapAll(std::vector<unsigned>& uMap, 
+static void swapAll(unsigned archQbits, std::vector<unsigned>& uMap, 
         std::vector<efd::QbitAllocator::Swap> swapSet) {
-    std::vector<unsigned> assign = genAssign(uMap);
+    std::vector<unsigned> assign = genAssign(archQbits, uMap);
 
     for (auto swp : swapSet) {
         unsigned u = swp.mU;
@@ -91,7 +91,8 @@ static void swapAll(std::vector<unsigned>& uMap,
         unsigned progU = assign[u];
         unsigned progV = assign[v];
 
-        std::swap(uMap[progU], uMap[progV]);
+        if (progU != -1 && progV != -1)
+            std::swap(uMap[progU], uMap[progV]);
         std::swap(assign[u], assign[v]);
     }
 }
@@ -110,8 +111,8 @@ static void printSV(unsigned idx, std::vector<unsigned> map, SwapVal& sv, bool e
 }
 
 std::vector<unsigned> efd::DynProgQbitAllocator::getUMapping(DepsSet& deps) {
-    std::unordered_map<std::string, PermVal> permMap = genPermutationMap
-        (mArchGraph->size(), getNumQbits());
+    unsigned archQbits = mArchGraph->size();
+    std::unordered_map<std::string, PermVal> permMap = genPermutationMap(archQbits, getNumQbits());
 
     int permN = permMap.size();
     int depN = deps.size();
@@ -178,7 +179,7 @@ std::vector<unsigned> efd::DynProgQbitAllocator::getUMapping(DepsSet& deps) {
 
                 std::vector<Swap> swapSet = mSFind->findSwaps
                     (RestrictionVector { Rest { u, v } });
-                swapAll(newMapping, swapSet);
+                swapAll(archQbits, newMapping, swapSet);
 
                 targetIdx = permMap[vecToKey(newMapping)].idx;
                 target = &swaps[targetIdx][t];
@@ -221,7 +222,7 @@ efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet
     // Map Prog -> Arch
     std::vector<unsigned> uMap = getUMapping(deps);
     // Map Arch -> Prog
-    std::vector<unsigned> uAssignMap = genAssign(uMap);
+    std::vector<unsigned> uAssignMap = genAssign(mArchGraph->size(), uMap);
 
     // Adding the swaps for this mapping.
     for (auto it = deps.begin(), e = deps.end(); it != e; ++it) {
