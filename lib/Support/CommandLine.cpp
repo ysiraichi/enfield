@@ -16,9 +16,11 @@ namespace efd {
 
     class ArgsParser {
         public:
+            static bool WasDestructed;
             std::unordered_map<std::string, std::vector<OptBase*> > mArgMap;
 
             ArgsParser() {}
+            ~ArgsParser() { WasDestructed = true; }
 
             bool hasOpt(OptBase* opt);
             void addOpt(OptBase* opt);
@@ -26,6 +28,8 @@ namespace efd {
     };
 
 };
+
+bool efd::ArgsParser::WasDestructed = false;
 
 bool efd::ArgsParser::hasOpt(OptBase* opt) {
     return mArgMap.find(opt->mName) != mArgMap.end();
@@ -43,18 +47,24 @@ void efd::ArgsParser::addOpt(OptBase* opt) {
 void efd::ArgsParser::delOpt(OptBase* opt) {
     if (hasOpt(opt)) {
         std::vector<OptBase*> &optVector = mArgMap[opt->mName];
-        for (std::vector<OptBase*>::iterator it = optVector.begin(), e = optVector.end(); it != e; ++it)
-            if (opt == *it) optVector.erase(it);
 
-        if (optVector.empty())
+        if (optVector.size() == 1)
             mArgMap.erase(mArgMap.find(opt->mName));
+        else {
+            for (auto it = optVector.begin(), e = optVector.end(); it != e; ++it)
+                if (opt == *it) {
+                    optVector.erase(it);
+                    break;
+                }
+        }
+
     }
 }
 
 static std::shared_ptr<ArgsParser> Parser(nullptr);
 static efd::Opt<bool> PrintHelp("help", "Prints a list with the available commands.", false, false);
 
-static std::shared_ptr<ArgsParser> getParser() {
+static std::shared_ptr<ArgsParser> GetParser() {
     if (Parser.get() == nullptr)
         Parser.reset(new ArgsParser());
 
@@ -63,7 +73,7 @@ static std::shared_ptr<ArgsParser> getParser() {
 
 
 template <>
-void efd::Opt<bool>::parse(const int argc, const char **argv) {
+void efd::Opt<bool>::parseImpl(const int argc, const char **argv) {
     mVal = true;
 }
 
@@ -71,56 +81,63 @@ template <>
 bool efd::Opt<bool>::isBoolean() { return true; }
 
 template <>
-void efd::Opt<int>::parse(const int argc, const char **argv) {
+void efd::Opt<int>::parseImpl(const int argc, const char **argv) {
     assert(argc >= 2 && "Not enough command line arguments.");
     mVal = std::stoi(std::string(argv[1]));
 }
 
 template <>
-void efd::Opt<unsigned>::parse(const int argc, const char **argv) {
+void efd::Opt<unsigned>::parseImpl(const int argc, const char **argv) {
     assert(argc >= 2 && "Not enough command line arguments.");
     mVal = std::stoul(std::string(argv[1]));
 }
 
 template <>
-void efd::Opt<long long>::parse(const int argc, const char **argv) {
+void efd::Opt<long long>::parseImpl(const int argc, const char **argv) {
     assert(argc >= 2 && "Not enough command line arguments.");
     mVal = std::stoll(std::string(argv[1]));
 }
 
 template <>
-void efd::Opt<unsigned long long>::parse(const int argc, const char **argv) {
+void efd::Opt<unsigned long long>::parseImpl(const int argc, const char **argv) {
     assert(argc >= 2 && "Not enough command line arguments.");
     mVal = std::stoull(std::string(argv[1]));
 }
 
 template <>
-void efd::Opt<float>::parse(const int argc, const char **argv) {
+void efd::Opt<float>::parseImpl(const int argc, const char **argv) {
     assert(argc >= 2 && "Not enough command line arguments.");
     mVal = std::stof(std::string(argv[1]));
 }
 
 template <>
-void efd::Opt<double>::parse(const int argc, const char **argv) {
+void efd::Opt<double>::parseImpl(const int argc, const char **argv) {
     assert(argc >= 2 && "Not enough command line arguments.");
     mVal = std::stod(std::string(argv[1]));
 }
 
 template <>
-void efd::Opt<std::string>::parse(const int argc, const char **argv) {
+void efd::Opt<std::string>::parseImpl(const int argc, const char **argv) {
     assert(argc >= 2 && "Not enough command line arguments.");
     mVal = std::string(argv[1]);
+}
+
+template <>
+void efd::Opt<std::vector<std::string>>::parseImpl(const int argc, const char **argv) {
+    assert(argc >= 2 && "Not enough command line arguments.");
+    mVal.push_back(std::string(argv[1]));
 }
 
 efd::OptBase::OptBase(std::string name, std::string description, bool isRequired) : 
     mName(name), mDescription(description), mIsRequired(isRequired), mIsParsed(false) {
 
-    std::shared_ptr<ArgsParser> Parser = getParser();
+    std::shared_ptr<ArgsParser> Parser = GetParser();
     Parser->addOpt(this);
 }
 
 efd::OptBase::~OptBase() {
-    std::shared_ptr<ArgsParser> Parser = getParser();
+    if (ArgsParser::WasDestructed) return;
+    std::shared_ptr<ArgsParser> Parser = GetParser();
     Parser->delOpt(this);
 }
 
@@ -132,8 +149,13 @@ bool efd::OptBase::isRequired() {
     return mIsRequired;
 }
 
+void efd::OptBase::parse(const int argc, const char **argv) {
+    parseImpl(argc, argv);
+    mIsParsed = true;
+}
+
 static void PrintCommandLineHelp() {
-    std::shared_ptr<ArgsParser> Parser = getParser();
+    std::shared_ptr<ArgsParser> Parser = GetParser();
 
     std::cout << "Arguments:" << std::endl;
 
@@ -144,8 +166,14 @@ static void PrintCommandLineHelp() {
     }
 }
 
+void efd::ParseArguments(int argc, char** argv) {
+    const int cArgc = argc;
+    const char** cArgv = (const char**) argv;
+    efd::ParseArguments(cArgc, cArgv);
+}
+
 void efd::ParseArguments(const int argc, const char **argv) {
-    std::shared_ptr<ArgsParser> Parser = getParser();
+    std::shared_ptr<ArgsParser> Parser = GetParser();
 
     for (int i = 1; i < argc; ++i) {
         // Removing the initial '-'
@@ -176,6 +204,6 @@ void efd::ParseArguments(const int argc, const char **argv) {
 
     if (PrintHelp.getVal() || !requirementsFulfilled) {
         PrintCommandLineHelp();
-        assert(false && "ArgsParser not able to parse arguments correctly.");
+        exit(0);
     }
 }
