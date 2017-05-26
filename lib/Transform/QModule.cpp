@@ -198,8 +198,9 @@ std::unique_ptr<efd::QModule> efd::QModule::GetFromAST(NodeRef ref) {
     return qmod;
 }
 
-std::unique_ptr<efd::QModule> efd::QModule::Parse(std::string filename, std::string path) {
-    NodeRef ast = efd::ParseFile(filename, path);
+std::unique_ptr<efd::QModule> efd::QModule::Parse(std::string filename, 
+        std::string path, bool forceStdLib) {
+    NodeRef ast = efd::ParseFile(filename, path, forceStdLib);
 
     if (ast != nullptr)
         return GetFromAST(ast);
@@ -207,8 +208,8 @@ std::unique_ptr<efd::QModule> efd::QModule::Parse(std::string filename, std::str
     return std::unique_ptr<QModule>(nullptr);
 }
 
-std::unique_ptr<efd::QModule> efd::QModule::ParseString(std::string program) {
-    NodeRef ast = efd::ParseString(program);
+std::unique_ptr<efd::QModule> efd::QModule::ParseString(std::string program, bool forceStdLib) {
+    NodeRef ast = efd::ParseString(program, forceStdLib);
 
     if (ast != nullptr)
         return GetFromAST(ast);

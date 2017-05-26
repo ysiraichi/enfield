@@ -102,9 +102,10 @@ namespace efd {
             /// \brief Process the AST in order to obtain the QModule.
             static std::unique_ptr<QModule> GetFromAST(NodeRef ref);
             /// \brief Parses the file \p filename and returns a QModule.
-            static std::unique_ptr<QModule> Parse(std::string filename, std::string path = "./");
+            static std::unique_ptr<QModule> Parse(std::string filename, std::string path = "./",
+                    bool forceStdLib = true);
             /// \brief Parses the string \p program and returns a QModule.
-            static std::unique_ptr<QModule> ParseString(std::string program);
+            static std::unique_ptr<QModule> ParseString(std::string program, bool forceStdLib = true);
 
 
             friend class QModulefyPass;
