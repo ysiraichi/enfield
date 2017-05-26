@@ -5,12 +5,18 @@
     #include "enfield/Analysis/Driver.h"
     #include "enfield/Support/WrapperVal.h"
     #include "enfield/Support/RTTI.h"
+    #include "enfield/Support/CommandLine.h"
 
     namespace efd {
         class EfdScanner;
     };
 
     typedef efd::Node* NodeRef;
+}
+
+%code provides {
+    static efd::Opt<std::vector<std::string>> IncludePath
+        ("I", "The include path.", { "./" }, false);
 }
 
 %code provides {
@@ -167,13 +173,20 @@ statement: decl         { $$ = $1; }
          ;
 
 include: INCLUDE string ";"     {
-                                    efd::ASTWrapper _ast { 
-                                        efd::dynCast<efd::NDString>($2)->getVal(), 
-                                        ast.mPath,
-                                        nullptr 
-                                    };
+                                    std::ifstream ifs;
+                                    efd::ASTWrapper _ast;
 
-                                    std::ifstream ifs((_ast.mPath + _ast.mFile).c_str());
+                                    for (auto path : IncludePath.getVal()) {
+                                        _ast = efd::ASTWrapper { 
+                                            efd::dynCast<efd::NDString>($2)->getVal(), 
+                                            path,
+                                            nullptr 
+                                        };
+
+                                        ifs.open((_ast.mPath + _ast.mFile).c_str());
+                                        if (!ifs.fail()) break;
+                                    }
+
                                     if (ifs.fail()) {
                                         error(@$, "Could not open file: " + _ast.mPath + _ast.mFile);
                                         return 1;
