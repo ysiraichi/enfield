@@ -139,6 +139,7 @@ test q[4], q[1], q[0];\
 ";
         const std::string result =
 "\
+gate __swap__ a, b {cx a, b;h a;h b;cx a, b;h a;h b;cx a, b;}\
 qreg q[5];\
 gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
 CX q[0], q[1];\
