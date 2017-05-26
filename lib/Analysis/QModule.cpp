@@ -6,7 +6,10 @@
 
 efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr), 
     mQModulefy(nullptr), mValid(true) {
-    mTable = IdTable::create();
+}
+
+efd::NodeRef efd::QModule::getVersion() {
+    return mVersion;
 }
 
 efd::QModule::Iterator efd::QModule::reg_begin() {
@@ -65,19 +68,19 @@ std::string efd::QModule::toString(bool pretty) const {
     return mAST->toString(pretty);
 }
 
-efd::IdTable* efd::QModule::getIdTable(NDGateDecl* ref) {
+efd::IdTable& efd::QModule::getIdTable(NDGateDecl* ref) {
     if (ref != nullptr && mIdTableMap.find(ref) != mIdTableMap.end())
         return mIdTableMap[ref];
     return mTable;
 }
 
 efd::NodeRef efd::QModule::getQVar(std::string id, NDGateDecl* gate, bool recursive) {
-    IdTable* gTable = getIdTable(gate);
-    return gTable->getQVar(id, recursive);
+    IdTable& gTable = getIdTable(gate);
+    return gTable.getQVar(id, recursive);
 }
 
 efd::NDGateDecl* efd::QModule::getQGate(std::string id, bool recursive) {
-    return mTable->getQGate(id, recursive);
+    return mTable.getQGate(id, recursive);
 }
 
 void efd::QModule::invalidate() {

@@ -45,18 +45,18 @@ TEST(IdTableTests, SingletonTest) {
     NDGateDecl* ref;
     ref = mod->getQGate("id");
     ASSERT_FALSE(ref == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("a", false) == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("q", true) == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("c", true) == nullptr);
-    ASSERT_TRUE(mod->getIdTable(ref)->getQVar("q", false) == nullptr);
-    ASSERT_TRUE(mod->getIdTable(ref)->getQVar("c", false) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref).getQVar("a", false) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref).getQVar("q", true) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref).getQVar("c", true) == nullptr);
+    ASSERT_TRUE(mod->getIdTable(ref).getQVar("q", false) == nullptr);
+    ASSERT_TRUE(mod->getIdTable(ref).getQVar("c", false) == nullptr);
 
     ref = mod->getQGate("cnot");
     ASSERT_FALSE(ref == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("a", false) == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("b", false) == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("q", true) == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("c", true) == nullptr);
-    ASSERT_TRUE(mod->getIdTable(ref)->getQVar("q", false) == nullptr);
-    ASSERT_TRUE(mod->getIdTable(ref)->getQVar("c", false) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref).getQVar("a", false) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref).getQVar("b", false) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref).getQVar("q", true) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref).getQVar("c", true) == nullptr);
+    ASSERT_TRUE(mod->getIdTable(ref).getQVar("q", false) == nullptr);
+    ASSERT_TRUE(mod->getIdTable(ref).getQVar("c", false) == nullptr);
 }

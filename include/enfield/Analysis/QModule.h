@@ -2,12 +2,12 @@
 #define __EFD_QMODULE_H__
 
 #include "enfield/Analysis/Nodes.h"
+#include "enfield/Analysis/IdTable.h"
 
 #include <unordered_map>
 
 namespace efd {
     class QModulefyPass;
-    class IdTable;
     class Pass;
 
     /// \brief Qasm module representation.
@@ -20,8 +20,8 @@ namespace efd {
             std::vector<NodeRef> mGates;
             std::vector<NodeRef> mStatements;
 
-            IdTable* mTable;
-            std::unordered_map<NodeRef, IdTable*> mIdTableMap;
+            IdTable mTable;
+            std::unordered_map<NodeRef, IdTable> mIdTableMap;
 
             bool mValid;
             QModulefyPass* mQModulefy;
@@ -68,7 +68,7 @@ namespace efd {
             std::string toString(bool pretty = false) const;
 
             /// \brief Gets the mapped IdTable.
-            IdTable* getIdTable(NDGateDecl* ref);
+            IdTable& getIdTable(NDGateDecl* ref);
 
             /// \brief Gets the quantum variable mapped to \p id from some gate.
             NodeRef getQVar(std::string id, NDGateDecl* gate = nullptr, bool recursive = true);

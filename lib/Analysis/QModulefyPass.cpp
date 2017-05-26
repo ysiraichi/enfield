@@ -7,7 +7,7 @@ efd::QModulefyPass::QModulefyPass(QModule* qmod) : mMod(qmod) {
 }
 
 void efd::QModulefyPass::initImpl() {
-    mCurrentTable = mMod->mTable;
+    mCurrentTable = &mMod->mTable;
 }
 
 void efd::QModulefyPass::visit(NDQasmVersion* ref) {
@@ -29,8 +29,8 @@ void efd::QModulefyPass::visit(NDGateDecl* ref) {
     mMod->mGates.push_back(ref);
     mCurrentTable->addQGate(ref->getId()->getVal(), ref);
 
-    mCurrentTable = IdTable::create(mCurrentTable);
-    mMod->mIdTableMap[ref] = mCurrentTable;
+    mMod->mIdTableMap[ref] = IdTable(mCurrentTable);
+    mCurrentTable = &mMod->mIdTableMap[ref];
     for (auto varRef : *ref->getQArgs()) {
         std::string id = dynCast<NDId>(varRef)->getVal();
         mCurrentTable->addQVar(id, varRef);
@@ -40,10 +40,10 @@ void efd::QModulefyPass::visit(NDGateDecl* ref) {
 
 void efd::QModulefyPass::visit(NDOpaque* ref) {
     mMod->mGates.push_back(ref);
-
     mCurrentTable->addQGate(ref->getId()->getVal(), ref);
-    mMod->mIdTableMap[ref] = mCurrentTable;
-    mCurrentTable = IdTable::create(mCurrentTable);
+
+    mMod->mIdTableMap[ref] = IdTable(mCurrentTable);
+    mCurrentTable = &mMod->mIdTableMap[ref];
     for (auto varRef : *ref->getQArgs()) {
         std::string id = dynCast<NDId>(varRef)->getVal();
         mCurrentTable->addQVar(id, varRef);
