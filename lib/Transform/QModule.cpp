@@ -10,7 +10,7 @@
 #include <iterator>
 
 efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr), 
-    mQModulefy(nullptr), mValid(true) {
+    mQModulefy(nullptr), mValid(true), mStdLibsParsed(false) {
 }
 
 efd::NodeRef efd::QModule::getVersion() {

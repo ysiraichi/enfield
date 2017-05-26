@@ -4,11 +4,14 @@
 #include "enfield/Pass.h"
 #include "enfield/Transform/QModule.h"
 
+#include <set>
+
 namespace efd {
     class IdTable;
 
     class QModulefyPass : public Pass {
         private:
+            std::set<std::string> mIncludes;
             QModulefyPass(QModule* qmod);
 
         protected:

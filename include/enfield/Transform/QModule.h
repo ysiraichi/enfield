@@ -24,6 +24,7 @@ namespace efd {
             std::unordered_map<NodeRef, IdTable> mIdTableMap;
 
             bool mValid;
+            bool mStdLibsParsed;
             QModulefyPass* mQModulefy;
 
             QModule(NodeRef ref);

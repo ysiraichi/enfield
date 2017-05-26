@@ -2,12 +2,17 @@
 #include "enfield/Transform/IdTable.h"
 #include "enfield/Support/RTTI.h"
 
+#include <unordered_map>
+
+extern std::unordered_map<std::string, std::string> StdLib;
+
 efd::QModulefyPass::QModulefyPass(QModule* qmod) : mMod(qmod) {
     mUK = Pass::K_AST_PASS;
 }
 
 void efd::QModulefyPass::initImpl() {
     mCurrentTable = &mMod->mTable;
+    mIncludes.clear();
 }
 
 void efd::QModulefyPass::visit(NDQasmVersion* ref) {
@@ -17,6 +22,9 @@ void efd::QModulefyPass::visit(NDQasmVersion* ref) {
 }
 
 void efd::QModulefyPass::visit(NDInclude* ref) {
+    mIncludes.insert(ref->getFilename()->getVal());
+    if (mIncludes.size() == StdLib.size())
+        mMod->mStdLibsParsed = true;
     ref->getStatements()->apply(this);
 }
 
