@@ -23,7 +23,7 @@ void efd::ArchGraph::preprocessVertexString(unsigned i, std::string s) {
     NodeRef refInt = NDInt::Create(nStr);
 
     if (mRegs.find(id) == mRegs.end())
-        mRegs[id] = dynCast<NDId>(refId);
+        mRegs[id] = std::stoul(nStr);
 
     mNodes[i] = NDIdRef::Create(refId, refInt);
 }
