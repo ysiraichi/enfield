@@ -1,7 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include "enfield/Transform/GateInline.h"
+#include "enfield/Transform/Utils.h"
 #include "enfield/Analysis/QModule.h"
 #include "enfield/Support/RTTI.h"
 

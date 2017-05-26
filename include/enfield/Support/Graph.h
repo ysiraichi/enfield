@@ -9,6 +9,12 @@
 namespace efd {
     /// \brief Graph representation.
     class Graph {
+        public:
+            enum Kind {
+                K_GRAPH,
+                K_ARCH_GRAPH
+            };
+
         private:
             unsigned mN;
             std::vector<std::set<unsigned>> mSuccessors;
@@ -18,9 +24,17 @@ namespace efd {
             std::vector<std::string> mId; 
             std::unordered_map<std::string, unsigned> mStrToId;
     
+        protected:
+            unsigned mGID;
+            Kind mK;
+
             Graph(unsigned n);
+            Graph(unsigned n, Kind k);
 
         public:
+            /// \brief Returns the class of the graph.
+            Kind getKind() const;
+
             /// \brief Return the degree entering the vertex \p i.
             unsigned inDegree(unsigned i) const;
             /// \brief Return the degree leaving the vertex \p i.
@@ -61,6 +75,8 @@ namespace efd {
 
             /// \brief Parses the string \p graphStr into a Graph representation.
             static std::unique_ptr<Graph> ReadString(std::string graphStr);
+
+            static bool ClassOf(const Graph* g);
     };
 }
 

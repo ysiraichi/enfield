@@ -32,8 +32,11 @@ void efd::QbitToNumberPass::visit(NDDecl* ref) {
     // number to each possible qbit.
     // 
     // For example, 'qreg q[5];' generates 'q[0]', 'q[1]', ...
-    for (int i = 0; i < size.mV; ++i)
-        mGIdMap.push_back(id + "[" + std::to_string(i) +"]");
+    for (int i = 0; i < size.mV; ++i) {
+        std::string key = id + "[" + std::to_string(i) +"]";
+        NodeRef ref = NDIdRef::Create(NDId::Create(id), NDInt::Create(std::to_string(i)));
+        mGIdMap.push_back(QbitInfo { key, ref });
+    }
 }
 
 void efd::QbitToNumberPass::visit(NDGateDecl* ref) {
@@ -44,7 +47,7 @@ void efd::QbitToNumberPass::visit(NDGateDecl* ref) {
         // will be mapped to a number.
         for (auto childRef : *ref->getQArgs()) {
             NDId* idref = dynCast<NDId>(childRef);
-            mLIdMap[ref].push_back(idref->getVal());
+            mLIdMap[ref].push_back(QbitInfo { idref->getVal(), idref->clone() });
         }
     }
 }
@@ -55,7 +58,7 @@ unsigned efd::QbitToNumberPass::getUId(std::string id, NDGateDecl* gate) const {
     unsigned index = 0;
     auto it = map->begin();
     for (auto end = map->end(); it != end; ++it, ++index)
-        if (*it == id) break;
+        if (it->mKey == id) break;
 
     assert(it != map->end() && "Id not found.");
     return index;
@@ -69,7 +72,13 @@ unsigned efd::QbitToNumberPass::getSize(NDGateDecl* gate) const {
 std::string efd::QbitToNumberPass::getStrId(unsigned id, NDGateDecl* gate) const {
     const QbitMap* map = getMap(gate);
     assert(id < map->size() && "Id trying to access out of bounds value.");
-    return map->at(id);
+    return map->at(id).mKey;
+}
+
+efd::NodeRef efd::QbitToNumberPass::getNode(unsigned id, NDGateDecl* gate) const {
+    const QbitMap* map = getMap(gate);
+    assert(id < map->size() && "Id trying to access out of bounds value.");
+    return map->at(id).mRef;
 }
 
 efd::QbitToNumberPass* efd::QbitToNumberPass::Create() {
@@ -168,7 +177,7 @@ void efd::DependencyBuilderPass::visit(NDQOpCX* ref) {
     unsigned controlQ = getUId(ref->getLhs());
     unsigned invertQ = getUId(ref->getRhs());
 
-    Dependencies depV { { Dep { controlQ, invertQ } }, nullptr };
+    Dependencies depV { { Dep { controlQ, invertQ } }, ref };
     deps->push_back(depV);
 }
 
@@ -189,7 +198,7 @@ void efd::DependencyBuilderPass::visit(NDQOpGeneric* ref) {
     assert(gRef != nullptr && "There is no quantum gate with this id.");
 
     DepsSet& gDeps = mLDeps[gRef];
-    Dependencies thisDeps;
+    Dependencies thisDeps { {}, ref };
     // For every qarg unsigned representation
     for (auto parallelDeps : gDeps) {
         for (auto dep : parallelDeps) {

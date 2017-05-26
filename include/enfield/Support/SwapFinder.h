@@ -1,25 +1,30 @@
-#ifndef __EFD_SWAP_FINDING_H__
-#define __EFD_SWAP_FINDING_H__
+#ifndef __EFD_SWAP_FINDER_H__
+#define __EFD_SWAP_FINDER_H__
 
 #include "enfield/Support/Graph.h"
 
 namespace efd {
     /// \brief Interface for finding the swaps to be done, given a number of
     /// restrictions.
-    class SwapFinding {
+    class SwapFinder {
         protected:
             Graph* mG;
 
-            SwapFinding(Graph* g) : mG(g) {}
+            SwapFinder(Graph* g) : mG(g) {}
 
         public:
             /// \brief Struct for representing swaps.
             struct Swap {
-                unsigned u;
-                unsigned v;
+                unsigned mU;
+                unsigned mV;
             };
 
-            typedef std::vector<std::pair<unsigned, unsigned>> RestrictionVector;
+            struct Rest {
+                unsigned mFrom;
+                unsigned mTo;
+            };
+
+            typedef std::vector<Rest> RestrictionVector;
             typedef std::vector<Swap> SwapVector;
 
             /// \brief Given a std::vector of restrictions (edges in a graph), it returns

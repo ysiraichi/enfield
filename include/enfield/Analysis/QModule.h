@@ -23,6 +23,9 @@ namespace efd {
             IdTable* mTable;
             std::unordered_map<NodeRef, IdTable*> mIdTableMap;
 
+            bool mValid;
+            QModulefyPass* mQModulefy;
+
             QModule(NodeRef ref);
 
         public:
@@ -71,6 +74,14 @@ namespace efd {
             NodeRef getQVar(std::string id, NDGateDecl* gate = nullptr, bool recursive = true);
             /// \brief Gets the quantum gate mapped to \p id.
             NDGateDecl* getQGate(std::string id, bool recursive = true);
+
+            /// \brief Invalidates the current QModule.
+            void invalidate();
+            /// \brief Validates the current QModule. This means that the information that
+            /// is in its properties are valid.
+            void validate();
+            /// \brief Returns true if this QModule is valid.
+            bool isValid();
 
             /// \brief Applies the pass in the QModule. If the pass has already been applied,
             /// it won't be applied again unless \p force is set.

@@ -6,10 +6,20 @@
 #include <cassert>
 
 // ----------------------------- Graph -------------------------------
-efd::Graph::Graph(unsigned n) : mN(n) {
+efd::Graph::Graph(unsigned n) : mN(n), mGID(0), mK(K_GRAPH) {
     mSuccessors.assign(n, std::set<unsigned>());
     mPredecessors.assign(n, std::set<unsigned>());
     mId.assign(n, std::string());
+}
+
+efd::Graph::Graph(unsigned n, Kind k) : mN(n), mGID(0), mK(k) {
+    mSuccessors.assign(n, std::set<unsigned>());
+    mPredecessors.assign(n, std::set<unsigned>());
+    mId.assign(n, std::string());
+}
+
+efd::Graph::Kind efd::Graph::getKind() const {
+    return mK;
 }
 
 unsigned efd::Graph::inDegree(unsigned i) const {
@@ -45,7 +55,8 @@ void efd::Graph::putEdge(unsigned i, unsigned j) {
 unsigned efd::Graph::putVertex(std::string s) {
     if (mStrToId.find(s) != mStrToId.end())
         return mStrToId[s];
-    unsigned idx = mStrToId.size();
+    unsigned idx = mGID++;
+    mId[idx] = s;
     mStrToId[s] = idx;
     return idx;
 }
@@ -104,4 +115,9 @@ std::unique_ptr<efd::Graph> efd::Graph::Read(std::string filepath) {
 std::unique_ptr<efd::Graph> efd::Graph::ReadString(std::string graphStr) {
     std::stringstream in(graphStr);
     return ReadFromIn(in);
+}
+
+bool efd::Graph::ClassOf(const Graph* g) {
+    return g->getKind() == K_GRAPH ||
+        g->getKind() == K_ARCH_GRAPH;
 }

@@ -50,6 +50,14 @@ bool efd::Node::isEmpty() const {
     return mIsEmpty;  
 }
 
+bool efd::Node::wasGenerated() const {
+    return mWasGenerated;
+}
+
+void efd::Node::setGenerated() {
+    mWasGenerated = true;
+}
+
 efd::NodeRef efd::Node::getParent() const {
     return mParent;
 }

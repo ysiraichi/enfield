@@ -13,6 +13,9 @@ efd_test (CommandLineTests
 efd_test (GraphTests
     EfdSupport)
 
+efd_test (OneRestrictionSwapFinderTests
+    EfdSupport)
+
 # ==-------- Analysis ----------==
 efd_test (ASTNodeTests
     EfdAnalysis EfdSupport)
@@ -32,6 +35,13 @@ efd_test (IdTableTests
 efd_test (QModuleCloneTests
     EfdAnalysis EfdCore EfdSupport)
 
+# ==-------- Arch ----------==
+efd_test (ArchGraphTests
+    EfdArch EfdAnalysis EfdCore EfdSupport)
+
+efd_test (IBMQX2Tests
+    EfdArch EfdAnalysis EfdCore EfdSupport)
+
 # ==-------- Transforms ----------==
 efd_test (DependencyBuilderPassTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
@@ -39,6 +49,12 @@ efd_test (DependencyBuilderPassTests
 efd_test (FlattenPassTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
 
-efd_test (GateInlineTests
+efd_test (TransformUtilsTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
+
+efd_test (RenameQbitsPassTests
+    EfdTransform EfdAnalysis EfdCore EfdSupport)
+
+efd_test (DynProgQbitAllocatorTests
+    EfdTransform EfdArch EfdAnalysis EfdCore EfdSupport)
 
