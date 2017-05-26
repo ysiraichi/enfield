@@ -29,6 +29,9 @@ namespace efd {
 
             QModule(NodeRef ref);
 
+            /// \brief Registers the swap gate in the module.
+            void registerSwapGate();
+
         public:
             typedef std::vector<NodeRef>::iterator Iterator;
             typedef std::vector<NodeRef>::const_iterator ConstIterator;
@@ -36,14 +39,23 @@ namespace efd {
             /// \brief Gets the qasm version.
             NodeRef getVersion();
 
-            /// \brief Inserts \p gate, and returns an iterator to this node.
-            Iterator insertGate(NDGateDecl* gate);
+            void replaceAllRegsWith(std::vector<NDDecl*> newRegs);
+
+            /// \brief Inserts \p node at the beginning of the file, and return an iterator
+            /// to it.
+            Iterator insertAtBeginning(NodeRef node);
             /// \brief Inlines \p call and returns an iterator to the first node inserted.
             Iterator inlineCall(NDQOpGeneric* call);
             /// \brief Inserts \p ref after \p it, and returns a iterator to this node.
             Iterator insertNodeAfter(Iterator it, NodeRef ref);
             /// \brief Inserts \p ref before \p it, and returns a iterator to this node.
             Iterator insertNodeBefore(Iterator it, NodeRef ref);
+            /// \brief Inserts a swap call between \p lhs and \p rhs, before the iterator location. 
+            /// Returns a iterator to the first swap instruction.
+            Iterator insertSwapAfter(Iterator it, NodeRef lhs, NodeRef rhs);
+            /// \brief Inserts a swap call between \p lhs and \p rhs, after the iterator location. 
+            /// Returns the iterator on the same position.
+            Iterator insertSwapBefore(Iterator it, NodeRef lhs, NodeRef rhs);
 
             /// \brief Iterator to the beginning of the register node vector.
             Iterator reg_begin();

@@ -9,15 +9,86 @@
 #include <cassert>
 #include <iterator>
 
+namespace efd {
+    extern const efd::NodeRef SWAP_ID_NODE;
+    extern const efd::NodeRef H_ID_NODE;
+    extern const efd::NodeRef CX_ID_NODE;
+}
+
 efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr), 
     mQModulefy(nullptr), mValid(true), mStdLibsParsed(false) {
+}
+
+void efd::QModule::registerSwapGate() {
+    static bool isSwapRegistered = false;
+    if (!isSwapRegistered) {
+        isSwapRegistered = true;
+        NDGateDecl* swap;
+
+        // The quantum arguments that will be used
+        NDId* qargLhs = dynCast<NDId>(NDId::Create("a"));
+        NDId* qargRhs = dynCast<NDId>(NDId::Create("b"));
+
+        NDList* qargsLhs = dynCast<NDList>(NDList::Create());
+        NDList* qargsRhs = dynCast<NDList>(NDList::Create());
+        NDList* qargsLhsRhs = dynCast<NDList>(NDList::Create());
+
+        qargsLhs->addChild(qargLhs->clone());
+        qargsRhs->addChild(qargRhs->clone());
+        qargsLhsRhs->addChild(qargLhs->clone());
+        qargsLhsRhs->addChild(qargRhs->clone());
+
+        // The quantum operations
+        NDGOpList* gop = dynCast<NDGOpList>(NDGOpList::Create());
+        // cx a, b;
+        gop->addChild(NDQOpGeneric::Create(CX_ID_NODE->clone(), NDList::Create(), 
+                    qargsLhsRhs->clone()));
+        // h a;
+        gop->addChild(NDQOpGeneric::Create(H_ID_NODE->clone(), NDList::Create(), 
+                    qargsLhs->clone()));
+        // h b;
+        gop->addChild(NDQOpGeneric::Create(H_ID_NODE->clone(), NDList::Create(), 
+                    qargsRhs->clone()));
+        // cx a, b;
+        gop->addChild(NDQOpGeneric::Create(CX_ID_NODE->clone(), NDList::Create(), 
+                    qargsLhsRhs->clone()));
+        // h a;
+        gop->addChild(NDQOpGeneric::Create(H_ID_NODE->clone(), NDList::Create(), 
+                    qargsLhs->clone()));
+        // h b;
+        gop->addChild(NDQOpGeneric::Create(H_ID_NODE->clone(), NDList::Create(), 
+                    qargsRhs->clone()));
+        // cx a, b;
+        gop->addChild(NDQOpGeneric::Create(CX_ID_NODE->clone(), NDList::Create(), 
+                    qargsLhsRhs->clone()));
+
+        swap = dynCast<NDGateDecl>(NDGateDecl::Create(SWAP_ID_NODE->clone(),
+                    NDList::Create(), qargsLhsRhs, gop));
+        insertAtBeginning(swap);
+    }
 }
 
 efd::NodeRef efd::QModule::getVersion() {
     return mVersion;
 }
 
-efd::QModule::Iterator efd::QModule::insertGate(NDGateDecl* gate) {
+void efd::QModule::replaceAllRegsWith(std::vector<NDDecl*> newRegs) {
+    if (!mRegDecls.empty()) {
+        NDStmtList* parent = dynCast<NDStmtList>(mRegDecls[0]->getParent());
+        assert(parent != nullptr && 
+                "All register declaration must be in the main statement list.");
+
+        for (int i = mRegDecls.size() - 1; i >= 0; --i) {
+            auto it = parent->findChild(parent->getChild(i));
+            parent->removeChild(it);
+        }
+    }
+
+    for (auto decl : newRegs)
+        insertAtBeginning(decl);
+}
+
+efd::QModule::Iterator efd::QModule::insertAtBeginning(NodeRef node) {
     NDStmtList* stmts;
     Iterator it;
 
@@ -33,7 +104,7 @@ efd::QModule::Iterator efd::QModule::insertGate(NDGateDecl* gate) {
     }
 
     it = stmts->begin();
-    stmts->addChild(it, gate);
+    stmts->addChild(it, node);
 
     invalidate();
     return it;
@@ -59,6 +130,28 @@ efd::QModule::Iterator efd::QModule::insertNodeBefore(Iterator it, NodeRef ref) 
     InsertNodeBefore(it, ref);
     invalidate();
     return it;
+}
+
+efd::QModule::Iterator efd::QModule::insertSwapBefore(Iterator it, NodeRef lhs, NodeRef rhs) {
+    NodeRef parent = (*it)->getParent();
+    unsigned dist = std::distance(parent->begin(), it);
+    InsertSwapBefore(*it, lhs, rhs);
+    // Register the gate must be done after inserting the swap, as it does not require
+    // any iterator. Else, this would invalidate the iterator passed as parammeter.
+    registerSwapGate();
+    invalidate();
+    return parent->begin() + dist;
+}
+
+efd::QModule::Iterator efd::QModule::insertSwapAfter(Iterator it, NodeRef lhs, NodeRef rhs) {
+    NodeRef parent = (*it)->getParent();
+    unsigned dist = std::distance(parent->begin(), it);
+    InsertSwapAfter(*it, lhs, rhs);
+    // Register the gate must be done after inserting the swap, as it does not require
+    // any iterator. Else, this would invalidate the iterator passed as parammeter.
+    registerSwapGate();
+    invalidate();
+    return parent->begin() + dist;
 }
 
 efd::QModule::Iterator efd::QModule::reg_begin() {
