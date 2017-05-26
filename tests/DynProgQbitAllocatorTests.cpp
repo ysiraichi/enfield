@@ -39,7 +39,7 @@ CX q[0], q[1];\
 
         Graph* graph = getGraph();
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
         DynProgQbitAllocator* allocator = DynProgQbitAllocator::Create
             (qmod.get(), graph, OneRestrictionSwapFinder::Create(graph), nullptr);
 
@@ -61,7 +61,7 @@ CX q[3], q[0];\
 
         Graph* graph = getGraph();
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
         DynProgQbitAllocator* allocator = DynProgQbitAllocator::Create
             (qmod.get(), graph, OneRestrictionSwapFinder::Create(graph), nullptr);
 
@@ -89,7 +89,7 @@ CX q[1], q[2];\
 
         Graph* graph = getGraph();
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
         DynProgQbitAllocator* allocator = DynProgQbitAllocator::Create
             (qmod.get(), graph, OneRestrictionSwapFinder::Create(graph), nullptr);
 
@@ -119,7 +119,7 @@ CX q[4], q[2];\
 
         Graph* graph = getGraph();
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
         DynProgQbitAllocator* allocator = DynProgQbitAllocator::Create
             (qmod.get(), graph, OneRestrictionSwapFinder::Create(graph), nullptr);
 
@@ -153,7 +153,7 @@ CX q[0], q[2];\
 
         Graph* graph = getGraph();
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
         DynProgQbitAllocator* allocator = DynProgQbitAllocator::Create
             (qmod.get(), graph, OneRestrictionSwapFinder::Create(graph), nullptr);
 

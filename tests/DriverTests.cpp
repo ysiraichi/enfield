@@ -19,7 +19,7 @@ creg c0[5];\
 qreg r0[5];\n\
 creg c0[5];\n\
 ";
-    NodeRef root = ParseString(declaration);
+    NodeRef root = ParseString(declaration, false);
     ASSERT_FALSE(root == nullptr);
     ASSERT_EQ(root->toString(), declaration);
     ASSERT_EQ(root->toString(true), declarationPrt);
@@ -36,7 +36,7 @@ gate id r0 {}\
 "\
 gate id r0 {\n}\n\
 ";
-        NodeRef root = ParseString(gate);
+        NodeRef root = ParseString(gate, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), gate);
         ASSERT_EQ(root->toString(true), gatePrt);
@@ -52,7 +52,7 @@ gate id(a, b, c) r0 {}\
 "\
 gate id(a, b, c) r0 {\n}\n\
 ";
-        NodeRef root = ParseString(gate);
+        NodeRef root = ParseString(gate, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), gate);
         ASSERT_EQ(root->toString(true), gatePrt);
@@ -68,7 +68,7 @@ gate id(a, b, c) r0, r1, r2, r3 {}\
 "\
 gate id(a, b, c) r0, r1, r2, r3 {\n}\n\
 ";
-        NodeRef root = ParseString(gate);
+        NodeRef root = ParseString(gate, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), gate);
         ASSERT_EQ(root->toString(true), gatePrt);
@@ -86,7 +86,7 @@ opaque id r0;\
 "\
 opaque id r0;\n\
 ";
-        NodeRef root = ParseString(opaque);
+        NodeRef root = ParseString(opaque, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), opaque);
         ASSERT_EQ(root->toString(true), opaquePrt);
@@ -102,7 +102,7 @@ opaque id(a, b, c) r0;\
 "\
 opaque id(a, b, c) r0;\n\
 ";
-        NodeRef root = ParseString(opaque);
+        NodeRef root = ParseString(opaque, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), opaque);
         ASSERT_EQ(root->toString(true), opaquePrt);
@@ -118,7 +118,7 @@ opaque id(a, b, c) r0, r1, r2, r3;\
 "\
 opaque id(a, b, c) r0, r1, r2, r3;\n\
 ";
-        NodeRef root = ParseString(opaque);
+        NodeRef root = ParseString(opaque, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), opaque);
         ASSERT_EQ(root->toString(true), opaquePrt);
@@ -136,7 +136,7 @@ barrier r0;\
 "\
 barrier r0;\n\
 ";
-        NodeRef root = ParseString(barrier);
+        NodeRef root = ParseString(barrier, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), barrier);
         ASSERT_EQ(root->toString(true), barrierPrt);
@@ -152,7 +152,7 @@ barrier r0, r1, r2;\
 "\
 barrier r0, r1, r2;\n\
 ";
-        NodeRef root = ParseString(barrier);
+        NodeRef root = ParseString(barrier, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), barrier);
         ASSERT_EQ(root->toString(true), barrierPrt);
@@ -170,7 +170,7 @@ reset r0;\
 "\
 reset r0;\n\
 ";
-        NodeRef root = ParseString(reset);
+        NodeRef root = ParseString(reset, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), reset);
         ASSERT_EQ(root->toString(true), resetPrt);
@@ -186,7 +186,7 @@ reset r0[5];\
 "\
 reset r0[5];\n\
 ";
-        NodeRef root = ParseString(reset);
+        NodeRef root = ParseString(reset, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), reset);
         ASSERT_EQ(root->toString(true), resetPrt);
@@ -204,7 +204,7 @@ measure r0 -> c0;\
 "\
 measure r0 -> c0;\n\
 ";
-        NodeRef root = ParseString(measure);
+        NodeRef root = ParseString(measure, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), measure);
         ASSERT_EQ(root->toString(true), measurePrt);
@@ -220,7 +220,7 @@ measure r0[3] -> r5[2];\
 "\
 measure r0[3] -> r5[2];\n\
 ";
-        NodeRef root = ParseString(measure);
+        NodeRef root = ParseString(measure, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), measure);
         ASSERT_EQ(root->toString(true), measurePrt);
@@ -238,7 +238,7 @@ generic r0, r1;\
 "\
 generic r0, r1;\n\
 ";
-        NodeRef root = ParseString(generic);
+        NodeRef root = ParseString(generic, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), generic);
         ASSERT_EQ(root->toString(true), genericPrt);
@@ -254,7 +254,7 @@ generic(3.8, pi) r2, r3[2], r5;\
 "\
 generic(3.8, pi) r2, r3[2], r5;\n\
 ";
-        NodeRef root = ParseString(generic);
+        NodeRef root = ParseString(generic, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), generic);
         ASSERT_EQ(root->toString(true), genericPrt);
@@ -272,7 +272,7 @@ include \"files/qelib1.inc\";\
 "\
 include \"files/qelib1.inc\";\n\
 ";
-        NodeRef root = ParseString(generic);
+        NodeRef root = ParseString(generic, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), generic);
         ASSERT_EQ(root->toString(true), genericPrt);
@@ -285,7 +285,7 @@ TEST(DriverTests, ExpTest) {
 "\
 generic(someid) r0;\
 ";
-        NodeRef root = ParseString(exp);
+        NodeRef root = ParseString(exp, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), exp);
     }
@@ -296,7 +296,7 @@ generic(someid) r0;\
 generic(234325) r0;\
 ";
 
-        NodeRef root = ParseString(exp);
+        NodeRef root = ParseString(exp, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), exp);
     }
@@ -307,7 +307,7 @@ generic(234325) r0;\
 generic(3.14159) r0;\
 ";
 
-        NodeRef root = ParseString(exp);
+        NodeRef root = ParseString(exp, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), exp);
     }
@@ -318,7 +318,7 @@ generic(3.14159) r0;\
 generic(sin((pi / 2))) r0;\
 ";
 
-        NodeRef root = ParseString(exp);
+        NodeRef root = ParseString(exp, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), exp);
     }
@@ -329,7 +329,7 @@ generic(sin((pi / 2))) r0;\
 generic(sin(tan(cos(ln((pi * exp((pi / 2)))))))) r0;\
 ";
 
-        NodeRef root = ParseString(exp);
+        NodeRef root = ParseString(exp, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), exp);
     }
@@ -340,7 +340,7 @@ generic(sin(tan(cos(ln((pi * exp((pi / 2)))))))) r0;\
 generic((((1 + 3) * 5) + (pi * sin(pi)))) r0;\
 ";
 
-        NodeRef root = ParseString(exp);
+        NodeRef root = ParseString(exp, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), exp);
     }
@@ -352,7 +352,7 @@ TEST(DriverTests, IfStmtTest) {
 "\
 if (pi == 3) measure r0[4] -> c2[4];\
 ";
-        NodeRef root = ParseString(ifStmt);
+        NodeRef root = ParseString(ifStmt, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), ifStmt);
     }
@@ -369,7 +369,7 @@ gate u3(theta, phi, lambda) q {U(theta, phi, lambda) q;}\
 "\
 gate u3(theta, phi, lambda) q {\n\tU(theta, phi, lambda) q;\n}\n\
 ";
-        NodeRef root = ParseString(gate);
+        NodeRef root = ParseString(gate, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), gate);
         ASSERT_EQ(root->toString(true), gatePrt);
@@ -385,7 +385,7 @@ gate rx(theta) a {u3(theta, ((-pi) / 2), (pi / 2)) a;}\
 "\
 gate rx(theta) a {\n\tu3(theta, ((-pi) / 2), (pi / 2)) a;\n}\n\
 ";
-        NodeRef root = ParseString(gate);
+        NodeRef root = ParseString(gate, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), gate);
         ASSERT_EQ(root->toString(true), gatePrt);
@@ -433,7 +433,7 @@ gate ccx a, b, c {\n\
 \tcx a, b;\n\
 }\n\
 ";
-        NodeRef root = ParseString(gate);
+        NodeRef root = ParseString(gate, false);
         ASSERT_FALSE(root == nullptr);
         ASSERT_EQ(root->toString(), gate);
         ASSERT_EQ(root->toString(true), gatePrt);
@@ -529,7 +529,7 @@ measure b[6] -> ans[6];\n\
 measure b[7] -> ans[7];\n\
 measure carry[0] -> carryout[0];\n\
 ";
-    NodeRef root = ParseString(program);
+    NodeRef root = ParseString(program, false);
     ASSERT_FALSE(root == nullptr);
     ASSERT_EQ(root->toString(), program);
     ASSERT_EQ(root->toString(true), programPrt);

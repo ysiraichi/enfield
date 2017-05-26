@@ -25,7 +25,7 @@ gate id a {\
 qreg q[5];\
 ";
 
-    std::unique_ptr<QModule> qmod = QModule::ParseString(program);
+    std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
     for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it)
         if (NDQOpGeneric* qop = dynCast<NDQOpGeneric>(*it))
             InlineGate(qmod.get(), qop);
@@ -96,7 +96,7 @@ tdg q[1];\
 cx q[0], q[1];\
 ";
 
-    std::unique_ptr<QModule> qmod = QModule::ParseString(program);
+    std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
     for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it)
         if (NDQOpGeneric* qop = dynCast<NDQOpGeneric>(*it))
             InlineGate(qmod.get(), qop);

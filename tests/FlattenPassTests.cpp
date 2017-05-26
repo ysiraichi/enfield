@@ -23,7 +23,7 @@ qreg q[5];\
 qreg r[5];\
 CX q[0], q[1];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program); 
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false); 
         FlattenPass* pass = FlattenPass::Create(qmod.get());
         ASSERT_FALSE(pass == nullptr);
 
@@ -49,7 +49,7 @@ CX q[2], r[1];\
 CX q[3], r[1];\
 CX q[4], r[1];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program); 
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false); 
         FlattenPass* pass = FlattenPass::Create(qmod.get());
         ASSERT_FALSE(pass == nullptr);
 
@@ -75,7 +75,7 @@ CX q[0], r[2];\
 CX q[0], r[3];\
 CX q[0], r[4];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program); 
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false); 
         FlattenPass* pass = FlattenPass::Create(qmod.get());
         ASSERT_FALSE(pass == nullptr);
 
@@ -101,7 +101,7 @@ CX q[2], r[2];\
 CX q[3], r[3];\
 CX q[4], r[4];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program); 
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false); 
         FlattenPass* pass = FlattenPass::Create(qmod.get());
         ASSERT_FALSE(pass == nullptr);
 
@@ -141,7 +141,7 @@ CX z, w;\
 }\
 somegate(pi, 2) q0[0], q1[1], q2[2], q3[3];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program); 
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false); 
         FlattenPass* pass = FlattenPass::Create(qmod.get());
         ASSERT_FALSE(pass == nullptr);
 
@@ -183,7 +183,7 @@ somegate(pi, 2) q0[0], q1[1], q2[2], q3[2];\
 somegate(pi, 2) q0[0], q1[1], q2[2], q3[3];\
 somegate(pi, 2) q0[0], q1[1], q2[2], q3[4];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program); 
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false); 
         FlattenPass* pass = FlattenPass::Create(qmod.get());
         ASSERT_FALSE(pass == nullptr);
 
@@ -225,7 +225,7 @@ somegate(pi, 2) q0[0], q2[2], q1[0], q3[2];\
 somegate(pi, 2) q0[0], q2[3], q1[0], q3[3];\
 somegate(pi, 2) q0[0], q2[4], q1[0], q3[4];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program); 
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false); 
         FlattenPass* pass = FlattenPass::Create(qmod.get());
         ASSERT_FALSE(pass == nullptr);
 
@@ -268,7 +268,7 @@ CX z, w;\
 }\
 if (c == 5) somegate q0[0], q1[0], q2[0], q3[0];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program); 
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false); 
         FlattenPass* pass = FlattenPass::Create(qmod.get());
         ASSERT_FALSE(pass == nullptr);
 
@@ -312,7 +312,7 @@ if (c == 5) somegate q0[0], q1[0], q2[0], q3[2];\
 if (c == 5) somegate q0[0], q1[0], q2[0], q3[3];\
 if (c == 5) somegate q0[0], q1[0], q2[0], q3[4];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program); 
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false); 
         FlattenPass* pass = FlattenPass::Create(qmod.get());
         ASSERT_FALSE(pass == nullptr);
 
@@ -356,7 +356,7 @@ if (c == 5) somegate q0[0], q1[0], q2[2], q3[2];\
 if (c == 5) somegate q0[0], q1[0], q2[3], q3[3];\
 if (c == 5) somegate q0[0], q1[0], q2[4], q3[4];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program); 
+        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false); 
         FlattenPass* pass = FlattenPass::Create(qmod.get());
         ASSERT_FALSE(pass == nullptr);
 
