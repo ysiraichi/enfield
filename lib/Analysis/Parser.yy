@@ -16,7 +16,7 @@
 
 %code provides {
     static efd::Opt<std::vector<std::string>> IncludePath
-        ("I", "The include path.", { "./" }, false);
+        ("I", "The include path.", std::vector<std::string>(), false);
 }
 
 %code provides {
@@ -176,7 +176,10 @@ include: INCLUDE string ";"     {
                                     std::ifstream ifs;
                                     efd::ASTWrapper _ast;
 
-                                    for (auto path : IncludePath.getVal()) {
+                                    std::vector<std::string> includePaths = IncludePath.getVal();
+                                    includePaths.push_back(ast.mPath);
+
+                                    for (auto path : includePaths) {
                                         _ast = efd::ASTWrapper { 
                                             efd::dynCast<efd::NDString>($2)->getVal(), 
                                             path,
