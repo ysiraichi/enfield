@@ -1,4 +1,4 @@
-#include "enfield/Analysis/IdTable.h"
+#include "enfield/Transform/IdTable.h"
 #include "enfield/Support/RTTI.h"
 
 efd::IdTable::IdTable(IdTable* parent) : mParent(parent) {
@@ -44,6 +44,11 @@ efd::IdTable* efd::IdTable::getParent() {
     return mParent;
 }
 
-efd::IdTable* efd::IdTable::create(IdTable* parent) {
+void efd::IdTable::clear() {
+    mMap.clear();
+    mParent = nullptr;
+}
+
+efd::IdTable* efd::IdTable::Create(IdTable* parent) {
     return new IdTable(parent);
 }

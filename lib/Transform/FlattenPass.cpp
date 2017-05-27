@@ -94,6 +94,44 @@ bool efd::FlattenPass::isChildremIdRef(NodeRef ref) {
     return true;
 }
 
+void efd::FlattenPass::visit(NDQOpBarrier* ref) {
+    if (isChildremIdRef(ref->getQArgs()))
+        return;
+
+    std::vector<NodeRef> newNodes;
+    auto flatArgs = getFlattenedOpsArgs(ref->getQArgs());
+    for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i) {
+        NDList* qargs = dynCast<NDList>(NDList::Create());
+
+        for (unsigned j = 0, f = flatArgs.size(); j < f; ++j)
+            qargs->addChild(flatArgs[j][i]);
+        newNodes.push_back(NDQOpBarrier::Create(qargs));
+    }
+    replace(ref, newNodes);
+}
+
+void efd::FlattenPass::visit(NDQOpMeasure* ref) {
+    if (isChildremIdRef(ref))
+        return;
+
+    std::vector<NodeRef> newNodes;
+    auto flatArgs = getFlattenedOpsArgs(ref);
+    for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i)
+        newNodes.push_back(NDQOpMeasure::Create(flatArgs[0][i], flatArgs[1][i]));
+    replace(ref, newNodes);
+}
+
+void efd::FlattenPass::visit(NDQOpReset* ref) {
+    if (isChildremIdRef(ref))
+        return;
+
+    std::vector<NodeRef> newNodes;
+    auto flatArgs = getFlattenedOpsArgs(ref);
+    for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i)
+        newNodes.push_back(NDQOpReset::Create(flatArgs[0][i]));
+    replace(ref, newNodes);
+}
+
 void efd::FlattenPass::visit(NDQOpCX* ref) {
     if (isChildremIdRef(ref))
         return;
@@ -136,7 +174,7 @@ void efd::FlattenPass::visit(NDIfStmt* ref) {
     }
 }
 
-void efd::FlattenPass::initImpl() {
+void efd::FlattenPass::initImpl(bool force) {
     mIfNewNodes.clear();
 }
 

@@ -2,7 +2,7 @@
 #define __EFD_FLATTEN_PASS_H__
 
 #include "enfield/Pass.h"
-#include "enfield/Analysis/QModule.h"
+#include "enfield/Transform/QModule.h"
 
 namespace efd {
     /// \brief Flattens the given QModule.
@@ -37,11 +37,14 @@ namespace efd {
             bool isChildremIdRef(NodeRef ref);
 
         public:
+            void visit(NDQOpBarrier* ref) override;
+            void visit(NDQOpMeasure* ref) override;
+            void visit(NDQOpReset* ref) override;
             void visit(NDQOpCX* ref) override;
             void visit(NDQOpGeneric* ref) override;
             void visit(NDIfStmt* ref) override;
 
-            void initImpl() override;
+            void initImpl(bool force) override;
 
             bool doesInvalidatesModule() const override;
 

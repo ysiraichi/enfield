@@ -5,12 +5,21 @@
     #include "enfield/Analysis/Driver.h"
     #include "enfield/Support/WrapperVal.h"
     #include "enfield/Support/RTTI.h"
+    #include "enfield/Support/CommandLine.h"
 
     namespace efd {
         class EfdScanner;
     };
 
     typedef efd::Node* NodeRef;
+}
+
+%code provides {
+    #include <unordered_map>
+    #include <sstream>
+
+    extern efd::Opt<std::vector<std::string>> IncludePath;
+    extern std::unordered_map<std::string, std::string> StdLib;
 }
 
 %code provides {
@@ -167,24 +176,43 @@ statement: decl         { $$ = $1; }
          ;
 
 include: INCLUDE string ";"     {
-                                    efd::ASTWrapper _ast { 
-                                        efd::dynCast<efd::NDString>($2)->getVal(), 
-                                        ast.mPath,
-                                        nullptr 
-                                    };
+                                    std::istream* istr = nullptr;
+                                    std::ifstream ifs;
+                                    std::istringstream iss;
+                                    efd::ASTWrapper _ast;
 
-                                    std::ifstream ifs((_ast.mPath + _ast.mFile).c_str());
-                                    if (ifs.fail()) {
+                                    std::string file = efd::dynCast<efd::NDString>($2)->getVal();
+
+                                    if (StdLib.find(file) != StdLib.end()) {
+                                        _ast = efd::ASTWrapper { file, "./", nullptr, false };
+                                        iss.str(StdLib[file]);
+                                        istr = &iss;
+                                        ast.mStdLibParsed = true;
+                                    } else {
+                                        std::vector<std::string> includePaths = IncludePath.getVal();
+                                        includePaths.push_back(ast.mPath);
+
+                                        for (auto path : includePaths) {
+                                            _ast = efd::ASTWrapper { file, path, nullptr, false };
+                                            ifs.open((_ast.mPath + _ast.mFile).c_str());
+                                            if (!ifs.fail()) {
+                                                istr = &ifs;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (istr == nullptr) {
                                         error(@$, "Could not open file: " + _ast.mPath + _ast.mFile);
                                         return 1;
                                     }
 
-                                    efd::yy::EfdParser parser(ast, scanner);
-                                    scanner.yypush_buffer_state(scanner.yy_create_buffer(&ifs, YY_BUF_SIZE));
+                                    efd::yy::EfdParser parser(_ast, scanner);
+                                    scanner.yypush_buffer_state(scanner.yy_create_buffer(istr, YY_BUF_SIZE));
                                     if (parser.parse()) return 1;
                                     scanner.yypop_buffer_state();
 
-                                    $$ = efd::NDInclude::Create($2, ast.mAST); 
+                                    $$ = efd::NDInclude::Create($2, _ast.mAST); 
                                 }
         ;
 
@@ -327,7 +355,7 @@ real: REAL { $$ = efd::NDReal::Create($1); }
 
 %%
 
-static int Parse(efd::ASTWrapper& ast) {
+static int Parse(efd::ASTWrapper& ast, bool forceStdLib) {
     std::ifstream ifs((ast.mPath + ast.mFile).c_str());
     if (ifs.fail()) {
         std::cerr << "Could not open file: " << ast.mPath + ast.mFile << std::endl;
@@ -340,16 +368,35 @@ static int Parse(efd::ASTWrapper& ast) {
     int ret = parser.parse();
     ifs.close();
 
+    if (forceStdLib && !ast.mStdLibParsed) {
+        efd::NDStmtList* stmts = nullptr;
+        if (auto versionNode = efd::dynCast<efd::NDQasmVersion>(ast.mAST))
+            stmts = versionNode->getStatements();
+        else if (auto stmtsNode = efd::dynCast<efd::NDStmtList>(ast.mAST))
+            stmts = stmtsNode;
+        else
+            stmts = efd::dynCast<efd::NDStmtList>(efd::NDStmtList::Create());
+
+        for (auto pair : StdLib) {
+            efd::NodeRef refInclContents = efd::ParseString(pair.second, false);
+            efd::NodeRef refInclude = efd::NDInclude::Create
+                (efd::NDString::Create(pair.first), refInclContents);
+
+            auto it = stmts->begin();
+            stmts->addChild(it, refInclude);
+        }
+    }
+
     return ret;
 }
 
-efd::NodeRef efd::ParseFile(std::string filename, std::string path) {
-    ASTWrapper ast { filename, path, nullptr };
-    if (Parse(ast)) return nullptr;
+efd::NodeRef efd::ParseFile(std::string filename, std::string path, bool forceStdLib) {
+    ASTWrapper ast { filename, path, nullptr, false };
+    if (Parse(ast, forceStdLib)) return nullptr;
     return ast.mAST;
 }
 
-efd::NodeRef efd::ParseString(std::string program) {
+efd::NodeRef efd::ParseString(std::string program, bool forceStdLib) {
     std::string filename = "qasm-" + std::to_string((unsigned long long) &program) + ".qasm";
     std::string path =  "./";
 
@@ -358,8 +405,8 @@ efd::NodeRef efd::ParseString(std::string program) {
     ofs.flush();
     ofs.close();
 
-    ASTWrapper ast { filename, path, nullptr };
-    int ret = Parse(ast);
+    ASTWrapper ast { filename, path, nullptr, false };
+    int ret = Parse(ast, forceStdLib);
     remove((path + filename).c_str());
 
     if (ret) return nullptr;

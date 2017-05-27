@@ -3,7 +3,7 @@
 
 #include "enfield/Pass.h"
 #include "enfield/Analysis/Nodes.h"
-#include "enfield/Analysis/QModule.h"
+#include "enfield/Transform/QModule.h"
 
 #include <unordered_map>
 #include <vector>
@@ -35,6 +35,7 @@ namespace efd {
             QbitToNumberPass();
 
             const QbitMap* getMap(NDGateDecl* gate) const;
+            void initImpl(bool force) override;
 
         public:
             void visit(NDDecl* ref) override;
@@ -122,7 +123,7 @@ namespace efd {
             DepsSet* getDepsSet(NDGateDecl* gate = nullptr);
 
         protected:
-            void initImpl() override;
+            void initImpl(bool force) override;
 
         public:
             void visit(NDGateDecl* ref) override;

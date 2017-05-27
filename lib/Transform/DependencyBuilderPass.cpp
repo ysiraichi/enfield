@@ -22,6 +22,11 @@ const efd::QbitToNumberPass::QbitMap* efd::QbitToNumberPass::getMap(NDGateDecl* 
     return map;
 }
 
+void efd::QbitToNumberPass::initImpl(bool force) {
+    mLIdMap.clear();
+    mGIdMap.clear();
+}
+
 void efd::QbitToNumberPass::visit(NDDecl* ref) {
     if (ref->isCReg()) return;
 
@@ -128,12 +133,12 @@ efd::DependencyBuilderPass::DependencyBuilderPass(QModule* mod, QbitToNumberPass
     mUK += Pass::K_STMT_PASS;
 }
 
-void efd::DependencyBuilderPass::initImpl() {
+void efd::DependencyBuilderPass::initImpl(bool force) {
     mCurrentGate = nullptr;
     mLDeps.clear();
     mGDeps.clear();
 
-    mMod->runPass(mQbitMap);
+    mMod->runPass(mQbitMap, force);
 }
 
 unsigned efd::DependencyBuilderPass::getUId(NodeRef ref) {

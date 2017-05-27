@@ -8,22 +8,27 @@ namespace efd {
     /// \brief This is the base class for the architectures that this project will
     /// be supporting.
     class ArchGraph : public Graph {
+        public:
+            typedef std::unordered_map<std::string, unsigned> RegsVector;
+            typedef RegsVector::iterator RegsIterator;
+
         protected:
             std::vector<NodeRef> mNodes;
-            std::unordered_map<std::string, NDId*> mRegs;
+            RegsVector mRegs;
 
             ArchGraph(unsigned n);
 
             void preprocessVertexString(unsigned i, std::string s);
 
         public:
-            typedef std::unordered_map<std::string, NDId*>::iterator RegsIterator;
-
             /// \brief Gets the node corresponding to the uid.
             NodeRef getNode(unsigned i) const;
 
             /// \brief Creates a node and puts it in the vector.
             unsigned putVertex(std::string s);
+
+            /// \brief Register the register.
+            void putReg(std::string id, std::string size);
 
             /// \brief The begin iterator for the \p mRegs.
             RegsIterator reg_begin();

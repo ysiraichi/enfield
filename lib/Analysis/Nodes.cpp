@@ -131,7 +131,7 @@ efd::Node::Kind efd::NDQasmVersion::getKind() const {
 }
 
 bool efd::NDQasmVersion::ClassOf(const Node* node) {
-    return node->getKind() == K_DECL;
+    return node->getKind() == K_QASM_VERSION;
 }
 
 efd::NodeRef efd::NDQasmVersion::Create(NodeRef vNode, NodeRef stmtsNode) {
@@ -140,7 +140,7 @@ efd::NodeRef efd::NDQasmVersion::Create(NodeRef vNode, NodeRef stmtsNode) {
 
 // -------------- Include -----------------
 efd::NDInclude::NDInclude(NodeRef vNode, NodeRef stmtsNode) :
-    Node(K_QASM_VERSION, getChildNumber()) {
+    Node(K_INCLUDE, getChildNumber()) {
     setChild(I_FILE, vNode);
     setChild(I_STMTS, stmtsNode);
 }
@@ -189,11 +189,11 @@ std::string efd::NDInclude::toString(bool pretty) const {
 }
 
 efd::Node::Kind efd::NDInclude::getKind() const {
-    return K_QASM_VERSION;
+    return K_INCLUDE;
 }
 
 bool efd::NDInclude::ClassOf(const Node* node) {
-    return node->getKind() == K_DECL;
+    return node->getKind() == K_INCLUDE;
 }
 
 efd::NodeRef efd::NDInclude::Create(NodeRef vNode, NodeRef stmtsNode) {

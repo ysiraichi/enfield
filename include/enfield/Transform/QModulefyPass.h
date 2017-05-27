@@ -2,17 +2,20 @@
 #define __EFD_QMODULEFY_PASS_H__
 
 #include "enfield/Pass.h"
-#include "enfield/Analysis/QModule.h"
+#include "enfield/Transform/QModule.h"
+
+#include <set>
 
 namespace efd {
     class IdTable;
 
     class QModulefyPass : public Pass {
         private:
+            std::set<std::string> mIncludes;
             QModulefyPass(QModule* qmod);
 
         protected:
-            void initImpl() override;
+            void initImpl(bool force) override;
 
         public:
             QModule* mMod;

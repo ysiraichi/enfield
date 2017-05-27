@@ -20,9 +20,9 @@ namespace efd {
             std::unordered_map<std::string, Record> mMap;
             IdTable* mParent;
 
+        public:
             IdTable(IdTable* parent = nullptr);
 
-        public:
             /// \brief Adds a quantum variable mapping from \p id to \p node.
             void addQVar(std::string id, NodeRef node);
             /// \brief Adds a quantum gate mapping from \p id to \p node.
@@ -36,7 +36,10 @@ namespace efd {
             /// \brief Returns the parent table.
             IdTable* getParent();
 
-            static IdTable* create(IdTable* parent = nullptr);
+            /// \brief Clears the table.
+            void clear();
+
+            static IdTable* Create(IdTable* parent = nullptr);
     };
 };
 

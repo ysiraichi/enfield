@@ -1,13 +1,18 @@
-#include "enfield/Analysis/QModulefyPass.h"
-#include "enfield/Analysis/IdTable.h"
+#include "enfield/Transform/QModulefyPass.h"
+#include "enfield/Transform/IdTable.h"
 #include "enfield/Support/RTTI.h"
+
+#include <unordered_map>
+
+extern std::unordered_map<std::string, std::string> StdLib;
 
 efd::QModulefyPass::QModulefyPass(QModule* qmod) : mMod(qmod) {
     mUK = Pass::K_AST_PASS;
 }
 
-void efd::QModulefyPass::initImpl() {
-    mCurrentTable = mMod->mTable;
+void efd::QModulefyPass::initImpl(bool force) {
+    mCurrentTable = &mMod->mTable;
+    mIncludes.clear();
 }
 
 void efd::QModulefyPass::visit(NDQasmVersion* ref) {
@@ -17,6 +22,9 @@ void efd::QModulefyPass::visit(NDQasmVersion* ref) {
 }
 
 void efd::QModulefyPass::visit(NDInclude* ref) {
+    mIncludes.insert(ref->getFilename()->getVal());
+    if (mIncludes.size() == StdLib.size())
+        mMod->mStdLibsParsed = true;
     ref->getStatements()->apply(this);
 }
 
@@ -29,8 +37,8 @@ void efd::QModulefyPass::visit(NDGateDecl* ref) {
     mMod->mGates.push_back(ref);
     mCurrentTable->addQGate(ref->getId()->getVal(), ref);
 
-    mCurrentTable = IdTable::create(mCurrentTable);
-    mMod->mIdTableMap[ref] = mCurrentTable;
+    mMod->mIdTableMap[ref] = IdTable(mCurrentTable);
+    mCurrentTable = &mMod->mIdTableMap[ref];
     for (auto varRef : *ref->getQArgs()) {
         std::string id = dynCast<NDId>(varRef)->getVal();
         mCurrentTable->addQVar(id, varRef);
@@ -40,10 +48,10 @@ void efd::QModulefyPass::visit(NDGateDecl* ref) {
 
 void efd::QModulefyPass::visit(NDOpaque* ref) {
     mMod->mGates.push_back(ref);
-
     mCurrentTable->addQGate(ref->getId()->getVal(), ref);
-    mMod->mIdTableMap[ref] = mCurrentTable;
-    mCurrentTable = IdTable::create(mCurrentTable);
+
+    mMod->mIdTableMap[ref] = IdTable(mCurrentTable);
+    mCurrentTable = &mMod->mIdTableMap[ref];
     for (auto varRef : *ref->getQArgs()) {
         std::string id = dynCast<NDId>(varRef)->getVal();
         mCurrentTable->addQVar(id, varRef);

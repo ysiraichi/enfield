@@ -22,9 +22,6 @@ void efd::ArchGraph::preprocessVertexString(unsigned i, std::string s) {
     NodeRef refId = NDId::Create(id);
     NodeRef refInt = NDInt::Create(nStr);
 
-    if (mRegs.find(id) == mRegs.end())
-        mRegs[id] = dynCast<NDId>(refId);
-
     mNodes[i] = NDIdRef::Create(refId, refInt);
 }
 
@@ -37,6 +34,10 @@ unsigned efd::ArchGraph::putVertex(std::string s) {
     unsigned curId = Graph::putVertex(s);
     preprocessVertexString(curId, s);
     return curId;
+}
+
+void efd::ArchGraph::putReg(std::string id, std::string size) {
+    mRegs[id] = std::stoul(size);
 }
 
 efd::ArchGraph::RegsIterator efd::ArchGraph::reg_begin() {

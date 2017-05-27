@@ -2,12 +2,12 @@
 #define __EFD_QMODULE_H__
 
 #include "enfield/Analysis/Nodes.h"
+#include "enfield/Transform/IdTable.h"
 
 #include <unordered_map>
 
 namespace efd {
     class QModulefyPass;
-    class IdTable;
     class Pass;
 
     /// \brief Qasm module representation.
@@ -20,13 +20,17 @@ namespace efd {
             std::vector<NodeRef> mGates;
             std::vector<NodeRef> mStatements;
 
-            IdTable* mTable;
-            std::unordered_map<NodeRef, IdTable*> mIdTableMap;
+            IdTable mTable;
+            std::unordered_map<NodeRef, IdTable> mIdTableMap;
 
             bool mValid;
+            bool mStdLibsParsed;
             QModulefyPass* mQModulefy;
 
             QModule(NodeRef ref);
+
+            /// \brief Registers the swap gate in the module.
+            void registerSwapGate();
 
         public:
             typedef std::vector<NodeRef>::iterator Iterator;
@@ -34,6 +38,24 @@ namespace efd {
 
             /// \brief Gets the qasm version.
             NodeRef getVersion();
+
+            void replaceAllRegsWith(std::vector<NDDecl*> newRegs);
+
+            /// \brief Inserts \p node at the beginning of the file, and return an iterator
+            /// to it.
+            Iterator insertAtBeginning(NodeRef node);
+            /// \brief Inlines \p call and returns an iterator to the first node inserted.
+            Iterator inlineCall(NDQOpGeneric* call);
+            /// \brief Inserts \p ref after \p it, and returns a iterator to this node.
+            Iterator insertNodeAfter(Iterator it, NodeRef ref);
+            /// \brief Inserts \p ref before \p it, and returns a iterator to this node.
+            Iterator insertNodeBefore(Iterator it, NodeRef ref);
+            /// \brief Inserts a swap call between \p lhs and \p rhs, before the iterator location. 
+            /// Returns a iterator to the first swap instruction.
+            Iterator insertSwapAfter(Iterator it, NodeRef lhs, NodeRef rhs);
+            /// \brief Inserts a swap call between \p lhs and \p rhs, after the iterator location. 
+            /// Returns the iterator on the same position.
+            Iterator insertSwapBefore(Iterator it, NodeRef lhs, NodeRef rhs);
 
             /// \brief Iterator to the beginning of the register node vector.
             Iterator reg_begin();
@@ -68,7 +90,7 @@ namespace efd {
             std::string toString(bool pretty = false) const;
 
             /// \brief Gets the mapped IdTable.
-            IdTable* getIdTable(NDGateDecl* ref);
+            IdTable& getIdTable(NDGateDecl* ref);
 
             /// \brief Gets the quantum variable mapped to \p id from some gate.
             NodeRef getQVar(std::string id, NDGateDecl* gate = nullptr, bool recursive = true);
@@ -93,9 +115,10 @@ namespace efd {
             /// \brief Process the AST in order to obtain the QModule.
             static std::unique_ptr<QModule> GetFromAST(NodeRef ref);
             /// \brief Parses the file \p filename and returns a QModule.
-            static std::unique_ptr<QModule> Parse(std::string filename, std::string path = "./");
+            static std::unique_ptr<QModule> Parse(std::string filename, std::string path = "./",
+                    bool forceStdLib = true);
             /// \brief Parses the string \p program and returns a QModule.
-            static std::unique_ptr<QModule> ParseString(std::string program);
+            static std::unique_ptr<QModule> ParseString(std::string program, bool forceStdLib = true);
 
 
             friend class QModulefyPass;

@@ -12,7 +12,5 @@ add_library (EfdAnalysis
     Nodes.cpp
     ${BISON_EfdParser_OUTPUTS}
     ${FLEX_EfdScanner_OUTPUTS}
-    QModule.cpp
-    QModulefyPass.cpp
-    NodeVisitor.cpp
-    IdTable.cpp)
+    ParserHelper.cpp
+    NodeVisitor.cpp)
