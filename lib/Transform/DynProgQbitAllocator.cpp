@@ -38,26 +38,16 @@ static std::string vecToKey(std::vector<unsigned> &v) {
     return key;
 }
 
-static std::unordered_map<std::string, PermVal> genPermutationMap(int phys, int prog) {
+static std::unordered_map<std::string, PermVal> genPermutationMap(int phys) {
     std::unordered_map<std::string, PermVal> permMap;
 
-    std::vector<bool> selector(phys-prog, false);
-    while (selector.size() != phys)
-        selector.push_back(true);
-
     unsigned idx = 0;
+    std::vector<unsigned> perm(phys, 0);
+    for (unsigned i = 0; i < phys; ++i) perm[i] = i;
+
     do {
-
-        std::vector<unsigned> perm;
-        for (unsigned i = 0; i < phys; ++i)
-            if (selector[i])
-                perm.push_back(i);
-
-        do {
-            permMap.insert(std::pair<std::string, PermVal>(vecToKey(perm), { idx++, perm }));
-        } while (std::next_permutation(perm.begin(), perm.end()));
-
-    } while (next_permutation(selector.begin(), selector.end()));
+        permMap.insert(std::pair<std::string, PermVal>(vecToKey(perm), { idx++, perm }));
+    } while (next_permutation(perm.begin(), perm.end()));
 
     return permMap;
 }
@@ -112,7 +102,7 @@ static void printSV(unsigned idx, std::vector<unsigned> map, SwapVal& sv, bool e
 
 std::vector<unsigned> efd::DynProgQbitAllocator::getUMapping(DepsSet& deps) {
     unsigned archQbits = mArchGraph->size();
-    std::unordered_map<std::string, PermVal> permMap = genPermutationMap(archQbits, getNumQbits());
+    std::unordered_map<std::string, PermVal> permMap = genPermutationMap(archQbits);
 
     int permN = permMap.size();
     int depN = deps.size();

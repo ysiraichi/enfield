@@ -43,16 +43,16 @@ std::vector<unsigned> efd::OneRestrictionSwapFinder::getPath(Rest r) {
     do {
         path.push_back(x);
         x = parent[x];
-    } while (parent[x] != ROOT);
+    } while (x != ROOT);
 
     return path;
 }
 
 efd::SwapFinder::SwapVector efd::OneRestrictionSwapFinder::generateFromPath(std::vector<unsigned> path) {
     SwapVector vec;
-    // if path > 2, no swap is needed.
-    if (path.size() > 1) {
-        for (unsigned i = 0, e = path.size(); i < e - 1; ++i)
+    // if path <= 2, no swap is needed.
+    if (path.size() > 2) {
+        for (unsigned i = 0, e = path.size() - 1; i < e - 1; ++i)
             vec.push_back(Swap { path[i], path[i+1] });
     }
 
