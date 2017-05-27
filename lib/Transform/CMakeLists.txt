@@ -7,4 +7,5 @@ add_library (EfdTransform
     Utils.cpp
     QbitAllocator.cpp
     DynProgQbitAllocator.cpp
-    RenameQbitsPass.cpp)
+    RenameQbitsPass.cpp
+    ReverseEdgesPass.cpp)
