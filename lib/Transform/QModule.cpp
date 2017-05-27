@@ -20,9 +20,8 @@ efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr),
 }
 
 void efd::QModule::registerSwapGate() {
-    static bool isSwapRegistered = false;
+    bool isSwapRegistered = getQGate("__swap__") != nullptr;
     if (!isSwapRegistered) {
-        isSwapRegistered = true;
         NDGateDecl* swap;
 
         // The quantum arguments that will be used
@@ -111,6 +110,7 @@ efd::QModule::Iterator efd::QModule::insertAtBeginning(NodeRef node) {
     stmts->addChild(it, node);
 
     invalidate();
+    validate();
     return it;
 }
 
