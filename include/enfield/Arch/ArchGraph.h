@@ -27,6 +27,9 @@ namespace efd {
             /// \brief Creates a node and puts it in the vector.
             unsigned putVertex(std::string s);
 
+            /// \brief Register the register.
+            void putReg(std::string id, std::string size);
+
             /// \brief The begin iterator for the \p mRegs.
             RegsIterator reg_begin();
             /// \brief The end iterator for the \p mRegs.

@@ -5,6 +5,7 @@
         unsigned u, v;
 
 #define EFD_REG(_QReg_, _Size_) \
+        this->putReg(#_QReg_, #_Size_);\
         for (unsigned i = 0; i < _Size_; ++i)\
             this->putVertex(std::string(#_QReg_"[" + std::to_string(i) + "]"));
 
