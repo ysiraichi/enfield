@@ -41,6 +41,7 @@ namespace efd {
 
             enum Kind {
                 K_QASM_VERSION,
+                K_INCLUDE,
                 K_DECL,
                 K_GATE_DECL,
                 K_GATE_OPAQUE,
