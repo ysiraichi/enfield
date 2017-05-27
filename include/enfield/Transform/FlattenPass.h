@@ -37,11 +37,14 @@ namespace efd {
             bool isChildremIdRef(NodeRef ref);
 
         public:
+            void visit(NDQOpBarrier* ref) override;
+            void visit(NDQOpMeasure* ref) override;
+            void visit(NDQOpReset* ref) override;
             void visit(NDQOpCX* ref) override;
             void visit(NDQOpGeneric* ref) override;
             void visit(NDIfStmt* ref) override;
 
-            void initImpl() override;
+            void initImpl(bool force) override;
 
             bool doesInvalidatesModule() const override;
 
