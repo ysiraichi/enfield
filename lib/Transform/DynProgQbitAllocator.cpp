@@ -211,6 +211,8 @@ std::vector<unsigned> efd::DynProgQbitAllocator::getUMapping(DepsSet& deps) {
 efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet& deps) {
     // Map Prog -> Arch
     std::vector<unsigned> uMap = getUMapping(deps);
+    std::vector<unsigned> uMapCopy = uMap;
+
     // Map Arch -> Prog
     std::vector<unsigned> uAssignMap = genAssign(mArchGraph->size(), uMap);
 
@@ -240,7 +242,7 @@ efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet
         }
     }
 
-    return uMap;
+    return uMapCopy;
 }
 
 efd::DynProgQbitAllocator* efd::DynProgQbitAllocator::Create
