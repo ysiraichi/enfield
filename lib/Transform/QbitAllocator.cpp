@@ -50,6 +50,7 @@ unsigned efd::QbitAllocator::getNumQbits() {
 
 void efd::QbitAllocator::run() {
     if (ArchGraph* arch = dynCast<ArchGraph>(mArchGraph)) {
+        // Renaming program qbits to architecture qbits.
         RenameQbitPass::ArchMap toArchMap;
 
         mMod->runPass(mDepPass);
@@ -61,6 +62,8 @@ void efd::QbitAllocator::run() {
         RenameQbitPass* renamePass = RenameQbitPass::Create(toArchMap);
         mMod->runPass(renamePass);
 
+        // Replacing the old qbit declarations with the architecture's qbit
+        // declaration.
         std::vector<NDDecl*> decls;
         for (auto it = arch->reg_begin(), e = arch->reg_end(); it != e; ++it)
             decls.push_back(dynCast<NDDecl>(NDDecl::Create(NDDecl::QUANTUM, 
@@ -69,22 +72,26 @@ void efd::QbitAllocator::run() {
                         ));
         mMod->replaceAllRegsWith(decls);
     }
-    
-    mMod->runPass(mDepPass);
+
+    // Getting the new information, since it can be the case that the qmodule
+    // was modified.
+    mMod->runPass(mDepPass, true);
     updateDepSet();
 
     mMapping = solveDependencies(mDepSet);
 
     QbitToNumberPass* uidPass = mDepPass->getUIdPass();
 
+    // Renaming the qbits with the mapping that this algorithm got from solving
+    // the dependencies.
     RenameQbitPass::ArchMap archConstMap;
     if (ArchGraph* arch = dynCast<ArchGraph>(mArchGraph)) {
-        for (unsigned i = 0, e = getNumQbits(); i < e; ++i) {
+        for (unsigned i = 0, e = mMapping.size(); i < e; ++i) {
             std::string id = uidPass->getStrId(i);
             archConstMap[id] = arch->getNode(mMapping[i]);
         }
     } else {
-        for (unsigned i = 0, e = getNumQbits(); i < e; ++i) {
+        for (unsigned i = 0, e = mMapping.size(); i < e; ++i) {
             std::string id = uidPass->getStrId(i);
             archConstMap[id] = uidPass->getNode(i);
         }
