@@ -35,6 +35,7 @@ namespace efd {
             QbitToNumberPass();
 
             const QbitMap* getMap(NDGateDecl* gate) const;
+            void initImpl(bool force) override;
 
         public:
             void visit(NDDecl* ref) override;
@@ -122,7 +123,7 @@ namespace efd {
             DepsSet* getDepsSet(NDGateDecl* gate = nullptr);
 
         protected:
-            void initImpl() override;
+            void initImpl(bool force) override;
 
         public:
             void visit(NDGateDecl* ref) override;

@@ -23,11 +23,11 @@ bool efd::Pass::wasApplied() const {
     return mApplied;
 }
 
-void efd::Pass::initImpl() {
+void efd::Pass::initImpl(bool force) {
 }
 
-void efd::Pass::init() {
-    initImpl();
+void efd::Pass::init(bool force) {
+    initImpl(force);
     mApplied = true;
 }
 

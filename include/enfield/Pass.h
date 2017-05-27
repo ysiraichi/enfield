@@ -26,7 +26,7 @@ namespace efd {
             unsigned mUK;
             /// \brief The implementation that should be overrided if the child pass
             /// has to set any variables before running the pass.
-            virtual void initImpl();
+            virtual void initImpl(bool force);
 
             Pass();
 
@@ -45,7 +45,7 @@ namespace efd {
             bool wasApplied() const;
 
             /// \brief Initializes the pass. Note that this function calls \em initImpl.
-            void init();
+            void init(bool force);
 
             /// \brief Returns true if the pass invalidates the module.
             virtual bool doesInvalidatesModule() const;

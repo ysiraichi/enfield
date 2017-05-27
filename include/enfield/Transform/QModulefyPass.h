@@ -15,7 +15,7 @@ namespace efd {
             QModulefyPass(QModule* qmod);
 
         protected:
-            void initImpl() override;
+            void initImpl(bool force) override;
 
         public:
             QModule* mMod;

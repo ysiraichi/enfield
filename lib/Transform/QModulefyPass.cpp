@@ -10,7 +10,7 @@ efd::QModulefyPass::QModulefyPass(QModule* qmod) : mMod(qmod) {
     mUK = Pass::K_AST_PASS;
 }
 
-void efd::QModulefyPass::initImpl() {
+void efd::QModulefyPass::initImpl(bool force) {
     mCurrentTable = &mMod->mTable;
     mIncludes.clear();
 }

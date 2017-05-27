@@ -79,13 +79,17 @@ void efd::QModule::replaceAllRegsWith(std::vector<NDDecl*> newRegs) {
                 "All register declaration must be in the main statement list.");
 
         for (int i = mRegDecls.size() - 1; i >= 0; --i) {
-            auto it = parent->findChild(parent->getChild(i));
-            parent->removeChild(it);
+            auto child = dynCast<NDDecl>(mRegDecls[i]);
+            if (child->isQReg()) {
+                auto it = parent->findChild(child);
+                parent->removeChild(it);
+            }
         }
     }
 
     for (auto decl : newRegs)
         insertAtBeginning(decl);
+    invalidate();
 }
 
 efd::QModule::Iterator efd::QModule::insertAtBeginning(NodeRef node) {
@@ -253,7 +257,7 @@ void efd::QModule::runPass(Pass* pass, bool force) {
 
     if (!isValid()) validate();
 
-    pass->init();
+    pass->init(force);
 
     if (pass->isASTPass()) {
         mAST->apply(pass);
@@ -276,8 +280,10 @@ void efd::QModule::runPass(Pass* pass, bool force) {
 
     // Invalidates itself it the pass does invalidate. e.g.: modifies the nodes
     // inside the module.
-    if (pass->doesInvalidatesModule())
+    if (pass->doesInvalidatesModule()) {
         invalidate();
+        validate();
+    }
 }
 
 std::unique_ptr<efd::QModule> efd::QModule::clone() const {
