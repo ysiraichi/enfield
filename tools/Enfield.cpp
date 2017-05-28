@@ -3,6 +3,7 @@
 #include "enfield/Transform/FlattenPass.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Transform/DynProgQbitAllocator.h"
+#include "enfield/Transform/ReverseEdgesPass.h"
 #include "enfield/Support/OneRestrictionSwapFinder.h"
 #include "enfield/Arch/Architectures.h"
 
@@ -40,8 +41,10 @@ int main(int argc, char** argv) {
         OneRestrictionSwapFinder* swapFinder = OneRestrictionSwapFinder::Create(graph.get());
         DynProgQbitAllocator* dynAllocator = DynProgQbitAllocator::Create
             (qmod.get(), graph.get(), swapFinder, depPass);
-
         dynAllocator->run();
+
+        ReverseEdgesPass* revPass = ReverseEdgesPass::Create(qmod.get(), graph.get(), depPass);
+        qmod->runPass(revPass);
 
         DumpToOutFile(qmod.get());
     }
