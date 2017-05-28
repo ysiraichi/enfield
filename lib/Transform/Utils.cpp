@@ -222,8 +222,15 @@ void efd::ReverseCNode(NodeRef node) {
             {
                 NDQOpCX* refCX = dynCast<NDQOpCX>(node);
                 assert(refCX != nullptr && "Malformed node.");
-                qArgs.push_back(refCX->getLhs());
-                qArgs.push_back(refCX->getRhs());
+
+                NodeRef lhs = refCX->getLhs();
+                NodeRef rhs = refCX->getRhs();
+                // Swapping the arguments.
+                refCX->setLhs(rhs);
+                refCX->setRhs(lhs);
+
+                qArgs.push_back(lhs);
+                qArgs.push_back(rhs);
             }
             break;
 
@@ -231,8 +238,18 @@ void efd::ReverseCNode(NodeRef node) {
             {
                 NDQOpGeneric* refGen = dynCast<NDQOpGeneric>(node);
                 assert(refGen != nullptr && "Malformed node.");
-                for (auto child : *refGen->getQArgs())
-                    qArgs.push_back(child);
+
+                NodeRef qargs = refGen->getQArgs();
+                assert(qargs->getChildNumber() == 2 && "Malformed CNOT call.");
+
+                NodeRef lhs = qargs->getChild(0);
+                NodeRef rhs = qargs->getChild(1);
+                // Swapping the arguments.
+                qargs->setChild(0, rhs);
+                qargs->setChild(1, lhs);
+
+                qArgs.push_back(lhs);
+                qArgs.push_back(rhs);
             }
             break;
 
@@ -241,17 +258,16 @@ void efd::ReverseCNode(NodeRef node) {
     }
 
     NodeRef parent = node->getParent();
-    Node::Iterator it = parent->findChild(node), oldIt = it;
+    Node::Iterator it;
     for (auto qbit : qArgs) {
         NDList* qArgs = dynCast<NDList>(NDList::Create());
         qArgs->addChild(qbit);
 
+        it = parent->findChild(node);
         efd::InsertNodeBefore(it, NDQOpGeneric::Create(H_ID_NODE->clone(), 
                     NDList::Create(), qArgs->clone()));
-        it = oldIt;
-
+        it = parent->findChild(node);
         efd::InsertNodeAfter(it, NDQOpGeneric::Create(H_ID_NODE->clone(), 
                     NDList::Create(), qArgs->clone()));
-        it = oldIt;
     }
 }
