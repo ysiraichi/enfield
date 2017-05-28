@@ -8,6 +8,7 @@
 #include "enfield/Arch/Architectures.h"
 
 #include <fstream>
+#include <cassert>
 
 using namespace efd;
 
@@ -28,6 +29,7 @@ int main(int argc, char** argv) {
     std::unique_ptr<QModule> qmod = QModule::Parse(InFilepath.getVal());
 
     if (qmod.get() != nullptr) {
+        // Creating default passes.
         FlattenPass* flattenPass = FlattenPass::Create(qmod.get());
         QbitToNumberPass* qbitUidPass = QbitToNumberPass::Create();
         DependencyBuilderPass* depPass = DependencyBuilderPass::Create
@@ -37,12 +39,17 @@ int main(int argc, char** argv) {
         qmod->runPass(qbitUidPass);
         qmod->runPass(depPass);
 
+        // Architecture-dependent fragment.
         std::unique_ptr<ArchIBMQX2> graph = ArchIBMQX2::Create();
+        assert(qbitUidPass->getSize() <= graph->size() &&
+                "Using more qbits than the maximum.");
+
         OneRestrictionSwapFinder* swapFinder = OneRestrictionSwapFinder::Create(graph.get());
         DynProgQbitAllocator* dynAllocator = DynProgQbitAllocator::Create
             (qmod.get(), graph.get(), swapFinder, depPass);
         dynAllocator->run();
 
+        // Reversing the edges.
         ReverseEdgesPass* revPass = ReverseEdgesPass::Create(qmod.get(), graph.get(), depPass);
         qmod->runPass(revPass);
 
