@@ -12,6 +12,10 @@ namespace efd {
 
     /// \brief Qasm module representation.
     class QModule {
+        public:
+            typedef Node::Iterator Iterator;
+            typedef Node::ConstIterator ConstIterator;
+
         private:
             NodeRef mAST;
             NodeRef mVersion;
@@ -30,20 +34,18 @@ namespace efd {
             QModule(NodeRef ref);
 
             /// \brief Registers the swap gate in the module.
-            void registerSwapGate();
+            void registerSwapGate(Iterator it);
 
         public:
-            typedef std::vector<NodeRef>::iterator Iterator;
-            typedef std::vector<NodeRef>::const_iterator ConstIterator;
-
             /// \brief Gets the qasm version.
             NodeRef getVersion();
 
+            /// \brief Replace all quantum registers with this sequence of declarations.
+            /// 
+            /// This should be used when renaming registers to the architecture's register
+            /// set.
             void replaceAllRegsWith(std::vector<NDDecl*> newRegs);
 
-            /// \brief Inserts \p node at the beginning of the file, and return an iterator
-            /// to it.
-            Iterator insertAtBeginning(NodeRef node);
             /// \brief Inlines \p call and returns an iterator to the first node inserted.
             Iterator inlineCall(NDQOpGeneric* call);
             /// \brief Inserts \p ref after \p it, and returns a iterator to this node.
@@ -103,7 +105,7 @@ namespace efd {
             /// is in its properties are valid.
             void validate();
             /// \brief Returns true if this QModule is valid.
-            bool isValid();
+            bool isValid() const;
 
             /// \brief Applies the pass in the QModule. If the pass has already been applied,
             /// it won't be applied again unless \p force is set.

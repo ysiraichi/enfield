@@ -19,7 +19,7 @@ efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr),
     mQModulefy(nullptr), mValid(true), mStdLibsParsed(false) {
 }
 
-void efd::QModule::registerSwapGate() {
+void efd::QModule::registerSwapGate(Iterator it) {
     bool isSwapRegistered = getQGate("__swap__") != nullptr;
     if (!isSwapRegistered) {
         NDGateDecl* swap;
@@ -63,7 +63,9 @@ void efd::QModule::registerSwapGate() {
 
         swap = dynCast<NDGateDecl>(NDGateDecl::Create(SWAP_ID_NODE->clone(),
                     NDList::Create(), qargsLhsRhs, gop));
-        insertAtBeginning(swap);
+
+        // Inserts swap declaration before first use.
+        insertNodeBefore(it, swap);
     }
 }
 
@@ -86,32 +88,13 @@ void efd::QModule::replaceAllRegsWith(std::vector<NDDecl*> newRegs) {
         }
     }
 
+    assert(!mStatements.empty() &&
+            "Trying to replace regs with no statements in the program.");
+    NodeRef firstStmt = *stmt_begin();
+    auto it = firstStmt->getParent()->findChild(firstStmt);
     for (auto decl : newRegs)
-        insertAtBeginning(decl);
+        InsertNodeBefore(it, decl);
     invalidate();
-}
-
-efd::QModule::Iterator efd::QModule::insertAtBeginning(NodeRef node) {
-    NDStmtList* stmts;
-    Iterator it;
-
-    if (auto version = dynCast<NDQasmVersion>(mAST))
-        stmts = version->getStatements();
-    else
-        stmts = dynCast<NDStmtList>(mAST);
-
-    if (stmts == nullptr) {
-        assert(mAST == nullptr &&
-                "AST root node is neither the version nor a statement list.");
-        stmts = dynCast<NDStmtList>(NDStmtList::Create());
-    }
-
-    it = stmts->begin();
-    stmts->addChild(it, node);
-
-    invalidate();
-    validate();
-    return it;
 }
 
 efd::QModule::Iterator efd::QModule::inlineCall(NDQOpGeneric* call) {
@@ -142,7 +125,8 @@ efd::QModule::Iterator efd::QModule::insertSwapBefore(Iterator it, NodeRef lhs, 
     InsertSwapBefore(*it, lhs, rhs);
     // Register the gate must be done after inserting the swap, as it does not require
     // any iterator. Else, this would invalidate the iterator passed as parammeter.
-    registerSwapGate();
+    it = parent->begin() + dist;
+    registerSwapGate(it);
     invalidate();
     return parent->begin() + dist;
 }
@@ -153,56 +137,68 @@ efd::QModule::Iterator efd::QModule::insertSwapAfter(Iterator it, NodeRef lhs, N
     InsertSwapAfter(*it, lhs, rhs);
     // Register the gate must be done after inserting the swap, as it does not require
     // any iterator. Else, this would invalidate the iterator passed as parammeter.
-    registerSwapGate();
+    registerSwapGate(it);
     invalidate();
     return parent->begin() + dist;
 }
 
 efd::QModule::Iterator efd::QModule::reg_begin() {
+    if (!isValid()) validate();
     return mRegDecls.begin();
 }
 
 efd::QModule::ConstIterator efd::QModule::reg_begin() const {
+    assert(isValid() && "Const QModule modified.");
     return mRegDecls.begin();
 }
 
 efd::QModule::Iterator efd::QModule::reg_end() {
+    if (!isValid()) validate();
     return mRegDecls.end();
 }
 
 efd::QModule::ConstIterator efd::QModule::reg_end() const {
+    assert(isValid() && "Const QModule modified.");
     return mRegDecls.end();
 }
 
 efd::QModule::Iterator efd::QModule::gates_begin() {
+    if (!isValid()) validate();
     return mGates.begin();
 }
 
 efd::QModule::ConstIterator efd::QModule::gates_begin() const {
+    assert(isValid() && "Const QModule modified.");
     return mGates.begin();
 }
 
 efd::QModule::Iterator efd::QModule::gates_end() {
+    if (!isValid()) validate();
     return mGates.end();
 }
 
 efd::QModule::ConstIterator efd::QModule::gates_end() const {
+    assert(isValid() && "Const QModule modified.");
     return mGates.end();
 }
 
 efd::QModule::Iterator efd::QModule::stmt_begin() {
+    if (!isValid()) validate();
     return mStatements.begin();
 }
 
 efd::QModule::ConstIterator efd::QModule::stmt_begin() const {
+    assert(isValid() && "Const QModule modified.");
     return mStatements.begin();
 }
 
 efd::QModule::Iterator efd::QModule::stmt_end() {
+    if (!isValid()) validate();
     return mStatements.end();
 }
 
 efd::QModule::ConstIterator efd::QModule::stmt_end() const {
+    assert(isValid() && "Const QModule modified.");
     return mStatements.end();
 }
 
@@ -215,17 +211,22 @@ std::string efd::QModule::toString(bool pretty) const {
 }
 
 efd::IdTable& efd::QModule::getIdTable(NDGateDecl* ref) {
+    if (!isValid()) validate();
+
     if (ref != nullptr && mIdTableMap.find(ref) != mIdTableMap.end())
         return mIdTableMap[ref];
     return mTable;
 }
 
 efd::NodeRef efd::QModule::getQVar(std::string id, NDGateDecl* gate, bool recursive) {
+    if (!isValid()) validate();
+
     IdTable& gTable = getIdTable(gate);
     return gTable.getQVar(id, recursive);
 }
 
 efd::NDGateDecl* efd::QModule::getQGate(std::string id, bool recursive) {
+    if (!isValid()) validate();
     return mTable.getQGate(id, recursive);
 }
 
@@ -247,7 +248,7 @@ void efd::QModule::validate() {
     runPass(mQModulefy, true);
 }
 
-bool efd::QModule::isValid() {
+bool efd::QModule::isValid() const {
     return mValid;
 }
 
