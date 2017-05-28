@@ -27,7 +27,7 @@ void efd::ReverseEdgesPass::visit(NDQOpGeneric* ref) {
     if (ref->getId()->getVal() == "cx") {
         // Have to come up a way to overcome this.
         assert(ref->getQArgs()->getChildNumber() == 2 && "CNot gate malformed.");
-        NDList* qargs = ref->getArgs();
+        NDList* qargs = ref->getQArgs();
         unsigned uidLhs = mG->getUId(qargs->getChild(0)->toString());
         unsigned uidRhs = mG->getUId(qargs->getChild(1)->toString());
 
