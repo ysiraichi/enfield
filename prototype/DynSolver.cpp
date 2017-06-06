@@ -1,5 +1,6 @@
 
 #include "Analyser.h"
+#include "TokenSwap.h"
 #include "DynSolver.h"
 
 #include <fstream>
@@ -16,62 +17,42 @@ using namespace std;
     ((a) == UNREACH) ? (((b) == UNREACH) ? UNREACH : (b)) : \
     (((b) == UNREACH) ? (a) : ((a) < (b)) ? (a) : (b))
 
-struct PermVal {
-    int idx;
-    vector<int> perm;
-};
 
-struct SwapVal {
-    int root;
+struct Val {
+    int pId;
+    Val* parent;
     int cost;
 };
 
 vector<int> getPath(Graph &physGraph, int u, int v);
 void swapPath(Graph &physGraph, vector<int> &mapping, vector<int> path, ostream &out);
-    
-string vecToKey(vector<int> &v) {
-    string key = "";
-    for (int x : v)
-        key += std::to_string(x) + "|";
-    return key;
-}
 
-unordered_map<string, PermVal> genPermutationMap(int phys, int prog) {
-    unordered_map<string, PermVal> permMap;
-
-    vector<bool> selector(phys-prog, false);
-    while (selector.size() != phys)
-        selector.push_back(true);
-
-    int idx = 0;
-    do {
-
-        vector<int> perm;
-        for (int i = 0; i < phys; ++i)
-            if (selector[i])
-                perm.push_back(i);
-
-        do {
-            permMap.insert(pair<string, PermVal>(vecToKey(perm), { idx++, perm }));
-        } while (next_permutation(perm.begin(), perm.end()));
-
-    } while (next_permutation(selector.begin(), selector.end()));
-
-    return permMap;
+Val minVal(Val& a, Val& b) {
+    int cost = min(a.cost, b.cost);
+    if (cost == a.cost) return a;
+    else return b;
 }
 
 vector<int> genAssign(vector<int> mapping) {
+    int size = mapping.size();
     vector<int> assign(mapping.size(), -1);
-    for (int i = 0, e = mapping.size(); i < e; ++i)
+    for (int i = 0; i < size; ++i)
         assign[mapping[i]] = i;
+    // Mapping the extra physical qubits into valid program qubits.
+    for (int i = 0; i < size; ++i)
+        if (mapping[i] == -1)
+            mapping[i] = size++;
     return assign;
 }
 
-vector<int> dynsolve(Graph &physGraph) {
+MapResult dynsolve(Graph &physGraph) {
     int qubits;
-    vector< pair<int, int> > dependencies = readDependencies(ProgFilename, qubits);
+    vector<pair<int, int>> dependencies = readDependencies(ProgFilename, qubits);
 
-    unordered_map<string, PermVal> permMap = genPermutationMap(physGraph.size(), qubits);
+    computeSwaps(physGraph);
+
+    unordered_map<string, PermVal> permMap;
+    genPermutationMap(physGraph.size(), permMap);
 
     int permN = permMap.size();
     int depN = dependencies.size();
@@ -82,94 +63,110 @@ vector<int> dynsolve(Graph &physGraph) {
     for (auto &pair : permMap)
         permIdMap[pair.second.idx] = &pair.second.perm;
 
-    // Map with the minimum number of swaps at time 'i'.
-    SwapVal swaps[permN][depN + 1];
+    // Map with the minimum number of vals at time 'i'.
+    Val vals[permN][depN + 1];
 
     for (int i = 0; i < permN; ++i)
-        swaps[i][0] = { i, 0 };
+        vals[i][0] = { i, nullptr, 0 };
 
     for (int i = 0; i < permN; ++i)
         for (int j = 1; j <= depN; ++j)
-            swaps[i][j] = { -1, UNREACH };
+            vals[i][j] = { i, nullptr, UNREACH };
 
-    
-
-    for (int i = 0; i <= depN; ++i) {
-        int t = i+1;
-        pair<int, int> dep = dependencies[i];
+    for (int i = 1; i <= depN; ++i) {
+        pair<int, int> dep = dependencies[i-1];
 
         /*
-        cout << "-----------------------------------------------------------" << endl;
-        cout << "Dep: " << dep.first << " -> " << dep.second << endl;
+        cout << "---------------------------------------" << endl;
+        cout << "from:" << dep.first << " - to:" << dep.second << endl;
         */
 
-        for (auto pair : permMap) {
-            int idx = pair.second.idx;
-            vector<int> mapping = pair.second.perm;
-            // A reverse mapping (Phys -> Prog)
-            vector<int> assign = genAssign(mapping);
-            
-            int sourceIdx = permMap[vecToKey(mapping)].idx;
-            int targetIdx = sourceIdx;
+        for (int tgt = 0; tgt < permN; ++tgt) {
+            // Check if target tgtPermutation has the dependency required.
+            auto& tgtPerm = *permIdMap[tgt];
+            // Arch qubit interaction (u, v)
+            int u = tgtPerm[dep.first], v = tgtPerm[dep.second];
 
-            SwapVal *source = &swaps[sourceIdx][t-1];
-            SwapVal *target = &swaps[targetIdx][t];
-
-            if (source->cost == UNREACH)
+            if (!physGraph.hasEdge(u, v))
                 continue;
 
-            if (source->root == -1)
-                cout << "Error at comb:" << sourceIdx << " - t:" << t-1 << endl;
+            Val minimum { tgt, nullptr, UNREACH };
 
-            SwapVal finalVal;
-            if (min(source->cost, target->cost) == source->cost)
-                finalVal = *source;
-            else 
-                finalVal = *target;
+            for (int src = 0; src < permN; ++src) {
+                Val& srcVal = vals[src][i-1];
+                if (srcVal.cost == UNREACH)
+                    continue;
 
-            int u = mapping[dep.first];
-            int v = mapping[dep.second];
-            if (!physGraph.hasEdge(u, v)) {
-                vector<int> newMapping = mapping;
+                int finalCost = srcVal.cost;
 
-                vector<int> path = getPath(physGraph, u, v);
-                swapPath(physGraph, newMapping, path, cerr);
+                if (tgt != src) {
+                    auto srcAssign = genAssign(*permIdMap[src]);
+                    auto tgtAssign = genAssign(tgtPerm);
+                    finalCost += getNofSwaps(srcAssign, tgtAssign) * SwapCost;
+                }
 
-                targetIdx = permMap[vecToKey(newMapping)].idx;
-                target = &swaps[targetIdx][t];
+                if (physGraph.isReverseEdge(u, v))
+                    finalCost += RevCost;
 
-                int newCalcCost = source->cost + ((path.size() - 1) * SwapCost);
-                int oldCalcCost = target->cost;
-
-                if (min(newCalcCost, oldCalcCost) == newCalcCost)
-                    finalVal = { source->root, newCalcCost };
-                else
-                    finalVal = *target;
-
-                mapping = newMapping;
+                Val thisVal { tgt, &srcVal, finalCost };
+                minimum = minVal(minimum, thisVal);
             }
 
-            u = mapping[dep.first];
-            v = mapping[dep.second];
-            if (physGraph.isReverseEdge(u, v))
-                finalVal.cost += RevCost;
-
             /*
-            cout << "{ map:[ ";
-            for (int x : mapping)
-                cout << "(" << x << ") ";
-            cout << "], cost:" << finalCost <<  " }" << endl;
+            Val *srcVal = minimum.parent;
+            cout << "{id:" << srcVal->pId << ", cost:" << srcVal->cost << ", perm:[";
+            for (int i : *permIdMap[srcVal->pId]) cout << " " << i;
+            cout << " ]}";
+
+            cout << " >> ";
+
+            cout << "{id:" << minimum.pId << ", cost:" << minimum.cost << ", perm:[";
+            for (int i : *permIdMap[minimum.pId]) cout << " " << i;
+            cout << " ]}" << endl;
             */
 
-            *target = finalVal;
+            vals[tgt][i] = minimum;
         }
     }
 
-    SwapVal minCost = swaps[0][depN];
+    // Get the minimum cost setup.
+    Val* val = &vals[0][depN];
     for (int i = 1; i < permN; ++i) {
-        int minVal = min(minCost.cost, swaps[i][depN].cost);
-        minCost = (minVal == minCost.cost) ? minCost : swaps[i][depN];
+        int minCost = min(val->cost, vals[i][depN].cost);
+        val = (minCost == val->cost) ? val : &vals[i][depN];
     }
 
-    return *(permIdMap[minCost.root]);
+    /*
+    cout << "Best: {id:" << val->pId << ", cost:" << val->cost << ", perm:[";
+    for (int i : *permIdMap[val->pId]) cout << " " << i;
+    cout << " }" << endl;
+    */
+
+    int bestCost = val->cost;
+
+    // Get the dep->swaps mapping.
+    int swapId = depN-1;
+    vector<SwapVector> swaps(depN, SwapVector());
+    while (val->parent != nullptr) {
+        int srcId = val->parent->pId, tgtId = val->pId;
+
+        if (srcId != tgtId) {
+            auto srcAssign = genAssign(*permIdMap[srcId]);
+            auto tgtAssign = genAssign(*permIdMap[tgtId]);
+            swaps[swapId] = getSwaps(srcAssign, tgtAssign);
+        }
+
+        val = val->parent;
+        --swapId;
+    }
+
+    auto initial = *permIdMap[val->pId];
+
+    /*
+    cout << "Initial: {id:" << val->pId << ", cost:" << val->cost << ", perm:[";
+    for (int i : *permIdMap[val->pId]) cout << " " << i;
+    cout << " }" << endl;
+    */
+
+    return { initial, swaps, bestCost };
 }

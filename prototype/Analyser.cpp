@@ -1,6 +1,7 @@
 #include "Analyser.h"
 #include "Graph.h"
 #include "Isomorphism.h"
+#include "TokenSwap.h"
 #include "DynSolver.h"
 
 #include <iostream>
@@ -28,8 +29,11 @@ void printMapping(vector<int> &mapping) {
     cout << "Prog -> Phys" << endl;
 
     for (int i = 0; i < mapping.size(); ++i) {
-        if (mapping[i] != -1)
+        if (i >= ProgVarNames.size()) {
+            cout << "Tmp -> " << PhysVarNames[mapping[i]] << endl;
+        } else {
             cout << ProgVarNames[i] << " -> " << PhysVarNames[mapping[i]] << endl;
+        }
     }
 }
 
@@ -129,6 +133,31 @@ vector<int> getPath(Graph &physGraph, int u, int v) {
     return path;
 }
 
+void swapPath(Graph &physGraph, vector<int> &mapping, SwapVector swaps, ostream &out) {
+    vector<int> assigned(physGraph.size(), -1);
+
+    for (int i = 0, e = mapping.size(); i < e; ++i)
+        assigned[mapping[i]] = i;
+
+    for (int i = 0, e = swaps.size(); i < e; ++i) {
+        // (u, v) in Phys
+        int u = swaps[i].first, v = swaps[i].second;
+        // (a, b) in Prog
+        int a = assigned[u], b = assigned[v];
+
+        string aS = "Tmp", bS = "Tmp";
+        if (ProgVarNames.size() > a) aS = ProgVarNames[a];
+        if (ProgVarNames.size() > b) bS = ProgVarNames[b];
+        out << "Swapping (" << aS << ", " << bS << ")" << endl;
+
+        assigned[u] = b;
+        assigned[v] = a;
+
+        mapping[a] = v;
+        mapping[b] = u;
+    }
+}
+
 void swapPath(Graph &physGraph, vector<int> &mapping, vector<int> path, ostream &out) {
     vector<int> assigned(physGraph.size(), -1);
 
@@ -152,6 +181,31 @@ void swapPath(Graph &physGraph, vector<int> &mapping, vector<int> path, ostream 
         if (b != -1)
             mapping[b] = u;
     }
+}
+
+vector< vector<int> > dynMapForEach(Graph &physGraph, MapResult result) {
+    int qubits;
+    vector< pair<int, int> > dependencies = readDependencies(ProgFilename, qubits);
+
+    vector< vector<int> > mappings = { result.initial };
+    for (int t = 0, e = dependencies.size(); t < e; ++t) {
+        pair<int, int> dep = dependencies[t];
+        vector<int> current = mappings.back();
+
+        // (u, v) is in Phys
+        int u = current[dep.first], v = current[dep.second];
+
+        SwapVector& swaps = result.swaps[t];
+        if (!swaps.empty()) {
+            swapPath(physGraph, current, swaps, cerr);
+            mappings.push_back(current);
+        }
+
+        cerr << "Dep: " << ProgVarNames[dep.first] << " -> " << ProgVarNames[dep.second] << endl;
+
+    }
+
+    return mappings;
 }
 
 vector< vector<int> > mapForEach(Graph &physGraph, vector<int> mapping, int &cost) {
@@ -235,36 +289,43 @@ int main(int argc, char **argv) {
     vector< vector<int> >  mappings;
 
     cout << "--------------------------------" << endl;
-    vector<int> mapping;
 
+    int totalCost;
     switch (M) {
         case ISO:
             {
-                mapping = findIsomorphism(*physGraph, *progGraph);
+                vector<int> mapping = findIsomorphism(*physGraph, *progGraph);
+
+                printMapping(mapping);
+                mappings = mapForEach(*physGraph, mapping, totalCost);
                 break;
             }
 
         case DYN:
             {
-                mapping = dynsolve(*physGraph);
+                auto result = dynsolve(*physGraph);
+
+                printMapping(result.initial);
+                mappings = dynMapForEach(*physGraph, result);
+                totalCost = result.cost;
             }
 
         default:
             break;
     }
 
-    int totalCost;
-
-    printMapping(mapping);
-    mappings = mapForEach(*physGraph, mapping, totalCost);
-
     cout << "--------------------------------" << endl;
+    cout << "Prog: [";
+    for (auto name : ProgVarNames) cout << " " << name;
+    cout << " ]" << endl;
+    cout << "Phys: [";
+    for (auto name : PhysVarNames) cout << " " << name;
+    cout << " ]" << endl;
+
     for (int i = 0, e = mappings.size(); i < e; ++i) {
         printMapping(mappings[i]);
         cout << endl;
     }
-
     cout << "Cost: " << totalCost << endl;
-
     return 0;
 }

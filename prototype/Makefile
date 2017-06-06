@@ -1,11 +1,11 @@
 
-objects = Analyser.o Isomorphism.o DynSolver.o
+objects = Analyser.o Isomorphism.o DynSolver.o TokenSwap.o
 executable = enfield
 
 input = input
 tests = $(shell ls p_*)
 
-CC = clang++
+CC = g++
 CXXFLAGS = -O0 -g -std=c++11
 
 M = -dyn

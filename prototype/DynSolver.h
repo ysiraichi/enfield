@@ -2,9 +2,9 @@
 #define DYN_SOLVER_H
 
 #include "Graph.h"
-#include <vector>
+#include "Analyser.h"
 
-std::vector<int> dynsolve(Graph &physGraph); 
+MapResult dynsolve(Graph &physGraph); 
 
 extern const int SwapCost;
 extern const int RevCost;
