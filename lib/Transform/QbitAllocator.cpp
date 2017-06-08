@@ -1,5 +1,6 @@
 #include "enfield/Transform/QbitAllocator.h"
 #include "enfield/Transform/RenameQbitsPass.h"
+#include "enfield/Transform/InlineAllPass.h"
 #include "enfield/Transform/Utils.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
@@ -13,7 +14,8 @@ void efd::QbitAllocator::updateDepSet() {
 
 efd::QbitAllocator::QbitAllocator(QModule* qmod, Graph* pGraph, SwapFinder* sFind, 
         DependencyBuilderPass* depPass) : mMod(qmod), mArchGraph(pGraph), 
-                                          mSFind(sFind), mDepPass(depPass), mRun(false) {
+                                          mSFind(sFind), mDepPass(depPass),
+                                          mRun(false), mInlineAll(false) {
     if (mDepPass == nullptr)
         mDepPass = DependencyBuilderPass::Create(mMod);
 }
@@ -48,38 +50,41 @@ unsigned efd::QbitAllocator::getNumQbits() {
     return mDepPass->getUIdPass()->getSize();
 }
 
-void efd::QbitAllocator::run() {
-    if (ArchGraph* arch = dynCast<ArchGraph>(mArchGraph)) {
-        // Renaming program qbits to architecture qbits.
-        RenameQbitPass::ArchMap toArchMap;
+void efd::QbitAllocator::inlineAllGates() {
+    InlineAllPass* inlinePass = InlineAllPass::Create(mMod, mBasis);
 
-        mMod->runPass(mDepPass);
-        QbitToNumberPass* uidPass = mDepPass->getUIdPass();
-        for (unsigned i = 0, e = uidPass->getSize(); i < e; ++i) {
-            toArchMap[uidPass->getStrId(i)] = arch->getNode(i);
-        }
+    do {
+        mMod->runPass(inlinePass, true);
+    } while (inlinePass->hasInlined());
+}
 
-        RenameQbitPass* renamePass = RenameQbitPass::Create(toArchMap);
-        mMod->runPass(renamePass);
+void efd::QbitAllocator::replaceWithArchSpecs() {
+    ArchGraph* arch = dynCast<ArchGraph>(mArchGraph);
 
-        // Replacing the old qbit declarations with the architecture's qbit
-        // declaration.
-        std::vector<NDDecl*> decls;
-        for (auto it = arch->reg_begin(), e = arch->reg_end(); it != e; ++it)
-            decls.push_back(dynCast<NDDecl>(NDDecl::Create(NDDecl::QUANTUM, 
-                            NDId::Create(it->first), 
-                            NDInt::Create(std::to_string(it->second)))
-                        ));
-        mMod->replaceAllRegsWith(decls);
+    // Renaming program qbits to architecture qbits.
+    RenameQbitPass::ArchMap toArchMap;
+
+    mMod->runPass(mDepPass);
+    QbitToNumberPass* uidPass = mDepPass->getUIdPass();
+    for (unsigned i = 0, e = uidPass->getSize(); i < e; ++i) {
+        toArchMap[uidPass->getStrId(i)] = arch->getNode(i);
     }
 
-    // Getting the new information, since it can be the case that the qmodule
-    // was modified.
-    mMod->runPass(mDepPass, true);
-    updateDepSet();
+    RenameQbitPass* renamePass = RenameQbitPass::Create(toArchMap);
+    mMod->runPass(renamePass);
 
-    mMapping = solveDependencies(mDepSet);
+    // Replacing the old qbit declarations with the architecture's qbit
+    // declaration.
+    std::vector<NDDecl*> decls;
+    for (auto it = arch->reg_begin(), e = arch->reg_end(); it != e; ++it)
+        decls.push_back(dynCast<NDDecl>(NDDecl::Create(NDDecl::QUANTUM, 
+                        NDId::Create(it->first), 
+                        NDInt::Create(std::to_string(it->second)))
+                    ));
+    mMod->replaceAllRegsWith(decls);
+}
 
+void efd::QbitAllocator::renameQbits() {
     QbitToNumberPass* uidPass = mDepPass->getUIdPass();
 
     // Renaming the qbits with the mapping that this algorithm got from solving
@@ -99,8 +104,36 @@ void efd::QbitAllocator::run() {
 
     RenameQbitPass* renamePass = RenameQbitPass::Create(archConstMap);
     mMod->runPass(renamePass);
+}
+
+void efd::QbitAllocator::run() {
+    if (mInlineAll) {
+        inlineAllGates();
+    }
+
+    if (instanceOf<ArchGraph>(mArchGraph)) {
+        replaceWithArchSpecs();
+    }
+
+    // Getting the new information, since it can be the case that the qmodule
+    // was modified.
+    mMod->runPass(mDepPass, true);
+    updateDepSet();
+
+    mMapping = solveDependencies(mDepSet);
+
+    renameQbits();
 
     mRun = true;
+}
+
+void efd::QbitAllocator::setInlineAll(BasisVector basis) {
+    mInlineAll = true;
+    mBasis = basis;
+}
+
+void efd::QbitAllocator::setDontInline() {
+    mInlineAll = false;
 }
 
 efd::QbitAllocator::Mapping efd::QbitAllocator::getMapping() {
