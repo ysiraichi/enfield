@@ -48,6 +48,7 @@ namespace {
             QArgsReplaceVisitor(VarMap& varMap) : varMap(varMap) {}
 
             void substituteChildrem(efd::NodeRef ref);
+            efd::NodeRef replaceChild(efd::NodeRef ref);
 
             void visit(efd::NDQOpU* ref) override;
             void visit(efd::NDQOpCX* ref) override;
@@ -58,21 +59,26 @@ namespace {
     };
 }
 
+efd::NodeRef QArgsReplaceVisitor::replaceChild(efd::NodeRef child) {
+    std::string _id = child->toString();
+
+    if (varMap.find(_id) != varMap.end()) {
+        return varMap[_id]->clone();
+    }
+
+    return child;
+}
+
 void QArgsReplaceVisitor::substituteChildrem(efd::NodeRef ref) {
     for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
-        efd::NodeRef child = ref->getChild(i);
-        std::string _id = child->toString();
-
-        if (varMap.find(_id) != varMap.end()) {
-            ref->setChild(i, varMap[_id]);
-        }
+        ref->setChild(i, replaceChild(ref->getChild(i)));
     }
 }
 
 void QArgsReplaceVisitor::visit(efd::NDQOpU* ref) {
     ref->getArgs()->apply(this);
     substituteChildrem(ref->getArgs());
-    substituteChildrem(ref->getQArg());
+    ref->setQArg(replaceChild(ref->getQArg()));
 }
 
 void QArgsReplaceVisitor::visit(efd::NDQOpCX* ref) {
