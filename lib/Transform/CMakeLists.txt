@@ -5,6 +5,7 @@ add_library (EfdTransform
     DependencyBuilderPass.cpp
     FlattenPass.cpp
     Utils.cpp
+    InlineAllPass.cpp
     QbitAllocator.cpp
     DynProgQbitAllocator.cpp
     RenameQbitsPass.cpp

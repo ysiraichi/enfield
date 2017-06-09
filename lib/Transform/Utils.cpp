@@ -5,6 +5,7 @@
 #include <cassert>
 #include <unordered_map>
 #include <iterator>
+#include <iostream>
 
 namespace efd {
     extern const NodeRef SWAP_ID_NODE = efd::NDId::Create("__swap__"); 
@@ -48,6 +49,7 @@ namespace {
             QArgsReplaceVisitor(VarMap& varMap) : varMap(varMap) {}
 
             void substituteChildrem(efd::NodeRef ref);
+            efd::NodeRef replaceChild(efd::NodeRef ref);
 
             void visit(efd::NDQOpU* ref) override;
             void visit(efd::NDQOpCX* ref) override;
@@ -58,21 +60,26 @@ namespace {
     };
 }
 
+efd::NodeRef QArgsReplaceVisitor::replaceChild(efd::NodeRef child) {
+    std::string _id = child->toString();
+
+    if (varMap.find(_id) != varMap.end()) {
+        return varMap[_id]->clone();
+    }
+
+    return child;
+}
+
 void QArgsReplaceVisitor::substituteChildrem(efd::NodeRef ref) {
     for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
-        efd::NodeRef child = ref->getChild(i);
-        std::string _id = child->toString();
-
-        if (varMap.find(_id) != varMap.end()) {
-            ref->setChild(i, varMap[_id]);
-        }
+        ref->setChild(i, replaceChild(ref->getChild(i)));
     }
 }
 
 void QArgsReplaceVisitor::visit(efd::NDQOpU* ref) {
     ref->getArgs()->apply(this);
     substituteChildrem(ref->getArgs());
-    substituteChildrem(ref->getQArg());
+    ref->setQArg(replaceChild(ref->getQArg()));
 }
 
 void QArgsReplaceVisitor::visit(efd::NDQOpCX* ref) {
@@ -145,10 +152,11 @@ void efd::ReplaceNodes(NodeRef ref, std::vector<NodeRef> nodes) {
     if (NDList* parent = dynCast<NDList>(ref->getParent())) {
 
         it = parent->findChild(ref);
+        assert(it != parent->end() && "Node removed from parent.");
+
         dist = std::distance(parent->begin(), it);
         for (auto child : nodes)
             efd::InsertNodeAfter(it, child);
-
         auto old = parent->begin() + dist;
         parent->removeChild(old);
 
@@ -157,6 +165,8 @@ void efd::ReplaceNodes(NodeRef ref, std::vector<NodeRef> nodes) {
         assert(ifParent != nullptr && "The parent of an If node has to be a NDList.");
 
         it = ifParent->findChild(parent);
+        assert(it != parent->end() && "Node removed from parent.");
+
         dist = std::distance(ifParent->begin(), it);
         for (auto child : nodes)
             efd::InsertNodeAfter(it, NDIfStmt::Create(parent->getCondId()->clone(), 

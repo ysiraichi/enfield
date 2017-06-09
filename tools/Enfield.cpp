@@ -47,6 +47,7 @@ int main(int argc, char** argv) {
         OneRestrictionSwapFinder* swapFinder = OneRestrictionSwapFinder::Create(graph.get());
         DynProgQbitAllocator* dynAllocator = DynProgQbitAllocator::Create
             (qmod.get(), graph.get(), swapFinder, depPass);
+        dynAllocator->setInlineAll({ "cx", "u1", "u2", "u3" });
         dynAllocator->run();
 
         // Reversing the edges.
