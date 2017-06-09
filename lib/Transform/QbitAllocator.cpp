@@ -91,14 +91,14 @@ void efd::QbitAllocator::renameQbits() {
     // the dependencies.
     RenameQbitPass::ArchMap archConstMap;
     if (ArchGraph* arch = dynCast<ArchGraph>(mArchGraph)) {
-        for (unsigned i = 0, e = mMapping.size(); i < e; ++i) {
+        for (unsigned i = 0, e = uidPass->getSize(); i < e; ++i) {
             std::string id = uidPass->getStrId(i);
             archConstMap[id] = arch->getNode(mMapping[i]);
         }
     } else {
-        for (unsigned i = 0, e = mMapping.size(); i < e; ++i) {
+        for (unsigned i = 0, e = uidPass->getSize(); i < e; ++i) {
             std::string id = uidPass->getStrId(i);
-            archConstMap[id] = uidPass->getNode(i);
+            archConstMap[id] = uidPass->getNode(mMapping[i]);
         }
     }
 
