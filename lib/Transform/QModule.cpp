@@ -264,17 +264,20 @@ void efd::QModule::runPass(Pass* pass, bool force) {
         mAST->apply(pass);
     } else {
         if (pass->isRegDeclPass()) {
-            for (auto regdecl : mRegDecls)
+            auto regsCopy = mRegDecls;
+            for (auto regdecl : regsCopy)
                 regdecl->apply(pass);
         }
         
         if (pass->isGatePass()) {
-            for (auto gate : mGates)
+            auto gatesCopy = mGates;
+            for (auto gate : gatesCopy)
                 gate->apply(pass);
         }
 
         if (pass->isStatementPass()) {
-            for (auto stmt : mStatements)
+            auto stmtCopy = mStatements;
+            for (auto stmt : stmtCopy)
                 stmt->apply(pass);
         }
     }

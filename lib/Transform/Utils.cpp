@@ -5,6 +5,7 @@
 #include <cassert>
 #include <unordered_map>
 #include <iterator>
+#include <iostream>
 
 namespace efd {
     extern const NodeRef SWAP_ID_NODE = efd::NDId::Create("__swap__"); 
@@ -151,10 +152,11 @@ void efd::ReplaceNodes(NodeRef ref, std::vector<NodeRef> nodes) {
     if (NDList* parent = dynCast<NDList>(ref->getParent())) {
 
         it = parent->findChild(ref);
+        assert(it != parent->end() && "Node removed from parent.");
+
         dist = std::distance(parent->begin(), it);
         for (auto child : nodes)
             efd::InsertNodeAfter(it, child);
-
         auto old = parent->begin() + dist;
         parent->removeChild(old);
 
@@ -163,6 +165,8 @@ void efd::ReplaceNodes(NodeRef ref, std::vector<NodeRef> nodes) {
         assert(ifParent != nullptr && "The parent of an If node has to be a NDList.");
 
         it = ifParent->findChild(parent);
+        assert(it != parent->end() && "Node removed from parent.");
+
         dist = std::distance(ifParent->begin(), it);
         for (auto child : nodes)
             efd::InsertNodeAfter(it, NDIfStmt::Create(parent->getCondId()->clone(), 
