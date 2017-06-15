@@ -19,11 +19,13 @@ namespace efd {
             /// \brief Gets the description of the stat.
             std::string getDescription() const;
 
+            virtual bool isZero() const = 0;
+
             /// \brief Prints the stat in \p out (it prints what \p toString returns).
             void print(std::ostream& out);
             /// \brief Returns a string with the contents of the stat.
             /// e.g.: 35::CNOTNum::Number of CNOT nodes.
-            virtual std::string toString() = 0;
+            virtual std::string toString() const = 0;
     };
 
     /// \brief Stats of a given type.
@@ -47,7 +49,8 @@ namespace efd {
                 Stat<T>& operator*=(const T val);
                 Stat<T>& operator/=(const T val);
 
-                std::string toString() override;
+                bool isZero() const override;
+                std::string toString() const override;
         };
 
     /// \brief Usually called in the end of the program, i.e. when all statistical
@@ -95,7 +98,14 @@ efd::Stat<T>& efd::Stat<T>::operator/=(const T val) {
 }
 
 template <typename T>
-std::string efd::Stat<T>::toString() {
+bool efd::Stat<T>::isZero() const {
+    double episilon = 0.00001;
+    double dVal = mVal;
+    return dVal >= -episilon && dVal <= episilon;
+}
+
+template <typename T>
+std::string efd::Stat<T>::toString() const {
     std::string s;
 
     s += std::to_string(mVal) + "::";

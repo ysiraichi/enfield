@@ -3,4 +3,5 @@ add_library (EfdSupport
     WrapperVal.cpp
     Graph.cpp
     OneRestrictionSwapFinder.cpp
-    Timer.cpp)
+    Timer.cpp
+    Stats.cpp)
