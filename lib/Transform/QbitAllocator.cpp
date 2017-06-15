@@ -4,9 +4,17 @@
 #include "enfield/Transform/Utils.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/Stats.h"
+#include "enfield/Support/Timer.h"
 
 #include <iterator>
 #include <cassert>
+
+static efd::Stat<double> AllocTime("AllocTime", "Time to allocate all qubits.");
+static efd::Stat<double> InlineTime("InlineTime", "Time to inline all gates.");
+static efd::Stat<double> ReplaceTime("ReplaceTime",
+        "Time to replace all qubits to the corresponding architechture ones.");
+static efd::Stat<double> RenameTime("RenameTime", "Time to rename all qubits to the mapped qubits.");
 
 void efd::QbitAllocator::updateDepSet() {
     mDepSet = mDepPass->getDependencies();
@@ -107,12 +115,32 @@ void efd::QbitAllocator::renameQbits() {
 }
 
 void efd::QbitAllocator::run() {
+    Timer timer;
+
     if (mInlineAll) {
+        // Setting up timer ----------------
+        timer.start();
+        // ---------------------------------
+
         inlineAllGates();
+
+        // Stopping timer and setting the stat -----------------
+        timer.stop();
+        InlineTime = ((double) timer.getMicroseconds() / 1000000.0);
+        // -----------------------------------------------------
     }
 
     if (instanceOf<ArchGraph>(mArchGraph)) {
+        // Setting up timer ----------------
+        timer.start();
+        // ---------------------------------
+
         replaceWithArchSpecs();
+
+        // Stopping timer and setting the stat -----------------
+        timer.stop();
+        ReplaceTime = ((double) timer.getMicroseconds() / 1000000.0);
+        // -----------------------------------------------------
     }
 
     // Getting the new information, since it can be the case that the qmodule
@@ -120,9 +148,27 @@ void efd::QbitAllocator::run() {
     mMod->runPass(mDepPass, true);
     updateDepSet();
 
+    // Setting up timer ----------------
+    timer.start();
+    // ---------------------------------
+
     mMapping = solveDependencies(mDepSet);
 
+    // Stopping timer and setting the stat -----------------
+    timer.stop();
+    AllocTime = ((double) timer.getMicroseconds() / 1000000.0);
+    // -----------------------------------------------------
+
+    // Setting up timer ----------------
+    timer.start();
+    // ---------------------------------
+
     renameQbits();
+
+    // Stopping timer and setting the stat -----------------
+    timer.stop();
+    RenameTime = ((double) timer.getMicroseconds() / 1000000.0);
+    // -----------------------------------------------------
 
     mRun = true;
 }
