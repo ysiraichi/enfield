@@ -6,6 +6,7 @@
 #include "enfield/Transform/ReverseEdgesPass.h"
 #include "enfield/Support/OneRestrictionSwapFinder.h"
 #include "enfield/Arch/Architectures.h"
+#include "enfield/Support/Stats.h"
 
 #include <fstream>
 #include <cassert>
@@ -16,6 +17,7 @@ static Opt<std::string> InFilepath("i", "The input file.", "/dev/stdin", true);
 static Opt<std::string> OutFilepath("o", "The output file.", "/dev/stdout", false);
 
 static Opt<bool> Pretty("pretty", "Print in a pretty format.", true, false);
+static Opt<bool> ShowStats("stats", "Print statistical data collected.", false, false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
@@ -56,6 +58,9 @@ int main(int argc, char** argv) {
 
         DumpToOutFile(qmod.get());
     }
+
+    if (ShowStats.getVal())
+        efd::PrintStats();
 
     return 0;
 }
