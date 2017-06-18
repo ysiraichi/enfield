@@ -10,6 +10,7 @@
 #include <iterator>
 #include <cassert>
 
+static efd::Stat<unsigned> DepStat("Dependencies", "The number of dependencies of this program.");
 static efd::Stat<double> AllocTime("AllocTime", "Time to allocate all qubits.");
 static efd::Stat<double> InlineTime("InlineTime", "Time to inline all gates.");
 static efd::Stat<double> ReplaceTime("ReplaceTime",
@@ -147,6 +148,12 @@ void efd::QbitAllocator::run() {
     // was modified.
     mMod->runPass(mDepPass, true);
     updateDepSet();
+
+    // Counting total dependencies.
+    unsigned totalDeps = 0;
+    for (auto& d : mDepSet)
+        totalDeps += d.mDeps.size();
+    DepStat = totalDeps;
 
     // Setting up timer ----------------
     timer.start();

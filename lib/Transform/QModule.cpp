@@ -10,9 +10,9 @@
 #include <iterator>
 
 namespace efd {
-    extern const efd::NodeRef SWAP_ID_NODE;
-    extern const efd::NodeRef H_ID_NODE;
-    extern const efd::NodeRef CX_ID_NODE;
+    extern const efd::NDId* SWAP_ID_NODE;
+    extern const efd::NDId* H_ID_NODE;
+    extern const efd::NDId* CX_ID_NODE;
 }
 
 efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr), 
