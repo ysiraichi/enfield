@@ -292,13 +292,11 @@ efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet
     return result.initial;
 }
 
-efd::DynProgQbitAllocator::DynProgQbitAllocator
-(QModule* qmod, Graph* pGraph, SwapFinder* sFind, DependencyBuilderPass* depPass) 
-    : QbitAllocator(qmod, pGraph, sFind, depPass) {
+efd::DynProgQbitAllocator::DynProgQbitAllocator(QModule* qmod, Graph* pGraph) 
+    : QbitAllocator(qmod, pGraph) {
 }
 
-efd::DynProgQbitAllocator* efd::DynProgQbitAllocator::Create
-(QModule* qmod, Graph* pGraph, SwapFinder* sFind, DependencyBuilderPass* depPass) {
-
-    return new DynProgQbitAllocator(qmod, pGraph, sFind, depPass);
+efd::DynProgQbitAllocator* efd::DynProgQbitAllocator::Create(QModule* qmod, 
+        Graph* archGraph) {
+    return new DynProgQbitAllocator(qmod, archGraph);
 }

@@ -30,7 +30,6 @@ namespace efd {
 
             QModule* mMod;
             Graph* mArchGraph;
-            SwapFinder* mSFind;
 
             BasisVector mBasis;
             bool mInlineAll;
@@ -39,8 +38,7 @@ namespace efd {
             /// running the DependencyBuilderPass.
             void updateDepSet();
 
-            QbitAllocator(QModule* qmod, Graph* pGraph, SwapFinder* sFind,
-                   DependencyBuilderPass* depPass);
+            QbitAllocator(QModule* qmod, Graph* archGraph);
 
             /// \brief Inlines the gate call that generates the dependencies that are
             /// referenced by \p it. If the node is not an NDQOpGeneric, it does nothing.

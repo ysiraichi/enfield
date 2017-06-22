@@ -12,8 +12,10 @@ namespace efd {
         private:
             Graph* mG;
             QModule* mMod;
+
             DependencyBuilderPass* mDepPass;
-            ReverseEdgesPass(QModule* qmod, Graph* graph, DependencyBuilderPass* depPass);
+
+            ReverseEdgesPass(QModule* qmod, Graph* graph);
 
             void initImpl(bool force) override;
 
@@ -23,7 +25,8 @@ namespace efd {
 
             bool doesInvalidatesModule() const override;
 
-            static ReverseEdgesPass* Create(QModule* qmod, Graph* graph, DependencyBuilderPass* depPass);
+            /// \brief Create an instance of this class.
+            static ReverseEdgesPass* Create(QModule* qmod, Graph* graph);
     };
 }
 
