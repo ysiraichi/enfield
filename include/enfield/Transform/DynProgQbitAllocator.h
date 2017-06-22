@@ -11,16 +11,15 @@ namespace efd {
     /// obtain an optimal solution.
     class DynProgQbitAllocator : public QbitAllocator {
         private:
-            DynProgQbitAllocator(QModule* qmod, Graph* pGraph, SwapFinder* sFind,
-                    DependencyBuilderPass* depPass);
+            DynProgQbitAllocator(QModule* qmod, Graph* archGraph);
 
             std::vector<unsigned> getUMapping(DepsSet& deps);
 
         public:
             Mapping solveDependencies(DepsSet& deps) override;
 
-            static DynProgQbitAllocator* Create(QModule* qmod, Graph* pGraph, 
-                    SwapFinder* sFind, DependencyBuilderPass* depPass);
+            /// \brief Create a new instance of this class.
+            static DynProgQbitAllocator* Create(QModule* qmod, Graph* archGraph);
     };
 }
 

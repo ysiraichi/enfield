@@ -10,23 +10,24 @@
 #include <iterator>
 #include <cassert>
 
-static efd::Stat<unsigned> DepStat("Dependencies", "The number of dependencies of this program.");
-static efd::Stat<double> AllocTime("AllocTime", "Time to allocate all qubits.");
-static efd::Stat<double> InlineTime("InlineTime", "Time to inline all gates.");
-static efd::Stat<double> ReplaceTime("ReplaceTime",
-        "Time to replace all qubits to the corresponding architechture ones.");
-static efd::Stat<double> RenameTime("RenameTime", "Time to rename all qubits to the mapped qubits.");
+static efd::Stat<unsigned> DepStat
+("Dependencies", "The number of dependencies of this program.");
+static efd::Stat<double> AllocTime
+("AllocTime", "Time to allocate all qubits.");
+static efd::Stat<double> InlineTime
+("InlineTime", "Time to inline all gates.");
+static efd::Stat<double> ReplaceTime
+("ReplaceTime", "Time to replace all qubits to the corresponding architechture ones.");
+static efd::Stat<double> RenameTime
+("RenameTime", "Time to rename all qubits to the mapped qubits.");
 
 void efd::QbitAllocator::updateDepSet() {
     mDepSet = mDepPass->getDependencies();
 }
 
-efd::QbitAllocator::QbitAllocator(QModule* qmod, Graph* pGraph, SwapFinder* sFind, 
-        DependencyBuilderPass* depPass) : mMod(qmod), mArchGraph(pGraph), 
-                                          mSFind(sFind), mDepPass(depPass),
-                                          mRun(false), mInlineAll(false) {
-    if (mDepPass == nullptr)
-        mDepPass = DependencyBuilderPass::Create(mMod);
+efd::QbitAllocator::QbitAllocator(QModule* qmod, Graph* archGraph) 
+    : mMod(qmod), mArchGraph(archGraph), mRun(false), mInlineAll(false) {
+    mDepPass = DependencyBuilderPass::Create(mMod);
 }
 
 efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(Iterator it) {
