@@ -13,11 +13,15 @@
 
 using namespace efd;
 
-static Opt<std::string> InFilepath("i", "The input file.", "/dev/stdin", true);
-static Opt<std::string> OutFilepath("o", "The output file.", "/dev/stdout", false);
+static Opt<std::string> InFilepath
+("i", "The input file.", "/dev/stdin", true);
+static Opt<std::string> OutFilepath
+("o", "The output file.", "/dev/stdout", false);
 
-static Opt<bool> Pretty("pretty", "Print in a pretty format.", true, false);
-static Opt<bool> ShowStats("stats", "Print statistical data collected.", false, false);
+static Opt<bool> Pretty
+("pretty", "Print in a pretty format.", true, false);
+static Opt<bool> ShowStats
+("stats", "Print statistical data collected.", false, false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
@@ -34,26 +38,21 @@ int main(int argc, char** argv) {
         // Creating default passes.
         FlattenPass* flattenPass = FlattenPass::Create(qmod.get());
         QbitToNumberPass* qbitUidPass = QbitToNumberPass::Create();
-        DependencyBuilderPass* depPass = DependencyBuilderPass::Create
-            (qmod.get(), qbitUidPass);
 
         qmod->runPass(flattenPass);
         qmod->runPass(qbitUidPass);
-        qmod->runPass(depPass);
 
         // Architecture-dependent fragment.
         std::unique_ptr<ArchIBMQX2> graph = ArchIBMQX2::Create();
         assert(qbitUidPass->getSize() <= graph->size() &&
                 "Using more qbits than the maximum.");
 
-        OneRestrictionSwapFinder* swapFinder = OneRestrictionSwapFinder::Create(graph.get());
-        DynProgQbitAllocator* dynAllocator = DynProgQbitAllocator::Create
-            (qmod.get(), graph.get(), swapFinder, depPass);
+        DynProgQbitAllocator* dynAllocator = DynProgQbitAllocator::Create(qmod.get(), graph.get());
         dynAllocator->setInlineAll({ "cx", "u1", "u2", "u3" });
         dynAllocator->run();
 
         // Reversing the edges.
-        ReverseEdgesPass* revPass = ReverseEdgesPass::Create(qmod.get(), graph.get(), depPass);
+        ReverseEdgesPass* revPass = ReverseEdgesPass::Create(qmod.get(), graph.get());
         qmod->runPass(revPass);
 
         DumpToOutFile(qmod.get());
