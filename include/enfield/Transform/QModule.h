@@ -122,7 +122,6 @@ namespace efd {
             /// \brief Parses the string \p program and returns a QModule.
             static std::unique_ptr<QModule> ParseString(std::string program, bool forceStdLib = true);
 
-
             friend class QModulefyPass;
 
     };
