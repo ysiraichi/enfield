@@ -16,6 +16,9 @@ efd_test (GraphTests
 efd_test (WeightedGraphTests
     EfdSupport)
 
+efd_test (PartialMatchingFinderTests
+    EfdSupport)
+
 efd_test (OneRestrictionSwapFinderTests
     EfdSupport)
 
