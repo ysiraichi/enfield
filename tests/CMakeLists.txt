@@ -13,6 +13,9 @@ efd_test (CommandLineTests
 efd_test (GraphTests
     EfdSupport)
 
+efd_test (WeightedGraphTests
+    EfdSupport)
+
 efd_test (OneRestrictionSwapFinderTests
     EfdSupport)
 
