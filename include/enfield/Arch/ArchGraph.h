@@ -13,22 +13,41 @@ namespace efd {
             typedef RegsVector::iterator RegsIterator;
 
         protected:
-            std::vector<NodeRef> mNodes;
             RegsVector mRegs;
+            std::vector<NodeRef> mNodes;
 
-            ArchGraph(unsigned n);
+            std::vector<std::string> mId; 
+            std::unordered_map<std::string, unsigned> mStrToId;
 
-            void preprocessVertexString(unsigned i, std::string s);
+            bool mGeneric;
+            unsigned mVID;
+
+            ArchGraph(unsigned n, bool isGeneric = true);
 
         public:
             /// \brief Gets the node corresponding to the uid.
             NodeRef getNode(unsigned i) const;
 
-            /// \brief Creates a node and puts it in the vector.
+            /// \brief Creates a string vertex and puts it in the vector.
             unsigned putVertex(std::string s);
+            /// \brief Creates a node vertex and puts it in the vector.
+            unsigned putVertex(NodeRef node);
 
             /// \brief Register the register.
             void putReg(std::string id, std::string size);
+
+            /// \brief Returns the unsigned id of the vertex \p s;
+            unsigned getUId(std::string s);
+            /// \brief Returns the std::string id of the vertex whose uid is \p i;
+            std::string getSId(unsigned i);
+
+            /// \brief Returns true if the edge (i, j) is a reverse edge.
+            /// i.e.: if (i, j) is not in the graph, but (j, i) is.
+            bool isReverseEdge(unsigned i, unsigned j); 
+            /// \brief Returns true if this is a generic architechture graph,
+            /// i.e.: it was not created by any of the architechtures compiled within
+            /// the program.
+            bool isGeneric();
 
             /// \brief The begin iterator for the \p mRegs.
             RegsIterator reg_begin();
@@ -43,8 +62,6 @@ namespace efd {
 
             /// \brief Parses the string \p graphStr into a ArchGraph representation.
             static std::unique_ptr<ArchGraph> ReadString(std::string graphStr);
-
-            static bool ClassOf(const Graph* graph);
     };
 }
 

@@ -9,32 +9,14 @@
 namespace efd {
     /// \brief Graph representation.
     class Graph {
-        public:
-            enum Kind {
-                K_GRAPH,
-                K_ARCH_GRAPH
-            };
-
-        private:
+        protected:
             unsigned mN;
             std::vector<std::set<unsigned>> mSuccessors;
             std::vector<std::set<unsigned>> mPredecessors;
-            std::set<std::pair<unsigned, unsigned>> mReverseEdges;
-
-            std::vector<std::string> mId; 
-            std::unordered_map<std::string, unsigned> mStrToId;
-    
-        protected:
-            unsigned mGID;
-            Kind mK;
 
             Graph(unsigned n);
-            Graph(unsigned n, Kind k);
 
         public:
-            /// \brief Returns the class of the graph.
-            Kind getKind() const;
-
             /// \brief Return the degree entering the vertex \p i.
             unsigned inDegree(unsigned i) const;
             /// \brief Return the degree leaving the vertex \p i.
@@ -50,33 +32,16 @@ namespace efd {
             /// \brief Inserts an edge (i, j) in the successor's list and
             /// an edge (j, i) in the predecessor's list.
             void putEdge(unsigned i, unsigned j);
-            /// \brief Inserts a vertex called \p s and return its new unsigned id.
-            unsigned putVertex(std::string s);
     
             /// \brief Returns true whether it has an edge (i, j).
             bool hasEdge(unsigned i, unsigned j); 
-            /// \brief Returns true if the edge (i, j) is a reverse edge.
-            bool isReverseEdge(unsigned i, unsigned j); 
-
-            /// \brief Returns the unsigned id of the vertex \p s;
-            unsigned getUId(std::string s);
-            /// \brief Returns the std::string id of the vertex whose uid is \p i;
-            std::string getSId(unsigned i);
     
-            /// \brief Builds the reverse graph. It contains all the reverse
-            /// edges that are not already in.
-            void buildReverseGraph(); 
-
             /// \brief Encapsulates the creation of a new Graph.
             static std::unique_ptr<Graph> Create(unsigned n);
-
             /// \brief Parses the file \p filename into a Graph representation.
             static std::unique_ptr<Graph> Read(std::string filepath);
-
             /// \brief Parses the string \p graphStr into a Graph representation.
             static std::unique_ptr<Graph> ReadString(std::string graphStr);
-
-            static bool ClassOf(const Graph* g);
     };
 }
 
