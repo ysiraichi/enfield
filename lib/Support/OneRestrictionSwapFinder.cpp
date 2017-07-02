@@ -28,7 +28,16 @@ std::vector<unsigned> efd::OneRestrictionSwapFinder::getPath(Rest r) {
         if (x == v) break;
 
         std::set<unsigned> &succ = mG->succ(x);
+        std::set<unsigned> &pred = mG->pred(x);
         for (unsigned k : succ) {
+            if (!marked[k]) {
+                q.push(k);
+                marked[k] = true;
+                parent[k] = x;
+            }
+        }
+
+        for (unsigned k : pred) {
             if (!marked[k]) {
                 q.push(k);
                 marked[k] = true;

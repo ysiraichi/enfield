@@ -119,6 +119,20 @@ void computeSwaps(efd::Graph archG) {
                     q.push(copyId);
                 }
             }
+
+            for (unsigned v : archG.pred(u)) {
+                std::vector<unsigned> copy = val.perm;
+                std::swap(copy[u], copy[v]);
+
+                std::string key = VecToKey(copy);
+                int copyId = PermMap[key].idx;
+                if (!inserted[copyId]) {
+                    inserted[copyId] = true;
+                    swaps[copyId] = swaps[pId];
+                    swaps[copyId].push_back(std::pair<unsigned, unsigned>(u, v));
+                    q.push(copyId);
+                }
+            }
         }
     }
 }
@@ -151,7 +165,7 @@ std::vector<unsigned> genAssign(std::vector<unsigned> mapping) {
     return assign;
 }
 
-static MapResult dynsolve(efd::Graph &physGraph, std::vector<efd::Dependencies>& deps) {
+static MapResult dynsolve(efd::ArchGraph &physGraph, std::vector<efd::Dependencies>& deps) {
     int qubits;
 
     computeSwaps(physGraph);
@@ -189,7 +203,10 @@ static MapResult dynsolve(efd::Graph &physGraph, std::vector<efd::Dependencies>&
             // Arch qubit interaction (u, v)
             unsigned u = tgtPerm[dep.mFrom], v = tgtPerm[dep.mTo];
 
-            if (!physGraph.hasEdge(u, v))
+            // We don't use this configuration if (u, v) is neither a norma edge
+            // nor a reverse edge of the physical graph.
+            if (!physGraph.hasEdge(u, v) &&
+                    !physGraph.isReverseEdge(u, v))
                 continue;
 
             Val minimum { tgt, nullptr, UNREACH };
@@ -292,11 +309,11 @@ efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet
     return result.initial;
 }
 
-efd::DynProgQbitAllocator::DynProgQbitAllocator(QModule* qmod, Graph* pGraph) 
+efd::DynProgQbitAllocator::DynProgQbitAllocator(QModule* qmod, ArchGraph* pGraph) 
     : QbitAllocator(qmod, pGraph) {
 }
 
 efd::DynProgQbitAllocator* efd::DynProgQbitAllocator::Create(QModule* qmod, 
-        Graph* archGraph) {
+        ArchGraph* archGraph) {
     return new DynProgQbitAllocator(qmod, archGraph);
 }
