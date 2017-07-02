@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Transform/DynProgQbitAllocator.h"
-#include "enfield/Support/Graph.h"
+#include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/OneRestrictionSwapFinder.h"
 #include "enfield/Support/RTTI.h"
 
@@ -10,9 +10,9 @@
 
 using namespace efd;
 
-static std::unique_ptr<Graph> g(nullptr);
+static std::unique_ptr<ArchGraph> g(nullptr);
 
-Graph* getGraph() {
+static ArchGraph* getGraph() {
     if (g.get() != nullptr) return g.get();
     const std::string gStr =
 "\
@@ -25,7 +25,7 @@ q[4] q[2]\n\
 q[3] q[4]\n\
 ";
 
-    g =  Graph::ReadString(gStr);
+    g = ArchGraph::ReadString(gStr);
     return g.get();
 }
 
@@ -37,7 +37,7 @@ qreg q[5];\
 CX q[0], q[1];\
 ";
 
-        Graph* graph = getGraph();
+        ArchGraph* graph = getGraph();
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
         DynProgQbitAllocator* allocator = DynProgQbitAllocator::Create(qmod.get(), graph);
@@ -70,7 +70,7 @@ CX q[3], q[2];\
 CX q[4], q[2];\
 ";
 
-        Graph* graph = getGraph();
+        ArchGraph* graph = getGraph();
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
         DynProgQbitAllocator* allocator = DynProgQbitAllocator::Create(qmod.get(), graph);
@@ -98,7 +98,7 @@ CX q[0], q[2];\
 CX q[1], q[2];\
 ";
 
-        Graph* graph = getGraph();
+        ArchGraph* graph = getGraph();
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
         DynProgQbitAllocator* allocator = DynProgQbitAllocator::Create(qmod.get(), graph);
@@ -128,7 +128,7 @@ CX q[3], q[2];\
 CX q[4], q[2];\
 ";
 
-        Graph* graph = getGraph();
+        ArchGraph* graph = getGraph();
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
         DynProgQbitAllocator* allocator = DynProgQbitAllocator::Create(qmod.get(), graph);
@@ -163,7 +163,7 @@ CX q[4], q[2];\
 CX q[0], q[2];\
 ";
 
-        Graph* graph = getGraph();
+        ArchGraph* graph = getGraph();
 
         std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
         DynProgQbitAllocator* allocator = DynProgQbitAllocator::Create(qmod.get(), graph);

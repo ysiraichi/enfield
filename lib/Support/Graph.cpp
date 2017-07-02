@@ -6,20 +6,9 @@
 #include <cassert>
 
 // ----------------------------- Graph -------------------------------
-efd::Graph::Graph(unsigned n) : mN(n), mGID(0), mK(K_GRAPH) {
+efd::Graph::Graph(unsigned n) : mN(n) {
     mSuccessors.assign(n, std::set<unsigned>());
     mPredecessors.assign(n, std::set<unsigned>());
-    mId.assign(n, std::string());
-}
-
-efd::Graph::Graph(unsigned n, Kind k) : mN(n), mGID(0), mK(k) {
-    mSuccessors.assign(n, std::set<unsigned>());
-    mPredecessors.assign(n, std::set<unsigned>());
-    mId.assign(n, std::string());
-}
-
-efd::Graph::Kind efd::Graph::getKind() const {
-    return mK;
 }
 
 unsigned efd::Graph::inDegree(unsigned i) const {
@@ -48,45 +37,22 @@ bool efd::Graph::hasEdge(unsigned i, unsigned j) {
 }
 
 void efd::Graph::putEdge(unsigned i, unsigned j) {
-    succ(i).insert(j);
-    pred(j).insert(i);
+    mSuccessors[i].insert(j);
+    mPredecessors[j].insert(i);
 }
 
-unsigned efd::Graph::putVertex(std::string s) {
-    if (mStrToId.find(s) != mStrToId.end())
-        return mStrToId[s];
-    unsigned idx = mGID++;
-    mId[idx] = s;
-    mStrToId[s] = idx;
-    return idx;
-}
-
-bool efd::Graph::isReverseEdge(unsigned i, unsigned j) {
-    return mReverseEdges.find(std::pair<unsigned, unsigned>(i, j)) != mReverseEdges.end();
-}
-
-unsigned efd::Graph::getUId(std::string s) {
-    assert(mStrToId.find(s) != mStrToId.end() && "String Id not found.");
-    return mStrToId[s];
-}
-
-std::string efd::Graph::getSId(unsigned i) {
-    assert(mId.size() > i && "Index out of bounds.");
-    return mId[i];
-}
-
-void efd::Graph::buildReverseGraph() {
-    for (unsigned i = 0; i < mN; ++i) {
-        std::set<unsigned>& succ = this->succ(i);
-
-        for (unsigned k : succ) {
-            if (!hasEdge(k, i)) {
-                putEdge(k, i);
-                mReverseEdges.insert(std::pair<unsigned, unsigned>(k, i));
-            }
-        }
-    }
-}
+// void efd::Graph::buildReverseGraph() {
+//     for (unsigned i = 0; i < mN; ++i) {
+//         std::set<unsigned>& succ = this->succ(i);
+// 
+//         for (unsigned k : succ) {
+//             if (!hasEdge(k, i)) {
+//                 putEdge(k, i);
+//                 mReverseEdges.insert(std::pair<unsigned, unsigned>(k, i));
+//             }
+//         }
+//     }
+// }
 
 std::unique_ptr<efd::Graph> efd::Graph::Create(unsigned n) {
     return std::unique_ptr<Graph>(new Graph(n));
@@ -97,13 +63,9 @@ static std::unique_ptr<efd::Graph> ReadFromIn(std::istream& in) {
     in >> n;
 
     std::unique_ptr<efd::Graph> graph(efd::Graph::Create(n));
-    for (std::string uS, vS; in >> uS >> vS;) {
-        unsigned u = graph->putVertex(uS);
-        unsigned v = graph->putVertex(vS);
+    for (unsigned u, v; in >> u >> v;)
         graph->putEdge(u, v);
-    }
 
-    graph->buildReverseGraph();
     return graph;
 }
 
@@ -115,9 +77,4 @@ std::unique_ptr<efd::Graph> efd::Graph::Read(std::string filepath) {
 std::unique_ptr<efd::Graph> efd::Graph::ReadString(std::string graphStr) {
     std::stringstream in(graphStr);
     return ReadFromIn(in);
-}
-
-bool efd::Graph::ClassOf(const Graph* g) {
-    return g->getKind() == K_GRAPH ||
-        g->getKind() == K_ARCH_GRAPH;
 }

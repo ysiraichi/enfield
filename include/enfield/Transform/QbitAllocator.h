@@ -1,7 +1,7 @@
 #ifndef __EFD_QBIT_ALLOCATOR_H__
 #define __EFD_QBIT_ALLOCATOR_H__
 
-#include "enfield/Support/Graph.h"
+#include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/SwapFinder.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
 
@@ -29,7 +29,7 @@ namespace efd {
             bool mRun;
 
             QModule* mMod;
-            Graph* mArchGraph;
+            ArchGraph* mArchGraph;
 
             BasisVector mBasis;
             bool mInlineAll;
@@ -38,7 +38,7 @@ namespace efd {
             /// running the DependencyBuilderPass.
             void updateDepSet();
 
-            QbitAllocator(QModule* qmod, Graph* archGraph);
+            QbitAllocator(QModule* qmod, ArchGraph* archGraph);
 
             /// \brief Inlines the gate call that generates the dependencies that are
             /// referenced by \p it. If the node is not an NDQOpGeneric, it does nothing.

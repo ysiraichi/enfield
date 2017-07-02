@@ -5,24 +5,8 @@
 #include <fstream>
 #include <sstream>
 
-efd::ArchGraph::ArchGraph(unsigned n) : Graph(n, K_ARCH_GRAPH), mNodes(n, nullptr) {
-}
-
-void efd::ArchGraph::preprocessVertexString(unsigned i, std::string s) {
-    if (mNodes[i] != nullptr) return;
-
-    std::size_t idEndPos = s.find("[");
-    std::size_t nEndPos = s.find("]");
-    assert(idEndPos != std::string::npos && nEndPos != std::string::npos &&
-            "Vertex string not a register reference.");
-
-    std::string id = s.substr(0, idEndPos);
-    std::string nStr = s.substr(idEndPos+1, nEndPos - idEndPos - 1);
-
-    NodeRef refId = NDId::Create(id);
-    NodeRef refInt = NDInt::Create(nStr);
-
-    mNodes[i] = NDIdRef::Create(refId, refInt);
+efd::ArchGraph::ArchGraph(unsigned n, bool isGeneric) : Graph(n), mNodes(n, nullptr),
+    mVID(0), mGeneric(isGeneric), mId(n, "") {
 }
 
 efd::NodeRef efd::ArchGraph::getNode(unsigned i) const {
@@ -31,13 +15,49 @@ efd::NodeRef efd::ArchGraph::getNode(unsigned i) const {
 }
 
 unsigned efd::ArchGraph::putVertex(std::string s) {
-    unsigned curId = Graph::putVertex(s);
-    preprocessVertexString(curId, s);
-    return curId;
+    if (mStrToId.find(s) != mStrToId.end())
+        return mStrToId[s];
+
+    unsigned id = mVID++;
+    mId[id] = s;
+    mStrToId[s] = id;
+    return id;
+}
+
+unsigned efd::ArchGraph::putVertex(NodeRef node) {
+    std::string s = node->toString();
+
+    if (mStrToId.find(s) != mStrToId.end())
+        return mStrToId[s];
+
+    unsigned id = putVertex(s);
+    mNodes.push_back(node->clone());
+    return id;
 }
 
 void efd::ArchGraph::putReg(std::string id, std::string size) {
     mRegs[id] = std::stoul(size);
+}
+
+unsigned efd::ArchGraph::getUId(std::string s) {
+    assert(mStrToId.find(s) != mStrToId.end() &&
+            "No such vertex with this string id.");
+    return mStrToId[s];
+}
+
+std::string efd::ArchGraph::getSId(unsigned i) {
+    assert(mId.size() <= i && "Vertex index out of bounds.");
+    return mId[i];
+}
+
+bool efd::ArchGraph::isReverseEdge(unsigned i, unsigned j) {
+    auto& succ = mSuccessors[i];
+    auto& pred = mPredecessors[i];
+    return succ.find(j) == succ.end() && pred.find(j) != pred.end();
+}
+
+bool efd::ArchGraph::isGeneric() {
+    return mGeneric;
 }
 
 efd::ArchGraph::RegsIterator efd::ArchGraph::reg_begin() {
@@ -63,7 +83,6 @@ static std::unique_ptr<efd::ArchGraph> ReadFromIn(std::istream& in) {
         graph->putEdge(u, v);
     }
 
-    graph->buildReverseGraph();
     return graph;
 }
 
@@ -75,8 +94,4 @@ std::unique_ptr<efd::ArchGraph> efd::ArchGraph::Read(std::string filepath) {
 std::unique_ptr<efd::ArchGraph> efd::ArchGraph::ReadString(std::string graphStr) {
     std::stringstream in(graphStr);
     return ReadFromIn(in);
-}
-
-bool efd::ArchGraph::ClassOf(const Graph* g) {
-    return g->getKind() == K_ARCH_GRAPH;
 }

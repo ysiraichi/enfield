@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-efd::ReverseEdgesPass::ReverseEdgesPass(QModule* qmod, Graph* graph) :
+efd::ReverseEdgesPass::ReverseEdgesPass(QModule* qmod, ArchGraph* graph) :
     mMod(qmod), mG(graph) {
     mDepPass = DependencyBuilderPass::Create(qmod);
     mUK += Pass::K_STMT_PASS;
@@ -41,6 +41,6 @@ bool efd::ReverseEdgesPass::doesInvalidatesModule() const {
     return true;
 }
 
-efd::ReverseEdgesPass* efd::ReverseEdgesPass::Create(QModule* qmod, Graph* graph) {
+efd::ReverseEdgesPass* efd::ReverseEdgesPass::Create(QModule* qmod, ArchGraph* graph) {
     return new ReverseEdgesPass(qmod, graph);
 }

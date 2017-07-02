@@ -25,7 +25,7 @@ void efd::QbitAllocator::updateDepSet() {
     mDepSet = mDepPass->getDependencies();
 }
 
-efd::QbitAllocator::QbitAllocator(QModule* qmod, Graph* archGraph) 
+efd::QbitAllocator::QbitAllocator(QModule* qmod, ArchGraph* archGraph) 
     : mMod(qmod), mArchGraph(archGraph), mRun(false), mInlineAll(false) {
     mDepPass = DependencyBuilderPass::Create(mMod);
 }
@@ -69,15 +69,13 @@ void efd::QbitAllocator::inlineAllGates() {
 }
 
 void efd::QbitAllocator::replaceWithArchSpecs() {
-    ArchGraph* arch = dynCast<ArchGraph>(mArchGraph);
-
     // Renaming program qbits to architecture qbits.
     RenameQbitPass::ArchMap toArchMap;
 
     mMod->runPass(mDepPass);
     QbitToNumberPass* uidPass = mDepPass->getUIdPass();
     for (unsigned i = 0, e = uidPass->getSize(); i < e; ++i) {
-        toArchMap[uidPass->getStrId(i)] = arch->getNode(i);
+        toArchMap[uidPass->getStrId(i)] = mArchGraph->getNode(i);
     }
 
     RenameQbitPass* renamePass = RenameQbitPass::Create(toArchMap);
@@ -86,7 +84,7 @@ void efd::QbitAllocator::replaceWithArchSpecs() {
     // Replacing the old qbit declarations with the architecture's qbit
     // declaration.
     std::vector<NDDecl*> decls;
-    for (auto it = arch->reg_begin(), e = arch->reg_end(); it != e; ++it)
+    for (auto it = mArchGraph->reg_begin(), e = mArchGraph->reg_end(); it != e; ++it)
         decls.push_back(dynCast<NDDecl>(NDDecl::Create(NDDecl::QUANTUM, 
                         NDId::Create(it->first), 
                         NDInt::Create(std::to_string(it->second)))
@@ -100,10 +98,10 @@ void efd::QbitAllocator::renameQbits() {
     // Renaming the qbits with the mapping that this algorithm got from solving
     // the dependencies.
     RenameQbitPass::ArchMap archConstMap;
-    if (ArchGraph* arch = dynCast<ArchGraph>(mArchGraph)) {
+    if (!mArchGraph->isGeneric()) {
         for (unsigned i = 0, e = uidPass->getSize(); i < e; ++i) {
             std::string id = uidPass->getStrId(i);
-            archConstMap[id] = arch->getNode(mMapping[i]);
+            archConstMap[id] = mArchGraph->getNode(mMapping[i]);
         }
     } else {
         for (unsigned i = 0, e = uidPass->getSize(); i < e; ++i) {
@@ -132,7 +130,7 @@ void efd::QbitAllocator::run() {
         // -----------------------------------------------------
     }
 
-    if (instanceOf<ArchGraph>(mArchGraph)) {
+    if (!mArchGraph->isGeneric()) {
         // Setting up timer ----------------
         timer.start();
         // ---------------------------------

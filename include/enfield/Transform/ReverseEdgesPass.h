@@ -4,18 +4,18 @@
 #include "enfield/Pass.h"
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
-#include "enfield/Support/Graph.h"
+#include "enfield/Arch/ArchGraph.h"
 
 namespace efd {
     /// \brief Pass that reverses the edges accordingly with the architecture Graph.
     class ReverseEdgesPass : public Pass {
         private:
-            Graph* mG;
+            ArchGraph* mG;
             QModule* mMod;
 
             DependencyBuilderPass* mDepPass;
 
-            ReverseEdgesPass(QModule* qmod, Graph* graph);
+            ReverseEdgesPass(QModule* qmod, ArchGraph* graph);
 
             void initImpl(bool force) override;
 
@@ -26,7 +26,7 @@ namespace efd {
             bool doesInvalidatesModule() const override;
 
             /// \brief Create an instance of this class.
-            static ReverseEdgesPass* Create(QModule* qmod, Graph* graph);
+            static ReverseEdgesPass* Create(QModule* qmod, ArchGraph* graph);
     };
 }
 

@@ -1,13 +1,17 @@
 #include "enfield/Arch/Architectures.h"
+#include "enfield/Analysis/Nodes.h"
 
 #define EFD_ARCHITECTURE(_Name_, _QbitNum_) \
-    efd::Arch##_Name_::Arch##_Name_() : ArchGraph(_QbitNum_) {\
+    efd::Arch##_Name_::Arch##_Name_() : ArchGraph(_QbitNum_, false) {\
         unsigned u, v;
 
 #define EFD_REG(_QReg_, _Size_) \
         this->putReg(#_QReg_, #_Size_);\
-        for (unsigned i = 0; i < _Size_; ++i)\
-            this->putVertex(std::string(#_QReg_"[" + std::to_string(i) + "]"));
+        NodeRef ndID = NDId::Create(#_QReg_);\
+        for (unsigned i = 0; i < _Size_; ++i) {\
+            NodeRef ndN = NDInt::Create(std::to_string(i));\
+            this->putVertex(NDIdRef::Create(ndID->clone(), ndN));\
+        }
 
 #define EFD_COUPLING(_QReg_, _U_, _V_)\
         u = this->getUId(#_QReg_"["#_U_"]");\
@@ -15,7 +19,6 @@
         this->putEdge(u, v);
 
 #define EFD_ARCHITECTURE_END\
-        this->buildReverseGraph();\
     }
 
 // Defines the undefined macros.
