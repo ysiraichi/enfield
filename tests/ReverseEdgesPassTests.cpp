@@ -34,7 +34,7 @@ h q[0];\
 h q[1];\
 ";
         std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
-        std::unique_ptr<Graph> graph = ArchIBMQX2::Create();
+        std::unique_ptr<ArchIBMQX2> graph = ArchIBMQX2::Create();
 
         ReverseEdgesPass* revPass = ReverseEdgesPass::Create(qmod.get(), graph.get());
         qmod->runPass(revPass);
@@ -90,7 +90,7 @@ h q[3];\
 h q[4];\
 ";
         std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
-        std::unique_ptr<Graph> graph = ArchIBMQX2::Create();
+        std::unique_ptr<ArchIBMQX2> graph = ArchIBMQX2::Create();
 
         ReverseEdgesPass* revPass = ReverseEdgesPass::Create(qmod.get(), graph.get());
         qmod->runPass(revPass);

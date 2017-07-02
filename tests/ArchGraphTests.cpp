@@ -25,10 +25,6 @@ q[1] q[4]\n\
     ASSERT_TRUE(graph->hasEdge(1, 3));
     ASSERT_TRUE(graph->hasEdge(1, 4));
 
-    ASSERT_TRUE(graph->hasEdge(1, 0));
-    ASSERT_TRUE(graph->hasEdge(2, 0));
-    ASSERT_TRUE(graph->hasEdge(3, 1));
-    ASSERT_TRUE(graph->hasEdge(4, 1));
     ASSERT_TRUE(graph->isReverseEdge(1, 0));
     ASSERT_TRUE(graph->isReverseEdge(2, 0));
     ASSERT_TRUE(graph->isReverseEdge(3, 1));
@@ -59,9 +55,6 @@ q[4] q[1]\n\
     ASSERT_TRUE(graph->hasEdge(1, 4));
     ASSERT_TRUE(graph->hasEdge(4, 1));
 
-    ASSERT_TRUE(graph->hasEdge(2, 0));
-    ASSERT_TRUE(graph->hasEdge(2, 1));
-    ASSERT_TRUE(graph->hasEdge(3, 1));
     ASSERT_TRUE(graph->isReverseEdge(2, 0));
     ASSERT_TRUE(graph->isReverseEdge(2, 1));
     ASSERT_TRUE(graph->isReverseEdge(3, 1));
