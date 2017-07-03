@@ -2,6 +2,7 @@
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/FlattenPass.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
+#include "enfield/Transform/WeightedPMQbitAllocator.h"
 #include "enfield/Transform/DynProgQbitAllocator.h"
 #include "enfield/Transform/ReverseEdgesPass.h"
 #include "enfield/Support/OneRestrictionSwapFinder.h"
@@ -22,6 +23,12 @@ static Opt<bool> Pretty
 ("pretty", "Print in a pretty format.", true, false);
 static Opt<bool> ShowStats
 ("stats", "Print statistical data collected.", false, false);
+
+// TODO: This should be change to a nicer interface.
+static Opt<std::string> Allocator
+("alloc", "Sets the allocator to be used. \
+Default: DynProg. \
+Options: DynProg; WPM.", "DynProg", false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
@@ -47,9 +54,12 @@ int main(int argc, char** argv) {
         assert(qbitUidPass->getSize() <= graph->size() &&
                 "Using more qbits than the maximum.");
 
-        DynProgQbitAllocator* dynAllocator = DynProgQbitAllocator::Create(qmod.get(), graph.get());
-        dynAllocator->setInlineAll({ "cx", "u1", "u2", "u3" });
-        dynAllocator->run();
+        QbitAllocator* allocator;
+        if (Allocator.getVal() == "WPM")
+            allocator = WeightedPMQbitAllocator::Create(qmod.get(), graph.get());
+        else allocator = DynProgQbitAllocator::Create(qmod.get(), graph.get());
+        allocator->setInlineAll({ "cx", "u1", "u2", "u3" });
+        allocator->run();
 
         // Reversing the edges.
         ReverseEdgesPass* revPass = ReverseEdgesPass::Create(qmod.get(), graph.get());
