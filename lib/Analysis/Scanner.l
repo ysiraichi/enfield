@@ -78,8 +78,6 @@ string \".*\"
 ","         { return efd::yy::EfdParser::make_COMMA(loc); }
 ";"         { return efd::yy::EfdParser::make_SEMICOL(loc); }
 
-"//"        {}
-
 {real}      { return efd::yy::EfdParser::make_REAL(std::string(yytext), loc); }
 
 {integer}   { return efd::yy::EfdParser::make_INT(std::string(yytext), loc); }
