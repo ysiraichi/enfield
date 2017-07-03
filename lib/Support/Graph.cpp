@@ -41,19 +41,6 @@ void efd::Graph::putEdge(unsigned i, unsigned j) {
     mPredecessors[j].insert(i);
 }
 
-// void efd::Graph::buildReverseGraph() {
-//     for (unsigned i = 0; i < mN; ++i) {
-//         std::set<unsigned>& succ = this->succ(i);
-// 
-//         for (unsigned k : succ) {
-//             if (!hasEdge(k, i)) {
-//                 putEdge(k, i);
-//                 mReverseEdges.insert(std::pair<unsigned, unsigned>(k, i));
-//             }
-//         }
-//     }
-// }
-
 std::unique_ptr<efd::Graph> efd::Graph::Create(unsigned n) {
     return std::unique_ptr<Graph>(new Graph(n));
 }

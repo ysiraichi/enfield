@@ -31,7 +31,7 @@ unsigned efd::ArchGraph::putVertex(NodeRef node) {
         return mStrToId[s];
 
     unsigned id = putVertex(s);
-    mNodes.push_back(node->clone());
+    mNodes[id] = node->clone();
     return id;
 }
 

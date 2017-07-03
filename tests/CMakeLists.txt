@@ -13,6 +13,12 @@ efd_test (CommandLineTests
 efd_test (GraphTests
     EfdSupport)
 
+efd_test (WeightedGraphTests
+    EfdSupport)
+
+efd_test (PartialMatchingFinderTests
+    EfdSupport)
+
 efd_test (OneRestrictionSwapFinderTests
     EfdSupport)
 
@@ -59,6 +65,9 @@ efd_test (RenameQbitsPassTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
 
 efd_test (DynProgQbitAllocatorTests
+    EfdTransform EfdArch EfdAnalysis EfdCore EfdSupport)
+
+efd_test (WeightedPMQbitAllocatorTests
     EfdTransform EfdArch EfdAnalysis EfdCore EfdSupport)
 
 efd_test (ReverseEdgesPassTests

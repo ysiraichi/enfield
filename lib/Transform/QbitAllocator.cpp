@@ -1,10 +1,10 @@
+
 #include "enfield/Transform/QbitAllocator.h"
 #include "enfield/Transform/RenameQbitsPass.h"
 #include "enfield/Transform/InlineAllPass.h"
 #include "enfield/Transform/Utils.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
-#include "enfield/Support/Stats.h"
 #include "enfield/Support/Timer.h"
 
 #include <iterator>
@@ -20,6 +20,13 @@ static efd::Stat<double> ReplaceTime
 ("ReplaceTime", "Time to replace all qubits to the corresponding architechture ones.");
 static efd::Stat<double> RenameTime
 ("RenameTime", "Time to rename all qubits to the mapped qubits.");
+
+efd::Stat<unsigned> TotalCost
+("TotalCost", "Total cost after allocating the qubits.");
+efd::Opt<unsigned> SwapCost
+("-swap-cost", "Cost of using a swap function.", 7, false);
+efd::Opt<unsigned> RevCost
+("-rev-cost", "Cost of using a reverse edge.", 4, false);
 
 void efd::QbitAllocator::updateDepSet() {
     mDepSet = mDepPass->getDependencies();

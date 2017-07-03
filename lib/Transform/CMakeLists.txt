@@ -6,7 +6,8 @@ add_library (EfdTransform
     FlattenPass.cpp
     Utils.cpp
     InlineAllPass.cpp
-    QbitAllocator.cpp
     DynProgQbitAllocator.cpp
+    QbitAllocator.cpp
     RenameQbitsPass.cpp
-    ReverseEdgesPass.cpp)
+    ReverseEdgesPass.cpp
+    WeightedPMQbitAllocator.cpp)
