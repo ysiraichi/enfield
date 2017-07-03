@@ -67,6 +67,9 @@ efd_test (RenameQbitsPassTests
 efd_test (DynProgQbitAllocatorTests
     EfdTransform EfdArch EfdAnalysis EfdCore EfdSupport)
 
+efd_test (WeightedPMQbitAllocatorTests
+    EfdTransform EfdArch EfdAnalysis EfdCore EfdSupport)
+
 efd_test (ReverseEdgesPassTests
     EfdTransform EfdArch EfdAnalysis EfdCore EfdSupport)
 
