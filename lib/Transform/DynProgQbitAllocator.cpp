@@ -7,8 +7,6 @@
 #include <iostream>
 #include <algorithm>
 
-const unsigned SWAP_COST = 7;
-const unsigned REV_COST = 4;
 const unsigned UNREACH = std::numeric_limits<unsigned>::max();
 
 typedef std::vector<std::pair<unsigned, unsigned>> SwapVector;
@@ -167,6 +165,8 @@ std::vector<unsigned> genAssign(std::vector<unsigned> mapping) {
 
 static MapResult dynsolve(efd::ArchGraph &physGraph, std::vector<efd::Dependencies>& deps) {
     int qubits;
+    const unsigned SWAP_COST = SwapCost.getVal();
+    const unsigned REV_COST = RevCost.getVal();
 
     computeSwaps(physGraph);
 
@@ -287,6 +287,7 @@ static MapResult dynsolve(efd::ArchGraph &physGraph, std::vector<efd::Dependenci
     cout << " }" << endl;
     */
 
+    TotalCost = bestCost;
     return { initial, swaps, bestCost };
 }
 

@@ -2,8 +2,9 @@
 #define __EFD_QBIT_ALLOCATOR_H__
 
 #include "enfield/Arch/ArchGraph.h"
-#include "enfield/Support/SwapFinder.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
+#include "enfield/Support/CommandLine.h"
+#include "enfield/Support/Stats.h"
 
 namespace efd {
     /// \brief Base abstract class that allocates the qbits used in the program to
@@ -11,14 +12,7 @@ namespace efd {
     class QbitAllocator {
         public:
             typedef std::vector<unsigned> Mapping;
-
-            typedef efd::SwapFinder::RestrictionVector RestrictionVector;
-            typedef efd::SwapFinder::Rest Rest;
-            typedef efd::SwapFinder::SwapVector SwapVector;
-            typedef efd::SwapFinder::Swap Swap;
-
             typedef std::vector<std::string> BasisVector;
-
             typedef efd::DependencyBuilderPass::DepsSet DepsSet;
             typedef DepsSet::iterator Iterator;
 
@@ -81,5 +75,9 @@ namespace efd {
             virtual Mapping solveDependencies(DepsSet& deps) = 0;
     };
 }
+
+extern efd::Stat<unsigned> TotalCost;
+extern efd::Opt<unsigned> SwapCost;
+extern efd::Opt<unsigned> RevCost;
 
 #endif
