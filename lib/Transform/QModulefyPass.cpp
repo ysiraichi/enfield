@@ -84,6 +84,9 @@ void efd::QModulefyPass::visit(NDQOpGeneric* ref) {
 }
 
 void efd::QModulefyPass::visit(NDStmtList* ref) {
+    if (mMod->mStmtList == nullptr)
+        mMod->mStmtList = ref;
+
     for (auto child : *ref)
         child->apply(this);
 }

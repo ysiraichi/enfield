@@ -19,6 +19,7 @@ namespace efd {
         private:
             NodeRef mAST;
             NodeRef mVersion;
+            NodeRef mStmtList;
 
             std::vector<NodeRef> mRegDecls;
             std::vector<NodeRef> mGates;
@@ -52,12 +53,15 @@ namespace efd {
             Iterator insertNodeAfter(Iterator it, NodeRef ref);
             /// \brief Inserts \p ref before \p it, and returns a iterator to this node.
             Iterator insertNodeBefore(Iterator it, NodeRef ref);
-            /// \brief Inserts a swap call between \p lhs and \p rhs, before the iterator location. 
-            /// Returns a iterator to the first swap instruction.
+            /// \brief Inserts a swap call between \p lhs and \p rhs, before the iterator
+            /// location. Returns a iterator to the first swap instruction.
             Iterator insertSwapAfter(Iterator it, NodeRef lhs, NodeRef rhs);
-            /// \brief Inserts a swap call between \p lhs and \p rhs, after the iterator location. 
-            /// Returns the iterator on the same position.
+            /// \brief Inserts a swap call between \p lhs and \p rhs, after the iterator
+            /// location. Returns the iterator on the same position.
             Iterator insertSwapBefore(Iterator it, NodeRef lhs, NodeRef rhs);
+
+            /// \brief Inserts a node at the last position.
+            void insertStatementLast(NodeRef node);
 
             /// \brief Iterator to the beginning of the register node vector.
             Iterator reg_begin();
@@ -114,13 +118,16 @@ namespace efd {
             /// \brief Clones the current qmodule.
             std::unique_ptr<QModule> clone() const;
 
+            /// \brief Create a new empty QModule.
+            static std::unique_ptr<QModule> Create(bool forceStdLib = true);
             /// \brief Process the AST in order to obtain the QModule.
             static std::unique_ptr<QModule> GetFromAST(NodeRef ref);
             /// \brief Parses the file \p filename and returns a QModule.
-            static std::unique_ptr<QModule> Parse(std::string filename, std::string path = "./",
-                    bool forceStdLib = true);
+            static std::unique_ptr<QModule> Parse(std::string filename,
+                    std::string path = "./", bool forceStdLib = true);
             /// \brief Parses the string \p program and returns a QModule.
-            static std::unique_ptr<QModule> ParseString(std::string program, bool forceStdLib = true);
+            static std::unique_ptr<QModule> ParseString(std::string program,
+                    bool forceStdLib = true);
 
             friend class QModulefyPass;
 
