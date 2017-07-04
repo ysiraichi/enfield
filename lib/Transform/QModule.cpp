@@ -16,7 +16,7 @@ namespace efd {
 }
 
 efd::QModule::QModule(NodeRef ref) : mAST(ref), mVersion(nullptr), 
-    mQModulefy(nullptr), mValid(true), mStdLibsParsed(false) {
+    mQModulefy(nullptr), mValid(true), mStdLibsParsed(false), mStmtList(nullptr) {
 }
 
 void efd::QModule::registerSwapGate(Iterator it) {
@@ -142,6 +142,13 @@ efd::QModule::Iterator efd::QModule::insertSwapAfter(Iterator it, NodeRef lhs, N
     return parent->begin() + dist;
 }
 
+void efd::QModule::insertStatementLast(NodeRef node) {
+    auto list = dynCast<NDList>(mStmtList);
+    assert(list != nullptr && "Statement list is null.");
+    list->addChild(node);
+    invalidate();
+}
+
 efd::QModule::Iterator efd::QModule::reg_begin() {
     if (!isValid()) validate();
     return mRegDecls.begin();
@@ -231,16 +238,18 @@ efd::NDGateDecl* efd::QModule::getQGate(std::string id, bool recursive) {
 }
 
 void efd::QModule::invalidate() {
-    mVersion = nullptr;
-    mRegDecls.clear();
-    mGates.clear();
-    mStatements.clear();
     mValid = false;
 }
 
 void efd::QModule::validate() {
     if (mQModulefy == nullptr)
         mQModulefy = QModulefyPass::Create(this);
+
+    mVersion = nullptr;
+    mStmtList = nullptr;
+    mRegDecls.clear();
+    mGates.clear();
+    mStatements.clear();
 
     // mValid must be set before calling 'runPass'. Otherwise,
     // infinite loop!.
@@ -293,6 +302,17 @@ void efd::QModule::runPass(Pass* pass, bool force) {
 std::unique_ptr<efd::QModule> efd::QModule::clone() const {
     NodeRef newAST = mAST->clone();
     return GetFromAST(newAST);
+}
+
+std::unique_ptr<efd::QModule> efd::QModule::Create(bool forceStdLib) {
+    std::string program;
+    program = "OPENQASM 2.0;\n";
+
+    NodeRef ast = efd::ParseString(program, forceStdLib);
+    if (ast != nullptr)
+        return GetFromAST(ast);
+
+    return std::unique_ptr<QModule>(nullptr);
 }
 
 std::unique_ptr<efd::QModule> efd::QModule::GetFromAST(NodeRef ref) {
