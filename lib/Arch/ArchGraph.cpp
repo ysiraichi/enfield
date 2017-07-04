@@ -46,7 +46,7 @@ unsigned efd::ArchGraph::getUId(std::string s) {
 }
 
 std::string efd::ArchGraph::getSId(unsigned i) {
-    assert(mId.size() <= i && "Vertex index out of bounds.");
+    assert(mId.size() > i && "Vertex index out of bounds.");
     return mId[i];
 }
 
