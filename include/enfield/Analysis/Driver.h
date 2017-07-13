@@ -13,15 +13,15 @@ namespace efd {
         std::string mPath;
 
         // The parser output
-        NodeRef mAST;
+        Node::Ref mAST;
         // Has parsed standard library
         bool mStdLibParsed;
     };
 
     /// \brief Parse \p filename at \p path.
-    NodeRef ParseFile(std::string filename, std::string path = "./", bool forceStdLib = true);
+    Node::uRef ParseFile(std::string filename, std::string path = "./", bool forceStdLib = true);
     /// \brief Parse the string \p program.
-    NodeRef ParseString(std::string program, bool forceStdLib = true);
+    Node::uRef ParseString(std::string program, bool forceStdLib = true);
 };
 
 #endif
