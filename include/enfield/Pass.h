@@ -16,6 +16,8 @@ namespace efd {
                 K_AST_PASS = 8
             };
 
+            typedef Pass* Ref;
+
         private:
             /// \brief Shows whether this pass was already applied.
             bool mApplied;
