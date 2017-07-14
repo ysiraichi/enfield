@@ -9,12 +9,16 @@ namespace efd {
     /// be supporting.
     class ArchGraph : public Graph {
         public:
+            typedef ArchGraph* Ref;
+            typedef std::unique_ptr<ArchGraph> uRef;
+            typedef std::shared_ptr<ArchGraph> sRef;
+
             typedef std::unordered_map<std::string, unsigned> RegsVector;
             typedef RegsVector::iterator RegsIterator;
 
         protected:
             RegsVector mRegs;
-            std::vector<NodeRef> mNodes;
+            std::vector<Node::uRef> mNodes;
 
             std::vector<std::string> mId; 
             std::unordered_map<std::string, unsigned> mStrToId;
@@ -26,12 +30,12 @@ namespace efd {
 
         public:
             /// \brief Gets the node corresponding to the uid.
-            NodeRef getNode(unsigned i) const;
+            Node::Ref getNode(unsigned i) const;
 
             /// \brief Creates a string vertex and puts it in the vector.
             unsigned putVertex(std::string s);
             /// \brief Creates a node vertex and puts it in the vector.
-            unsigned putVertex(NodeRef node);
+            unsigned putVertex(Node::uRef node);
 
             /// \brief Register the register.
             void putReg(std::string id, std::string size);
@@ -55,13 +59,13 @@ namespace efd {
             RegsIterator reg_end();
 
             /// \brief Encapsulates the creation of a new ArchGraph.
-            static std::unique_ptr<ArchGraph> Create(unsigned n);
+            static uRef Create(unsigned n);
 
             /// \brief Parses the file \p filename into a ArchGraph representation.
-            static std::unique_ptr<ArchGraph> Read(std::string filepath);
+            static uRef Read(std::string filepath);
 
             /// \brief Parses the string \p graphStr into a ArchGraph representation.
-            static std::unique_ptr<ArchGraph> ReadString(std::string graphStr);
+            static uRef ReadString(std::string graphStr);
     };
 }
 

@@ -5,13 +5,13 @@
 #include <fstream>
 #include <sstream>
 
-efd::ArchGraph::ArchGraph(unsigned n, bool isGeneric) : Graph(n), mNodes(n, nullptr),
+efd::ArchGraph::ArchGraph(unsigned n, bool isGeneric) : Graph(n), mNodes(n),
     mVID(0), mGeneric(isGeneric), mId(n, "") {
 }
 
-efd::NodeRef efd::ArchGraph::getNode(unsigned i) const {
+efd::Node::Ref efd::ArchGraph::getNode(unsigned i) const {
     assert(mNodes.size() > i && "Node index out of bounds.");
-    return mNodes[i];
+    return mNodes[i].get();
 }
 
 unsigned efd::ArchGraph::putVertex(std::string s) {
@@ -24,14 +24,14 @@ unsigned efd::ArchGraph::putVertex(std::string s) {
     return id;
 }
 
-unsigned efd::ArchGraph::putVertex(NodeRef node) {
+unsigned efd::ArchGraph::putVertex(Node::uRef node) {
     std::string s = node->toString();
 
     if (mStrToId.find(s) != mStrToId.end())
         return mStrToId[s];
 
     unsigned id = putVertex(s);
-    mNodes[id] = node->clone();
+    mNodes[id] = std::move(node);
     return id;
 }
 
