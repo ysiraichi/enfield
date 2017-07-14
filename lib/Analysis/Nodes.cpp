@@ -170,7 +170,7 @@ efd::NDId::Ref efd::NDDecl::getId() const {
 }
 
 void efd::NDDecl::setId(NDId::uRef ref) {
-    mChild[I_ID] = std::move(ref);
+    setChild(I_ID, Node::uRef(ref.release()));
 }
 
 efd::NDInt::Ref efd::NDDecl::getSize() const {
@@ -178,7 +178,7 @@ efd::NDInt::Ref efd::NDDecl::getSize() const {
 }
 
 void efd::NDDecl::setSize(NDInt::uRef ref) {
-    mChild[I_SIZE] = std::move(ref);
+    setChild(I_SIZE, Node::uRef(ref.release()));
 }
 
 bool efd::NDDecl::isCReg() const {
@@ -253,7 +253,7 @@ efd::NDId::Ref efd::NDIdRef::getId() const {
 }
 
 void efd::NDIdRef::setId(NDId::uRef ref) {
-    mChild[I_ID] = std::move(ref);
+    setChild(I_ID, Node::uRef(ref.release()));
 }
 
 efd::NDInt::Ref efd::NDIdRef::getN() const {
@@ -261,7 +261,7 @@ efd::NDInt::Ref efd::NDIdRef::getN() const {
 }
 
 void efd::NDIdRef::setN(NDInt::uRef ref) {
-    mChild[I_N] = std::move(ref);
+    setChild(I_N, Node::uRef(ref.release()));
 }
 
 unsigned efd::NDIdRef::getChildNumber() const {
@@ -467,7 +467,7 @@ efd::NDId::Ref efd::NDIfStmt::getCondId() const {
 }
 
 void efd::NDIfStmt::setCondId(NDId::uRef ref) {
-    mChild[I_COND_ID] = std::move(ref);
+    setChild(I_COND_ID, Node::uRef(ref.release()));
 }
 
 efd::NDInt::Ref efd::NDIfStmt::getCondN() const {
@@ -475,7 +475,7 @@ efd::NDInt::Ref efd::NDIfStmt::getCondN() const {
 }
 
 void efd::NDIfStmt::setCondN(NDInt::uRef ref) {
-    mChild[I_COND_N] = std::move(ref);
+    setChild(I_COND_N, Node::uRef(ref.release()));
 }
 
 efd::Node::Ref efd::NDIfStmt::getQOp() const {
@@ -483,7 +483,7 @@ efd::Node::Ref efd::NDIfStmt::getQOp() const {
 }
 
 void efd::NDIfStmt::setQOp(Node::uRef ref) {
-    mChild[I_QOP] = std::move(ref);
+    setChild(I_QOP, Node::uRef(ref.release()));
 }
 
 unsigned efd::NDIfStmt::getChildNumber() const {
@@ -557,7 +557,7 @@ efd::NDReal::Ref efd::NDQasmVersion::getVersion() const {
 }
 
 void efd::NDQasmVersion::setVersion(NDReal::uRef ref) {
-    mChild[I_VERSION] = std::move(ref);
+    setChild(I_VERSION, Node::uRef(ref.release()));
 }
 
 efd::NDStmtList::Ref efd::NDQasmVersion::getStatements() const {
@@ -565,7 +565,7 @@ efd::NDStmtList::Ref efd::NDQasmVersion::getStatements() const {
 }
 
 void efd::NDQasmVersion::setStatements(NDStmtList::uRef ref) {
-    mChild[I_STMTS] = std::move(ref);
+    setChild(I_STMTS, Node::uRef(ref.release()));
 }
 
 std::string efd::NDQasmVersion::toString(bool pretty) const {
@@ -622,7 +622,7 @@ efd::NDString::Ref efd::NDInclude::getFilename() const {
 }
 
 void efd::NDInclude::setFilename(NDString::uRef ref) {
-    mChild[I_FILE] = std::move(ref);
+    setChild(I_FILE, Node::uRef(ref.release()));
 }
 
 efd::Node::Ref efd::NDInclude::getInnerAST() const {
@@ -630,7 +630,7 @@ efd::Node::Ref efd::NDInclude::getInnerAST() const {
 }
 
 void efd::NDInclude::setInnerAST(Node::uRef ref) {
-    mChild[I_INNER_AST] = std::move(ref);
+    setChild(I_INNER_AST, Node::uRef(ref.release()));
 }
 
 std::string efd::NDInclude::toString(bool pretty) const {
@@ -679,7 +679,7 @@ efd::NDId::Ref efd::NDGateDecl::getId() const {
 }
 
 void efd::NDGateDecl::setId(NDId::uRef ref) {
-    mChild[I_ID] = std::move(ref);
+    setChild(I_ID, Node::uRef(ref.release()));
 }
 
 efd::NDList::Ref efd::NDGateDecl::getArgs() const {
@@ -687,7 +687,7 @@ efd::NDList::Ref efd::NDGateDecl::getArgs() const {
 }
 
 void efd::NDGateDecl::setArgs(NDList::uRef ref) {
-    mChild[I_ARGS] = std::move(ref);
+    setChild(I_ARGS, Node::uRef(ref.release()));
 }
 
 efd::NDList::Ref efd::NDGateDecl::getQArgs() const {
@@ -695,7 +695,7 @@ efd::NDList::Ref efd::NDGateDecl::getQArgs() const {
 }
 
 void efd::NDGateDecl::setQArgs(NDList::uRef ref) {
-    mChild[I_QARGS] = std::move(ref);
+    setChild(I_QARGS, Node::uRef(ref.release()));
 }
 
 efd::NDGOpList::Ref efd::NDGateDecl::getGOpList() const {
@@ -703,7 +703,7 @@ efd::NDGOpList::Ref efd::NDGateDecl::getGOpList() const {
 }
 
 void efd::NDGateDecl::setGOpList(NDGOpList::uRef ref) {
-    mChild[I_GOPLIST] = std::move(ref);
+    setChild(I_GOPLIST, Node::uRef(ref.release()));
 }
 
 std::string efd::NDGateDecl::getOperation() const {
@@ -775,7 +775,7 @@ efd::NDId::Ref efd::NDOpaque::getId() const {
 }
 
 void efd::NDOpaque::setId(NDId::uRef ref) {
-    mChild[I_ID] = std::move(ref);
+    setChild(I_ID, Node::uRef(ref.release()));
 }
 
 efd::NDList::Ref efd::NDOpaque::getArgs() const {
@@ -783,7 +783,7 @@ efd::NDList::Ref efd::NDOpaque::getArgs() const {
 }
 
 void efd::NDOpaque::setArgs(NDList::uRef ref) {
-    mChild[I_ARGS] = std::move(ref);
+    setChild(I_ARGS, Node::uRef(ref.release()));
 }
 
 efd::NDList::Ref efd::NDOpaque::getQArgs() const {
@@ -791,7 +791,7 @@ efd::NDList::Ref efd::NDOpaque::getQArgs() const {
 }
 
 void efd::NDOpaque::setQArgs(NDList::uRef ref) {
-    mChild[I_QARGS] = std::move(ref);
+    setChild(I_QARGS, Node::uRef(ref.release()));
 }
 
 std::string efd::NDOpaque::getOperation() const {
@@ -886,7 +886,7 @@ efd::Node::Ref efd::NDQOpReset::getQArg() const {
 }
 
 void efd::NDQOpReset::setQArg(Node::uRef ref) {
-    mChild[I_ONLY] = std::move(ref);
+    setChild(I_ONLY, Node::uRef(ref.release()));
 }
 
 std::string efd::NDQOpReset::getOperation() const {
@@ -940,7 +940,7 @@ efd::NDList::Ref efd::NDQOpBarrier::getQArgs() const {
 }
 
 void efd::NDQOpBarrier::setQArgs(NDList::uRef ref) {
-    mChild[I_ONLY] = std::move(ref);
+    setChild(I_ONLY, Node::uRef(ref.release()));
 }
 
 std::string efd::NDQOpBarrier::getOperation() const {
@@ -994,7 +994,7 @@ efd::Node::Ref efd::NDQOpMeasure::getQBit() const {
 }
 
 void efd::NDQOpMeasure::setQBit(Node::uRef ref) {
-    mChild[I_QBIT] = std::move(ref);
+    setChild(I_QBIT, Node::uRef(ref.release()));
 }
 
 efd::Node::Ref efd::NDQOpMeasure::getCBit() const {
@@ -1002,7 +1002,7 @@ efd::Node::Ref efd::NDQOpMeasure::getCBit() const {
 }
 
 void efd::NDQOpMeasure::setCBit(Node::uRef ref) {
-    mChild[I_CBIT] = std::move(ref);
+    setChild(I_CBIT, Node::uRef(ref.release()));
 }
 
 std::string efd::NDQOpMeasure::getOperation() const {
@@ -1060,7 +1060,7 @@ efd::NDList::Ref efd::NDQOpU::getArgs() const {
 }
 
 void efd::NDQOpU::setArgs(NDList::uRef ref) {
-    mChild[I_ARGS] = std::move(ref);
+    setChild(I_ARGS, Node::uRef(ref.release()));
 }
 
 efd::Node::Ref efd::NDQOpU::getQArg() const {
@@ -1068,7 +1068,7 @@ efd::Node::Ref efd::NDQOpU::getQArg() const {
 }
 
 void efd::NDQOpU::setQArg(Node::uRef ref) {
-    mChild[I_QARG] = std::move(ref);
+    setChild(I_QARG, Node::uRef(ref.release()));
 }
 
 std::string efd::NDQOpU::getOperation() const {
@@ -1123,7 +1123,7 @@ efd::Node::Ref efd::NDQOpCX::getLhs() const {
 }
 
 void efd::NDQOpCX::setLhs(Node::uRef ref) {
-    mChild[I_LHS] = std::move(ref);
+    setChild(I_LHS, Node::uRef(ref.release()));
 }
 
 efd::Node::Ref efd::NDQOpCX::getRhs() const {
@@ -1131,7 +1131,7 @@ efd::Node::Ref efd::NDQOpCX::getRhs() const {
 }
 
 void efd::NDQOpCX::setRhs(Node::uRef ref) {
-    mChild[I_RHS] = std::move(ref);
+    setChild(I_RHS, Node::uRef(ref.release()));
 }
 
 std::string efd::NDQOpCX::getOperation() const {
@@ -1191,7 +1191,7 @@ efd::NDId::Ref efd::NDQOpGeneric::getId() const {
 }
 
 void efd::NDQOpGeneric::setId(NDId::uRef ref) {
-    mChild[I_ID] = std::move(ref);
+    setChild(I_ID, Node::uRef(ref.release()));
 }
 
 efd::NDList::Ref efd::NDQOpGeneric::getArgs() const {
@@ -1199,7 +1199,7 @@ efd::NDList::Ref efd::NDQOpGeneric::getArgs() const {
 }
 
 void efd::NDQOpGeneric::setArgs(NDList::uRef ref) {
-    mChild[I_ARGS] = std::move(ref);
+    setChild(I_ARGS, Node::uRef(ref.release()));
 }
 
 efd::NDList::Ref efd::NDQOpGeneric::getQArgs() const {
@@ -1207,7 +1207,7 @@ efd::NDList::Ref efd::NDQOpGeneric::getQArgs() const {
 }
 
 void efd::NDQOpGeneric::setQArgs(NDList::uRef ref) {
-    mChild[I_QARGS] = std::move(ref);
+    setChild(I_QARGS, Node::uRef(ref.release()));
 }
 
 std::string efd::NDQOpGeneric::getOperation() const {
@@ -1266,7 +1266,7 @@ efd::Node::Ref efd::NDBinOp::getLhs() const {
 }
 
 void efd::NDBinOp::setLhs(Node::uRef ref) {
-    mChild[I_LHS] = std::move(ref);
+    setChild(I_LHS, Node::uRef(ref.release()));
 }
 
 efd::Node::Ref efd::NDBinOp::getRhs() const {
@@ -1274,7 +1274,7 @@ efd::Node::Ref efd::NDBinOp::getRhs() const {
 }
 
 void efd::NDBinOp::setRhs(Node::uRef ref) {
-    mChild[I_RHS] = std::move(ref);
+    setChild(I_RHS, Node::uRef(ref.release()));
 }
 
 efd::NDBinOp::OpType efd::NDBinOp::getOpType() const {
@@ -1377,7 +1377,7 @@ efd::Node::Ref efd::NDUnaryOp::getOperand() const {
 }
 
 void efd::NDUnaryOp::setOperand(Node::uRef ref) {
-    mChild[I_ONLY] = std::move(ref);
+    setChild(I_ONLY, Node::uRef(ref.release()));
 }
 
 efd::NDUnaryOp::UOpType efd::NDUnaryOp::getUOpType() const {
