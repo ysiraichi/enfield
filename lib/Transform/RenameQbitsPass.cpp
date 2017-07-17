@@ -10,38 +10,38 @@ efd::RenameQbitPass::RenameQbitPass(ArchMap map) : mAMap(map) {
     mUK += Pass::K_STMT_PASS;
 }
 
-efd::NodeRef efd::RenameQbitPass::getNodeFromOld(NodeRef old) {
+efd::Node::uRef efd::RenameQbitPass::getNodeFromOld(Node::Ref old) {
     std::string id = old->toString();
     assert(mAMap.find(id) != mAMap.end() && "Node not found for id/idref.");
     return mAMap[id]->clone();
 }
 
-bool efd::RenameQbitPass::isSwapGate(NDQOpGeneric* ref) {
+bool efd::RenameQbitPass::isSwapGate(NDQOpGeneric::Ref ref) {
     return ref->getId()->toString() == SWAP_ID_NODE->toString();
 }
 
-void efd::RenameQbitPass::visit(NDQOpMeasure* ref) {
+void efd::RenameQbitPass::visit(NDQOpMeasure::Ref ref) {
     ref->setQBit(getNodeFromOld(ref->getQBit()));
 }
 
-void efd::RenameQbitPass::visit(NDQOpReset* ref) {
+void efd::RenameQbitPass::visit(NDQOpReset::Ref ref) {
     ref->setQArg(getNodeFromOld(ref->getQArg()));
 }
 
-void efd::RenameQbitPass::visit(NDQOpU* ref) {
+void efd::RenameQbitPass::visit(NDQOpU::Ref ref) {
     ref->setQArg(getNodeFromOld(ref->getQArg()));
 }
 
-void efd::RenameQbitPass::visit(NDQOpCX* ref) {
+void efd::RenameQbitPass::visit(NDQOpCX::Ref ref) {
     ref->setLhs(getNodeFromOld(ref->getLhs()));
     ref->setRhs(getNodeFromOld(ref->getRhs()));
 }
 
-void efd::RenameQbitPass::visit(NDQOpBarrier* ref) {
+void efd::RenameQbitPass::visit(NDQOpBarrier::Ref ref) {
     ref->getQArgs()->apply(this);
 }
 
-void efd::RenameQbitPass::visit(NDQOpGeneric* ref) {
+void efd::RenameQbitPass::visit(NDQOpGeneric::Ref ref) {
     std::string lhs, rhs;
 
     // Will only swap the values in the map if this is a swap call, and
@@ -63,7 +63,7 @@ void efd::RenameQbitPass::visit(NDQOpGeneric* ref) {
         std::swap(mAMap[lhs], mAMap[rhs]);
 }
 
-void efd::RenameQbitPass::visit(NDList* ref) {
+void efd::RenameQbitPass::visit(NDList::Ref ref) {
     for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
         ref->setChild(i, getNodeFromOld(ref->getChild(i)));
     }
@@ -73,6 +73,6 @@ bool efd::RenameQbitPass::doesInvalidatesModule() const {
     return true;
 }
 
-efd::RenameQbitPass* efd::RenameQbitPass::Create(ArchMap map) {
-    return new RenameQbitPass(map);
+efd::RenameQbitPass::uRef efd::RenameQbitPass::Create(ArchMap map) {
+    return uRef(new RenameQbitPass(map));
 }

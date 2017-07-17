@@ -9,9 +9,9 @@
 #include <iostream>
 
 namespace efd {
-    const NDId::uRef SWAP_ID_NODE = efd::NDId::Create("__swap__"); 
-    const NDId::uRef H_ID_NODE = efd::NDId::Create("h"); 
-    const NDId::uRef CX_ID_NODE = efd::NDId::Create("cx"); 
+    NDId::uRef SWAP_ID_NODE(efd::NDId::Create("__swap__"));
+    NDId::uRef H_ID_NODE(efd::NDId::Create("h")); 
+    NDId::uRef CX_ID_NODE(efd::NDId::Create("cx")); 
 
     /// \brief Enum that indicates where to place a instruction.
     enum Loc {

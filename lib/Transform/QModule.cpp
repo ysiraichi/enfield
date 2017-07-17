@@ -11,9 +11,9 @@
 #include <iterator>
 
 namespace efd {
-    extern const efd::NDId* SWAP_ID_NODE;
-    extern const efd::NDId* H_ID_NODE;
-    extern const efd::NDId* CX_ID_NODE;
+    extern NDId::uRef SWAP_ID_NODE;
+    extern NDId::uRef H_ID_NODE;
+    extern NDId::uRef CX_ID_NODE;
 }
 
 efd::QModule::QModule(Node::uRef ref) : mAST(std::move(ref)), mVersion(nullptr), 

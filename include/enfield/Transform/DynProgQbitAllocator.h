@@ -10,14 +10,18 @@ namespace efd {
     /// \brief Implementation of QbitAllocator that uses dynamic programming to
     /// obtain an optimal solution.
     class DynProgQbitAllocator : public QbitAllocator {
+        public:
+            typedef DynProgQbitAllocator* Ref;
+            typedef std::unique_ptr<DynProgQbitAllocator> uRef;
+
         private:
-            DynProgQbitAllocator(QModule* qmod, ArchGraph* archGraph);
+            DynProgQbitAllocator(QModule::sRef qmod, ArchGraph::sRef archGraph);
 
         public:
             Mapping solveDependencies(DepsSet& deps) override;
 
             /// \brief Create a new instance of this class.
-            static DynProgQbitAllocator* Create(QModule* qmod, ArchGraph* archGraph);
+            static uRef Create(QModule::sRef qmod, ArchGraph::sRef archGraph);
     };
 }
 

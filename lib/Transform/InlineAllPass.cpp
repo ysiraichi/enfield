@@ -1,6 +1,6 @@
 #include "enfield/Transform/InlineAllPass.h"
 
-efd::InlineAllPass::InlineAllPass(QModule* qmod, std::vector<std::string> basis) :
+efd::InlineAllPass::InlineAllPass(QModule::sRef qmod, std::vector<std::string> basis) :
     mMod(qmod), mInlined(false) {
 
     mBasis = std::set<std::string>(basis.begin(), basis.end());
@@ -11,17 +11,17 @@ void efd::InlineAllPass::initImpl(bool force) {
     mInlined = false;
 }
 
-void efd::InlineAllPass::recursiveInline(NDQOpGeneric* ref) {
+void efd::InlineAllPass::recursiveInline(NDQOpGeneric::Ref ref) {
 }
 
-void efd::InlineAllPass::visit(NDQOpGeneric* ref) {
+void efd::InlineAllPass::visit(NDQOpGeneric::Ref ref) {
     if (mBasis.find(ref->getId()->getVal()) == mBasis.end()) {
         mMod->inlineCall(ref);
         mInlined = true;
     }
 }
 
-void efd::InlineAllPass::visit(NDIfStmt* ref) {
+void efd::InlineAllPass::visit(NDIfStmt::Ref ref) {
     ref->getQOp()->apply(this);
 }
 
@@ -33,6 +33,6 @@ bool efd::InlineAllPass::doesInvalidatesModule() const {
     return true;
 }
 
-efd::InlineAllPass* efd::InlineAllPass::Create(QModule* qmod, std::vector<std::string> basis) {
-    return new InlineAllPass(qmod, basis);
+efd::InlineAllPass::uRef efd::InlineAllPass::Create(QModule::sRef qmod, std::vector<std::string> basis) {
+    return uRef(new InlineAllPass(qmod, basis));
 }

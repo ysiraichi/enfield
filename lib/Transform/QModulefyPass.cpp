@@ -12,6 +12,7 @@ efd::QModulefyPass::QModulefyPass(QModule::sRef qmod) : mMod(qmod) {
 }
 
 void efd::QModulefyPass::initImpl(bool force) {
+    mMod->mTable = IdTable::Create(nullptr);
     mCurrentTable = mMod->mTable.get();
     mIncludes.clear();
 }

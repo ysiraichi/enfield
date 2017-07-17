@@ -109,6 +109,7 @@ namespace efd {
         public:
             typedef DependencyBuilderPass* Ref;
             typedef std::unique_ptr<DependencyBuilderPass> uRef;
+            typedef std::shared_ptr<DependencyBuilderPass> sRef;
 
             typedef std::vector<Dependencies> DepsSet;
 
