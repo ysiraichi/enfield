@@ -40,6 +40,16 @@ namespace efd {
 
             assert(false && "Failed when casting a std::unique_ptr.");
         }
+
+    /// \brief Wrapper function that "transforms" a \em std::unique_ptr
+    /// into a \em std::shared_ptr.
+    ///
+    /// Note that the unique_ptr will lose the reference to the previously
+    /// pointed object.
+    template <typename T>
+        inline std::shared_ptr<T> toShared(std::unique_ptr<T> from) {
+            return std::shared_ptr<T>(from.release());
+        }
 }
 
 #endif
