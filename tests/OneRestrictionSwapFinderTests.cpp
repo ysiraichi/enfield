@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Support/OneRestrictionSwapFinder.h"
+#include "enfield/Support/uRefCast.h"
 
 #include <string>
 
@@ -21,11 +22,11 @@ TEST(OneRestrictionSwapFinderTests, NoSwapPathTest) {
 1 3\n\
 1 4\n\
 ";
-    std::unique_ptr<Graph> graph = efd::Graph::ReadString(gStr);
+    auto graph = efd::toShared(efd::Graph::ReadString(gStr));
     ASSERT_FALSE(graph.get() == nullptr);
 
     SwapFinder::RestrictionVector rV { SwapFinder::Rest { 0, 1 } };
-    SwapFinder* finder = OneRestrictionSwapFinder::Create(graph.get());
+    auto finder = OneRestrictionSwapFinder::Create(graph);
     SwapFinder::SwapVector swaps = finder->findSwaps(rV);
     ASSERT_TRUE(swaps.empty());
 }
@@ -39,11 +40,11 @@ TEST(OneRestrictionSwapFinderTests, ReverseEdgeNoSwapPathTest) {
 1 3\n\
 1 4\n\
 ";
-    std::unique_ptr<Graph> graph = efd::Graph::ReadString(gStr);
+    auto graph = efd::toShared(efd::Graph::ReadString(gStr));
     ASSERT_FALSE(graph.get() == nullptr);
 
     SwapFinder::RestrictionVector rV { SwapFinder::Rest { 3, 1 } };
-    SwapFinder* finder = OneRestrictionSwapFinder::Create(graph.get());
+    auto finder = OneRestrictionSwapFinder::Create(graph);
     SwapFinder::SwapVector swaps = finder->findSwaps(rV);
     ASSERT_TRUE(swaps.empty());
 }
@@ -58,11 +59,11 @@ TEST(OneRestrictionSwapFinderTests, SwapTests) {
 1 3\n\
 1 4\n\
 ";
-        std::unique_ptr<Graph> graph = efd::Graph::ReadString(gStr);
+        auto graph = efd::toShared(efd::Graph::ReadString(gStr));
         ASSERT_FALSE(graph.get() == nullptr);
 
         SwapFinder::RestrictionVector rV { SwapFinder::Rest { 0, 4 } };
-        SwapFinder* finder = OneRestrictionSwapFinder::Create(graph.get());
+        auto finder = OneRestrictionSwapFinder::Create(graph);
         SwapFinder::SwapVector swaps = finder->findSwaps(rV);
         ASSERT_FALSE(swaps.empty());
         ASSERT_EQ(swaps.size(), 1);
@@ -78,11 +79,11 @@ TEST(OneRestrictionSwapFinderTests, SwapTests) {
 2 3\n\
 3 4\n\
 ";
-        std::unique_ptr<Graph> graph = efd::Graph::ReadString(gStr);
+        auto graph = efd::toShared(efd::Graph::ReadString(gStr));
         ASSERT_FALSE(graph.get() == nullptr);
 
         SwapFinder::RestrictionVector rV { SwapFinder::Rest { 4, 0 } };
-        SwapFinder* finder = OneRestrictionSwapFinder::Create(graph.get());
+        auto finder = OneRestrictionSwapFinder::Create(graph);
         SwapFinder::SwapVector swaps = finder->findSwaps(rV);
         ASSERT_FALSE(swaps.empty());
         ASSERT_EQ(swaps.size(), 3);

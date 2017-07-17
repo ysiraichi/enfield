@@ -8,10 +8,9 @@
 using namespace efd;
 
 static void check(const std::string gS, const std::string wGS) {
-    std::unique_ptr<Graph> graph = Graph::ReadString(gS);
-    std::unique_ptr<WeightedGraph<int>> wGraph = WeightedGraph<int>::ReadString(wGS);
-    std::unique_ptr<WeightedPMFinder<int>> matcher =
-        WeightedPMFinder<int>::Create(*graph, *wGraph);
+    auto graph = Graph::ReadString(gS);
+    auto wGraph = WeightedGraph<int>::ReadString(wGS);
+    auto matcher = WeightedPMFinder<int>::Create(*graph, *wGraph);
     
     unsigned gSize = graph->size();
     std::vector<bool> matched(gSize, false);

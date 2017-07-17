@@ -16,7 +16,7 @@ TEST(GraphTests, SameIntWeightTest) {
 1 3 1\n\
 1 4 1\n\
 ";
-    std::unique_ptr<WeightedGraph<int>> graph = efd::WeightedGraph<int>::ReadString(gStr);
+    auto graph = efd::WeightedGraph<int>::ReadString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), 5);
@@ -43,7 +43,7 @@ TEST(GraphTests, DifferentWeightIntTest) {
 1 4 4\n\
 4 1 1\n\
 ";
-    std::unique_ptr<WeightedGraph<int>> graph = efd::WeightedGraph<int>::ReadString(gStr);
+    auto graph = efd::WeightedGraph<int>::ReadString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), 5);
@@ -78,7 +78,7 @@ TEST(GraphTests, DoubleWeightTest) {
 1 4 4.1\n\
 4 1 3.14159\n\
 ";
-    std::unique_ptr<WeightedGraph<double>> graph = efd::WeightedGraph<double>::ReadString(gStr);
+    auto graph = efd::WeightedGraph<double>::ReadString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), 5);

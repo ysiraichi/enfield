@@ -13,7 +13,7 @@ namespace efd {
         public:
             typedef WeightedGraph<T>* Ref;
             typedef std::unique_ptr<WeightedGraph<T>> uRef;
-            typedef std::shared_ptr<WeightedGraph<T>> uRef;
+            typedef std::shared_ptr<WeightedGraph<T>> sRef;
 
         private:
             std::map<std::pair<unsigned, unsigned>, T> mW;
