@@ -9,6 +9,11 @@
 namespace efd {
     /// \brief Graph representation.
     class Graph {
+        public:
+            typedef Graph* Ref;
+            typedef std::unique_ptr<Graph> uRef;
+            typedef std::shared_ptr<Graph> sRef;
+
         protected:
             unsigned mN;
             std::vector<std::set<unsigned>> mSuccessors;
@@ -37,11 +42,11 @@ namespace efd {
             bool hasEdge(unsigned i, unsigned j); 
     
             /// \brief Encapsulates the creation of a new Graph.
-            static std::unique_ptr<Graph> Create(unsigned n);
+            static uRef Create(unsigned n);
             /// \brief Parses the file \p filename into a Graph representation.
-            static std::unique_ptr<Graph> Read(std::string filepath);
+            static uRef Read(std::string filepath);
             /// \brief Parses the string \p graphStr into a Graph representation.
-            static std::unique_ptr<Graph> ReadString(std::string graphStr);
+            static uRef ReadString(std::string graphStr);
     };
 }
 
