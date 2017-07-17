@@ -5,7 +5,7 @@
 #include <set>
 #include <limits>
 
-efd::OneRestrictionSwapFinder::OneRestrictionSwapFinder(Graph* g) : SwapFinder(g) {
+efd::OneRestrictionSwapFinder::OneRestrictionSwapFinder(Graph::sRef g) : SwapFinder(g) {
 }
 
 std::vector<unsigned> efd::OneRestrictionSwapFinder::getPath(Rest r) {
@@ -76,6 +76,6 @@ efd::SwapFinder::SwapVector efd::OneRestrictionSwapFinder::findSwaps(Restriction
     return generateFromPath(path);
 }
 
-efd::OneRestrictionSwapFinder* efd::OneRestrictionSwapFinder::Create(Graph* g) {
-    return new OneRestrictionSwapFinder(g);
+efd::OneRestrictionSwapFinder::uRef efd::OneRestrictionSwapFinder::Create(Graph::sRef g) {
+    return uRef(new OneRestrictionSwapFinder(g));
 }

@@ -6,8 +6,13 @@
 namespace efd {
     /// \brief Finds swaps for one restriction only.
     class OneRestrictionSwapFinder : public SwapFinder {
+        public:
+            typedef OneRestrictionSwapFinder* Ref;
+            typedef std::unique_ptr<OneRestrictionSwapFinder> uRef;
+            typedef std::shared_ptr<OneRestrictionSwapFinder> sRef;
+
         protected:
-            OneRestrictionSwapFinder(Graph* g);
+            OneRestrictionSwapFinder(Graph::sRef g);
 
             /// \brief Returns the path from r.From to r.To.
             std::vector<unsigned> getPath(Rest r);
@@ -18,7 +23,7 @@ namespace efd {
             SwapVector findSwaps(RestrictionVector restrictions) override;
 
             /// \brief Creates one instance of this finder.
-            static OneRestrictionSwapFinder* Create(Graph* g);
+            static uRef Create(Graph::sRef g);
     };
 }
 
