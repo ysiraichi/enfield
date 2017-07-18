@@ -6,6 +6,7 @@
 #include "enfield/Support/OneRestrictionSwapFinder.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/uRefCast.h"
 
 #include <string>
 
@@ -27,17 +28,17 @@ gate h a {}\
 gate cx a, b {CX a, b;}\
 qreg q[5];\
 cx q[0], q[1];\
-h q[1];\
 h q[0];\
+h q[1];\
 cx q[0], q[1];\
-h q[0];\
 h q[1];\
+h q[0];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
-        std::unique_ptr<ArchIBMQX2> graph = ArchIBMQX2::Create();
+        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        ArchIBMQX2::sRef graph = toShared(ArchIBMQX2::Create());
 
-        ReverseEdgesPass* revPass = ReverseEdgesPass::Create(qmod.get(), graph.get());
-        qmod->runPass(revPass);
+        ReverseEdgesPass::uRef revPass = ReverseEdgesPass::Create(qmod, graph);
+        qmod->runPass(revPass.get());
 
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -65,35 +66,35 @@ gate h a {}\
 gate cx a, b {CX a, b;}\
 qreg q[5];\
 cx q[0], q[1];\
-h q[1];\
 h q[0];\
+h q[1];\
 cx q[0], q[1];\
-h q[0];\
 h q[1];\
-cx q[0], q[2];\
-h q[2];\
 h q[0];\
 cx q[0], q[2];\
 h q[0];\
 h q[2];\
+cx q[0], q[2];\
+h q[2];\
+h q[0];\
+cx q[3], q[2];\
+h q[3];\
+h q[2];\
 cx q[3], q[2];\
 h q[2];\
 h q[3];\
-cx q[3], q[2];\
-h q[3];\
-h q[2];\
-cx q[3], q[4];\
-h q[4];\
-h q[3];\
 cx q[3], q[4];\
 h q[3];\
 h q[4];\
+cx q[3], q[4];\
+h q[4];\
+h q[3];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
-        std::unique_ptr<ArchIBMQX2> graph = ArchIBMQX2::Create();
+        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        ArchIBMQX2::sRef graph = toShared(ArchIBMQX2::Create());
 
-        ReverseEdgesPass* revPass = ReverseEdgesPass::Create(qmod.get(), graph.get());
-        qmod->runPass(revPass);
+        ReverseEdgesPass::uRef revPass = ReverseEdgesPass::Create(qmod, graph);
+        qmod->runPass(revPass.get());
 
         ASSERT_EQ(qmod->toString(), result);
     }

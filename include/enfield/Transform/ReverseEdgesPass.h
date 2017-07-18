@@ -9,24 +9,28 @@
 namespace efd {
     /// \brief Pass that reverses the edges accordingly with the architecture Graph.
     class ReverseEdgesPass : public Pass {
+        public:
+            typedef ReverseEdgesPass* Ref;
+            typedef std::unique_ptr<ReverseEdgesPass> uRef;
+
         private:
-            ArchGraph* mG;
-            QModule* mMod;
+            ArchGraph::sRef mG;
+            QModule::sRef mMod;
 
-            DependencyBuilderPass* mDepPass;
+            DependencyBuilderPass::uRef mDepPass;
 
-            ReverseEdgesPass(QModule* qmod, ArchGraph* graph);
+            ReverseEdgesPass(QModule::sRef qmod, ArchGraph::sRef graph);
 
             void initImpl(bool force) override;
 
         public:
-            void visit(NDQOpCX* ref) override;
-            void visit(NDQOpGeneric* ref) override;
+            void visit(NDQOpCX::Ref ref) override;
+            void visit(NDQOpGeneric::Ref ref) override;
 
             bool doesInvalidatesModule() const override;
 
             /// \brief Create an instance of this class.
-            static ReverseEdgesPass* Create(QModule* qmod, ArchGraph* graph);
+            static uRef Create(QModule::sRef qmod, ArchGraph::sRef graph);
     };
 }
 

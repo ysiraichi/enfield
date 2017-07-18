@@ -10,6 +10,11 @@ namespace efd {
 
     template <typename T>
     class WeightedGraph : public Graph {
+        public:
+            typedef WeightedGraph<T>* Ref;
+            typedef std::unique_ptr<WeightedGraph<T>> uRef;
+            typedef std::shared_ptr<WeightedGraph<T>> sRef;
+
         private:
             std::map<std::pair<unsigned, unsigned>, T> mW;
 
@@ -24,11 +29,11 @@ namespace efd {
             T getW(unsigned i, unsigned j);
     
             /// \brief Encapsulates the creation of a new Graph.
-            static std::unique_ptr<WeightedGraph<T>> Create(unsigned n);
+            static uRef Create(unsigned n);
             /// \brief Parses the file \p filename into a Graph representation.
-            static std::unique_ptr<WeightedGraph<T>> Read(std::string filepath);
+            static uRef Read(std::string filepath);
             /// \brief Parses the string \p graphStr into a Graph representation.
-            static std::unique_ptr<WeightedGraph<T>> ReadString(std::string graphStr);
+            static uRef ReadString(std::string graphStr);
     };
 }
 
@@ -49,12 +54,12 @@ T efd::WeightedGraph<T>::getW(unsigned i, unsigned j) {
 }
 
 template <typename T>
-std::unique_ptr<efd::WeightedGraph<T>> efd::WeightedGraph<T>::Create(unsigned n) {
+typename efd::WeightedGraph<T>::uRef efd::WeightedGraph<T>::Create(unsigned n) {
     return std::unique_ptr<WeightedGraph<T>>(new WeightedGraph<T>(n));
 }
 
 template <typename T>
-std::unique_ptr<efd::WeightedGraph<T>> efd::WeightedGraph<T>::ReadFromIn(std::istream& in) {
+typename efd::WeightedGraph<T>::uRef efd::WeightedGraph<T>::ReadFromIn(std::istream& in) {
     unsigned n;
     in >> n;
 
@@ -68,13 +73,13 @@ std::unique_ptr<efd::WeightedGraph<T>> efd::WeightedGraph<T>::ReadFromIn(std::is
 }
 
 template <typename T>
-std::unique_ptr<efd::WeightedGraph<T>> efd::WeightedGraph<T>::Read(std::string filepath) {
+typename efd::WeightedGraph<T>::uRef efd::WeightedGraph<T>::Read(std::string filepath) {
     std::ifstream in(filepath.c_str());
     return ReadFromIn(in);
 }
 
 template <typename T>
-std::unique_ptr<efd::WeightedGraph<T>> efd::WeightedGraph<T>::ReadString(std::string graphStr) {
+typename efd::WeightedGraph<T>::uRef efd::WeightedGraph<T>::ReadString(std::string graphStr) {
     std::stringstream in(graphStr);
     return ReadFromIn(in);
 }

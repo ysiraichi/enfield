@@ -25,7 +25,7 @@ const std::vector<std::string> files = {
 
 TEST(DriverFileTests, ParsingFilesTest) {
     for (const std::string& file : files) {
-        NodeRef root = efd::ParseFile(file, dir);
-        ASSERT_FALSE(root == nullptr);
+        auto root = efd::ParseFile(file, dir);
+        ASSERT_FALSE(root.get() == nullptr);
     }
 }

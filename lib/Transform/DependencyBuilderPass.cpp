@@ -27,7 +27,7 @@ void efd::QbitToNumberPass::initImpl(bool force) {
     mGIdMap.clear();
 }
 
-void efd::QbitToNumberPass::visit(NDDecl* ref) {
+void efd::QbitToNumberPass::visit(NDDecl::Ref ref) {
     if (ref->isCReg()) return;
 
     std::string id = ref->getId()->getVal();
@@ -39,25 +39,25 @@ void efd::QbitToNumberPass::visit(NDDecl* ref) {
     // For example, 'qreg q[5];' generates 'q[0]', 'q[1]', ...
     for (int i = 0; i < size.mV; ++i) {
         std::string key = id + "[" + std::to_string(i) +"]";
-        NodeRef ref = NDIdRef::Create(NDId::Create(id), NDInt::Create(std::to_string(i)));
-        mGIdMap.push_back(QbitInfo { key, ref });
+        auto ref = NDIdRef::Create(NDId::Create(id), NDInt::Create(std::to_string(i)));
+        mGIdMap.push_back(QbitInfo { key, std::move(ref) });
     }
 }
 
-void efd::QbitToNumberPass::visit(NDGateDecl* ref) {
+void efd::QbitToNumberPass::visit(NDGateDecl::Ref ref) {
     if (mLIdMap.find(ref) == mLIdMap.end()) {
         mLIdMap[ref] = QbitMap();
 
         // Each quantum argument of each quantum gate declaration
         // will be mapped to a number.
-        for (auto childRef : *ref->getQArgs()) {
-            NDId* idref = dynCast<NDId>(childRef);
+        for (auto& childRef : *ref->getQArgs()) {
+            NDId::Ref idref = dynCast<NDId>(childRef.get());
             mLIdMap[ref].push_back(QbitInfo { idref->getVal(), idref->clone() });
         }
     }
 }
 
-unsigned efd::QbitToNumberPass::getUId(std::string id, NDGateDecl* gate) const {
+unsigned efd::QbitToNumberPass::getUId(std::string id, NDGateDecl::Ref gate) const {
     const QbitMap* map = getMap(gate);
 
     unsigned index = 0;
@@ -69,25 +69,25 @@ unsigned efd::QbitToNumberPass::getUId(std::string id, NDGateDecl* gate) const {
     return index;
 }
 
-unsigned efd::QbitToNumberPass::getSize(NDGateDecl* gate) const {
+unsigned efd::QbitToNumberPass::getSize(NDGateDecl::Ref gate) const {
     const QbitMap* map = getMap(gate);
     return map->size();
 }
 
-std::string efd::QbitToNumberPass::getStrId(unsigned id, NDGateDecl* gate) const {
+std::string efd::QbitToNumberPass::getStrId(unsigned id, NDGateDecl::Ref gate) const {
     const QbitMap* map = getMap(gate);
     assert(id < map->size() && "Id trying to access out of bounds value.");
     return map->at(id).mKey;
 }
 
-efd::NodeRef efd::QbitToNumberPass::getNode(unsigned id, NDGateDecl* gate) const {
+efd::Node::Ref efd::QbitToNumberPass::getNode(unsigned id, NDGateDecl::Ref gate) const {
     const QbitMap* map = getMap(gate);
     assert(id < map->size() && "Id trying to access out of bounds value.");
-    return map->at(id).mRef;
+    return map->at(id).mRef.get();
 }
 
-efd::QbitToNumberPass* efd::QbitToNumberPass::Create() {
-    return new QbitToNumberPass();
+efd::QbitToNumberPass::uRef efd::QbitToNumberPass::Create() {
+    return uRef(new QbitToNumberPass());
 }
 
 // --------------------- Dependencies ------------------------
@@ -124,10 +124,12 @@ efd::Dependencies::ConstIterator efd::Dependencies::end() const {
 }
 
 // --------------------- DependencyBuilderPass ------------------------
-efd::DependencyBuilderPass::DependencyBuilderPass(QModule* mod, QbitToNumberPass* pass) 
+efd::DependencyBuilderPass::DependencyBuilderPass(QModule::sRef mod, QbitToNumberPass::sRef pass) 
     : mMod(mod), mQbitMap(pass) {
-    if (mQbitMap == nullptr)
-        mQbitMap = QbitToNumberPass::Create();
+
+    if (mQbitMap.get() == nullptr)
+        mQbitMap = std::shared_ptr<QbitToNumberPass>
+            (QbitToNumberPass::Create().release());
 
     mUK += Pass::K_GATE_PASS;
     mUK += Pass::K_STMT_PASS;
@@ -138,15 +140,16 @@ void efd::DependencyBuilderPass::initImpl(bool force) {
     mLDeps.clear();
     mGDeps.clear();
 
-    mMod->runPass(mQbitMap, force);
+    mMod->runPass(mQbitMap.get(), force);
 }
 
-unsigned efd::DependencyBuilderPass::getUId(NodeRef ref) {
+unsigned efd::DependencyBuilderPass::getUId(Node::Ref ref) {
     std::string _id = ref->toString();
     return mQbitMap->getUId(_id, mCurrentGate);
 }
 
-const efd::DependencyBuilderPass::DepsSet* efd::DependencyBuilderPass::getDepsSet(NDGateDecl* gate) const {
+const efd::DependencyBuilderPass::DepsSet* efd::DependencyBuilderPass::getDepsSet
+(NDGateDecl::Ref gate) const {
     const DepsSet* deps = &mGDeps;
 
     if (gate != nullptr) {
@@ -158,11 +161,11 @@ const efd::DependencyBuilderPass::DepsSet* efd::DependencyBuilderPass::getDepsSe
     return deps;
 }
 
-efd::DependencyBuilderPass::DepsSet* efd::DependencyBuilderPass::getDepsSet(NDGateDecl* gate) {
+efd::DependencyBuilderPass::DepsSet* efd::DependencyBuilderPass::getDepsSet(NDGateDecl::Ref gate) {
     return const_cast<DepsSet*>(static_cast<const DependencyBuilderPass*>(this)->getDepsSet(gate));
 }
 
-void efd::DependencyBuilderPass::visit(NDGateDecl* ref) {
+void efd::DependencyBuilderPass::visit(NDGateDecl::Ref ref) {
     mLDeps[ref] = DepsSet();
 
     mCurrentGate = ref;
@@ -170,12 +173,12 @@ void efd::DependencyBuilderPass::visit(NDGateDecl* ref) {
     mCurrentGate = nullptr;
 }
 
-void efd::DependencyBuilderPass::visit(NDGOpList* ref) {
-    for (auto childRef : *ref)
+void efd::DependencyBuilderPass::visit(NDGOpList::Ref ref) {
+    for (auto& childRef : *ref)
         childRef->apply(this);
 }
 
-void efd::DependencyBuilderPass::visit(NDQOpCX* ref) {
+void efd::DependencyBuilderPass::visit(NDQOpCX::Ref ref) {
     DepsSet* deps = getDepsSet(mCurrentGate);
 
     // CX controlQ, invertQ;
@@ -186,7 +189,7 @@ void efd::DependencyBuilderPass::visit(NDQOpCX* ref) {
     deps->push_back(depV);
 }
 
-void efd::DependencyBuilderPass::visit(NDQOpGeneric* ref) {
+void efd::DependencyBuilderPass::visit(NDQOpGeneric::Ref ref) {
     // Single qbit gate.
     if (ref->getChildNumber() == 1) return;
 
@@ -194,12 +197,12 @@ void efd::DependencyBuilderPass::visit(NDQOpGeneric* ref) {
 
     // Getting the qargs unsigned representations.
     std::vector<unsigned> uidVector;
-    for (auto childRef : *ref->getQArgs())
-        uidVector.push_back(getUId(childRef));
+    for (auto& childRef : *ref->getQArgs())
+        uidVector.push_back(getUId(childRef.get()));
 
     // Getting the gate declaration node.
-    NodeRef node = mMod->getQGate(ref->getId()->getVal());
-    NDGateDecl* gRef = dynCast<NDGateDecl>(node);
+    Node::Ref node = mMod->getQGate(ref->getId()->getVal());
+    NDGateDecl::Ref gRef = dynCast<NDGateDecl>(node);
     assert(gRef != nullptr && "There is no quantum gate with this id.");
 
     DepsSet& gDeps = mLDeps[gRef];
@@ -218,23 +221,26 @@ void efd::DependencyBuilderPass::visit(NDQOpGeneric* ref) {
         deps->push_back(thisDeps);
 }
 
-void efd::DependencyBuilderPass::visit(NDIfStmt* ref) {
+void efd::DependencyBuilderPass::visit(NDIfStmt::Ref ref) {
     ref->getQOp()->apply(this);
 }
 
-efd::QbitToNumberPass* efd::DependencyBuilderPass::getUIdPass() {
+efd::QbitToNumberPass::sRef efd::DependencyBuilderPass::getUIdPass() {
     return mQbitMap;
 }
 
-const efd::DependencyBuilderPass::DepsSet& efd::DependencyBuilderPass::getDependencies(NDGateDecl* ref) const {
+const efd::DependencyBuilderPass::DepsSet& efd::DependencyBuilderPass::getDependencies
+(NDGateDecl::Ref ref) const {
     const DepsSet* deps = const_cast<DepsSet*>(getDepsSet(ref));
     return *deps;
 }
 
-efd::DependencyBuilderPass::DepsSet efd::DependencyBuilderPass::getDependencies(NDGateDecl* ref) {
+efd::DependencyBuilderPass::DepsSet efd::DependencyBuilderPass::getDependencies
+(NDGateDecl::Ref ref) {
     return *getDepsSet(ref);
 }
 
-efd::DependencyBuilderPass* efd::DependencyBuilderPass::Create(QModule* mod, QbitToNumberPass* pass) {
-    return new DependencyBuilderPass(mod, pass);
+efd::DependencyBuilderPass::uRef efd::DependencyBuilderPass::Create
+(QModule::sRef mod, QbitToNumberPass::sRef pass) {
+    return uRef(new DependencyBuilderPass(mod, pass));
 }

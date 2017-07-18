@@ -22,10 +22,14 @@ namespace efd {
         private:
             struct QbitInfo {
                 std::string mKey;
-                NodeRef mRef;
+                Node::uRef mRef;
             };
 
         public:
+            typedef QbitToNumberPass* Ref;
+            typedef std::unique_ptr<QbitToNumberPass> uRef;
+            typedef std::shared_ptr<QbitToNumberPass> sRef;
+
             typedef std::vector<QbitInfo> QbitMap;
 
         private:
@@ -34,29 +38,29 @@ namespace efd {
 
             QbitToNumberPass();
 
-            const QbitMap* getMap(NDGateDecl* gate) const;
+            const QbitMap* getMap(NDGateDecl::Ref gate) const;
             void initImpl(bool force) override;
 
         public:
-            void visit(NDDecl* ref) override;
-            void visit(NDGateDecl* ref) override;
+            void visit(NDDecl::Ref ref) override;
+            void visit(NDGateDecl::Ref ref) override;
 
             /// \brief Returns an unsigned number representing the id
             /// in this specific gate (if any).
-            unsigned getUId(std::string id, NDGateDecl* gate = nullptr) const;
+            unsigned getUId(std::string id, NDGateDecl::Ref gate = nullptr) const;
 
             /// \brief Returns the number of qbits in a given gate (if any).
-            unsigned getSize(NDGateDecl* gate = nullptr) const;
+            unsigned getSize(NDGateDecl::Ref gate = nullptr) const;
 
             /// \brief Returns the std::string id representation of the
             /// corresponding unsigned id in the specific gate (if any).
-            std::string getStrId(unsigned id, NDGateDecl* gate = nullptr) const;
+            std::string getStrId(unsigned id, NDGateDecl::Ref gate = nullptr) const;
 
-            /// \brief Get a NodeRef, representing that qbit.
-            NodeRef getNode(unsigned id, NDGateDecl* gate = nullptr) const;
+            /// \brief Get a Node::Ref, representing that qbit.
+            Node::Ref getNode(unsigned id, NDGateDecl::Ref gate = nullptr) const;
 
             /// \brief Returns a new instance of this class.
-            static QbitToNumberPass* Create();
+            static QbitToNumberPass::uRef Create();
     };
 
     /// \brief Structure for abstracting dependencies.
@@ -72,7 +76,7 @@ namespace efd {
         typedef std::vector<Dep>::const_iterator ConstIterator;
 
         std::vector<Dep> mDeps;
-        NodeRef mCallPoint;
+        Node::Ref mCallPoint;
 
         /// \brief Forwards to the \em mDeps attribute.
         const Dep& operator[](unsigned i) const;
@@ -103,45 +107,49 @@ namespace efd {
     /// dependency that can't be broken down (unless the gate is inlined).
     class DependencyBuilderPass : public Pass {
         public:
+            typedef DependencyBuilderPass* Ref;
+            typedef std::unique_ptr<DependencyBuilderPass> uRef;
+            typedef std::shared_ptr<DependencyBuilderPass> sRef;
+
             typedef std::vector<Dependencies> DepsSet;
 
         private:
-            QModule* mMod;
-            NDGateDecl* mCurrentGate;
-            QbitToNumberPass* mQbitMap;
+            QModule::sRef mMod;
+            NDGateDecl::Ref mCurrentGate;
+            QbitToNumberPass::sRef mQbitMap;
 
             std::unordered_map<NDGateDecl*, DepsSet> mLDeps;
             DepsSet mGDeps;
 
-            DependencyBuilderPass(QModule* mod, QbitToNumberPass* pass = nullptr);
+            DependencyBuilderPass(QModule::sRef mod, QbitToNumberPass::sRef pass = nullptr);
 
             /// \brief Gets an unsingned id for \p ref.
-            unsigned getUId(NodeRef ref);
+            unsigned getUId(Node::Ref ref);
             /// \brief Gets the DepsSet corresponding to the current quantum gate,
             /// or the global (if current gate is null).
-            const DepsSet* getDepsSet(NDGateDecl* gate = nullptr) const;
-            DepsSet* getDepsSet(NDGateDecl* gate = nullptr);
+            const DepsSet* getDepsSet(NDGateDecl::Ref gate = nullptr) const;
+            DepsSet* getDepsSet(NDGateDecl::Ref gate = nullptr);
 
         protected:
             void initImpl(bool force) override;
 
         public:
-            void visit(NDGateDecl* ref) override;
-            void visit(NDGOpList* ref) override;
-            void visit(NDQOpCX* ref) override;
-            void visit(NDQOpGeneric* ref) override;
-            void visit(NDIfStmt* ref) override;
+            void visit(NDGateDecl::Ref ref) override;
+            void visit(NDGOpList::Ref ref) override;
+            void visit(NDQOpCX::Ref ref) override;
+            void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDIfStmt::Ref ref) override;
 
             /// \brief Returns the pass that mapped the qbits.
-            QbitToNumberPass* getUIdPass();
+            QbitToNumberPass::sRef getUIdPass();
 
             /// \brief Gets the dependencies for some gate declaration. If it is a
             /// nullptr, then it is returned the dependencies for the whole program.
-            const DepsSet& getDependencies(NDGateDecl* ref = nullptr) const;
-            DepsSet getDependencies(NDGateDecl* ref = nullptr);
+            const DepsSet& getDependencies(NDGateDecl::Ref ref = nullptr) const;
+            DepsSet getDependencies(NDGateDecl::Ref ref = nullptr);
 
             /// \brief Returns a new instance of this class.
-            static DependencyBuilderPass* Create(QModule* mod, QbitToNumberPass* pass = nullptr);
+            static uRef Create(QModule::sRef mod, QbitToNumberPass::sRef pass = nullptr);
     };
 };
 

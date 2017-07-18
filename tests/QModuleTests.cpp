@@ -25,10 +25,10 @@ const std::vector<std::string> files = {
 
 TEST(QModuleTests, TransformationTest) {
     for (const std::string& file : files) {
-        NodeRef root = efd::ParseFile(file, dir);
+        Node::uRef root = efd::ParseFile(file, dir);
         ASSERT_FALSE(root == nullptr);
 
-        std::unique_ptr<QModule> qmod = efd::QModule::GetFromAST(root);
+        QModule::uRef qmod = efd::QModule::GetFromAST(std::move(root));
         ASSERT_FALSE(qmod.get() == nullptr);
     }
 }

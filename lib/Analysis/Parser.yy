@@ -10,8 +10,6 @@
     namespace efd {
         class EfdScanner;
     };
-
-    typedef efd::Node* NodeRef;
 }
 
 %code provides {
@@ -132,15 +130,22 @@
 
 %token EOF 0 "end of file";
 
-%type <NodeRef> program stmtlist stmtlist_ statement
-%type <NodeRef> decl gatedecl opaquedecl qop uop ifstmt include
-%type <NodeRef> barrier reset measure
-%type <NodeRef> goplist
-%type <NodeRef> explist explist_ exp
-%type <NodeRef> anylist anylist_
-%type <NodeRef> idlist idlist_
-%type <NodeRef> params args arg
-%type <NodeRef> id idref integer real string
+%type <efd::Node::Ref> program statement
+%type <efd::Node::Ref> include decl gatedecl opaquedecl ifstmt
+%type <efd::Node::Ref> qop uop barrier reset measure
+%type <efd::Node::Ref> exp arg
+
+%type <efd::NDStmtList::Ref> stmtlist stmtlist_
+%type <efd::NDGOpList::Ref> goplist
+%type <efd::NDList::Ref> explist explist_
+%type <efd::NDList::Ref> anylist anylist_
+%type <efd::NDList::Ref> idlist idlist_
+%type <efd::NDList::Ref> params args
+
+%type <efd::NDIdRef::Ref> idref
+%type <efd::NDId::Ref> id string
+%type <efd::NDInt::Ref> integer
+%type <efd::NDReal::Ref> real
 
 %type <efd::NDUnaryOp::UOpType> unary
 
@@ -154,15 +159,18 @@
 
 program: stmtlist                   { $$ = $1; ast.mAST = $$; }
        | IBMQASM real ";" stmtlist  { 
-                                        $$ = efd::NDQasmVersion::Create($2, $4);
+                                        $$ = efd::NDQasmVersion::Create
+                                        (efd::NDReal::uRef($2), efd::NDStmtList::uRef($4))
+                                        .release();
+
                                         ast.mAST = $$;
                                     }
 
 stmtlist: stmtlist_ EOF { $$ = $1; }
        ;
-stmtlist_: %empty                { $$ = efd::NDStmtList::Create(); }
+stmtlist_: %empty                { $$ = efd::NDStmtList::Create().release(); }
          | stmtlist_ statement   {
-                                     efd::dynCast<efd::NDStmtList>($1)->addChild($2);
+                                     efd::dynCast<efd::NDStmtList>($1)->addChild(efd::Node::uRef($2));
                                      $$ = $1;
                                  }
 
@@ -212,46 +220,55 @@ include: INCLUDE string ";"     {
                                     if (parser.parse()) return 1;
                                     scanner.yypop_buffer_state();
 
-                                    $$ = efd::NDInclude::Create($2, _ast.mAST); 
+                                    $$ = efd::NDInclude::Create(efd::NDString::uRef($2), efd::Node::uRef(_ast.mAST)).release();
                                 }
         ;
 
-decl: QREG id "[" integer "]" ";"   { $$ = efd::NDDecl::Create(efd::NDDecl::QUANTUM, $2, $4); }
-    | CREG id "[" integer "]" ";"   { $$ = efd::NDDecl::Create(efd::NDDecl::CONCRETE, $2, $4); }
+decl: QREG id "[" integer "]" ";"   { $$ = efd::NDDecl::CreateQ(efd::NDId::uRef($2), efd::NDInt::uRef($4)).release(); }
+    | CREG id "[" integer "]" ";"   { $$ = efd::NDDecl::CreateC(efd::NDId::uRef($2), efd::NDInt::uRef($4)).release(); }
     ;
 
 gatedecl: GATE id params idlist "{" goplist "}" { 
                                                     $$ = efd::NDGateDecl::Create
-                                                    ($2, $3, 
-                                                    $4, $6);
+                                                    (efd::NDId::uRef($2), efd::NDList::uRef($3), 
+                                                    efd::NDList::uRef($4), efd::NDGOpList::uRef($6))
+                                                    .release();
                                                 }
         ;
 
-opaquedecl: OPAQUE id params idlist ";" { $$ = efd::NDOpaque::Create($2, $3, $4); }
+opaquedecl: OPAQUE id params idlist ";" {
+                                            $$ = efd::NDOpaque::Create
+                                            (efd::NDId::uRef($2), efd::NDList::uRef($3), efd::NDList::uRef($4))
+                                            .release();
+                                        }
           ;
 
-barrier: BARRIER idlist ";" { $$ = efd::NDQOpBarrier::Create($2); }
+barrier: BARRIER idlist ";" { $$ = efd::NDQOpBarrier::Create(efd::NDList::uRef($2)).release(); }
        ;
 
-reset: RESET arg ";"    { $$ = efd::NDQOpReset::Create($2); }
+reset: RESET arg ";"    { $$ = efd::NDQOpReset::Create(efd::Node::uRef($2)).release(); }
      ;
 
-measure: MEASURE arg "->" arg ";"   { $$ = efd::NDQOpMeasure::Create($2, $4); }
+measure: MEASURE arg "->" arg ";"   { $$ = efd::NDQOpMeasure::Create(efd::Node::uRef($2), efd::Node::uRef($4)).release(); }
        ;
 
-ifstmt: IF "(" id "==" integer ")" qop  { $$ = efd::NDIfStmt::Create($3, $5, $7); }
+ifstmt: IF "(" id "==" integer ")" qop  {
+                                            $$ = efd::NDIfStmt::Create
+                                            (efd::NDId::uRef($3), efd::NDInt::uRef($5), efd::Node::uRef($7))
+                                            .release();
+                                        }
 
-params: %empty          { $$ = efd::NDList::Create(); }
+params: %empty          { $$ = efd::NDList::Create().release(); }
       | "(" idlist ")"  { $$ = $2; }
       ;
 
-goplist: %empty             { $$ = efd::NDGOpList::Create(); }
+goplist: %empty             { $$ = efd::NDGOpList::Create().release(); }
        | goplist uop        {
-                                efd::dynCast<efd::NDGOpList>($1)->addChild($2);
+                                efd::dynCast<efd::NDGOpList>($1)->addChild(efd::Node::uRef($2));
                                 $$ = $1;
                             }
        | goplist barrier    {
-                                efd::dynCast<efd::NDGOpList>($1)->addChild($2);
+                                efd::dynCast<efd::NDGOpList>($1)->addChild(efd::Node::uRef($2));
                                 $$ = $1;
                             }
        ;
@@ -261,70 +278,82 @@ qop: uop        { $$ = $1; }
    | reset      { $$ = $1; }
    ;
 
-uop: id args anylist ";"    { $$ = efd::NDQOpGeneric::Create($1, $2, $3); }
-   | U args arg ";"         { $$ = efd::NDQOpU::Create($2, $3); }
-   | CX arg "," arg ";"     { $$ = efd::NDQOpCX::Create($2, $4); }
+uop: id args anylist ";"    {
+                                $$ = efd::NDQOpGeneric::Create
+                                (efd::NDId::uRef($1), efd::NDList::uRef($2), efd::NDList::uRef($3))
+                                .release();
+                            }
+   | U args arg ";"         {
+                                $$ = efd::NDQOpU::Create
+                                (efd::NDList::uRef($2), efd::Node::uRef($3))
+                                .release();
+                            }
+   | CX arg "," arg ";"     {
+                                $$ = efd::NDQOpCX::Create
+                                (efd::Node::uRef($2), efd::Node::uRef($4))
+                                .release();
+                            }
    ;
 
-args: %empty            { $$ = efd::NDList::Create(); }
+args: %empty            { $$ = efd::NDList::Create().release(); }
     | "(" explist ")"   { $$ = $2; }
     ;
 
 idlist: idlist_ id      {
-                            efd::dynCast<efd::NDList>($1)->addChild($2);
+                            efd::dynCast<efd::NDList>($1)->addChild(efd::Node::uRef($2));
                             $$ = $1;
                         }
       ;
-idlist_: %empty         { $$ = efd::NDList::Create(); }
+idlist_: %empty         { $$ = efd::NDList::Create().release(); }
        | idlist_ id "," {
-                            efd::dynCast<efd::NDList>($1)->addChild($2);
+                            efd::dynCast<efd::NDList>($1)->addChild(efd::Node::uRef($2));
                             $$ = $1;
                         }
        ;
 
 anylist: anylist_ id    {
-                            efd::dynCast<efd::NDList>($1)->addChild($2);
+                            efd::dynCast<efd::NDList>($1)->addChild(efd::Node::uRef($2));
                             $$ = $1;
                         }
        | anylist_ idref {
-                            efd::dynCast<efd::NDList>($1)->addChild($2);
+                            efd::dynCast<efd::NDList>($1)->addChild(efd::Node::uRef($2));
                             $$ = $1;
                         }
        ;
-anylist_: %empty                { $$ = efd::NDList::Create(); }
+anylist_: %empty                { $$ = efd::NDList::Create().release(); }
         | anylist_ id ","       {
-                                    efd::dynCast<efd::NDList>($1)->addChild($2);
+                                    efd::dynCast<efd::NDList>($1)->addChild(efd::Node::uRef($2));
                                     $$ = $1;
                                 }
         | anylist_ idref ","    {
-                                    efd::dynCast<efd::NDList>($1)->addChild($2);
+                                    efd::dynCast<efd::NDList>($1)->addChild(efd::Node::uRef($2));
                                     $$ = $1;
                                 }
         ;
 
-explist: %empty         { $$ = efd::NDList::Create(); }
+explist: %empty         { $$ = efd::NDList::Create().release(); }
        | explist_ exp   {
-                            efd::dynCast<efd::NDList>($1)->addChild($2);
+                            efd::dynCast<efd::NDList>($1)->addChild(efd::Node::uRef($2));
                             $$ = $1;
                         }
        ;
-explist_: %empty            { $$ = efd::NDList::Create(); }
+explist_: %empty            { $$ = efd::NDList::Create().release(); }
         | explist_ exp ","  {
-                                efd::dynCast<efd::NDList>($1)->addChild($2);
+                                efd::dynCast<efd::NDList>($1)->addChild(efd::Node::uRef($2));
                                 $$ = $1;
                             }
 
 exp: real               { $$ = $1; }
    | integer            { $$ = $1; }
    | id                 { $$ = $1; }
-   | unary "(" exp ")"  { $$ = efd::NDUnaryOp::Create($1, $3); }
+   | unary "(" exp ")"  { $$ = efd::NDUnaryOp::Create($1, efd::Node::uRef($3)).release(); }
    | "(" exp ")"        { $$ = $2; }
-   | exp "+" exp        { $$ = efd::NDBinOp::Create(efd::NDBinOp::OP_ADD, $1, $3); }
-   | exp "-" exp        { $$ = efd::NDBinOp::Create(efd::NDBinOp::OP_SUB, $1, $3); }
-   | exp "*" exp        { $$ = efd::NDBinOp::Create(efd::NDBinOp::OP_MUL, $1, $3); }
-   | exp "/" exp        { $$ = efd::NDBinOp::Create(efd::NDBinOp::OP_DIV, $1, $3); }
-   | exp "^" exp        { $$ = efd::NDBinOp::Create(efd::NDBinOp::OP_POW, $1, $3); }
-   | "-" exp            { $$ = efd::NDUnaryOp::Create(efd::NDUnaryOp::UOP_NEG, $2); }
+   | exp "+" exp        { $$ = efd::NDBinOp::CreateAdd(efd::Node::uRef($1), efd::Node::uRef($3)).release(); }
+   | exp "-" exp        { $$ = efd::NDBinOp::CreateSub(efd::Node::uRef($1), efd::Node::uRef($3)).release(); }
+   | exp "*" exp        { $$ = efd::NDBinOp::CreateMul(efd::Node::uRef($1), efd::Node::uRef($3)).release(); }
+   | exp "/" exp        { $$ = efd::NDBinOp::CreateDiv(efd::Node::uRef($1), efd::Node::uRef($3)).release(); }
+   | exp "^" exp        { $$ = efd::NDBinOp::CreatePow(efd::Node::uRef($1), efd::Node::uRef($3)).release(); }
+   | "-" exp            { $$ = efd::NDUnaryOp::CreateNeg(efd::Node::uRef($2)).release(); }
    ;
 
 unary: SIN  { $$ = efd::NDUnaryOp::UOP_SIN; }
@@ -339,18 +368,22 @@ arg: id     { $$ = $1; }
    | idref  { $$ = $1; }
    ;
 
-idref: id "[" integer "]" { $$ = efd::NDIdRef::Create($1, $3); }
+idref: id "[" integer "]"   {
+                                $$ = efd::NDIdRef::Create
+                                (efd::NDId::uRef($1), efd::NDInt::uRef($3))
+                                .release();
+                            }
      ;
 
-id: ID { $$ = efd::NDId::Create($1); }
+id: ID { $$ = efd::NDId::Create($1).release(); }
   ;
 
-integer: INT { $$ = efd::NDInt::Create($1); }
+integer: INT { $$ = efd::NDInt::Create($1).release(); }
        ;
 
-string: STRING { $$ = efd::NDString::Create($1.substr(1, $1.length() - 2)); }
+string: STRING { $$ = efd::NDString::Create($1.substr(1, $1.length() - 2)).release(); }
 
-real: REAL { $$ = efd::NDReal::Create($1); }
+real: REAL { $$ = efd::NDReal::Create($1).release(); }
     ;
 
 %%
@@ -368,35 +401,39 @@ static int Parse(efd::ASTWrapper& ast, bool forceStdLib) {
     int ret = parser.parse();
     ifs.close();
 
-    if (forceStdLib && !ast.mStdLibParsed) {
+    if (!ret && forceStdLib && !ast.mStdLibParsed) {
         efd::NDStmtList* stmts = nullptr;
         if (auto versionNode = efd::dynCast<efd::NDQasmVersion>(ast.mAST))
             stmts = versionNode->getStatements();
         else if (auto stmtsNode = efd::dynCast<efd::NDStmtList>(ast.mAST))
             stmts = stmtsNode;
-        else
-            stmts = efd::dynCast<efd::NDStmtList>(efd::NDStmtList::Create());
+        else {
+            // One should not be able to reach this point.
+            // This means that the first node of the AST is neither a
+            // statements list nor a qasm version node.
+            assert(false && "Unreacheable.");
+        }
 
         for (auto pair : StdLib) {
-            efd::NodeRef refInclContents = efd::ParseString(pair.second, false);
-            efd::NodeRef refInclude = efd::NDInclude::Create
-                (efd::NDString::Create(pair.first), refInclContents);
+            auto refInclude = efd::NDInclude::Create
+                (efd::NDString::Create(pair.first), efd::ParseString(pair.second, false));
+            auto inclNode = efd::Node::uRef(refInclude.release());
 
             auto it = stmts->begin();
-            stmts->addChild(it, refInclude);
+            stmts->addChild(it, std::move(inclNode));
         }
     }
 
     return ret;
 }
 
-efd::NodeRef efd::ParseFile(std::string filename, std::string path, bool forceStdLib) {
+efd::Node::uRef efd::ParseFile(std::string filename, std::string path, bool forceStdLib) {
     ASTWrapper ast { filename, path, nullptr, false };
-    if (Parse(ast, forceStdLib)) return nullptr;
-    return ast.mAST;
+    if (Parse(ast, forceStdLib)) return efd::Node::uRef(nullptr);
+    return efd::Node::uRef(ast.mAST);
 }
 
-efd::NodeRef efd::ParseString(std::string program, bool forceStdLib) {
+efd::Node::uRef efd::ParseString(std::string program, bool forceStdLib) {
     std::string filename = "qasm-" + std::to_string((unsigned long long) &program) + ".qasm";
     std::string path =  "./";
 
@@ -409,6 +446,6 @@ efd::NodeRef efd::ParseString(std::string program, bool forceStdLib) {
     int ret = Parse(ast, forceStdLib);
     remove((path + filename).c_str());
 
-    if (ret) return nullptr;
-    return ast.mAST;
+    if (ret) return efd::Node::uRef(nullptr);
+    return efd::Node::uRef(ast.mAST);
 }

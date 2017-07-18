@@ -10,13 +10,17 @@ namespace efd {
     /// \brief QbitAllocator that uses a partial graph pattern matching
     /// (subgraph isomorphism).
     class WeightedPMQbitAllocator : public QbitAllocator {
+        public:
+            typedef WeightedPMQbitAllocator* Ref;
+            typedef std::unique_ptr<WeightedPMQbitAllocator> uRef;
+
         private:
             typedef unsigned WeightTy;
-            WeightedGraph<WeightTy>* mWG;
-            WeightedPMFinder<WeightTy>* mPMFinder;
-            SwapFinder* mSFinder;
+            WeightedGraph<WeightTy>::uRef mWG;
+            WeightedPMFinder<WeightTy>::uRef mPMFinder;
+            SwapFinder::sRef mSFinder;
 
-            WeightedPMQbitAllocator(QModule* qmod, ArchGraph* agraph);
+            WeightedPMQbitAllocator(QModule::sRef qmod, ArchGraph::sRef agraph);
             std::unique_ptr<WeightedGraph<WeightTy>> createWG(DepsSet& deps);
             std::vector<unsigned> genAssign(std::vector<unsigned> match);
 
@@ -24,7 +28,7 @@ namespace efd {
             Mapping solveDependencies(DepsSet& deps) override;
 
             /// \brief Creates an instance of this class.
-            static WeightedPMQbitAllocator* Create(QModule* qmod, ArchGraph* agraph);
+            static uRef Create(QModule::sRef qmod, ArchGraph::sRef agraph);
     };
 }
 

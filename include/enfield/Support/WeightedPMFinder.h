@@ -18,6 +18,11 @@ namespace efd {
     /// So, the idea is to try to maximize the value of the edges matched.
     template <typename T>
     class WeightedPMFinder : public PartialMatchingFinder {
+        public:
+            typedef WeightedPMFinder<T>* Ref;
+            typedef std::unique_ptr<WeightedPMFinder<T>> uRef;
+            typedef std::shared_ptr<WeightedPMFinder<T>> sRef;
+
         protected:
             Graph& mG;
             WeightedGraph<T>& mH;
@@ -34,7 +39,7 @@ namespace efd {
             virtual std::vector<unsigned> find() override;
 
             /// \brief Creates an instance of this class.
-            static std::unique_ptr<WeightedPMFinder<T>> Create(Graph& g, WeightedGraph<T>& h);
+            static uRef Create(Graph& g, WeightedGraph<T>& h);
     };
 
     /// \brief Helper class to sort an index vector based on a value vector.
@@ -182,9 +187,9 @@ std::vector<unsigned> efd::WeightedPMFinder<T>::find() {
 }
 
 template <typename T>
-std::unique_ptr<efd::WeightedPMFinder<T>> 
+typename efd::WeightedPMFinder<T>::uRef
 efd::WeightedPMFinder<T>::Create(Graph& g, WeightedGraph<T>& h) {
-    return std::unique_ptr<WeightedPMFinder<T>>(new WeightedPMFinder<T>(g, h));
+    return uRef(new WeightedPMFinder<T>(g, h));
 }
 
 #endif

@@ -12,7 +12,7 @@ using namespace efd;
 namespace {
     class ASTVectorPass : public Pass {
         public:
-            std::vector<NodeRef> mV;
+            std::vector<Node::Ref> mV;
 
             ASTVectorPass() {
                 mUK = Pass::K_AST_PASS;
@@ -22,33 +22,33 @@ namespace {
                 mV.clear();
             }
 
-            void visitNode(NodeRef ref) {
+            void visitNode(Node::Ref ref) {
                 mV.push_back(ref);
-                for (auto child : *ref)
+                for (auto& child : *ref)
                     child->apply(this);
             }
 
-            void visit(NDQasmVersion* ref) override { visitNode(ref); }
-            void visit(NDInclude* ref) override { visitNode(ref); }
-            void visit(NDDecl* ref) override { visitNode(ref); }
-            void visit(NDGateDecl* ref) override { visitNode(ref); }
-            void visit(NDOpaque* ref) override { visitNode(ref); }
-            void visit(NDQOpMeasure* ref) override { visitNode(ref); }
-            void visit(NDQOpReset* ref) override { visitNode(ref); }
-            void visit(NDQOpU* ref) override { visitNode(ref); }
-            void visit(NDQOpCX* ref) override { visitNode(ref); }
-            void visit(NDQOpBarrier* ref) override { visitNode(ref); }
-            void visit(NDQOpGeneric* ref) override { visitNode(ref); }
-            void visit(NDBinOp* ref) override { visitNode(ref); }
-            void visit(NDUnaryOp* ref) override { visitNode(ref); }
-            void visit(NDIdRef* ref) override { visitNode(ref); }
-            void visit(NDList* ref) override { visitNode(ref); }
-            void visit(NDStmtList* ref) override { visitNode(ref); }
-            void visit(NDGOpList* ref) override { visitNode(ref); }
-            void visit(NDIfStmt* ref) override { visitNode(ref); }
-            void visit(NDValue<std::string>* ref) override { visitNode(ref); }
-            void visit(NDValue<IntVal>* ref) override { visitNode(ref); }
-            void visit(NDValue<RealVal>* ref) override { visitNode(ref); }
+            void visit(NDQasmVersion::Ref ref) override { visitNode(ref); }
+            void visit(NDInclude::Ref ref) override { visitNode(ref); }
+            void visit(NDDecl::Ref ref) override { visitNode(ref); }
+            void visit(NDGateDecl::Ref ref) override { visitNode(ref); }
+            void visit(NDOpaque::Ref ref) override { visitNode(ref); }
+            void visit(NDQOpMeasure::Ref ref) override { visitNode(ref); }
+            void visit(NDQOpReset::Ref ref) override { visitNode(ref); }
+            void visit(NDQOpU::Ref ref) override { visitNode(ref); }
+            void visit(NDQOpCX::Ref ref) override { visitNode(ref); }
+            void visit(NDQOpBarrier::Ref ref) override { visitNode(ref); }
+            void visit(NDQOpGeneric::Ref ref) override { visitNode(ref); }
+            void visit(NDBinOp::Ref ref) override { visitNode(ref); }
+            void visit(NDUnaryOp::Ref ref) override { visitNode(ref); }
+            void visit(NDIdRef::Ref ref) override { visitNode(ref); }
+            void visit(NDList::Ref ref) override { visitNode(ref); }
+            void visit(NDStmtList::Ref ref) override { visitNode(ref); }
+            void visit(NDGOpList::Ref ref) override { visitNode(ref); }
+            void visit(NDIfStmt::Ref ref) override { visitNode(ref); }
+            void visit(NDValue<std::string>::Ref ref) override { visitNode(ref); }
+            void visit(NDValue<IntVal>::Ref ref) override { visitNode(ref); }
+            void visit(NDValue<RealVal>::Ref ref) override { visitNode(ref); }
     };
 }
 

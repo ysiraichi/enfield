@@ -1,25 +1,25 @@
 #include "enfield/Analysis/NodeVisitor.h"
 
-void efd::NodeVisitor::visit(NDQasmVersion* ref) {}
-void efd::NodeVisitor::visit(NDInclude* ref) {}
-void efd::NodeVisitor::visit(NDDecl* ref) {}
-void efd::NodeVisitor::visit(NDGateDecl* ref) {}
-void efd::NodeVisitor::visit(NDOpaque* ref) {}
-void efd::NodeVisitor::visit(NDQOpMeasure* ref) {}
-void efd::NodeVisitor::visit(NDQOpReset* ref) {}
-void efd::NodeVisitor::visit(NDQOpU* ref) {}
-void efd::NodeVisitor::visit(NDQOpCX* ref) {}
-void efd::NodeVisitor::visit(NDQOpBarrier* ref) {}
-void efd::NodeVisitor::visit(NDQOpGeneric* ref) {}
-void efd::NodeVisitor::visit(NDBinOp* ref) {}
-void efd::NodeVisitor::visit(NDUnaryOp* ref) {}
-void efd::NodeVisitor::visit(NDIdRef* ref) {}
-void efd::NodeVisitor::visit(NDList* ref) {}
-void efd::NodeVisitor::visit(NDStmtList* ref) {}
-void efd::NodeVisitor::visit(NDGOpList* ref) {}
-void efd::NodeVisitor::visit(NDIfStmt* ref) {}
-void efd::NodeVisitor::visit(NDValue<std::string>* ref) {}
-void efd::NodeVisitor::visit(NDValue<IntVal>* ref) {}
-void efd::NodeVisitor::visit(NDValue<RealVal>* ref) {}
+void efd::NodeVisitor::visit(NDQasmVersion::Ref ref) {}
+void efd::NodeVisitor::visit(NDInclude::Ref ref) {}
+void efd::NodeVisitor::visit(NDDecl::Ref ref) {}
+void efd::NodeVisitor::visit(NDGateDecl::Ref ref) {}
+void efd::NodeVisitor::visit(NDOpaque::Ref ref) {}
+void efd::NodeVisitor::visit(NDQOpMeasure::Ref ref) {}
+void efd::NodeVisitor::visit(NDQOpReset::Ref ref) {}
+void efd::NodeVisitor::visit(NDQOpU::Ref ref) {}
+void efd::NodeVisitor::visit(NDQOpCX::Ref ref) {}
+void efd::NodeVisitor::visit(NDQOpBarrier::Ref ref) {}
+void efd::NodeVisitor::visit(NDQOpGeneric::Ref ref) {}
+void efd::NodeVisitor::visit(NDBinOp::Ref ref) {}
+void efd::NodeVisitor::visit(NDUnaryOp::Ref ref) {}
+void efd::NodeVisitor::visit(NDIdRef::Ref ref) {}
+void efd::NodeVisitor::visit(NDList::Ref ref) {}
+void efd::NodeVisitor::visit(NDStmtList::Ref ref) {}
+void efd::NodeVisitor::visit(NDGOpList::Ref ref) {}
+void efd::NodeVisitor::visit(NDIfStmt::Ref ref) {}
+void efd::NodeVisitor::visit(NDValue<std::string>::Ref ref) {}
+void efd::NodeVisitor::visit(NDValue<IntVal>::Ref ref) {}
+void efd::NodeVisitor::visit(NDValue<RealVal>::Ref ref) {}
 
 void efd::NodeVisitor::init() {}

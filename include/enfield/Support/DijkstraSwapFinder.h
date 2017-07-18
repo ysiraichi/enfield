@@ -13,10 +13,14 @@ namespace efd {
     /// weighted graph.
     template <typename T>
     class DijkstraSwapFinder : public SwapFinder {
-        private:
-            WeightedGraph<T>* mWG;
+        public:
+            typedef DijkstraSwapFinder* Ref;
+            typedef std::unique_ptr<DijkstraSwapFinder> uRef;
 
-            DijkstraSwapFinder(WeightedGraph<T>* wg);
+        private:
+            typename WeightedGraph<T>::sRef mWG;
+
+            DijkstraSwapFinder(typename WeightedGraph<T>::sRef wg);
 
             inline bool equal(T l, T r);
 
@@ -24,7 +28,7 @@ namespace efd {
             SwapVector findSwaps(RestrictionVector restrictions) override;
 
             /// \brief Create an instance of this class.
-            static DijkstraSwapFinder* Create(WeightedGraph<T>* wg);
+            static uRef Create(typename WeightedGraph<T>::sRef wg);
     };
 
     template <> bool DijkstraSwapFinder<unsigned>::equal(unsigned l, unsigned r);
@@ -32,7 +36,7 @@ namespace efd {
 }
 
 template <typename T>
-efd::DijkstraSwapFinder<T>::DijkstraSwapFinder(WeightedGraph<T>* wg) : mWG(wg) {}
+efd::DijkstraSwapFinder<T>::DijkstraSwapFinder(typename WeightedGraph<T>::sRef wg) : mWG(wg) {}
 
 template <typename T>
 efd::SwapFinder::SwapVector
@@ -94,6 +98,12 @@ template <> bool efd::DijkstraSwapFinder<double>::equal(double l, double r) {
     double epsilon = 0.0001;
     double diff = l - r;
     return diff >= -epsilon && diff <= epsilon;
+}
+
+template <typename T>
+typename efd::DijkstraSwapFinder<T>::uRef
+efd::DijkstraSwapFinder<T>::Create(typename WeightedGraph<T>::sRef wg) {
+    return uRef(new DijkstraSwapFinder<T>(wg));
 }
 
 #endif

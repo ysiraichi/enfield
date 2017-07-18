@@ -1,18 +1,18 @@
 #include "enfield/Transform/IdTable.h"
 #include "enfield/Support/RTTI.h"
 
-efd::IdTable::IdTable(IdTable* parent) : mParent(parent) {
+efd::IdTable::IdTable(Ref parent) : mParent(parent) {
 }
 
-void efd::IdTable::addQVar(std::string id, NodeRef node) {
+void efd::IdTable::addQVar(std::string id, Node::Ref node) {
     mMap[id] = Record { id, node, false };
 }
 
-void efd::IdTable::addQGate(std::string id, NodeRef node) {
+void efd::IdTable::addQGate(std::string id, Node::Ref node) {
     mMap[id] = Record { id, node, true };
 }
 
-efd::NodeRef efd::IdTable::getQVar(std::string id, bool recursive) {
+efd::Node::Ref efd::IdTable::getQVar(std::string id, bool recursive) {
     if (mMap.find(id) != mMap.end()) {
         Record record = mMap[id];
         if (!record.mIsGate)
@@ -40,7 +40,7 @@ efd::NDGateDecl* efd::IdTable::getQGate(std::string id, bool recursive) {
     return nullptr;
 }
 
-efd::IdTable* efd::IdTable::getParent() {
+efd::IdTable::Ref efd::IdTable::getParent() {
     return mParent;
 }
 
@@ -49,6 +49,6 @@ void efd::IdTable::clear() {
     mParent = nullptr;
 }
 
-efd::IdTable* efd::IdTable::Create(IdTable* parent) {
-    return new IdTable(parent);
+efd::IdTable::uRef efd::IdTable::Create(Ref parent) {
+    return uRef(new IdTable(parent));
 }

@@ -8,27 +8,27 @@ namespace efd {
     /// \brief Interface class to be used as a visitor.
     class NodeVisitor {
         public:
-            virtual void visit(NDQasmVersion* ref);
-            virtual void visit(NDInclude* ref);
-            virtual void visit(NDDecl* ref);
-            virtual void visit(NDGateDecl* ref);
-            virtual void visit(NDOpaque* ref);
-            virtual void visit(NDQOpMeasure* ref);
-            virtual void visit(NDQOpReset* ref);
-            virtual void visit(NDQOpU* ref);
-            virtual void visit(NDQOpCX* ref);
-            virtual void visit(NDQOpBarrier* ref);
-            virtual void visit(NDQOpGeneric* ref);
-            virtual void visit(NDBinOp* ref);
-            virtual void visit(NDUnaryOp* ref);
-            virtual void visit(NDIdRef* ref);
-            virtual void visit(NDList* ref);
-            virtual void visit(NDStmtList* ref);
-            virtual void visit(NDGOpList* ref);
-            virtual void visit(NDIfStmt* ref);
-            virtual void visit(NDValue<std::string>* ref);
-            virtual void visit(NDValue<IntVal>* ref);
-            virtual void visit(NDValue<RealVal>* ref);
+            virtual void visit(NDQasmVersion::Ref ref);
+            virtual void visit(NDInclude::Ref ref);
+            virtual void visit(NDDecl::Ref ref);
+            virtual void visit(NDGateDecl::Ref ref);
+            virtual void visit(NDOpaque::Ref ref);
+            virtual void visit(NDQOpMeasure::Ref ref);
+            virtual void visit(NDQOpReset::Ref ref);
+            virtual void visit(NDQOpU::Ref ref);
+            virtual void visit(NDQOpCX::Ref ref);
+            virtual void visit(NDQOpBarrier::Ref ref);
+            virtual void visit(NDQOpGeneric::Ref ref);
+            virtual void visit(NDBinOp::Ref ref);
+            virtual void visit(NDUnaryOp::Ref ref);
+            virtual void visit(NDIdRef::Ref ref);
+            virtual void visit(NDList::Ref ref);
+            virtual void visit(NDStmtList::Ref ref);
+            virtual void visit(NDGOpList::Ref ref);
+            virtual void visit(NDIfStmt::Ref ref);
+            virtual void visit(NDValue<std::string>::Ref ref);
+            virtual void visit(NDValue<IntVal>::Ref ref);
+            virtual void visit(NDValue<RealVal>::Ref ref);
 
             /// \brief Method for initializing the class before
             /// every run.

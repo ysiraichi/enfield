@@ -11,19 +11,22 @@ namespace efd {
     /// the qbits that are in the physical architecture.
     class QbitAllocator {
         public:
+            typedef QbitAllocator* Ref;
+            typedef std::unique_ptr<QbitAllocator> uRef;
+
             typedef std::vector<unsigned> Mapping;
             typedef std::vector<std::string> BasisVector;
             typedef efd::DependencyBuilderPass::DepsSet DepsSet;
             typedef DepsSet::iterator Iterator;
 
         protected:
-            DependencyBuilderPass* mDepPass;
+            DependencyBuilderPass::sRef mDepPass;
             DepsSet mDepSet;
             Mapping mMapping;
             bool mRun;
 
-            QModule* mMod;
-            ArchGraph* mArchGraph;
+            QModule::sRef mMod;
+            ArchGraph::sRef mArchGraph;
 
             BasisVector mBasis;
             bool mInlineAll;
@@ -32,7 +35,7 @@ namespace efd {
             /// running the DependencyBuilderPass.
             void updateDepSet();
 
-            QbitAllocator(QModule* qmod, ArchGraph* archGraph);
+            QbitAllocator(QModule::sRef qmod, ArchGraph::sRef archGraph);
 
             /// \brief Inlines the gate call that generates the dependencies that are
             /// referenced by \p it. If the node is not an NDQOpGeneric, it does nothing.

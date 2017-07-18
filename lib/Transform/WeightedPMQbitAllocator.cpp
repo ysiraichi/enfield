@@ -4,7 +4,7 @@
 #include <cassert>
 #include <map>
 
-efd::WeightedPMQbitAllocator::WeightedPMQbitAllocator(QModule* qmod, ArchGraph* agraph) :
+efd::WeightedPMQbitAllocator::WeightedPMQbitAllocator(QModule::sRef qmod, ArchGraph::sRef agraph) :
     QbitAllocator(qmod, agraph), mWG(nullptr), mPMFinder(nullptr) {
 }
 
@@ -54,9 +54,9 @@ efd::WeightedPMQbitAllocator::solveDependencies(DepsSet& deps) {
     const unsigned SWAP_COST = SwapCost.getVal();
     const unsigned REV_COST = RevCost.getVal();
 
-    mWG = createWG(deps).release();
-    mPMFinder = WeightedPMFinder<WeightTy>::Create(*mArchGraph, *mWG).release();
-    mSFinder = OneRestrictionSwapFinder::Create(mArchGraph);
+    mWG = createWG(deps);
+    mPMFinder = WeightedPMFinder<WeightTy>::Create(*mArchGraph, *mWG);
+    mSFinder.reset(OneRestrictionSwapFinder::Create(mArchGraph).release());
 
     Mapping initial = mPMFinder->find();
     Mapping match = initial;
@@ -96,7 +96,7 @@ efd::WeightedPMQbitAllocator::solveDependencies(DepsSet& deps) {
     return initial;
 }
 
-efd::WeightedPMQbitAllocator*
-efd::WeightedPMQbitAllocator::Create(QModule* qmod, ArchGraph* agraph) {
-    return new WeightedPMQbitAllocator(qmod, agraph);
+efd::WeightedPMQbitAllocator::uRef
+efd::WeightedPMQbitAllocator::Create(QModule::sRef qmod, ArchGraph::sRef agraph) {
+    return uRef(new WeightedPMQbitAllocator(qmod, agraph));
 }

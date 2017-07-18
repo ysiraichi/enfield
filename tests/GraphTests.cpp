@@ -16,7 +16,7 @@ TEST(GraphTests, TreeCreationTest) {
 1 3\n\
 1 4\n\
 ";
-    std::unique_ptr<Graph> graph = efd::Graph::ReadString(gStr);
+    auto graph = efd::Graph::ReadString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), 5);
@@ -38,7 +38,7 @@ TEST(GraphTests, SomeReverseEdgesTest) {
 1 4\n\
 4 1\n\
 ";
-    std::unique_ptr<Graph> graph = efd::Graph::ReadString(gStr);
+    auto graph = efd::Graph::ReadString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), 5);

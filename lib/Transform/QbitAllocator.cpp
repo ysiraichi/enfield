@@ -32,19 +32,19 @@ void efd::QbitAllocator::updateDepSet() {
     mDepSet = mDepPass->getDependencies();
 }
 
-efd::QbitAllocator::QbitAllocator(QModule* qmod, ArchGraph* archGraph) 
+efd::QbitAllocator::QbitAllocator(QModule::sRef qmod, ArchGraph::sRef archGraph) 
     : mMod(qmod), mArchGraph(archGraph), mRun(false), mInlineAll(false) {
-    mDepPass = DependencyBuilderPass::Create(mMod);
+    mDepPass = DependencyBuilderPass::sRef(DependencyBuilderPass::Create(mMod).release());
 }
 
 efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(Iterator it) {
     Iterator newIt = it;
 
-    if (NDQOpGeneric* refCall = dynCast<NDQOpGeneric>(it->mCallPoint)) {
+    if (NDQOpGeneric::Ref refCall = dynCast<NDQOpGeneric>(it->mCallPoint)) {
         unsigned dist = std::distance(mDepSet.begin(), it);
 
         mMod->inlineCall(refCall);
-        mMod->runPass(mDepPass, true);
+        mMod->runPass(mDepPass.get(), true);
         updateDepSet();
 
         newIt = mDepSet.begin() + dist;
@@ -54,11 +54,11 @@ efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(Iterator it) {
 }
 
 void efd::QbitAllocator::insertSwapBefore(Dependencies& deps, unsigned u, unsigned v) {
-    QbitToNumberPass* qbitPass = mDepPass->getUIdPass();
-    NodeRef lhs = qbitPass->getNode(u);
-    NodeRef rhs = qbitPass->getNode(v);
+    QbitToNumberPass::sRef qbitPass = mDepPass->getUIdPass();
+    Node::Ref lhs = qbitPass->getNode(u);
+    Node::Ref rhs = qbitPass->getNode(v);
 
-    NodeRef parent = deps.mCallPoint->getParent();
+    Node::Ref parent = deps.mCallPoint->getParent();
     auto it = parent->findChild(deps.mCallPoint);
     mMod->insertSwapBefore(it, lhs, rhs);
 }
@@ -68,10 +68,10 @@ unsigned efd::QbitAllocator::getNumQbits() {
 }
 
 void efd::QbitAllocator::inlineAllGates() {
-    InlineAllPass* inlinePass = InlineAllPass::Create(mMod, mBasis);
+    auto inlinePass = InlineAllPass::Create(mMod, mBasis);
 
     do {
-        mMod->runPass(inlinePass, true);
+        mMod->runPass(inlinePass.get(), true);
     } while (inlinePass->hasInlined());
 }
 
@@ -79,28 +79,27 @@ void efd::QbitAllocator::replaceWithArchSpecs() {
     // Renaming program qbits to architecture qbits.
     RenameQbitPass::ArchMap toArchMap;
 
-    mMod->runPass(mDepPass);
-    QbitToNumberPass* uidPass = mDepPass->getUIdPass();
+    mMod->runPass(mDepPass.get());
+    QbitToNumberPass::sRef uidPass = mDepPass->getUIdPass();
     for (unsigned i = 0, e = uidPass->getSize(); i < e; ++i) {
         toArchMap[uidPass->getStrId(i)] = mArchGraph->getNode(i);
     }
 
-    RenameQbitPass* renamePass = RenameQbitPass::Create(toArchMap);
-    mMod->runPass(renamePass);
+    auto renamePass = RenameQbitPass::Create(toArchMap);
+    mMod->runPass(renamePass.get());
 
     // Replacing the old qbit declarations with the architecture's qbit
     // declaration.
-    std::vector<NDDecl*> decls;
+    std::vector<NDDecl::uRef> decls;
     for (auto it = mArchGraph->reg_begin(), e = mArchGraph->reg_end(); it != e; ++it)
-        decls.push_back(dynCast<NDDecl>(NDDecl::Create(NDDecl::QUANTUM, 
+        decls.push_back(NDDecl::Create(NDDecl::QUANTUM, 
                         NDId::Create(it->first), 
-                        NDInt::Create(std::to_string(it->second)))
-                    ));
-    mMod->replaceAllRegsWith(decls);
+                        NDInt::Create(std::to_string(it->second))));
+    mMod->replaceAllRegsWith(std::move(decls));
 }
 
 void efd::QbitAllocator::renameQbits() {
-    QbitToNumberPass* uidPass = mDepPass->getUIdPass();
+    QbitToNumberPass::sRef uidPass = mDepPass->getUIdPass();
 
     // Renaming the qbits with the mapping that this algorithm got from solving
     // the dependencies.
@@ -117,8 +116,8 @@ void efd::QbitAllocator::renameQbits() {
         }
     }
 
-    RenameQbitPass* renamePass = RenameQbitPass::Create(archConstMap);
-    mMod->runPass(renamePass);
+    auto renamePass = RenameQbitPass::Create(archConstMap);
+    mMod->runPass(renamePass.get());
 }
 
 void efd::QbitAllocator::run() {
@@ -152,7 +151,7 @@ void efd::QbitAllocator::run() {
 
     // Getting the new information, since it can be the case that the qmodule
     // was modified.
-    mMod->runPass(mDepPass, true);
+    mMod->runPass(mDepPass.get(), true);
     updateDepSet();
 
     // Counting total dependencies.

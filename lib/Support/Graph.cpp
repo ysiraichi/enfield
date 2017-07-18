@@ -41,11 +41,11 @@ void efd::Graph::putEdge(unsigned i, unsigned j) {
     mPredecessors[j].insert(i);
 }
 
-std::unique_ptr<efd::Graph> efd::Graph::Create(unsigned n) {
+efd::Graph::uRef efd::Graph::Create(unsigned n) {
     return std::unique_ptr<Graph>(new Graph(n));
 }
 
-static std::unique_ptr<efd::Graph> ReadFromIn(std::istream& in) {
+static efd::Graph::uRef ReadFromIn(std::istream& in) {
     unsigned n;
     in >> n;
 
@@ -56,12 +56,12 @@ static std::unique_ptr<efd::Graph> ReadFromIn(std::istream& in) {
     return graph;
 }
 
-std::unique_ptr<efd::Graph> efd::Graph::Read(std::string filepath) {
+efd::Graph::uRef efd::Graph::Read(std::string filepath) {
     std::ifstream in(filepath.c_str());
     return ReadFromIn(in);
 }
 
-std::unique_ptr<efd::Graph> efd::Graph::ReadString(std::string graphStr) {
+efd::Graph::uRef efd::Graph::ReadString(std::string graphStr) {
     std::stringstream in(graphStr);
     return ReadFromIn(in);
 }
