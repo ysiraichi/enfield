@@ -16,11 +16,9 @@ namespace efd {
 
     class ArgsParser {
         public:
-            static bool WasDestructed;
             std::unordered_map<std::string, std::vector<OptBase*> > mArgMap;
 
             ArgsParser() {}
-            ~ArgsParser() { WasDestructed = true; }
 
             bool hasOpt(OptBase* opt);
             void addOpt(OptBase* opt);
@@ -28,8 +26,6 @@ namespace efd {
     };
 
 };
-
-bool efd::ArgsParser::WasDestructed = false;
 
 bool efd::ArgsParser::hasOpt(OptBase* opt) {
     return mArgMap.find(opt->mName) != mArgMap.end();
@@ -131,14 +127,12 @@ void efd::Opt<std::vector<std::string>>::parseImpl(const int argc, const char **
 efd::OptBase::OptBase(std::string name, std::string description, bool isRequired) : 
     mName(name), mDescription(description), mIsRequired(isRequired), mIsParsed(false) {
 
-    std::shared_ptr<ArgsParser> Parser = GetParser();
-    Parser->addOpt(this);
+    mParser = GetParser();
+    mParser->addOpt(this);
 }
 
 efd::OptBase::~OptBase() {
-    if (ArgsParser::WasDestructed) return;
-    std::shared_ptr<ArgsParser> Parser = GetParser();
-    Parser->delOpt(this);
+    mParser->delOpt(this);
 }
 
 bool efd::OptBase::isParsed() {

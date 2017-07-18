@@ -4,14 +4,18 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <memory>
 
 namespace efd {
+    class ArgsParser;
 
     /// \brief Base class for implementing command line options.
     class OptBase {
         private:
             bool mIsRequired;
             bool mIsParsed;
+
+            std::shared_ptr<ArgsParser> mParser;
 
         protected:
             /// \brief Type sensitive parsing of the arguments itself.
