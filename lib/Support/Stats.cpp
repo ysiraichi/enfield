@@ -45,7 +45,8 @@ static std::shared_ptr<efd::StatsPool> getPool() {
 
 efd::StatBase::StatBase(std::string name, std::string description) :
     mName(name), mDescription(description) {
-    getPool()->addStat(this);
+    mPool = getPool();
+    mPool->addStat(this);
 }
 
 void efd::StatBase::print(std::ostream& out) {

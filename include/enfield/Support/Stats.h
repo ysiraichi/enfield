@@ -2,11 +2,16 @@
 #define __EFD_STATS_H__
 
 #include <iostream>
+#include <memory>
 
 namespace efd {
+    class StatsPool;
 
     /// \brief Base class for stats.
     class StatBase {
+        private:
+            std::shared_ptr<StatsPool> mPool;
+
         protected:
             std::string mName;
             std::string mDescription;
