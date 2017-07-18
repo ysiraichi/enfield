@@ -3,7 +3,7 @@
 #include <cassert>
 
 namespace efd {
-    extern const NDId* SWAP_ID_NODE;
+    extern NDId::uRef SWAP_ID_NODE;
 }
 
 efd::RenameQbitPass::RenameQbitPass(ArchMap map) : mAMap(map) {
