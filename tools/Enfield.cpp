@@ -8,6 +8,7 @@
 #include "enfield/Support/OneRestrictionSwapFinder.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/Stats.h"
+#include "enfield/Support/uRefCast.h"
 
 #include <fstream>
 #include <cassert>
@@ -39,33 +40,35 @@ static void DumpToOutFile(QModule* qmod) {
 int main(int argc, char** argv) {
     ParseArguments(argc, argv);
 
-    std::unique_ptr<QModule> qmod = QModule::Parse(InFilepath.getVal());
+    QModule::sRef qmod = toShared(QModule::Parse(InFilepath.getVal()));
 
     if (qmod.get() != nullptr) {
         // Creating default passes.
-        FlattenPass* flattenPass = FlattenPass::Create(qmod.get());
-        QbitToNumberPass* qbitUidPass = QbitToNumberPass::Create();
+        auto flattenPass = FlattenPass::Create(qmod);
+        auto qbitUidPass = QbitToNumberPass::Create();
 
-        qmod->runPass(flattenPass);
-        qmod->runPass(qbitUidPass);
+        qmod->runPass(flattenPass.get());
+        qmod->runPass(qbitUidPass.get());
 
         // Architecture-dependent fragment.
-        std::unique_ptr<ArchIBMQX2> graph = ArchIBMQX2::Create();
+        auto graph = toShared(ArchIBMQX2::Create());
         assert(qbitUidPass->getSize() <= graph->size() &&
                 "Using more qbits than the maximum.");
 
-        QbitAllocator* allocator;
+        QbitAllocator::Ref allocator;
         if (Allocator.getVal() == "WPM")
-            allocator = WeightedPMQbitAllocator::Create(qmod.get(), graph.get());
-        else allocator = DynProgQbitAllocator::Create(qmod.get(), graph.get());
+            allocator = WeightedPMQbitAllocator::Create(qmod, graph).release();
+        else allocator = DynProgQbitAllocator::Create(qmod, graph).release();
         allocator->setInlineAll({ "cx", "u1", "u2", "u3" });
         allocator->run();
 
         // Reversing the edges.
-        ReverseEdgesPass* revPass = ReverseEdgesPass::Create(qmod.get(), graph.get());
-        qmod->runPass(revPass);
+        ReverseEdgesPass::uRef revPass = ReverseEdgesPass::Create(qmod, graph);
+        qmod->runPass(revPass.get());
 
         DumpToOutFile(qmod.get());
+
+        delete allocator;
     }
 
     if (ShowStats.getVal())
