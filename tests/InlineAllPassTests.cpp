@@ -3,6 +3,7 @@
 
 #include "enfield/Transform/InlineAllPass.h"
 #include "enfield/Transform/QModule.h"
+#include "enfield/Support/uRefCast.h"
 
 #include <string>
 
@@ -21,9 +22,9 @@ include \"qelib1.inc\";\
 qreg q[5];\
 CX q[0], q[1];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program, true);
-        InlineAllPass* pass = InlineAllPass::Create(qmod.get());
-        qmod->runPass(pass);
+        auto qmod = toShared(std::move(QModule::ParseString(program, true)));
+        InlineAllPass::uRef pass = InlineAllPass::Create(qmod);
+        qmod->runPass(pass.get());
         ASSERT_EQ(qmod->toString(), result);
     }
     {
@@ -53,9 +54,9 @@ cx q[1], q[0];\
 U(10, 20, 10) q[0];\
 U(10, 20, 10) q[1];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program, true);
-        InlineAllPass* pass = InlineAllPass::Create(qmod.get());
-        qmod->runPass(pass);
+        auto qmod = toShared(std::move(QModule::ParseString(program, true)));
+        InlineAllPass::uRef pass = InlineAllPass::Create(qmod);
+        qmod->runPass(pass.get());
         ASSERT_EQ(qmod->toString(), result);
     }
 }
@@ -73,9 +74,9 @@ include \"qelib1.inc\";\
 qreg q[5];\
 cx q[0], q[1];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program, true);
-        InlineAllPass* pass = InlineAllPass::Create(qmod.get(), { "cx" });
-        qmod->runPass(pass);
+        auto qmod = toShared(std::move(QModule::ParseString(program, true)));
+        InlineAllPass::uRef pass = InlineAllPass::Create(qmod, { "cx" });
+        qmod->runPass(pass.get());
         ASSERT_EQ(qmod->toString(), result);
     }
     {
@@ -102,9 +103,9 @@ U(a, b, 10) y;\
 }\
 somegate(10, 20) q[0], q[1];\
 ";
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program, true);
-        InlineAllPass* pass = InlineAllPass::Create(qmod.get(), { "somegate" });
-        qmod->runPass(pass);
+        auto qmod = toShared(std::move(QModule::ParseString(program, true)));
+        InlineAllPass::uRef pass = InlineAllPass::Create(qmod, { "somegate" });
+        qmod->runPass(pass.get());
         ASSERT_EQ(qmod->toString(), result);
     }
 }

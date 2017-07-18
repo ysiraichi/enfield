@@ -30,7 +30,7 @@ measure q[4] -> c[4];\
 ";
 
 TEST(IdTableTests, SingletonTest) {
-    std::unique_ptr<QModule> mod = QModule::ParseString(program);
+    QModule::uRef mod = QModule::ParseString(program);
 
     ASSERT_FALSE(mod->getQVar("q") == nullptr);
     ASSERT_FALSE(mod->getQVar("c") == nullptr);
@@ -42,21 +42,21 @@ TEST(IdTableTests, SingletonTest) {
     ASSERT_FALSE(mod->getQGate("id") == nullptr);
     ASSERT_FALSE(mod->getQGate("cnot") == nullptr);
 
-    NDGateDecl* ref;
+    NDGateDecl::Ref ref;
     ref = mod->getQGate("id");
     ASSERT_FALSE(ref == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref).getQVar("a", false) == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref).getQVar("q", true) == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref).getQVar("c", true) == nullptr);
-    ASSERT_TRUE(mod->getIdTable(ref).getQVar("q", false) == nullptr);
-    ASSERT_TRUE(mod->getIdTable(ref).getQVar("c", false) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("a", false) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("q", true) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("c", true) == nullptr);
+    ASSERT_TRUE(mod->getIdTable(ref)->getQVar("q", false) == nullptr);
+    ASSERT_TRUE(mod->getIdTable(ref)->getQVar("c", false) == nullptr);
 
     ref = mod->getQGate("cnot");
     ASSERT_FALSE(ref == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref).getQVar("a", false) == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref).getQVar("b", false) == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref).getQVar("q", true) == nullptr);
-    ASSERT_FALSE(mod->getIdTable(ref).getQVar("c", true) == nullptr);
-    ASSERT_TRUE(mod->getIdTable(ref).getQVar("q", false) == nullptr);
-    ASSERT_TRUE(mod->getIdTable(ref).getQVar("c", false) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("a", false) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("b", false) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("q", true) == nullptr);
+    ASSERT_FALSE(mod->getIdTable(ref)->getQVar("c", true) == nullptr);
+    ASSERT_TRUE(mod->getIdTable(ref)->getQVar("q", false) == nullptr);
+    ASSERT_TRUE(mod->getIdTable(ref)->getQVar("c", false) == nullptr);
 }

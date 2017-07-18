@@ -457,8 +457,8 @@ efd::NDIfStmt::NDIfStmt(NDId::uRef cidNode, NDInt::uRef nNode, Node::uRef qopNod
 
 efd::Node::uRef efd::NDIfStmt::clone() const {
     auto cid = dynCast<NDId>(getCondId()->clone().release());
-    auto cn = dynCast<NDInt>(getCondId()->clone().release());
-    auto qop = getCondId()->clone().release();
+    auto cn = dynCast<NDInt>(getCondN()->clone().release());
+    auto qop = getQOp()->clone().release();
     return uRef(NDIfStmt::Create(NDId::uRef(cid), NDInt::uRef(cn), Node::uRef(qop)).release());
 }
 

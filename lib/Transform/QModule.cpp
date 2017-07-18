@@ -40,35 +40,35 @@ void efd::QModule::registerSwapGate(Iterator it) {
         auto gop = NDGOpList::Create();
         // cx a, b;
         gop->addChild(NDQOpGeneric::Create
-                (uniqueCastBackward<NDId>(CX_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastBackward<NDList>(qargsLhsRhs->clone())));
+                (uniqueCastForward<NDId>(CX_ID_NODE->clone()), NDList::Create(),
+                 uniqueCastForward<NDList>(qargsLhsRhs->clone())));
         // h a;
         gop->addChild(NDQOpGeneric::Create
-                (uniqueCastBackward<NDId>(H_ID_NODE->clone()), NDList::Create(), 
-                 uniqueCastBackward<NDList>(qargsLhs->clone())));
+                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(), 
+                 uniqueCastForward<NDList>(qargsLhs->clone())));
         // h b;
         gop->addChild(NDQOpGeneric::Create
-                (uniqueCastBackward<NDId>(H_ID_NODE->clone()), NDList::Create(), 
-                 uniqueCastBackward<NDList>(qargsRhs->clone())));
+                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(), 
+                 uniqueCastForward<NDList>(qargsRhs->clone())));
         // cx a, b;
         gop->addChild(NDQOpGeneric::Create
-                (uniqueCastBackward<NDId>(CX_ID_NODE->clone()), NDList::Create(), 
-                 uniqueCastBackward<NDList>(qargsLhsRhs->clone())));
+                (uniqueCastForward<NDId>(CX_ID_NODE->clone()), NDList::Create(), 
+                 uniqueCastForward<NDList>(qargsLhsRhs->clone())));
         // h a;
         gop->addChild(NDQOpGeneric::Create
-                (uniqueCastBackward<NDId>(H_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastBackward<NDList>(qargsLhs->clone())));
+                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(),
+                 uniqueCastForward<NDList>(qargsLhs->clone())));
         // h b;
         gop->addChild(NDQOpGeneric::Create
-                (uniqueCastBackward<NDId>(H_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastBackward<NDList>(qargsRhs->clone())));
+                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(),
+                 uniqueCastForward<NDList>(qargsRhs->clone())));
         // cx a, b;
         gop->addChild(NDQOpGeneric::Create
-                (uniqueCastBackward<NDId>(CX_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastBackward<NDList>(qargsLhsRhs->clone())));
+                (uniqueCastForward<NDId>(CX_ID_NODE->clone()), NDList::Create(),
+                 uniqueCastForward<NDList>(qargsLhsRhs->clone())));
 
         auto swap = uniqueCastBackward<Node>(NDGateDecl::Create
-                (uniqueCastBackward<NDId>(SWAP_ID_NODE->clone()), NDList::Create(),
+                (uniqueCastForward<NDId>(SWAP_ID_NODE->clone()), NDList::Create(),
                  std::move(qargsLhsRhs), std::move(gop)));
 
         // Inserts swap declaration before first use.
@@ -249,10 +249,8 @@ void efd::QModule::invalidate() {
 
 void efd::QModule::validate() {
     if (mQModulefy.get() == nullptr)
-        // If it created its own QModulefyPass, as long as this instance is alive, its
-        // QModulefyPass won't ever be deleted.
-        mQModulefy = std::shared_ptr<QModulefyPass>
-            (QModulefyPass::Create(std::shared_ptr<QModule>(this)).release());
+        mQModulefy = toShared(QModulefyPass::Create(this));
+    mQModulefy->setQModule(this);
 
     mVersion = nullptr;
     mStmtList = nullptr;

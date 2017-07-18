@@ -24,12 +24,12 @@ CX q[1], q[0];\
         std::unique_ptr<QModule> qmod = QModule::ParseString(program);
         
         RenameQbitPass::ArchMap aMap {
-            { "q[0]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("1"))) },
-            { "q[1]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("0"))) }
+            { "q[0]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("1"))).release() },
+            { "q[1]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("0"))).release() }
         };
 
-        RenameQbitPass* pass = RenameQbitPass::Create(aMap);
-        qmod->runPass(pass);
+        RenameQbitPass::uRef pass = RenameQbitPass::Create(aMap);
+        qmod->runPass(pass.get());
     }
 
     {
@@ -54,14 +54,14 @@ CX q[0], q[4];\
         std::unique_ptr<QModule> qmod = QModule::ParseString(program);
         
         RenameQbitPass::ArchMap aMap {
-            { "q[0]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("4"))) },
-            { "q[1]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("3"))) },
-            { "q[2]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("2"))) },
-            { "q[3]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("1"))) },
-            { "q[4]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("0"))) }
+            { "q[0]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("4"))).release() },
+            { "q[1]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("3"))).release() },
+            { "q[2]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("2"))).release() },
+            { "q[3]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("1"))).release() },
+            { "q[4]", NDIdRef::Create(NDId::Create("q"), NDInt::Create(std::string("0"))).release() }
         };
 
-        RenameQbitPass* pass = RenameQbitPass::Create(aMap);
-        qmod->runPass(pass);
+        RenameQbitPass::uRef pass = RenameQbitPass::Create(aMap);
+        qmod->runPass(pass.get());
     }
 }

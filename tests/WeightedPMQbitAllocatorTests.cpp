@@ -5,15 +5,16 @@
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/OneRestrictionSwapFinder.h"
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/uRefCast.h"
 
 #include <string>
 
 using namespace efd;
 
-static std::unique_ptr<ArchGraph> g(nullptr);
+static ArchGraph::sRef g(nullptr);
 
-static ArchGraph* getGraph() {
-    if (g.get() != nullptr) return g.get();
+static ArchGraph::sRef getGraph() {
+    if (g.get() != nullptr) return g;
     const std::string gStr =
 "\
 5\n\
@@ -25,8 +26,8 @@ q[4] q[2]\n\
 q[3] q[4]\n\
 ";
 
-    g = ArchGraph::ReadString(gStr);
-    return g.get();
+    g = toShared(ArchGraph::ReadString(gStr));
+    return g;
 }
 
 TEST(WeightedPMQbitAllocatorTests, SimpleNoSwapProgram) {
@@ -42,10 +43,10 @@ qreg q[5];\
 CX q[1], q[2];\
 ";
 
-        ArchGraph* graph = getGraph();
+        ArchGraph::sRef graph = getGraph();
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
-        WeightedPMQbitAllocator* allocator = WeightedPMQbitAllocator::Create(qmod.get(), graph);
+        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(qmod, graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run();
@@ -75,10 +76,10 @@ CX q[0], q[2];\
 CX q[1], q[2];\
 ";
 
-        ArchGraph* graph = getGraph();
+        ArchGraph::sRef graph = getGraph();
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
-        WeightedPMQbitAllocator* allocator = WeightedPMQbitAllocator::Create(qmod.get(), graph);
+        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(qmod, graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run();
@@ -103,10 +104,10 @@ CX q[0], q[2];\
 CX q[1], q[2];\
 ";
 
-        ArchGraph* graph = getGraph();
+        ArchGraph::sRef graph = getGraph();
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
-        WeightedPMQbitAllocator* allocator = WeightedPMQbitAllocator::Create(qmod.get(), graph);
+        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(qmod, graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run();
@@ -133,10 +134,10 @@ CX q[0], q[2];\
 CX q[1], q[2];\
 ";
 
-        ArchGraph* graph = getGraph();
+        ArchGraph::sRef graph = getGraph();
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
-        WeightedPMQbitAllocator* allocator = WeightedPMQbitAllocator::Create(qmod.get(), graph);
+        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(qmod, graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run();
@@ -169,10 +170,10 @@ CX q[0], q[1];\
 CX q[2], q[1];\
 ";
 
-        ArchGraph* graph = getGraph();
+        ArchGraph::sRef graph = getGraph();
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
-        WeightedPMQbitAllocator* allocator = WeightedPMQbitAllocator::Create(qmod.get(), graph);
+        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(qmod, graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run();

@@ -196,7 +196,7 @@ void efd::InsertSwap(Node::Ref prev, Node::Ref lhs, Node::Ref rhs, Loc where) {
 
     // Creating swap node, and setting the generated property.
     auto callNode = NDQOpGeneric::Create
-        (uniqueCastBackward<NDId>(SWAP_ID_NODE->clone()), NDList::Create(), std::move(qArgs));
+        (uniqueCastForward<NDId>(SWAP_ID_NODE->clone()), NDList::Create(), std::move(qArgs));
     callNode->setGenerated();
 
     if (NDList* parent = dynCast<NDList>(baseParent)) {
@@ -253,17 +253,17 @@ void efd::ReverseCNode(Node::Ref node) {
 
         case Node::K_QOP_GENERIC:
             {
-                NDQOpGeneric* refGen = dynCast<NDQOpGeneric>(node);
+                NDQOpGeneric::Ref refGen = dynCast<NDQOpGeneric>(node);
                 assert(refGen != nullptr && "Malformed node.");
 
-                Node::Ref qargs = refGen->getQArgs();
+                NDList::Ref qargs = refGen->getQArgs();
                 assert(qargs->getChildNumber() == 2 && "Malformed CNOT call.");
 
-                Node::Ref lhs = qargs->getChild(0);
-                Node::Ref rhs = qargs->getChild(1);
+                auto lhs = qargs->getChild(0)->clone();
+                auto rhs = qargs->getChild(1)->clone();
                 // Swapping the arguments.
-                qargs->setChild(0, rhs->clone());
-                qargs->setChild(1, lhs->clone());
+                qargs->setChild(0, std::move(rhs));
+                qargs->setChild(1, std::move(lhs));
 
                 qArgs.push_back(qargs->getChild(0));
                 qArgs.push_back(qargs->getChild(1));

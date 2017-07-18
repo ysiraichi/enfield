@@ -4,14 +4,48 @@
 #include "enfield/Support/RTTI.h"
 
 #include <unordered_map>
+#include <cassert>
 
 extern std::unordered_map<std::string, std::string> StdLib;
 
-efd::QModulefyPass::QModulefyPass(QModule::sRef qmod) : mMod(qmod) {
+efd::QModulefyPass::QModulefyPass(QModule::sRef qmod) : mMod(nullptr), mShrMod(qmod) {
+    initCtor();
+}
+
+efd::QModulefyPass::QModulefyPass(QModule::Ref qmod) : mMod(qmod), mShrMod(nullptr) {
+    initCtor();
+}
+
+void efd::QModulefyPass::initCtor() {
     mUK = Pass::K_AST_PASS;
+
+    if (mShrMod.get() != nullptr) {
+        mMod = mShrMod.get();
+        mValid = true;
+    } else {
+        mValid = false;
+    }
+}
+
+efd::QModule::Ref efd::QModulefyPass::getQModule() {
+    if (mShrMod.get() != nullptr) return mShrMod.get();
+    return mMod;
+}
+
+void efd::QModulefyPass::setQModule(QModule::Ref qmod) {
+    mValid = true;
+    mMod = qmod;
+}
+
+void efd::QModulefyPass::setQModule(QModule::sRef qmod) {
+    mValid = true;
+    mShrMod = qmod;
+    mMod = mShrMod.get();
 }
 
 void efd::QModulefyPass::initImpl(bool force) {
+    assert(mValid && "QModule not guaranted to be not null.");
+
     mMod->mTable = IdTable::Create(nullptr);
     mCurrentTable = mMod->mTable.get();
     mIncludes.clear();
@@ -98,6 +132,10 @@ void efd::QModulefyPass::visit(NDIfStmt::Ref ref) {
 }
 
 efd::QModulefyPass::uRef efd::QModulefyPass::Create(QModule::sRef qmod) {
+    return uRef(new QModulefyPass(qmod));
+}
+
+efd::QModulefyPass::uRef efd::QModulefyPass::Create(QModule::Ref qmod) {
     return uRef(new QModulefyPass(qmod));
 }
 

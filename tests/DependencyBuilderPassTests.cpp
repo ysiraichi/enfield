@@ -3,6 +3,7 @@
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/uRefCast.h"
 
 #include <string>
 #include <unordered_map>
@@ -16,9 +17,9 @@ TEST(QbitToNumberPassTests, WholeProgramTest) {
 qreg q[5];\
 ";
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        QbitToNumberPass* pass = QbitToNumberPass::Create();
-        qmod->runPass(pass);
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto pass = QbitToNumberPass::Create();
+        qmod->runPass(pass.get());
 
         ASSERT_DEATH({ pass->getUId("q"); }, "Id not found");
         ASSERT_TRUE(pass->getUId("q[0]") == 0);
@@ -36,9 +37,9 @@ gate mygate(a, b, c) x, y, z {\
 }\
 ";
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        QbitToNumberPass* pass = QbitToNumberPass::Create();
-        qmod->runPass(pass);
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto pass = QbitToNumberPass::Create();
+        qmod->runPass(pass.get());
 
         NDGateDecl* gate = qmod->getQGate("mygate");
         ASSERT_FALSE(gate == nullptr);
@@ -73,9 +74,9 @@ measure q[3] -> c[3];\
 measure q[4] -> c[4];\
 ";
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        QbitToNumberPass* pass = QbitToNumberPass::Create();
-        qmod->runPass(pass);
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto pass = QbitToNumberPass::Create();
+        qmod->runPass(pass.get());
 
         NDGateDecl* idGate = qmod->getQGate("id");
         ASSERT_FALSE(idGate == nullptr);
@@ -114,9 +115,9 @@ gate cnot x, y {\
 }\
 ";
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        DependencyBuilderPass* pass = DependencyBuilderPass::Create(qmod.get());
-        qmod->runPass(pass);
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
+        qmod->runPass(pass.get());
 
         unsigned x = 0;
         unsigned y = 1;
@@ -147,9 +148,9 @@ gate cnot x, y {\
 }\
 ";
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        DependencyBuilderPass* pass = DependencyBuilderPass::Create(qmod.get());
-        qmod->runPass(pass);
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
+        qmod->runPass(pass.get());
 
         unsigned x = 0;
         unsigned y = 1;
@@ -192,9 +193,9 @@ qreg q[2];\
 CX q[0], q[1];\
 ";
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        DependencyBuilderPass* pass = DependencyBuilderPass::Create(qmod.get());
-        qmod->runPass(pass);
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
+        qmod->runPass(pass.get());
 
         unsigned q0 = 0;
         unsigned q1 = 1;
@@ -264,9 +265,9 @@ measure b[7] -> ans[7];\
 measure carry[0] -> carryout[0];\
 ";
 
-        std::unique_ptr<QModule> qmod = QModule::ParseString(program);
-        DependencyBuilderPass* pass = DependencyBuilderPass::Create(qmod.get());
-        qmod->runPass(pass);
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
+        qmod->runPass(pass.get());
 
 
         std::unordered_map<std::string, std::pair<unsigned, unsigned>> gatesInfo = {
