@@ -43,9 +43,8 @@ int main(int argc, char **argv) {
         std::string lhs = arch->getSId(u);
         std::string rhs = arch->getSId(v);
 
-        efd::NodeRef cx = efd::NDQOpCX::Create
-            (efd::NDId::Create(lhs), efd::NDId::Create(rhs));
-        qmod->insertStatementLast(cx);
+        auto cx = efd::NDQOpCX::Create(efd::NDId::Create(lhs), efd::NDId::Create(rhs));
+        qmod->insertStatementLast(std::move(cx));
     }
 
     qmod->print(o, true);

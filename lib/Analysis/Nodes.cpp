@@ -6,7 +6,7 @@
 #include <cassert>
 
 efd::Node::Node(Kind k, unsigned size, bool empty) : mK(k), mIsEmpty(empty),
-    mChild(size) {
+    mChild(size), mWasGenerated(false) {
 }
 
 efd::Node::Ref efd::Node::getChild(unsigned i) const {
