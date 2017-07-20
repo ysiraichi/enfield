@@ -44,7 +44,7 @@ namespace efd {
             enum Kind {
                 K_QASM_VERSION,
                 K_INCLUDE,
-                K_DECL,
+                K_REG_DECL,
                 K_GATE_DECL,
                 K_GATE_OPAQUE,
                 K_QOP_MEASURE,
@@ -197,30 +197,52 @@ namespace efd {
             typedef NDDecl* Ref;
             typedef std::unique_ptr<NDDecl> uRef;
 
-            /// \brief The possible types of declaration.
-            enum Type {
-                CONCRETE,
-                QUANTUM
-            };
-
-        private:
-            enum ChildType {
-                I_ID = 0,
-                I_SIZE
-            };
-
-            Type mT;
-
-            NDDecl(Type t, NDId::uRef idNode, NDInt::uRef sizeNode);
-
         protected:
-            void applyImpl(NodeVisitor* visitor) override;
+            enum ChildType {
+                I_ID = 0
+            };
+
+            NDDecl(Kind k, unsigned childNumber, NDId::uRef idNode);
 
         public:
             /// \brief Gets the id node.
             NDId::Ref getId() const;
             /// \brief Sets the id node.
             void setId(NDId::uRef ref);
+
+            /// \brief Returns true if this is a register declaration.
+            bool isReg() const;
+            /// \brief Returns true if this is a gate declaration.
+            bool isGate() const;
+
+            /// \brief Returns whether the \p node is an instance of this class.
+            static bool ClassOf(const Node* node);
+    };
+
+    class NDRegDecl : public NDDecl {
+        public:
+            typedef NDRegDecl* Ref;
+            typedef std::unique_ptr<NDRegDecl> uRef;
+
+        private:
+            enum ChildType {
+                I_SIZE = 1
+            };
+
+            /// \brief The possible types of declaration.
+            enum Type {
+                CONCRETE,
+                QUANTUM
+            };
+
+            Type mT;
+
+            NDRegDecl(Type t, NDId::uRef idNode, NDInt::uRef sizeNode);
+
+        protected:
+            void applyImpl(NodeVisitor* visitor) override;
+
+        public:
             /// \brief Gets the size node.
             NDInt::Ref getSize() const;
             /// \brief Sets the size node.
@@ -232,22 +254,20 @@ namespace efd {
             bool isQReg() const;
 
             Kind getKind() const override;
-
+            unsigned getChildNumber() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
-
-            unsigned getChildNumber() const override;
-
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
-            /// \brief Creates a new instance of this node.
-            static uRef Create(Type t, NDId::uRef idNode, NDInt::uRef sizeNode);
+
+            /// \brief Creates a new register node.
+            static std::unique_ptr<NDRegDecl> Create(Type t, NDId::uRef idNode, NDInt::uRef sizeNode);
             /// \brief Creates a new quantum register node of this node.
-            static std::unique_ptr<NDDecl> CreateQ(NDId::uRef idNode, NDInt::uRef sizeNode);
+            static std::unique_ptr<NDRegDecl> CreateQ(NDId::uRef idNode, NDInt::uRef sizeNode);
             /// \brief Creates a new concrete register node of this node.
-            static std::unique_ptr<NDDecl> CreateC(NDId::uRef idNode, NDInt::uRef sizeNode);
+            static std::unique_ptr<NDRegDecl> CreateC(NDId::uRef idNode, NDInt::uRef sizeNode);
     };
 
     /// \brief Node for id references (register specific positions).
@@ -517,11 +537,10 @@ namespace efd {
     };
 
     /// \brief Node for declaration of quantum gates.
-    class NDGateDecl : public Node {
+    class NDGateDecl : public NDDecl {
         private:
             enum ChildType {
-                I_ID = 0,
-                I_ARGS,
+                I_ARGS = 1,
                 I_QARGS,
                 I_GOPLIST
             };
@@ -535,10 +554,6 @@ namespace efd {
             typedef NDGateDecl* Ref;
             typedef std::unique_ptr<NDGateDecl> uRef;
 
-            /// \brief Gets the id node.
-            NDId::Ref getId() const;
-            /// \brief Sets the id node.
-            void setId(NDId::uRef ref);
             /// \brief Gets the args node.
             NDList::Ref getArgs() const;
             /// \brief Sets the args node.
@@ -568,7 +583,7 @@ namespace efd {
     };
 
     /// \brief Node for declaration of opaque quantum gates.
-    class NDOpaque : public Node {
+    class NDOpaque : public NDDecl {
         private:
             enum ChildType {
                 I_ID = 0,

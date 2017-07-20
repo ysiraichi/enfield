@@ -224,8 +224,8 @@ include: INCLUDE string ";"     {
                                 }
         ;
 
-decl: QREG id "[" integer "]" ";"   { $$ = efd::NDDecl::CreateQ(efd::NDId::uRef($2), efd::NDInt::uRef($4)).release(); }
-    | CREG id "[" integer "]" ";"   { $$ = efd::NDDecl::CreateC(efd::NDId::uRef($2), efd::NDInt::uRef($4)).release(); }
+decl: QREG id "[" integer "]" ";"   { $$ = efd::NDRegDecl::CreateQ(efd::NDId::uRef($2), efd::NDInt::uRef($4)).release(); }
+    | CREG id "[" integer "]" ";"   { $$ = efd::NDRegDecl::CreateC(efd::NDId::uRef($2), efd::NDInt::uRef($4)).release(); }
     ;
 
 gatedecl: GATE id params idlist "{" goplist "}" { 
