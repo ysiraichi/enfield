@@ -9,6 +9,9 @@ efd::Node::Node(Kind k, unsigned size, bool empty) : mK(k), mIsEmpty(empty),
     mChild(size), mWasGenerated(false) {
 }
 
+efd::Node::~Node() {
+}
+
 efd::Node::Ref efd::Node::getChild(unsigned i) const {
     return mChild[i].get();
 }
@@ -78,6 +81,12 @@ unsigned efd::Node::getChildNumber() const {
     return 0;
 }
 
+void efd::Node::apply(NodeVisitor::Ref visitor) {
+    applyImpl(visitor);
+    for (auto& child : mChild)
+        child->apply(visitor);
+}
+
 // -------------- Value Specializations -----------------
 // -------------- Value<efd::IntVal> -----------------
 template <> 
@@ -96,7 +105,7 @@ efd::Node::Kind efd::NDValue<efd::IntVal>::getKind() const {
 }
 
 template <> 
-void efd::NDValue<efd::IntVal>::apply(NodeVisitor* visitor) {
+void efd::NDValue<efd::IntVal>::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -117,7 +126,7 @@ efd::Node::Kind efd::NDValue<efd::RealVal>::getKind() const {
 }
 
 template <> 
-void efd::NDValue<efd::RealVal>::apply(NodeVisitor* visitor) {
+void efd::NDValue<efd::RealVal>::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -143,7 +152,7 @@ std::string efd::NDValue<std::string>::getOperation() const {
 }
 
 template <> 
-void efd::NDValue<std::string>::apply(NodeVisitor* visitor) {
+void efd::NDValue<std::string>::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -200,7 +209,7 @@ unsigned efd::NDDecl::getChildNumber() const {
     return 2;
 }
 
-void efd::NDDecl::apply(NodeVisitor* visitor) {
+void efd::NDDecl::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -268,7 +277,7 @@ unsigned efd::NDIdRef::getChildNumber() const {
     return 2;
 }
 
-void efd::NDIdRef::apply(NodeVisitor* visitor) {
+void efd::NDIdRef::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -298,6 +307,9 @@ efd::NDList::NDList() : Node(K_LIST, 0, true) {
 }
 
 efd::NDList::NDList(Kind k, unsigned size) : Node(k, size, true) {
+}
+
+efd::NDList::~NDList() {
 }
 
 void efd::NDList::cloneChildremTo(NDList::Ref list) const {
@@ -343,7 +355,7 @@ unsigned efd::NDList::getChildNumber() const {
     return mChild.size();
 }
 
-void efd::NDList::apply(NodeVisitor* visitor) {
+void efd::NDList::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -384,7 +396,7 @@ efd::Node::uRef efd::NDStmtList::clone() const {
     return Node::uRef(list);
 }
 
-void efd::NDStmtList::apply(NodeVisitor* visitor) {
+void efd::NDStmtList::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -419,7 +431,7 @@ efd::Node::uRef efd::NDGOpList::clone() const {
     return Node::uRef(list);
 }
 
-void efd::NDGOpList::apply(NodeVisitor* visitor) {
+void efd::NDGOpList::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -490,7 +502,7 @@ unsigned efd::NDIfStmt::getChildNumber() const {
     return 3;
 }
 
-void efd::NDIfStmt::apply(NodeVisitor* visitor) {
+void efd::NDIfStmt::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -548,7 +560,7 @@ unsigned efd::NDQasmVersion::getChildNumber() const {
     return 2;
 }
 
-void efd::NDQasmVersion::apply(NodeVisitor* visitor) {
+void efd::NDQasmVersion::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -613,7 +625,7 @@ unsigned efd::NDInclude::getChildNumber() const {
     return 2;
 }
 
-void efd::NDInclude::apply(NodeVisitor* visitor) {
+void efd::NDInclude::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -714,7 +726,7 @@ unsigned efd::NDGateDecl::getChildNumber() const {
     return 4;
 }
 
-void efd::NDGateDecl::apply(NodeVisitor* visitor) {
+void efd::NDGateDecl::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -802,7 +814,7 @@ unsigned efd::NDOpaque::getChildNumber() const {
     return 3;
 }
 
-void efd::NDOpaque::apply(NodeVisitor* visitor) {
+void efd::NDOpaque::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -837,6 +849,9 @@ efd::NDOpaque::uRef efd::NDOpaque::Create(NDId::uRef idNode, NDList::uRef aNode,
 
 // -------------- Qubit Operation -----------------
 efd::NDQOp::NDQOp(Kind k, unsigned size) : Node(k, size) {
+}
+
+efd::NDQOp::~NDQOp() {
 }
 
 bool efd::NDQOp::isReset() const {
@@ -897,7 +912,7 @@ unsigned efd::NDQOpReset::getChildNumber() const {
     return 1;
 }
 
-void efd::NDQOpReset::apply(NodeVisitor* visitor) {
+void efd::NDQOpReset::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -951,7 +966,7 @@ unsigned efd::NDQOpBarrier::getChildNumber() const {
     return 1;
 }
 
-void efd::NDQOpBarrier::apply(NodeVisitor* visitor) {
+void efd::NDQOpBarrier::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1013,7 +1028,7 @@ unsigned efd::NDQOpMeasure::getChildNumber() const {
     return 2;
 }
 
-void efd::NDQOpMeasure::apply(NodeVisitor* visitor) {
+void efd::NDQOpMeasure::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1079,7 +1094,7 @@ unsigned efd::NDQOpU::getChildNumber() const {
     return 2;
 }
 
-void efd::NDQOpU::apply(NodeVisitor* visitor) {
+void efd::NDQOpU::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1142,7 +1157,7 @@ unsigned efd::NDQOpCX::getChildNumber() const {
     return 2;
 }
 
-void efd::NDQOpCX::apply(NodeVisitor* visitor) {
+void efd::NDQOpCX::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1218,7 +1233,7 @@ unsigned efd::NDQOpGeneric::getChildNumber() const {
     return 3;
 }
 
-void efd::NDQOpGeneric::apply(NodeVisitor* visitor) {
+void efd::NDQOpGeneric::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1315,7 +1330,7 @@ unsigned efd::NDBinOp::getChildNumber() const {
     return 2;
 }
 
-void efd::NDBinOp::apply(NodeVisitor* visitor) {
+void efd::NDBinOp::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1428,7 +1443,7 @@ unsigned efd::NDUnaryOp::getChildNumber() const {
     return 1;
 }
 
-void efd::NDUnaryOp::apply(NodeVisitor* visitor) {
+void efd::NDUnaryOp::applyImpl(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
