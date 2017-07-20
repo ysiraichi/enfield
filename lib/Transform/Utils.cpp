@@ -52,12 +52,12 @@ namespace {
             void substituteChildrem(efd::Node::Ref ref);
             efd::Node::uRef replaceChild(efd::Node::Ref ref);
 
-            void visit(efd::NDQOpU* ref) override;
-            void visit(efd::NDQOpCX* ref) override;
-            void visit(efd::NDQOpBarrier* ref) override;
-            void visit(efd::NDQOpGeneric* ref) override;
-            void visit(efd::NDBinOp* ref) override;
-            void visit(efd::NDUnaryOp* ref) override;
+            void visit(efd::NDQOpU::Ref ref) override;
+            void visit(efd::NDQOpCX::Ref ref) override;
+            void visit(efd::NDQOpBarrier::Ref ref) override;
+            void visit(efd::NDQOpGeneric::Ref ref) override;
+            void visit(efd::NDBinOp::Ref ref) override;
+            void visit(efd::NDUnaryOp::Ref ref) override;
     };
 }
 
@@ -80,42 +80,41 @@ void QArgsReplaceVisitor::substituteChildrem(efd::Node::Ref ref) {
     }
 }
 
-void QArgsReplaceVisitor::visit(efd::NDQOpU* ref) {
+void QArgsReplaceVisitor::visit(efd::NDQOpU::Ref ref) {
     ref->getArgs()->apply(this);
     substituteChildrem(ref->getArgs());
     ref->setQArg(replaceChild(ref->getQArg()));
 }
 
-void QArgsReplaceVisitor::visit(efd::NDQOpCX* ref) {
+void QArgsReplaceVisitor::visit(efd::NDQOpCX::Ref ref) {
     substituteChildrem(ref);
 }
 
-void QArgsReplaceVisitor::visit(efd::NDQOpBarrier* ref) {
+void QArgsReplaceVisitor::visit(efd::NDQOpBarrier::Ref ref) {
     substituteChildrem(ref);
 }
 
-void QArgsReplaceVisitor::visit(efd::NDQOpGeneric* ref) {
+void QArgsReplaceVisitor::visit(efd::NDQOpGeneric::Ref ref) {
     ref->getArgs()->apply(this);
     substituteChildrem(ref->getArgs());
     substituteChildrem(ref->getQArgs());
 }
 
-void QArgsReplaceVisitor::visit(efd::NDBinOp* ref) {
+void QArgsReplaceVisitor::visit(efd::NDBinOp::Ref ref) {
     ref->getLhs()->apply(this);
     ref->getRhs()->apply(this);
     substituteChildrem(ref);
 }
 
-void QArgsReplaceVisitor::visit(efd::NDUnaryOp* ref) {
+void QArgsReplaceVisitor::visit(efd::NDUnaryOp::Ref ref) {
     substituteChildrem(ref);
 }
 
-void efd::InlineGate(QModule* qmod, NDQOpGeneric* qop) {
+void efd::InlineGate(QModule::Ref qmod, NDQOpGeneric::Ref qop) {
     std::string gateId = qop->getId()->getVal();
     
-    NDGateDecl* gateDecl = qmod->getQGate(gateId);
+    NDGateDecl::Ref gateDecl = qmod->getQGate(gateId);
     assert(gateDecl != nullptr && "No gate with such id found.");
-
 
     VarMap varMap;
 
