@@ -3,7 +3,7 @@
 
 #include "enfield/Analysis/Nodes.h"
 #include "enfield/Transform/IdTable.h"
-#include "enfield/Transform/QModulefyPass.h"
+#include "enfield/Pass.h"
 
 #include <unordered_map>
 
@@ -17,55 +17,56 @@ namespace efd {
             typedef std::unique_ptr<QModule> uRef;
             typedef std::shared_ptr<QModule> sRef;
 
+            typedef std::vector<NDInclude::uRef> IncludeVector; 
+            typedef std::unordered_map<std::string, NDRegDecl::uRef> RegsMap; 
+            typedef std::unordered_map<std::string, NDGateDecl::uRef> GatesMap; 
+
+            typedef std::unordered_map<std::string, NDId::Ref> IdMap;
+            typedef std::unordered_map<NDGateDecl::Ref, IdMap> GateIdMap;
+
             typedef Node::Iterator Iterator;
             typedef Node::ConstIterator ConstIterator;
 
-            typedef std::vector<Node::Ref>::iterator NodeIterator;
-            typedef std::vector<Node::Ref>::const_iterator NodeConstIterator;
+            typedef RegsMap::iterator RegIterator;
+            typedef RegsMap::const_iterator RegConstIterator;
 
-            typedef std::vector<NDDecl::Ref>::iterator RegIterator;
-            typedef std::vector<NDDecl::Ref>::const_iterator RegConstIterator;
-
-            typedef std::vector<Node::Ref>::iterator GateIterator;
-            typedef std::vector<Node::Ref>::const_iterator GateConstIterator;
+            typedef GatesMap::iterator GateIterator;
+            typedef GatesMap::const_iterator GateConstIterator;
 
         private:
-            Node::uRef mAST;
-            Node::Ref mVersion;
-            NDStmtList::Ref mStmtList;
+            NDQasmVersion::uRef mVersion;
+            IncludeVector mIncludes;
 
-            std::vector<NDDecl::Ref> mRegDecls;
-            std::vector<Node::Ref> mGates;
-            std::vector<Node::Ref> mStatements;
+            GateIdMap mGateIdMap;
+            RegsMap mRegs; 
+            GatesMap mGates; 
+            NDStmtList::uRef mStatements;
 
-            IdTable::uRef mTable;
-            std::unordered_map<Node::Ref, IdTable::uRef> mIdTableMap;
-
-            bool mValid;
-            bool mStdLibsParsed;
-            QModulefyPass::sRef mQModulefy;
-
-            QModule(Node::uRef ref);
+            QModule();
 
             /// \brief Registers the swap gate in the module.
-            void registerSwapGate(Iterator it);
+            void registerSwapGate();
 
         public:
             /// \brief Gets the qasm version.
-            Node::Ref getVersion();
+            NDQasmVersion::Ref getVersion();
 
             /// \brief Replace all quantum registers with this sequence of declarations.
             /// 
             /// This should be used when renaming registers to the architecture's register
             /// set.
-            void replaceAllRegsWith(std::vector<NDDecl::uRef> newRegs);
+            void replaceAllRegsWith(std::vector<NDRegDecl::uRef> newRegs);
 
             /// \brief Inlines \p call and returns an iterator to the first node inserted.
             Iterator inlineCall(NDQOpGeneric::Ref call);
             /// \brief Inserts \p ref after \p it, and returns a iterator to this node.
-            Iterator insertNodeAfter(Iterator it, Node::uRef ref);
+            Iterator insertStatementAfter(Iterator it, Node::uRef ref);
             /// \brief Inserts \p ref before \p it, and returns a iterator to this node.
-            Iterator insertNodeBefore(Iterator it, Node::uRef ref);
+            Iterator insertStatementBefore(Iterator it, Node::uRef ref);
+            /// \brief Inserts \p ref at the beginning, and returns a iterator to this node.
+            Iterator insertStatementFront(Node::uRef ref);
+            /// \brief Inserts \p ref at the back, and returns a iterator to this node.
+            Iterator insertStatementLast(Node::uRef ref);
             /// \brief Inserts a swap call between \p lhs and \p rhs, before the iterator
             /// location. Returns a iterator to the first swap instruction.
             Iterator insertSwapAfter(Iterator it, Node::Ref lhs, Node::Ref rhs);
@@ -73,8 +74,8 @@ namespace efd {
             /// location. Returns the iterator on the same position.
             Iterator insertSwapBefore(Iterator it, Node::Ref lhs, Node::Ref rhs);
 
-            /// \brief Inserts a node at the last position.
-            void insertStatementLast(Node::uRef node);
+            /// \brief Inserts a gate to the QModule.
+            void insertGate(NDGateDecl::uRef gate);
 
             /// \brief Iterator to the beginning of the register node vector.
             RegIterator reg_begin();
@@ -95,55 +96,41 @@ namespace efd {
             GateConstIterator gates_end() const;
 
             /// \brief Iterator to the beginning of the statement node vector.
-            NodeIterator stmt_begin();
+            Iterator stmt_begin();
             /// \brief ConstIterator to the beginning of the statement node vector.
-            NodeConstIterator stmt_begin() const;
+            ConstIterator stmt_begin() const;
             /// \brief Iterator to the end of the statement node vector.
-            NodeIterator stmt_end();
+            Iterator stmt_end();
             /// \brief ConstIterator to the end of the statement node vector.
-            NodeConstIterator stmt_end() const;
+            ConstIterator stmt_end() const;
 
             /// \brief Prints the QModule to a std::ostream.
-            void print(std::ostream& O = std::cout, bool pretty = false) const;
+            void print(std::ostream& O = std::cout, bool pretty = false, bool printGates = false) const;
             /// \brief Returns a std::string representation of the QModule.
-            std::string toString(bool pretty = false) const;
-
-            /// \brief Gets the mapped IdTable.
-            IdTable::Ref getIdTable(NDGateDecl::Ref ref);
+            std::string toString(bool pretty = false, bool printGates = false) const;
 
             /// \brief Gets the quantum variable mapped to \p id from some gate.
-            Node::Ref getQVar(std::string id, NDGateDecl* gate = nullptr, bool recursive = true);
+            Node::Ref getQVar(std::string id, NDGateDecl::Ref gate = nullptr);
             /// \brief Gets the quantum gate mapped to \p id.
-            NDGateDecl* getQGate(std::string id, bool recursive = true);
-
-            /// \brief Invalidates the current QModule.
-            void invalidate();
-            /// \brief Validates the current QModule. This means that the information that
-            /// is in its properties are valid.
-            void validate();
-            /// \brief Returns true if this QModule is valid.
-            bool isValid() const;
+            NDGateDecl::Ref getQGate(std::string id);
 
             /// \brief Applies the pass in the QModule. If the pass has already been applied,
             /// it won't be applied again unless \p force is set.
             void runPass(Pass::Ref pass, bool force = false);
 
             /// \brief Clones the current qmodule.
-            std::unique_ptr<QModule> clone() const;
+            uRef clone() const;
 
             /// \brief Create a new empty QModule.
-            static std::unique_ptr<QModule> Create(bool forceStdLib = true);
+            static uRef Create(bool forceStdLib = true);
             /// \brief Process the AST in order to obtain the QModule.
-            static std::unique_ptr<QModule> GetFromAST(Node::uRef ref);
+            static uRef GetFromAST(Node::uRef ref);
             /// \brief Parses the file \p filename and returns a QModule.
-            static std::unique_ptr<QModule> Parse(std::string filename,
-                    std::string path = "./", bool forceStdLib = true);
+            static uRef Parse(std::string filename, std::string path = "./", bool forceStdLib = true);
             /// \brief Parses the string \p program and returns a QModule.
-            static std::unique_ptr<QModule> ParseString(std::string program,
-                    bool forceStdLib = true);
+            static uRef ParseString(std::string program, bool forceStdLib = true);
 
             friend class QModulefyPass;
-
     };
 }
 
