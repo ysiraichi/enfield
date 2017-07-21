@@ -24,13 +24,11 @@ namespace {
 
             void visitNode(Node::Ref ref) {
                 mV.push_back(ref);
-                for (auto& child : *ref)
-                    child->apply(this);
             }
 
             void visit(NDQasmVersion::Ref ref) override { visitNode(ref); }
             void visit(NDInclude::Ref ref) override { visitNode(ref); }
-            void visit(NDDecl::Ref ref) override { visitNode(ref); }
+            void visit(NDRegDecl::Ref ref) override { visitNode(ref); }
             void visit(NDGateDecl::Ref ref) override { visitNode(ref); }
             void visit(NDOpaque::Ref ref) override { visitNode(ref); }
             void visit(NDQOpMeasure::Ref ref) override { visitNode(ref); }
@@ -53,7 +51,7 @@ namespace {
 }
 
 void compareClonedPrograms(const std::string program) {
-    std::unique_ptr<QModule> qmod = QModule::ParseString(program);
+    std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
     std::unique_ptr<QModule> clone = qmod->clone();
 
     ASTVectorPass vQMod, vClone;

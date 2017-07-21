@@ -16,6 +16,7 @@ namespace efd {
 }
 
 efd::QModule::QModule() : mVersion(nullptr) {
+    mStatements = NDStmtList::Create();
 }
 
 void efd::QModule::registerSwapGate() {
@@ -89,15 +90,15 @@ void efd::QModule::insertInclude(NDInclude::uRef incl) {
 
 void efd::QModule::insertReg(NDRegDecl::uRef reg) {
     std::string id = reg->getId()->getVal();
-    mRegs[id] = std::move(reg);
+    mRegsMap[id] = std::move(reg);
+    mRegs.push_back(mRegsMap[id].get());
 }
 
 void efd::QModule::replaceAllRegsWith(std::vector<NDRegDecl::uRef> newRegs) {
     mRegs.clear();
 
     for (auto& reg : newRegs) {
-        std::string id = reg->getId()->getVal();
-        mRegs[id] = std::move(reg);
+        insertReg(std::move(reg));
     }
 }
 
@@ -173,9 +174,11 @@ void efd::QModule::insertGate(NDGateSign::uRef gate) {
     assert(gate->getId() != nullptr && "Trying to insert a gate with 'nullptr' id.");
 
     std::string id = gate->getId()->getVal();
-    assert(mGates.find(id) == mGates.end() && "Trying to insert a gate with repeated id.");
+    assert(mGatesMap.find(id) == mGatesMap.end() &&
+            "Trying to insert a gate with repeated id.");
 
-    mGates[id] = std::move(gate);
+    mGatesMap[id] = std::move(gate);
+    mGates.push_back(mGatesMap[id].get());
 }
 
 efd::QModule::RegIterator efd::QModule::reg_begin() {
@@ -240,12 +243,12 @@ std::string efd::QModule::toString(bool pretty, bool printGates) const {
         str += incl->toString(pretty);
 
     if (printGates) {
-        for (auto& gatePair : mGates)
-            str += gatePair.second->toString(pretty);
+        for (auto gate : mGates)
+            str += gate->toString(pretty);
     }
 
-    for (auto& regPair : mRegs)
-        str += regPair.second->toString(pretty);
+    for (auto& reg : mRegs)
+        str += reg->toString(pretty);
 
     str += mStatements->toString(pretty);
     return str;
@@ -262,12 +265,12 @@ efd::Node::Ref efd::QModule::getQVar(std::string id, NDGateDecl::Ref gate) {
     }
 
     // If gate == nullptr, then we want a quantum register in the global context.
-    return mRegs[id].get();
+    return mRegsMap[id].get();
 }
 
 efd::NDGateSign::Ref efd::QModule::getQGate(std::string id) {
-    assert(mGates.find(id) != mGates.end() && "Gate not found.");
-    return mGates[id].get();
+    assert(mGatesMap.find(id) != mGatesMap.end() && "Gate not found.");
+    return mGatesMap[id].get();
 }
 
 void efd::QModule::runPass(Pass::Ref pass, bool force) {
@@ -277,13 +280,13 @@ void efd::QModule::runPass(Pass::Ref pass, bool force) {
     pass->init(force);
 
     if (pass->isRegDeclPass()) {
-        for (auto& regPair : mRegs)
-            regPair.second->apply(pass);
+        for (auto reg : mRegs)
+            reg->apply(pass);
     }
     
     if (pass->isGatePass()) {
-        for (auto& gatePair : mGates)
-            gatePair.second->apply(pass);
+        for (auto gate : mGates)
+            gate->apply(pass);
     }
 
     if (pass->isStatementPass()) {
@@ -298,11 +301,14 @@ efd::QModule::uRef efd::QModule::clone() const {
     if (mVersion.get() != nullptr)
         qmod->mVersion = uniqueCastForward<NDQasmVersion>(mVersion->clone());
 
-    for (auto& regPair : mRegs)
-        qmod->mRegs[regPair.first] = uniqueCastForward<NDRegDecl>(regPair.second->clone());
+    for (auto& incl : mIncludes)
+        qmod->insertInclude(uniqueCastForward<NDInclude>(incl->clone()));
 
-    for (auto& gatePair : mGates)
-        qmod->mGates[gatePair.first] = uniqueCastForward<NDGateDecl>(gatePair.second->clone());
+    for (auto reg : mRegs)
+        qmod->insertReg(uniqueCastForward<NDRegDecl>(reg->clone()));
+
+    for (auto gate : mGates)
+        qmod->insertGate(uniqueCastForward<NDGateSign>(gate->clone()));
 
     qmod->mStatements = uniqueCastForward<NDStmtList>(mStatements->clone());
     return uRef(qmod);

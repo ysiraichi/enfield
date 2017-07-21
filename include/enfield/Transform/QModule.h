@@ -18,6 +18,9 @@ namespace efd {
             typedef std::shared_ptr<QModule> sRef;
 
             typedef std::vector<NDInclude::uRef> IncludeVector; 
+            typedef std::vector<NDRegDecl::Ref> RegsVector; 
+            typedef std::vector<NDGateSign::Ref> GatesVector; 
+
             typedef std::unordered_map<std::string, NDRegDecl::uRef> RegsMap; 
             typedef std::unordered_map<std::string, NDGateSign::uRef> GatesMap; 
 
@@ -27,19 +30,22 @@ namespace efd {
             typedef Node::Iterator Iterator;
             typedef Node::ConstIterator ConstIterator;
 
-            typedef RegsMap::iterator RegIterator;
-            typedef RegsMap::const_iterator RegConstIterator;
+            typedef RegsVector::iterator RegIterator;
+            typedef RegsVector::const_iterator RegConstIterator;
 
-            typedef GatesMap::iterator GateIterator;
-            typedef GatesMap::const_iterator GateConstIterator;
+            typedef GatesVector::iterator GateIterator;
+            typedef GatesVector::const_iterator GateConstIterator;
 
         private:
             NDQasmVersion::uRef mVersion;
             IncludeVector mIncludes;
 
             GateIdMap mGateIdMap;
-            RegsMap mRegs; 
-            GatesMap mGates; 
+            RegsMap mRegsMap; 
+            GatesMap mGatesMap; 
+
+            RegsVector mRegs;
+            GatesVector mGates;
             NDStmtList::uRef mStatements;
 
             QModule();
@@ -141,8 +147,6 @@ namespace efd {
             static uRef Parse(std::string filename, std::string path = "./", bool forceStdLib = true);
             /// \brief Parses the string \p program and returns a QModule.
             static uRef ParseString(std::string program, bool forceStdLib = true);
-
-            friend class QModulefyPass;
     };
 }
 
