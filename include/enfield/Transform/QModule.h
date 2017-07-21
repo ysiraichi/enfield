@@ -19,7 +19,7 @@ namespace efd {
 
             typedef std::vector<NDInclude::uRef> IncludeVector; 
             typedef std::unordered_map<std::string, NDRegDecl::uRef> RegsMap; 
-            typedef std::unordered_map<std::string, NDGateDecl::uRef> GatesMap; 
+            typedef std::unordered_map<std::string, NDGateSign::uRef> GatesMap; 
 
             typedef std::unordered_map<std::string, NDId::Ref> IdMap;
             typedef std::unordered_map<NDGateDecl::Ref, IdMap> GateIdMap;
@@ -50,12 +50,24 @@ namespace efd {
         public:
             /// \brief Gets the qasm version.
             NDQasmVersion::Ref getVersion();
+            /// \brief Sets the qasm version.
+            void setVersion(NDQasmVersion::uRef version);
+
+            /// \brief Inserts an include node.
+            void insertInclude(NDInclude::uRef incl);
+            /// \brief Inserts a register declaration node.
+            void insertReg(NDRegDecl::uRef reg);
 
             /// \brief Replace all quantum registers with this sequence of declarations.
             /// 
             /// This should be used when renaming registers to the architecture's register
             /// set.
             void replaceAllRegsWith(std::vector<NDRegDecl::uRef> newRegs);
+
+            /// \brief Returns a iterator pointing to \p ref, if it exists.
+            Iterator findStatement(Node::Ref ref);
+            /// \brief Removes the node pointed by \p it.
+            void removeStatement(Iterator it);
 
             /// \brief Inlines \p call and returns an iterator to the first node inserted.
             Iterator inlineCall(NDQOpGeneric::Ref call);
@@ -75,7 +87,7 @@ namespace efd {
             Iterator insertSwapBefore(Iterator it, Node::Ref lhs, Node::Ref rhs);
 
             /// \brief Inserts a gate to the QModule.
-            void insertGate(NDGateDecl::uRef gate);
+            void insertGate(NDGateSign::uRef gate);
 
             /// \brief Iterator to the beginning of the register node vector.
             RegIterator reg_begin();
@@ -112,7 +124,7 @@ namespace efd {
             /// \brief Gets the quantum variable mapped to \p id from some gate.
             Node::Ref getQVar(std::string id, NDGateDecl::Ref gate = nullptr);
             /// \brief Gets the quantum gate mapped to \p id.
-            NDGateDecl::Ref getQGate(std::string id);
+            NDGateSign::Ref getQGate(std::string id);
 
             /// \brief Applies the pass in the QModule. If the pass has already been applied,
             /// it won't be applied again unless \p force is set.

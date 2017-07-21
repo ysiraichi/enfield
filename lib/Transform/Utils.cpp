@@ -12,31 +12,97 @@ namespace efd {
     NDId::uRef SWAP_ID_NODE(efd::NDId::Create("__swap__"));
     NDId::uRef H_ID_NODE(efd::NDId::Create("h")); 
     NDId::uRef CX_ID_NODE(efd::NDId::Create("cx")); 
+}
 
-    /// \brief Enum that indicates where to place a instruction.
-    enum Loc {
-        LOC_BEFORE, LOC_AFTER
+// ==--------------- QModulefy ---------------==
+namespace {
+    class QModulefyVisitor : public efd::NodeVisitor {
+        public:
+            efd::QModule& mMod;
+
+            QModulefyVisitor(efd::QModule& qmod) : mMod(qmod) {}
+
+            void insertIfNotInsideGate(efd::Node::Ref ref);
+
+            void visit(efd::NDQasmVersion::Ref ref) override;
+            void visit(efd::NDInclude::Ref ref) override;
+            void visit(efd::NDRegDecl::Ref ref) override;
+            void visit(efd::NDGateDecl::Ref ref) override;
+            void visit(efd::NDOpaque::Ref ref) override;
+            void visit(efd::NDQOpMeasure::Ref ref) override;
+            void visit(efd::NDQOpReset::Ref ref) override;
+            void visit(efd::NDQOpU::Ref ref) override;
+            void visit(efd::NDQOpCX::Ref ref) override;
+            void visit(efd::NDQOpBarrier::Ref ref) override;
+            void visit(efd::NDQOpGeneric::Ref ref) override;
+            void visit(efd::NDIfStmt::Ref ref) override;
     };
-
-    /// \brief Inserts the node wherever \where is indicating.
-    void InsertNode(Node::Iterator& it, Node::uRef node, Loc where);
-    /// \brief Inserts a swap wherever \where is indicating.
-    void InsertSwap(Node::Ref prev, Node::Ref lhs, Node::Ref rhs, Loc where);
 }
 
-void efd::InsertNode(Node::Iterator& it, Node::uRef node, Loc where) {
-    NDList::Ref parent = dynCast<NDList>((*it)->getParent());
-    assert(parent != nullptr && "Parent node must be of type NDList.");
-    if (where == LOC_AFTER) ++it;
-    parent->addChild(it, std::move(node));
+void QModulefyVisitor::insertIfNotInsideGate(efd::Node::Ref ref) {
+    if (efd::instanceOf<efd::NDGOpList>(ref->getParent()))
+        return;
+    mMod.insertStatementLast(ref->clone());
 }
 
-void efd::InsertNodeAfter(Node::Iterator& it, Node::uRef node) {
-    efd::InsertNode(it, std::move(node), LOC_AFTER);
+void QModulefyVisitor::visit(efd::NDQasmVersion::Ref ref) {
+    auto vNum = efd::uniqueCastForward<efd::NDReal>(ref->getVersion()->clone());
+    mMod.setVersion(efd::NDQasmVersion::Create
+            (std::move(vNum), efd::NDStmtList::Create()));
 }
 
-void efd::InsertNodeBefore(Node::Iterator& it, Node::uRef node) {
-    efd::InsertNode(it, std::move(node), LOC_BEFORE);
+void QModulefyVisitor::visit(efd::NDInclude::Ref ref) {
+    auto fileNode = efd::uniqueCastForward<efd::NDString>(ref->getFilename()->clone());
+    mMod.insertInclude(efd::NDInclude::Create
+            (std::move(fileNode),
+             efd::uniqueCastBackward<efd::Node>(efd::NDStmtList::Create())));
+}
+
+void QModulefyVisitor::visit(efd::NDRegDecl::Ref ref) {
+    mMod.insertReg(efd::uniqueCastForward<efd::NDRegDecl>(ref->clone()));
+}
+
+void QModulefyVisitor::visit(efd::NDGateDecl::Ref ref) {
+    mMod.insertGate(efd::uniqueCastForward<efd::NDGateSign>(ref->clone()));
+}
+
+
+void QModulefyVisitor::visit(efd::NDOpaque::Ref ref) {
+    mMod.insertGate(efd::uniqueCastForward<efd::NDGateSign>(ref->clone()));
+}
+
+
+void QModulefyVisitor::visit(efd::NDQOpMeasure::Ref ref) {
+    insertIfNotInsideGate(ref);
+}
+
+
+void QModulefyVisitor::visit(efd::NDQOpReset::Ref ref) {
+    insertIfNotInsideGate(ref);
+}
+
+
+void QModulefyVisitor::visit(efd::NDQOpU::Ref ref) {
+    insertIfNotInsideGate(ref);
+}
+
+
+void QModulefyVisitor::visit(efd::NDQOpCX::Ref ref) {
+    insertIfNotInsideGate(ref);
+}
+
+
+void QModulefyVisitor::visit(efd::NDQOpBarrier::Ref ref) {
+    insertIfNotInsideGate(ref);
+}
+
+void QModulefyVisitor::visit(efd::NDQOpGeneric::Ref ref) {
+    insertIfNotInsideGate(ref);
+}
+
+void efd::ProcessAST(QModule::Ref qmod, Node::Ref root) {
+    QModulefyVisitor visitor(*qmod);
+    root->apply(&visitor);
 }
 
 // ==--------------- Inlining ---------------==
@@ -113,7 +179,10 @@ void QArgsReplaceVisitor::visit(efd::NDUnaryOp::Ref ref) {
 void efd::InlineGate(QModule::Ref qmod, NDQOpGeneric::Ref qop) {
     std::string gateId = qop->getId()->getVal();
     
-    NDGateDecl::Ref gateDecl = qmod->getQGate(gateId);
+    auto gate = qmod->getQGate(gateId);
+    assert (!gate->isOpaque() && "Trying to inline opaque gate.");
+
+    NDGateDecl::Ref gateDecl = dynCast<NDGateDecl>(gate);
     assert(gateDecl != nullptr && "No gate with such id found.");
 
     VarMap varMap;
@@ -129,108 +198,21 @@ void efd::InlineGate(QModule::Ref qmod, NDQOpGeneric::Ref qop) {
         varMap[gateArgs->getChild(i)->toString()] = qopArgs->getChild(i);
 
     QArgsReplaceVisitor visitor(varMap);
-    std::vector<Node::sRef> opList = CloneGOp(gateDecl);
-    for (auto op : opList) {
+    auto gop = uniqueCastForward<NDGOpList>(gateDecl->getGOpList()->clone());
+
+    // Replacing
+    auto it = qmod->findStatement(qop);
+    for (auto& op : *gop) {
         op->apply(&visitor);
+        it = qmod->insertStatementAfter(it, std::move(op));
     }
 
-    ReplaceNodes(qop, opList);
-}
-
-std::vector<efd::Node::sRef> efd::CloneGOp(NDGateDecl* gateDecl) {
-    std::vector<Node::sRef> cloned;
-
-    NDGOpList::Ref gopList = gateDecl->getGOpList();
-    for (auto& op : *gopList) {
-        cloned.push_back(Node::sRef(op->clone().release()));
-    }
-
-    return cloned;
-}
-
-void efd::ReplaceNodes(Node::Ref ref, std::vector<Node::sRef> nodes) {
-    unsigned dist;
-    Node::Iterator it;
-
-    if (NDList* parent = dynCast<NDList>(ref->getParent())) {
-
-        it = parent->findChild(ref);
-        assert(it != parent->end() && "Node removed from parent.");
-
-        dist = std::distance(parent->begin(), it);
-        for (auto child : nodes)
-            efd::InsertNodeAfter(it, child->clone());
-        auto old = parent->begin() + dist;
-        parent->removeChild(old);
-
-    } else if (NDIfStmt* parent = dynCast<NDIfStmt>(ref->getParent())) {
-        NDList* ifParent = dynCast<NDList>(parent->getParent());
-        assert(ifParent != nullptr && "The parent of an If node has to be a NDList.");
-
-        it = ifParent->findChild(parent);
-        assert(it != parent->end() && "Node removed from parent.");
-
-        dist = std::distance(ifParent->begin(), it);
-        for (auto child : nodes)
-            efd::InsertNodeAfter(it, NDIfStmt::Create
-                    (uniqueCastForward<NDId>(parent->getCondId()->clone()),
-                     uniqueCastForward<NDInt>(parent->getCondN()->clone()),
-                     child->clone()));
-
-        auto old = ifParent->begin() + dist;
-        ifParent->removeChild(parent);
-
-    } else {
-        assert(false && "Unreacheable. Node must be either If or List.");
-    }
-}
-
-// ==--------------- InsertSwap ---------------==
-void efd::InsertSwap(Node::Ref prev, Node::Ref lhs, Node::Ref rhs, Loc where) {
-    Node::Ref baseParent = prev->getParent();
-
-    auto qArgs = NDList::Create();
-    qArgs->addChild(lhs->clone());
-    qArgs->addChild(rhs->clone());
-
-    // Creating swap node, and setting the generated property.
-    auto callNode = NDQOpGeneric::Create
-        (uniqueCastForward<NDId>(SWAP_ID_NODE->clone()), NDList::Create(), std::move(qArgs));
-    callNode->setGenerated();
-
-    if (NDList* parent = dynCast<NDList>(baseParent)) {
-        auto it = parent->findChild(prev);
-        if (where == LOC_AFTER)
-            efd::InsertNodeAfter(it, std::move(callNode));
-        else if (where == LOC_BEFORE)
-            efd::InsertNodeBefore(it, std::move(callNode));
-
-    } else if (NDIfStmt* parent = dynCast<NDIfStmt>(baseParent)) {
-        NDList* ifParent = dynCast<NDList>(parent->getParent());
-        assert(ifParent != nullptr && "The parent of an If node has to be a NDList.");
-        auto it = ifParent->findChild(prev);
-
-        // In this case, the swap must be global, and not in the if scope.
-        if (where == LOC_AFTER)
-            efd::InsertNodeAfter(it, std::move(callNode));
-        else if (where == LOC_BEFORE)
-            efd::InsertNodeBefore(it, std::move(callNode));
-
-    } else {
-        assert(false && "Unreacheable. Node must be either If or List.");
-    }
-}
-
-void efd::InsertSwapAfter(Node::Ref prev, Node::Ref lhs, Node::Ref rhs) {
-    efd::InsertSwap(prev, lhs, rhs, LOC_AFTER);
-}
-
-void efd::InsertSwapBefore(Node::Ref prev, Node::Ref lhs, Node::Ref rhs) {
-    efd::InsertSwap(prev, lhs, rhs, LOC_BEFORE);
+    it = qmod->findStatement(qop);
+    qmod->removeStatement(it);
 }
 
 // ==--------------- Reverse Gate ---------------==
-void efd::ReverseCNode(Node::Ref node) {
+void efd::ReverseCNode(QModule::Ref qmod, Node::Ref node) {
     std::vector<Node::Ref> qArgs;
 
     switch (node->getKind()) {
@@ -280,13 +262,13 @@ void efd::ReverseCNode(Node::Ref node) {
         qArgs->addChild(qbit->clone());
 
         it = parent->findChild(node);
-        efd::InsertNodeBefore(it, NDQOpGeneric::Create
+        qmod->insertStatementBefore(it, NDQOpGeneric::Create
                 (uniqueCastForward<NDId>(H_ID_NODE->clone()),
                  NDList::Create(),
                  uniqueCastForward<NDList>(qArgs->clone())));
 
         it = parent->findChild(node);
-        efd::InsertNodeAfter(it, NDQOpGeneric::Create
+        qmod->insertStatementAfter(it, NDQOpGeneric::Create
                 (uniqueCastForward<NDId>(H_ID_NODE->clone()),
                  NDList::Create(),
                  uniqueCastForward<NDList>(qArgs->clone())));

@@ -79,6 +79,19 @@ efd::NDQasmVersion::Ref efd::QModule::getVersion() {
     return mVersion.get();
 }
 
+void efd::QModule::setVersion(NDQasmVersion::uRef version) {
+    mVersion = std::move(version);
+}
+
+void efd::QModule::insertInclude(NDInclude::uRef incl) {
+    mIncludes.push_back(std::move(incl));
+}
+
+void efd::QModule::insertReg(NDRegDecl::uRef reg) {
+    std::string id = reg->getId()->getVal();
+    mRegs[id] = std::move(reg);
+}
+
 void efd::QModule::replaceAllRegsWith(std::vector<NDRegDecl::uRef> newRegs) {
     mRegs.clear();
 
@@ -86,6 +99,16 @@ void efd::QModule::replaceAllRegsWith(std::vector<NDRegDecl::uRef> newRegs) {
         std::string id = reg->getId()->getVal();
         mRegs[id] = std::move(reg);
     }
+}
+
+efd::QModule::Iterator efd::QModule::findStatement(Node::Ref ref) {
+    auto it = mStatements->findChild(ref);
+    assert(it != mStatements->end() && "Node not in the main statement list.");
+    return it;
+}
+
+void efd::QModule::removeStatement(Iterator it) {
+    mStatements->removeChild(it);
 }
 
 efd::QModule::Iterator efd::QModule::inlineCall(NDQOpGeneric::Ref call) {
@@ -118,11 +141,21 @@ efd::QModule::Iterator efd::QModule::insertStatementLast(Node::uRef ref) {
     return it;
 }
 
+static efd::NDQOpGeneric::uRef createSwapCallNode(efd::Node::Ref lhs,
+        efd::Node::Ref rhs) {
+    auto qargs = efd::NDList::Create();
+    qargs->addChild(lhs->clone());
+    qargs->addChild(rhs->clone());
+
+    return efd::NDQOpGeneric::Create(
+            efd::uniqueCastForward<efd::NDId>(efd::SWAP_ID_NODE->clone()),
+            efd::NDList::Create(), std::move(qargs));
+}
+
 efd::QModule::Iterator efd::QModule::insertSwapBefore(Iterator it, Node::Ref lhs, Node::Ref rhs) {
     Node::Ref parent = (*it)->getParent();
     unsigned dist = std::distance(parent->begin(), it);
-    InsertSwapBefore(it->get(), lhs, rhs);
-
+    insertStatementBefore(it, createSwapCallNode(lhs, rhs));
     registerSwapGate();
     return parent->begin() + dist;
 }
@@ -130,13 +163,12 @@ efd::QModule::Iterator efd::QModule::insertSwapBefore(Iterator it, Node::Ref lhs
 efd::QModule::Iterator efd::QModule::insertSwapAfter(Iterator it, Node::Ref lhs, Node::Ref rhs) {
     Node::Ref parent = (*it)->getParent();
     unsigned dist = std::distance(parent->begin(), it);
-    InsertSwapAfter(it->get(), lhs, rhs);
-
+    insertStatementAfter(it, createSwapCallNode(lhs, rhs));
     registerSwapGate();
     return parent->begin() + dist;
 }
 
-void efd::QModule::insertGate(NDGateDecl::uRef gate) {
+void efd::QModule::insertGate(NDGateSign::uRef gate) {
     assert(gate.get() != nullptr && "Trying to insert a 'nullptr' gate.");
     assert(gate->getId() != nullptr && "Trying to insert a gate with 'nullptr' id.");
 
@@ -233,7 +265,7 @@ efd::Node::Ref efd::QModule::getQVar(std::string id, NDGateDecl::Ref gate) {
     return mRegs[id].get();
 }
 
-efd::NDGateDecl::Ref efd::QModule::getQGate(std::string id) {
+efd::NDGateSign::Ref efd::QModule::getQGate(std::string id) {
     assert(mGates.find(id) != mGates.end() && "Gate not found.");
     return mGates[id].get();
 }
@@ -289,6 +321,7 @@ efd::QModule::uRef efd::QModule::Create(bool forceStdLib) {
 
 efd::QModule::uRef efd::QModule::GetFromAST(Node::uRef ref) {
     uRef qmod(new QModule());
+    efd::ProcessAST(qmod.get(), ref.get());
     return qmod;
 }
 
