@@ -82,7 +82,7 @@ unsigned efd::Node::getChildNumber() const {
 }
 
 void efd::Node::apply(NodeVisitor::Ref visitor) {
-    applyImpl(visitor);
+    apply(visitor);
     for (auto& child : mChild)
         child->apply(visitor);
 }
@@ -105,7 +105,7 @@ efd::Node::Kind efd::NDValue<efd::IntVal>::getKind() const {
 }
 
 template <> 
-void efd::NDValue<efd::IntVal>::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDValue<efd::IntVal>::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -126,7 +126,7 @@ efd::Node::Kind efd::NDValue<efd::RealVal>::getKind() const {
 }
 
 template <> 
-void efd::NDValue<efd::RealVal>::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDValue<efd::RealVal>::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -152,7 +152,7 @@ std::string efd::NDValue<std::string>::getOperation() const {
 }
 
 template <> 
-void efd::NDValue<std::string>::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDValue<std::string>::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -226,7 +226,7 @@ unsigned efd::NDRegDecl::getChildNumber() const {
     return 2;
 }
 
-void efd::NDRegDecl::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDRegDecl::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -294,7 +294,7 @@ unsigned efd::NDIdRef::getChildNumber() const {
     return 2;
 }
 
-void efd::NDIdRef::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDIdRef::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -372,7 +372,7 @@ unsigned efd::NDList::getChildNumber() const {
     return mChild.size();
 }
 
-void efd::NDList::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDList::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -413,7 +413,7 @@ efd::Node::uRef efd::NDStmtList::clone() const {
     return Node::uRef(list);
 }
 
-void efd::NDStmtList::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDStmtList::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -448,7 +448,7 @@ efd::Node::uRef efd::NDGOpList::clone() const {
     return Node::uRef(list);
 }
 
-void efd::NDGOpList::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDGOpList::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -519,7 +519,7 @@ unsigned efd::NDIfStmt::getChildNumber() const {
     return 3;
 }
 
-void efd::NDIfStmt::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDIfStmt::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -577,7 +577,7 @@ unsigned efd::NDQasmVersion::getChildNumber() const {
     return 2;
 }
 
-void efd::NDQasmVersion::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDQasmVersion::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -642,7 +642,7 @@ unsigned efd::NDInclude::getChildNumber() const {
     return 2;
 }
 
-void efd::NDInclude::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDInclude::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -734,7 +734,7 @@ unsigned efd::NDGateSign::getChildNumber() const {
     return 3;
 }
 
-void efd::NDGateSign::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDGateSign::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -760,7 +760,8 @@ efd::Node::Kind efd::NDGateSign::getKind() const {
 }
 
 bool efd::NDGateSign::ClassOf(const Node* node) {
-    return node->getKind() == K_GATE_OPAQUE;
+    return node->getKind() == K_GATE_OPAQUE ||
+        node->getKind() == K_GATE_DECL;
 }
 
 efd::NDGateSign::uRef efd::NDGateSign::Create(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode) {
@@ -800,7 +801,7 @@ unsigned efd::NDGateDecl::getChildNumber() const {
     return 4;
 }
 
-void efd::NDGateDecl::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDGateDecl::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -907,7 +908,7 @@ unsigned efd::NDQOpReset::getChildNumber() const {
     return 1;
 }
 
-void efd::NDQOpReset::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDQOpReset::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -961,7 +962,7 @@ unsigned efd::NDQOpBarrier::getChildNumber() const {
     return 1;
 }
 
-void efd::NDQOpBarrier::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDQOpBarrier::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1023,7 +1024,7 @@ unsigned efd::NDQOpMeasure::getChildNumber() const {
     return 2;
 }
 
-void efd::NDQOpMeasure::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDQOpMeasure::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1089,7 +1090,7 @@ unsigned efd::NDQOpU::getChildNumber() const {
     return 2;
 }
 
-void efd::NDQOpU::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDQOpU::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1152,7 +1153,7 @@ unsigned efd::NDQOpCX::getChildNumber() const {
     return 2;
 }
 
-void efd::NDQOpCX::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDQOpCX::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1228,7 +1229,7 @@ unsigned efd::NDQOpGeneric::getChildNumber() const {
     return 3;
 }
 
-void efd::NDQOpGeneric::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDQOpGeneric::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1325,7 +1326,7 @@ unsigned efd::NDBinOp::getChildNumber() const {
     return 2;
 }
 
-void efd::NDBinOp::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDBinOp::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
@@ -1438,7 +1439,7 @@ unsigned efd::NDUnaryOp::getChildNumber() const {
     return 1;
 }
 
-void efd::NDUnaryOp::applyImpl(NodeVisitor::Ref visitor) {
+void efd::NDUnaryOp::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 

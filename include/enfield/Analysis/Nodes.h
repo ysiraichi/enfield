@@ -81,9 +81,6 @@ namespace efd {
             /// \brief Constructs the node, initially empty (with no information).
             Node(Kind k, unsigned size = 0, bool empty = false);
 
-            /// \brief Implementation of each class.
-            virtual void applyImpl(NodeVisitor* visitor) = 0;
-
         public:
             virtual ~Node();
 
@@ -127,7 +124,7 @@ namespace efd {
             /// \brief Returns a std::string representation of this Node and its childrem.
             virtual std::string toString(bool pretty = false) const = 0;
             /// \brief Used by visitor classes.
-            void apply(NodeVisitor* visitor);
+            virtual void apply(NodeVisitor* visitor) = 0;
 
             /// \brief Clones the current node (deep copy).
             virtual Node::uRef clone() const = 0;
@@ -140,9 +137,6 @@ namespace efd {
                 T mVal;
 
                 NDValue(T val);
-
-            protected:
-                void applyImpl(NodeVisitor* visitor) override;
 
             public:
                 typedef NDValue* Ref;
@@ -160,6 +154,7 @@ namespace efd {
 
                 unsigned getChildNumber() const override;
 
+                void apply(NodeVisitor* visitor) override;
                 Node::uRef clone() const override;
 
                 /// \brief Returns whether the \p node is an instance of this class.
@@ -172,13 +167,13 @@ namespace efd {
     template <> NDValue<IntVal>::NDValue(IntVal val);
     template <> bool NDValue<IntVal>::ClassOf(const Node* node);
     template <> Node::Kind NDValue<IntVal>::getKind() const;
-    template <> void NDValue<IntVal>::applyImpl(NodeVisitor* visitor);
+    template <> void NDValue<IntVal>::apply(NodeVisitor* visitor);
 
     template class NDValue<RealVal>;
     template <> NDValue<RealVal>::NDValue(RealVal val);
     template <> bool NDValue<RealVal>::ClassOf(const Node* node);
     template <> Node::Kind NDValue<RealVal>::getKind() const;
-    template <> void NDValue<RealVal>::applyImpl(NodeVisitor* visitor);
+    template <> void NDValue<RealVal>::apply(NodeVisitor* visitor);
 
     template class NDValue<std::string>;
     template <> NDValue<std::string>::NDValue(std::string val);
@@ -186,7 +181,7 @@ namespace efd {
     template <> Node::Kind NDValue<std::string>::getKind() const;
     template <> std::string NDValue<std::string>::getOperation() const;
     template <> std::string NDValue<std::string>::toString(bool pretty) const;
-    template <> void NDValue<std::string>::applyImpl(NodeVisitor* visitor);
+    template <> void NDValue<std::string>::apply(NodeVisitor* visitor);
 
     typedef NDValue<IntVal> NDInt;
     typedef NDValue<RealVal> NDReal;
@@ -241,9 +236,6 @@ namespace efd {
 
             NDRegDecl(Type t, NDId::uRef idNode, NDInt::uRef sizeNode);
 
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
-
         public:
             /// \brief Gets the size node.
             NDInt::Ref getSize() const;
@@ -259,6 +251,7 @@ namespace efd {
             unsigned getChildNumber() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -282,9 +275,6 @@ namespace efd {
 
             NDIdRef(NDId::uRef idNode, NDInt::uRef nNode);
 
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
-
         public:
             typedef NDIdRef* Ref;
             typedef std::unique_ptr<NDIdRef> uRef;
@@ -304,6 +294,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -327,8 +318,6 @@ namespace efd {
             /// \brief Deep-copies the childrem.
             void cloneChildremTo(NDList::Ref list) const;
 
-            virtual void applyImpl(NodeVisitor* visitor) override;
-
         public:
             virtual ~NDList();
 
@@ -338,6 +327,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Appends a child to the end of the list.
@@ -362,9 +352,6 @@ namespace efd {
         private:
             NDStmtList();
 
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
-
         public:
             typedef NDStmtList* Ref;
             typedef std::unique_ptr<NDStmtList> uRef;
@@ -373,6 +360,7 @@ namespace efd {
 
             std::string toString(bool pretty = false) const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -386,9 +374,6 @@ namespace efd {
         private:
             NDGOpList();
 
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
-
         public:
             typedef NDGOpList* Ref;
             typedef std::unique_ptr<NDGOpList> uRef;
@@ -397,6 +382,7 @@ namespace efd {
 
             std::string toString(bool pretty = false) const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -407,9 +393,6 @@ namespace efd {
 
     /// \brief Node for conditional statement.
     class NDIfStmt : public Node {
-         protected:
-             void applyImpl(NodeVisitor* visitor) override;
-
          public:
             typedef NDIfStmt* Ref;
             typedef std::unique_ptr<NDIfStmt> uRef;
@@ -444,6 +427,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -462,9 +446,6 @@ namespace efd {
             };
 
             NDQasmVersion(NDReal::uRef vNode, NDStmtList::uRef stmtsNode);
-
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
 
         public:
             typedef NDQasmVersion* Ref;
@@ -487,6 +468,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -506,9 +488,6 @@ namespace efd {
             };
 
             NDInclude(NDId::uRef fNode, Node::uRef astNode);
-
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
 
         public:
             typedef NDInclude* Ref;
@@ -530,6 +509,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -550,8 +530,6 @@ namespace efd {
             NDGateSign(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
             NDGateSign(Kind k, unsigned childNumber,
                     NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
-
-            void applyImpl(NodeVisitor* visitor) override;
 
         public:
             typedef NDGateSign* Ref;
@@ -576,6 +554,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -593,9 +572,6 @@ namespace efd {
 
             NDGateDecl(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode, NDGOpList::uRef gopNode);
 
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
-
         public:
             typedef NDGateDecl* Ref;
             typedef std::unique_ptr<NDGateDecl> uRef;
@@ -612,6 +588,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -657,9 +634,6 @@ namespace efd {
 
             NDQOpReset(Node::uRef qaNode);
 
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
-
         public:
             typedef NDQOpReset* Ref;
             typedef std::unique_ptr<NDQOpReset> uRef;
@@ -676,6 +650,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -693,9 +668,6 @@ namespace efd {
 
             NDQOpBarrier(NDList::uRef qaNode);
 
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
-
         public:
             typedef NDQOpBarrier* Ref;
             typedef std::unique_ptr<NDQOpBarrier> uRef;
@@ -712,6 +684,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -729,9 +702,6 @@ namespace efd {
             };
 
             NDQOpMeasure(Node::uRef qNode, Node::uRef cNode);
-
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
 
         public:
             typedef NDQOpMeasure* Ref;
@@ -753,6 +723,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -770,9 +741,6 @@ namespace efd {
             };
 
             NDQOpU(NDList::uRef aNode, Node::uRef qaNode);
-
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
 
         public:
             typedef NDQOpU* Ref;
@@ -794,6 +762,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -811,9 +780,6 @@ namespace efd {
             };
 
             NDQOpCX(Node::uRef lhsNode, Node::uRef rhsNode);
-
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
 
         public:
             typedef NDQOpCX* Ref;
@@ -835,6 +801,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -853,9 +820,6 @@ namespace efd {
             };
 
             NDQOpGeneric(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
-
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
 
         public:
             typedef NDQOpGeneric* Ref;
@@ -881,6 +845,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
             
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -896,9 +861,6 @@ namespace efd {
                 I_LHS = 0,
                 I_RHS
             };
-
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
 
         public:
             typedef NDBinOp* Ref;
@@ -949,6 +911,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -973,9 +936,6 @@ namespace efd {
             enum ChildType {
                 I_ONLY = 0
             };
-
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
 
         public:
             typedef NDUnaryOp* Ref;
@@ -1028,6 +988,7 @@ namespace efd {
 
             unsigned getChildNumber() const override;
 
+            void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
