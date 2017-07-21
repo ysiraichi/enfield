@@ -2,7 +2,7 @@
 
 void efd::NodeVisitor::visit(NDQasmVersion::Ref ref) {}
 void efd::NodeVisitor::visit(NDInclude::Ref ref) {}
-void efd::NodeVisitor::visit(NDDecl::Ref ref) {}
+void efd::NodeVisitor::visit(NDRegDecl::Ref ref) {}
 void efd::NodeVisitor::visit(NDGateDecl::Ref ref) {}
 void efd::NodeVisitor::visit(NDOpaque::Ref ref) {}
 void efd::NodeVisitor::visit(NDQOpMeasure::Ref ref) {}

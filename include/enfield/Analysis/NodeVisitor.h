@@ -12,7 +12,7 @@ namespace efd {
 
             virtual void visit(NDQasmVersion::Ref ref);
             virtual void visit(NDInclude::Ref ref);
-            virtual void visit(NDDecl::Ref ref);
+            virtual void visit(NDRegDecl::Ref ref);
             virtual void visit(NDGateDecl::Ref ref);
             virtual void visit(NDOpaque::Ref ref);
             virtual void visit(NDQOpMeasure::Ref ref);
