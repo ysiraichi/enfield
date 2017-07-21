@@ -175,11 +175,11 @@ void efd::NDDecl::setId(NDId::uRef ref) {
 }
 
 bool efd::NDDecl::isReg() const {
-    return instanceOf<NDRegDecl>(this);
+    return getKind() == K_REG_DECL;
 }
 
 bool efd::NDDecl::isGate() const {
-    return instanceOf<NDGateDecl>(this);
+    return getKind() == K_GATE_DECL;
 }
 
 bool efd::NDDecl::ClassOf(const Node* node) {
@@ -685,11 +685,92 @@ efd::NDInclude::uRef efd::NDInclude::Create(NDId::uRef fNode, Node::uRef astNode
     return uRef(new NDInclude(std::move(fNode), std::move(astNode)));
 }
 
-// -------------- GateDecl -----------------
-efd::NDGateDecl::NDGateDecl(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode,
-        NDGOpList::uRef gopNode) : NDDecl(K_GATE_DECL, getChildNumber(), std::move(idNode)) {
+// -------------- Opaque -----------------
+efd::NDGateSign::NDGateSign(Kind k, unsigned childNumber,
+        NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode) :
+    NDDecl(k, childNumber, std::move(idNode)) {
     setArgs(std::move(aNode));
     setQArgs(std::move(qaNode));
+}
+
+efd::NDGateSign::NDGateSign(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode) :
+    NDDecl(K_GATE_OPAQUE, getChildNumber(), std::move(idNode)) {
+    setArgs(std::move(aNode));
+    setQArgs(std::move(qaNode));
+}
+
+bool efd::NDGateSign::isOpaque() const {
+    return getKind() == K_GATE_OPAQUE;
+}
+
+efd::Node::uRef efd::NDGateSign::clone() const {
+    auto id = dynCast<NDId>(getId()->clone().release());
+    auto args = dynCast<NDList>(getArgs()->clone().release());
+    auto qargs = dynCast<NDList>(getQArgs()->clone().release());
+    return Node::uRef(NDGateSign::Create(NDId::uRef(id), NDList::uRef(args), NDList::uRef(qargs)).release());
+}
+
+efd::NDList::Ref efd::NDGateSign::getArgs() const {
+    return dynCast<NDList>(mChild[I_ARGS].get());
+}
+
+void efd::NDGateSign::setArgs(NDList::uRef ref) {
+    setChild(I_ARGS, Node::uRef(ref.release()));
+}
+
+efd::NDList::Ref efd::NDGateSign::getQArgs() const {
+    return dynCast<NDList>(mChild[I_QARGS].get());
+}
+
+void efd::NDGateSign::setQArgs(NDList::uRef ref) {
+    setChild(I_QARGS, Node::uRef(ref.release()));
+}
+
+std::string efd::NDGateSign::getOperation() const {
+    return "opaque";
+}
+
+unsigned efd::NDGateSign::getChildNumber() const {
+    return 3;
+}
+
+void efd::NDGateSign::applyImpl(NodeVisitor::Ref visitor) {
+    visitor->visit(this);
+}
+
+std::string efd::NDGateSign::toString(bool pretty) const {
+    std::string str;
+    std::string endl = (pretty) ? "\n" : "";
+
+    str += getOperation();
+    str += " " + getId()->toString(pretty);
+
+    Node::Ref refArgs = getArgs();
+    if (!refArgs->isEmpty())
+        str += "(" + refArgs->toString(pretty) + ")";
+
+    str += " " + getQArgs()->toString(pretty) + ";";
+    str += endl;
+
+    return str;
+}
+
+efd::Node::Kind efd::NDGateSign::getKind() const {
+    return K_GATE_OPAQUE;
+}
+
+bool efd::NDGateSign::ClassOf(const Node* node) {
+    return node->getKind() == K_GATE_OPAQUE;
+}
+
+efd::NDGateSign::uRef efd::NDGateSign::Create(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode) {
+    return uRef(new NDGateSign(std::move(idNode), std::move(aNode), std::move(qaNode)));
+}
+
+// -------------- GateDecl -----------------
+efd::NDGateDecl::NDGateDecl(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode,
+        NDGOpList::uRef gopNode) : NDGateSign(K_GATE_DECL, getChildNumber(),
+            std::move(idNode), std::move(aNode), std::move(qaNode)) {
     setGOpList(std::move(gopNode));
 }
 
@@ -699,23 +780,8 @@ efd::Node::uRef efd::NDGateDecl::clone() const {
     auto qargs = dynCast<NDList>(getQArgs()->clone().release());
     auto gop = dynCast<NDGOpList>(getGOpList()->clone().release());
     return Node::uRef(NDGateDecl::Create(
-                NDId::uRef(id), NDList::uRef(args), NDList::uRef(qargs), NDGOpList::uRef(gop)));
-}
-
-efd::NDList::Ref efd::NDGateDecl::getArgs() const {
-    return dynCast<NDList>(mChild[I_ARGS].get());
-}
-
-void efd::NDGateDecl::setArgs(NDList::uRef ref) {
-    setChild(I_ARGS, Node::uRef(ref.release()));
-}
-
-efd::NDList::Ref efd::NDGateDecl::getQArgs() const {
-    return dynCast<NDList>(mChild[I_QARGS].get());
-}
-
-void efd::NDGateDecl::setQArgs(NDList::uRef ref) {
-    setChild(I_QARGS, Node::uRef(ref.release()));
+                NDId::uRef(id), NDList::uRef(args),
+                NDList::uRef(qargs), NDGOpList::uRef(gop)));
 }
 
 efd::NDGOpList::Ref efd::NDGateDecl::getGOpList() const {
@@ -774,86 +840,6 @@ efd::NDGateDecl::uRef efd::NDGateDecl::Create(NDId::uRef idNode, NDList::uRef aN
     return uRef(new NDGateDecl(
                 std::move(idNode), std::move(aNode),
                 std::move(qaNode), std::move(gopNode)));
-}
-
-// -------------- Opaque -----------------
-efd::NDOpaque::NDOpaque(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode) :
-    NDDecl(K_GATE_OPAQUE, getChildNumber(), std::move(idNode)) {
-    setId(std::move(idNode));
-    setArgs(std::move(aNode));
-    setQArgs(std::move(qaNode));
-}
-
-efd::Node::uRef efd::NDOpaque::clone() const {
-    auto id = dynCast<NDId>(getId()->clone().release());
-    auto args = dynCast<NDList>(getArgs()->clone().release());
-    auto qargs = dynCast<NDList>(getQArgs()->clone().release());
-    return Node::uRef(NDOpaque::Create(NDId::uRef(id), NDList::uRef(args), NDList::uRef(qargs)).release());
-}
-
-efd::NDId::Ref efd::NDOpaque::getId() const {
-    return dynCast<NDId>(mChild[I_ID].get());
-}
-
-void efd::NDOpaque::setId(NDId::uRef ref) {
-    setChild(I_ID, Node::uRef(ref.release()));
-}
-
-efd::NDList::Ref efd::NDOpaque::getArgs() const {
-    return dynCast<NDList>(mChild[I_ARGS].get());
-}
-
-void efd::NDOpaque::setArgs(NDList::uRef ref) {
-    setChild(I_ARGS, Node::uRef(ref.release()));
-}
-
-efd::NDList::Ref efd::NDOpaque::getQArgs() const {
-    return dynCast<NDList>(mChild[I_QARGS].get());
-}
-
-void efd::NDOpaque::setQArgs(NDList::uRef ref) {
-    setChild(I_QARGS, Node::uRef(ref.release()));
-}
-
-std::string efd::NDOpaque::getOperation() const {
-    return "opaque";
-}
-
-unsigned efd::NDOpaque::getChildNumber() const {
-    return 3;
-}
-
-void efd::NDOpaque::applyImpl(NodeVisitor::Ref visitor) {
-    visitor->visit(this);
-}
-
-std::string efd::NDOpaque::toString(bool pretty) const {
-    std::string str;
-    std::string endl = (pretty) ? "\n" : "";
-
-    str += getOperation();
-    str += " " + getId()->toString(pretty);
-
-    Node::Ref refArgs = getArgs();
-    if (!refArgs->isEmpty())
-        str += "(" + refArgs->toString(pretty) + ")";
-
-    str += " " + getQArgs()->toString(pretty) + ";";
-    str += endl;
-
-    return str;
-}
-
-efd::Node::Kind efd::NDOpaque::getKind() const {
-    return K_GATE_OPAQUE;
-}
-
-bool efd::NDOpaque::ClassOf(const Node* node) {
-    return node->getKind() == K_GATE_OPAQUE;
-}
-
-efd::NDOpaque::uRef efd::NDOpaque::Create(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode) {
-    return uRef(new NDOpaque(std::move(idNode), std::move(aNode), std::move(qaNode)));
 }
 
 // -------------- Qubit Operation -----------------

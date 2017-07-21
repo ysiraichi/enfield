@@ -15,7 +15,7 @@ namespace efd {
     class NDInclude;
     class NDDecl;
     class NDGateDecl;
-    class NDOpaque;
+    class NDGateSign;
     class NDQOp;
     class NDQOpMeasure;
     class NDQOpReset;
@@ -30,6 +30,8 @@ namespace efd {
     class NDStmtList;
     class NDGOpList;
     class NDIfStmt;
+
+    typedef NDGateSign NDOpaque;
 
     /// \brief Base class for AST nodes.
     class Node {
@@ -536,74 +538,28 @@ namespace efd {
             static uRef Create(NDId::uRef fNode, Node::uRef astNode);
     };
 
-    /// \brief Node for declaration of quantum gates.
-    class NDGateDecl : public NDDecl {
+    /// \brief Node for declaration of opaque quantum gates.
+    class NDGateSign : public NDDecl {
         private:
             enum ChildType {
                 I_ARGS = 1,
-                I_QARGS,
-                I_GOPLIST
-            };
-
-            NDGateDecl(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode, NDGOpList::uRef gopNode);
-
-        protected:
-            void applyImpl(NodeVisitor* visitor) override;
-
-        public:
-            typedef NDGateDecl* Ref;
-            typedef std::unique_ptr<NDGateDecl> uRef;
-
-            /// \brief Gets the args node.
-            NDList::Ref getArgs() const;
-            /// \brief Sets the args node.
-            void setArgs(NDList::uRef ref);
-            /// \brief Gets the qargs node.
-            NDList::Ref getQArgs() const;
-            /// \brief Sets the qargs node.
-            void setQArgs(NDList::uRef ref);
-            /// \brief Gets the goplist node.
-            NDGOpList::Ref getGOpList() const;
-            /// \brief Sets the goplist node.
-            void setGOpList(NDGOpList::uRef ref);
-
-            Kind getKind() const override;
-
-            std::string getOperation() const override;
-            std::string toString(bool pretty = false) const override;
-
-            unsigned getChildNumber() const override;
-
-            Node::uRef clone() const override;
-
-            /// \brief Returns whether the \p node is an instance of this class.
-            static bool ClassOf(const Node* node);
-            /// \brief Creates a new instance of this node.
-            static uRef Create(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode, NDGOpList::uRef gopNode);
-    };
-
-    /// \brief Node for declaration of opaque quantum gates.
-    class NDOpaque : public NDDecl {
-        private:
-            enum ChildType {
-                I_ID = 0,
-                I_ARGS,
                 I_QARGS
             };
 
-            NDOpaque(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
-
         protected:
+            NDGateSign(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
+            NDGateSign(Kind k, unsigned childNumber,
+                    NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
+
             void applyImpl(NodeVisitor* visitor) override;
 
         public:
-            typedef NDOpaque* Ref;
-            typedef std::unique_ptr<NDOpaque> uRef;
+            typedef NDGateSign* Ref;
+            typedef std::unique_ptr<NDGateSign> uRef;
 
-            /// \brief Gets the id node.
-            NDId::Ref getId() const;
-            /// \brief Sets the id node.
-            void setId(NDId::uRef ref);
+            /// \brief Returns true if this is an opaque gate.
+            bool isOpaque() const;
+
             /// \brief Gets the args node.
             NDList::Ref getArgs() const;
             /// \brief Sets the args node.
@@ -626,6 +582,42 @@ namespace efd {
             static bool ClassOf(const Node* node);
             /// \brief Creates a new instance of this node.
             static uRef Create(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
+    };
+
+    /// \brief Node for declaration of quantum gates.
+    class NDGateDecl : public NDGateSign {
+        private:
+            enum ChildType {
+                I_GOPLIST = 3
+            };
+
+            NDGateDecl(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode, NDGOpList::uRef gopNode);
+
+        protected:
+            void applyImpl(NodeVisitor* visitor) override;
+
+        public:
+            typedef NDGateDecl* Ref;
+            typedef std::unique_ptr<NDGateDecl> uRef;
+
+            /// \brief Gets the goplist node.
+            NDGOpList::Ref getGOpList() const;
+            /// \brief Sets the goplist node.
+            void setGOpList(NDGOpList::uRef ref);
+
+            Kind getKind() const override;
+
+            std::string getOperation() const override;
+            std::string toString(bool pretty = false) const override;
+
+            unsigned getChildNumber() const override;
+
+            Node::uRef clone() const override;
+
+            /// \brief Returns whether the \p node is an instance of this class.
+            static bool ClassOf(const Node* node);
+            /// \brief Creates a new instance of this node.
+            static uRef Create(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode, NDGOpList::uRef gopNode);
     };
 
     /// \brief Base node for quantum operations.
