@@ -17,7 +17,7 @@ TEST(QbitToNumberPassTests, WholeProgramTest) {
 qreg q[5];\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program, false));
         auto pass = QbitToNumberPass::Create();
         qmod->runPass(pass.get());
 
@@ -37,18 +37,20 @@ gate mygate(a, b, c) x, y, z {\
 }\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program, false));
         auto pass = QbitToNumberPass::Create();
         qmod->runPass(pass.get());
 
-        NDGateDecl* gate = qmod->getQGate("mygate");
-        ASSERT_FALSE(gate == nullptr);
+        auto sign = qmod->getQGate("mygate");
+        ASSERT_FALSE(sign == nullptr);
 
         ASSERT_DEATH({ pass->getUId("mygate"); }, "Id not found");
         ASSERT_DEATH({ pass->getUId("x"); }, "Id not found");
         ASSERT_DEATH({ pass->getUId("y"); }, "Id not found");
         ASSERT_DEATH({ pass->getUId("z"); }, "Id not found");
 
+        NDGateDecl::Ref gate = dynCast<NDGateDecl>(sign);
+        ASSERT_FALSE(gate == nullptr);
         ASSERT_TRUE(pass->getUId("x", gate) == 0);
         ASSERT_TRUE(pass->getUId("y", gate) == 1);
         ASSERT_TRUE(pass->getUId("z", gate) == 2);
@@ -74,13 +76,18 @@ measure q[3] -> c[3];\
 measure q[4] -> c[4];\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program, false));
         auto pass = QbitToNumberPass::Create();
         qmod->runPass(pass.get());
 
-        NDGateDecl* idGate = qmod->getQGate("id");
+        auto idSign = qmod->getQGate("id");
+        ASSERT_FALSE(idSign == nullptr);
+        NDGateDecl::Ref idGate = dynCast<NDGateDecl>(idSign);
         ASSERT_FALSE(idGate == nullptr);
-        NDGateDecl* cnotGate = qmod->getQGate("cnot");
+
+        auto cnotSign = qmod->getQGate("cnot");
+        ASSERT_FALSE(cnotSign == nullptr);
+        NDGateDecl::Ref cnotGate = dynCast<NDGateDecl>(cnotSign);
         ASSERT_FALSE(cnotGate == nullptr);
 
         ASSERT_DEATH({ pass->getUId("id"); }, "Id not found");
@@ -115,14 +122,16 @@ gate cnot x, y {\
 }\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program, false));
         DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
         qmod->runPass(pass.get());
 
         unsigned x = 0;
         unsigned y = 1;
 
-        NDGateDecl* gate = qmod->getQGate("cnot");
+        auto sign = qmod->getQGate("cnot");
+        ASSERT_FALSE(sign == nullptr);
+        NDGateDecl::Ref gate = dynCast<NDGateDecl>(sign);
         ASSERT_FALSE(gate == nullptr);
 
         DependencyBuilderPass::DepsSet deps = pass->getDependencies(gate);
@@ -148,16 +157,21 @@ gate cnot x, y {\
 }\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program, false));
         DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
         qmod->runPass(pass.get());
 
         unsigned x = 0;
         unsigned y = 1;
 
-        NDGateDecl* cxGate = qmod->getQGate("cx");
+        auto cxSign = qmod->getQGate("cx");
+        ASSERT_FALSE(cxSign == nullptr);
+        NDGateDecl::Ref cxGate = dynCast<NDGateDecl>(cxSign);
         ASSERT_FALSE(cxGate == nullptr);
-        NDGateDecl* cnotGate = qmod->getQGate("cnot");
+
+        auto cnotSign = qmod->getQGate("cnot");
+        ASSERT_FALSE(cnotSign == nullptr);
+        NDGateDecl::Ref cnotGate = dynCast<NDGateDecl>(cnotSign);
         ASSERT_FALSE(cnotGate == nullptr);
 
         DependencyBuilderPass::DepsSet cxDeps = pass->getDependencies(cxGate);
@@ -193,7 +207,7 @@ qreg q[2];\
 CX q[0], q[1];\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program, false));
         DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
         qmod->runPass(pass.get());
 
@@ -265,7 +279,7 @@ measure b[7] -> ans[7];\
 measure carry[0] -> carryout[0];\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program, false));
         DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
         qmod->runPass(pass.get());
 
@@ -276,7 +290,8 @@ measure carry[0] -> carryout[0];\
 
         DependencyBuilderPass::DepsSet deps;
         for (auto pair : gatesInfo) {
-            NDGateDecl* gate = qmod->getQGate(pair.first);
+            auto sign = qmod->getQGate(pair.first);
+            NDGateDecl::Ref gate = dynCast<NDGateDecl>(sign);
             ASSERT_FALSE(gate == nullptr);
 
             deps = pass->getDependencies(gate);

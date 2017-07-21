@@ -19,7 +19,7 @@ void efd::ReverseEdgesPass::visit(NDQOpCX::Ref ref) {
     unsigned uidRhs = mG->getUId(ref->getRhs()->toString());
 
     if (mG->isReverseEdge(uidLhs, uidRhs)) {
-        ReverseCNode(ref);
+        ReverseCNode(mMod.get(), ref);
     }
 }
 
@@ -32,7 +32,7 @@ void efd::ReverseEdgesPass::visit(NDQOpGeneric::Ref ref) {
         unsigned uidRhs = mG->getUId(qargs->getChild(1)->toString());
 
         if (mG->isReverseEdge(uidLhs, uidRhs)) {
-            ReverseCNode(ref);
+            ReverseCNode(mMod.get(), ref);
         }
     }
 }

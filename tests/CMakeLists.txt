@@ -43,9 +43,6 @@ efd_test (IBMQX2Tests
 efd_test (QModuleTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
 
-efd_test (IdTableTests
-    EfdTransform EfdAnalysis EfdCore EfdSupport)
-
 efd_test (QModuleCloneTests
     EfdTransform EfdAnalysis EfdCore EfdSupport)
 

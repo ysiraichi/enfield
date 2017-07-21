@@ -27,7 +27,7 @@ qreg q[5];\
 
     std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
     for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it)
-        if (NDQOpGeneric* qop = dynCast<NDQOpGeneric>(*it))
+        if (NDQOpGeneric* qop = dynCast<NDQOpGeneric>(it->get()))
             InlineGate(qmod.get(), qop);
 
     ASSERT_EQ(qmod->toString(), inlined);
@@ -98,7 +98,7 @@ cx q[0], q[1];\
 
     std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
     for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it)
-        if (NDQOpGeneric* qop = dynCast<NDQOpGeneric>(*it))
+        if (NDQOpGeneric* qop = dynCast<NDQOpGeneric>(it->get()))
             InlineGate(qmod.get(), qop);
 
     ASSERT_EQ(qmod->toString(), inlined);

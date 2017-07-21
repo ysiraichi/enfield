@@ -26,12 +26,12 @@ namespace efd {
             bool isId(Node::Ref ref);
 
             /// \brief Gets the declaration node from an Id node.
-            NDDecl::Ref getDeclFromId(Node::Ref ref);
+            NDRegDecl::Ref getDeclFromId(Node::Ref ref);
             /// \brief Creates \p max NDIdRef's related to that Id. If \p max
             /// is 0, then create all of them.
             std::vector<NDIdRef::uRef> toIdRef(Node::Ref ref, unsigned max = 0);
             /// \brief Replaces \p ref by the nodes in \p nodes.
-            void replace(Node::Ref ref, std::vector<Node::sRef> nodes);
+            void replace(Node::Ref ref, std::vector<Node::uRef> nodes);
 
             /// \brief Returns the size of the declaration of this Id node.
             unsigned getSize(Node::Ref ref);
@@ -46,7 +46,6 @@ namespace efd {
             void visit(NDQOpReset::Ref ref) override;
             void visit(NDQOpCX::Ref ref) override;
             void visit(NDQOpGeneric::Ref ref) override;
-            void visit(NDIfStmt::Ref ref) override;
 
             void initImpl(bool force) override;
 

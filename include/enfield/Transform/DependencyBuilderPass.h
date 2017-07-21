@@ -42,7 +42,7 @@ namespace efd {
             void initImpl(bool force) override;
 
         public:
-            void visit(NDDecl::Ref ref) override;
+            void visit(NDRegDecl::Ref ref) override;
             void visit(NDGateDecl::Ref ref) override;
 
             /// \brief Returns an unsigned number representing the id
@@ -124,21 +124,23 @@ namespace efd {
             DependencyBuilderPass(QModule::sRef mod, QbitToNumberPass::sRef pass = nullptr);
 
             /// \brief Gets an unsingned id for \p ref.
-            unsigned getUId(Node::Ref ref);
+            unsigned getUId(Node::Ref ref, NDGateDecl::Ref gate);
             /// \brief Gets the DepsSet corresponding to the current quantum gate,
             /// or the global (if current gate is null).
             const DepsSet* getDepsSet(NDGateDecl::Ref gate = nullptr) const;
             DepsSet* getDepsSet(NDGateDecl::Ref gate = nullptr);
+
+            /// \brief Gets a reference to the parent gate it is in. If it is not
+            /// in any gate, it returns a nullptr.
+            NDGateDecl::Ref getParentGate(Node::Ref ref);
 
         protected:
             void initImpl(bool force) override;
 
         public:
             void visit(NDGateDecl::Ref ref) override;
-            void visit(NDGOpList::Ref ref) override;
             void visit(NDQOpCX::Ref ref) override;
             void visit(NDQOpGeneric::Ref ref) override;
-            void visit(NDIfStmt::Ref ref) override;
 
             /// \brief Returns the pass that mapped the qbits.
             QbitToNumberPass::sRef getUIdPass();
