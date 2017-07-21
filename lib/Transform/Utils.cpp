@@ -66,7 +66,6 @@ void QModulefyVisitor::visit(efd::NDGateDecl::Ref ref) {
     mMod.insertGate(efd::uniqueCastForward<efd::NDGateSign>(ref->clone()));
 }
 
-
 void QModulefyVisitor::visit(efd::NDOpaque::Ref ref) {
     mMod.insertGate(efd::uniqueCastForward<efd::NDGateSign>(ref->clone()));
 }
@@ -91,12 +90,15 @@ void QModulefyVisitor::visit(efd::NDQOpCX::Ref ref) {
     insertIfNotInsideGate(ref);
 }
 
-
 void QModulefyVisitor::visit(efd::NDQOpBarrier::Ref ref) {
     insertIfNotInsideGate(ref);
 }
 
 void QModulefyVisitor::visit(efd::NDQOpGeneric::Ref ref) {
+    insertIfNotInsideGate(ref);
+}
+
+void QModulefyVisitor::visit(efd::NDIfStmt::Ref ref) {
     insertIfNotInsideGate(ref);
 }
 
