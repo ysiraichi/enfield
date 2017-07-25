@@ -2,8 +2,7 @@
 #define __EFD_QMODULE_H__
 
 #include "enfield/Analysis/Nodes.h"
-#include "enfield/Transform/IdTable.h"
-#include "enfield/Pass.h"
+#include "enfield/Transform/Pass.h"
 
 #include <unordered_map>
 
@@ -131,10 +130,6 @@ namespace efd {
             Node::Ref getQVar(std::string id, NDGateDecl::Ref gate = nullptr);
             /// \brief Gets the quantum gate mapped to \p id.
             NDGateSign::Ref getQGate(std::string id);
-
-            /// \brief Applies the pass in the QModule. If the pass has already been applied,
-            /// it won't be applied again unless \p force is set.
-            void runPass(Pass::Ref pass, bool force = false);
 
             /// \brief Clones the current qmodule.
             uRef clone() const;

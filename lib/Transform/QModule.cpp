@@ -1,10 +1,8 @@
 #include "enfield/Analysis/Driver.h"
 #include "enfield/Transform/QModule.h"
-#include "enfield/Transform/IdTable.h"
 #include "enfield/Transform/Utils.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
-#include "enfield/Pass.h"
 
 #include <cassert>
 #include <iterator>
@@ -271,28 +269,6 @@ efd::Node::Ref efd::QModule::getQVar(std::string id, NDGateDecl::Ref gate) {
 efd::NDGateSign::Ref efd::QModule::getQGate(std::string id) {
     assert(mGatesMap.find(id) != mGatesMap.end() && "Gate not found.");
     return mGatesMap[id].get();
-}
-
-void efd::QModule::runPass(Pass::Ref pass, bool force) {
-    if (pass->wasApplied() && !force)
-        return;
-
-    pass->init(force);
-
-    if (pass->isRegDeclPass()) {
-        for (auto reg : mRegs)
-            reg->apply(pass);
-    }
-    
-    if (pass->isGatePass()) {
-        for (auto gate : mGates)
-            gate->apply(pass);
-    }
-
-    if (pass->isStatementPass()) {
-        for (auto& stmt : *mStatements)
-            stmt->apply(pass);
-    }
 }
 
 efd::QModule::uRef efd::QModule::clone() const {
