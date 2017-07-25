@@ -9,33 +9,32 @@
 namespace efd {
     /// \brief Base abstract class that allocates the qbits used in the program to
     /// the qbits that are in the physical architecture.
-    class QbitAllocator {
+    class QbitAllocator : PassT<std::vector<unsigned>> {
         public:
             typedef QbitAllocator* Ref;
             typedef std::unique_ptr<QbitAllocator> uRef;
 
             typedef std::vector<unsigned> Mapping;
             typedef std::vector<std::string> BasisVector;
-            typedef efd::DependencyBuilderPass::DepsSet DepsSet;
-            typedef DepsSet::iterator Iterator;
+            typedef DependencyBuilder::DepsSet DepsSet;
+            typedef DependencyBuilder::DepsSet::iterator Iterator;
 
         protected:
-            DependencyBuilderPass::sRef mDepPass;
-            DepsSet mDepSet;
-            Mapping mMapping;
-            bool mRun;
+            DependencyBuilder mDepBuilder;
+            QbitToNumber mQbitToNumber;
 
-            QModule::sRef mMod;
-            ArchGraph::sRef mArchGraph;
-
-            BasisVector mBasis;
             bool mInlineAll;
+
+            ArchGraph::sRef mArchGraph;
+            BasisVector mBasis;
+
+            QModule::Ref mMod;
 
             /// \brief Updates the mDepSet attribute. Generally it is done after
             /// running the DependencyBuilderPass.
-            void updateDepSet();
+            void updateDependencies();
 
-            QbitAllocator(QModule::sRef qmod, ArchGraph::sRef archGraph);
+            QbitAllocator(ArchGraph::sRef archGraph);
 
             /// \brief Inlines the gate call that generates the dependencies that are
             /// referenced by \p it. If the node is not an NDQOpGeneric, it does nothing.
@@ -59,13 +58,7 @@ namespace efd {
             void renameQbits();
 
         public:
-            /// \brief Runs the allocator.
-            ///
-            /// This should run insert the swaps where needed and also rename the program's
-            /// qbit to the architecture defined qbits.
-            virtual void run();
-            /// \brief Returns the final mapping.
-            Mapping getMapping();
+            void run(QModule::Ref qmod) override;
 
             /// \brief Flags the QbitAllocator to inline all gates, but those inside the
             /// \p basis vector, before mapping.
