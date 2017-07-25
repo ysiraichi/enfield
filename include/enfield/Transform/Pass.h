@@ -72,11 +72,4 @@ bool efd::PassT<T>::ClassOf(Pass* ref) {
     return ref->getKind() == K_GEN;
 }
 
-efd::PassT<void>::PassT() : Pass(K_VOID) {
-}
-
-bool efd::PassT<void>::ClassOf(Pass* ref) {
-    return ref->getKind() == K_VOID;
-}
-
 #endif
