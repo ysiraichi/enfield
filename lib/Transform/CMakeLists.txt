@@ -1,4 +1,5 @@
 add_library (EfdTransform
+    Pass.cpp
     QModule.cpp
     IdTable.cpp
     DependencyBuilderPass.cpp
