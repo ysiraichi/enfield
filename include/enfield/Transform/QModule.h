@@ -127,9 +127,14 @@ namespace efd {
             std::string toString(bool pretty = false, bool printGates = false) const;
 
             /// \brief Gets the quantum variable mapped to \p id from some gate.
-            Node::Ref getQVar(std::string id, NDGateDecl::Ref gate = nullptr);
+            Node::Ref getQVar(std::string id, NDGateDecl::Ref gate = nullptr) const;
+            /// \brief Returns true if there is a quantum variable \p id inside gate
+            /// \p gate (if not null).
+            bool hasQVar(std::string id, NDGateDecl::Ref gate = nullptr) const;
             /// \brief Gets the quantum gate mapped to \p id.
-            NDGateSign::Ref getQGate(std::string id);
+            NDGateSign::Ref getQGate(std::string id) const;
+            /// \brief Returns true if there is a quantum gate \p id.
+            bool hasQGate(std::string id) const;
 
             /// \brief Clones the current qmodule.
             uRef clone() const;
