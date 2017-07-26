@@ -6,7 +6,7 @@
 #include <cassert>
 
 efd::Node::Node(Kind k, unsigned size, bool empty) : mK(k), mIsEmpty(empty),
-    mChild(size), mWasGenerated(false) {
+    mChild(size), mWasGenerated(false), mInInclude(false) {
 }
 
 efd::Node::~Node() {
@@ -63,6 +63,14 @@ bool efd::Node::wasGenerated() const {
 
 void efd::Node::setGenerated() {
     mWasGenerated = true;
+}
+
+bool efd::Node::isInInclude() const {
+    return mInInclude;
+}
+
+void efd::Node::setInInclude() {
+    mInInclude = true;
 }
 
 efd::Node::Ref efd::Node::getParent() const {
