@@ -20,7 +20,7 @@ namespace efd {
             WeightedPMFinder<WeightTy>::uRef mPMFinder;
             SwapFinder::sRef mSFinder;
 
-            WeightedPMQbitAllocator(QModule::sRef qmod, ArchGraph::sRef agraph);
+            WeightedPMQbitAllocator(ArchGraph::sRef agraph);
             std::unique_ptr<WeightedGraph<WeightTy>> createWG(DepsSet& deps);
             std::vector<unsigned> genAssign(std::vector<unsigned> match);
 
@@ -28,7 +28,7 @@ namespace efd {
             Mapping solveDependencies(DepsSet& deps) override;
 
             /// \brief Creates an instance of this class.
-            static uRef Create(QModule::sRef qmod, ArchGraph::sRef agraph);
+            static uRef Create(ArchGraph::sRef agraph);
     };
 }
 

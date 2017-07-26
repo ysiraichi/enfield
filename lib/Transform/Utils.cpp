@@ -15,91 +15,120 @@ namespace efd {
 }
 
 // ==--------------- QModulefy ---------------==
-namespace {
-    class QModulefyVisitor : public efd::NodeVisitor {
+namespace efd {
+    class QModulefyVisitor : public NodeVisitor {
         public:
-            efd::QModule& mMod;
+            QModule& mMod;
 
-            QModulefyVisitor(efd::QModule& qmod) : mMod(qmod) {}
+            NDGateDecl::Ref mCurGate;
+            NDInclude::Ref mCurIncl;
 
-            void insertIfNotInsideGate(efd::Node::Ref ref);
+            QModulefyVisitor(QModule& qmod)
+                : mMod(qmod), mCurGate(nullptr), mCurIncl(nullptr) {}
 
-            void visit(efd::NDQasmVersion::Ref ref) override;
-            void visit(efd::NDInclude::Ref ref) override;
-            void visit(efd::NDRegDecl::Ref ref) override;
-            void visit(efd::NDGateDecl::Ref ref) override;
-            void visit(efd::NDOpaque::Ref ref) override;
-            void visit(efd::NDQOpMeasure::Ref ref) override;
-            void visit(efd::NDQOpReset::Ref ref) override;
-            void visit(efd::NDQOpU::Ref ref) override;
-            void visit(efd::NDQOpCX::Ref ref) override;
-            void visit(efd::NDQOpBarrier::Ref ref) override;
-            void visit(efd::NDQOpGeneric::Ref ref) override;
-            void visit(efd::NDIfStmt::Ref ref) override;
+            void insertIfNotInsideGate(Node::Ref ref);
+
+            void visit(NDQasmVersion::Ref ref) override;
+            void visit(NDInclude::Ref ref) override;
+            void visit(NDRegDecl::Ref ref) override;
+            void visit(NDGateDecl::Ref ref) override;
+            void visit(NDOpaque::Ref ref) override;
+            void visit(NDQOpMeasure::Ref ref) override;
+            void visit(NDQOpReset::Ref ref) override;
+            void visit(NDQOpU::Ref ref) override;
+            void visit(NDQOpCX::Ref ref) override;
+            void visit(NDQOpBarrier::Ref ref) override;
+            void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDIfStmt::Ref ref) override;
+            void visit(NDStmtList::Ref ref) override;
+            void visit(NDGOpList::Ref ref) override;
     };
 }
 
-void QModulefyVisitor::insertIfNotInsideGate(efd::Node::Ref ref) {
-    if (efd::instanceOf<efd::NDGOpList>(ref->getParent()))
-        return;
+void efd::QModulefyVisitor::insertIfNotInsideGate(Node::Ref ref) {
+    if (mCurGate != nullptr) return;
     mMod.insertStatementLast(ref->clone());
 }
 
-void QModulefyVisitor::visit(efd::NDQasmVersion::Ref ref) {
-    auto vNum = efd::uniqueCastForward<efd::NDReal>(ref->getVersion()->clone());
-    mMod.setVersion(efd::NDQasmVersion::Create
-            (std::move(vNum), efd::NDStmtList::Create()));
+void efd::QModulefyVisitor::visit(NDQasmVersion::Ref ref) {
+    if (mCurIncl != nullptr) {
+        auto vNum = uniqueCastForward<NDReal>(ref->getVersion()->clone());
+        mMod.setVersion(NDQasmVersion::Create(std::move(vNum), NDStmtList::Create()));
+    }
+
+    visitChildren(ref);
 }
 
-void QModulefyVisitor::visit(efd::NDInclude::Ref ref) {
-    auto fileNode = efd::uniqueCastForward<efd::NDString>(ref->getFilename()->clone());
-    mMod.insertInclude(efd::NDInclude::Create
-            (std::move(fileNode),
-             efd::uniqueCastBackward<efd::Node>(efd::NDStmtList::Create())));
+void efd::QModulefyVisitor::visit(NDInclude::Ref ref) {
+    auto fileNode = uniqueCastForward<NDString>(ref->getFilename()->clone());
+    mMod.insertInclude(NDInclude::Create
+            (std::move(fileNode), uniqueCastBackward<Node>(NDStmtList::Create())));
+
+    mCurIncl = ref;
+    visitChildren(ref);
+    mCurIncl = nullptr;
 }
 
-void QModulefyVisitor::visit(efd::NDRegDecl::Ref ref) {
-    mMod.insertReg(efd::uniqueCastForward<efd::NDRegDecl>(ref->clone()));
+void efd::QModulefyVisitor::visit(NDRegDecl::Ref ref) {
+    mMod.insertReg(uniqueCastForward<NDRegDecl>(ref->clone()));
 }
 
-void QModulefyVisitor::visit(efd::NDGateDecl::Ref ref) {
-    mMod.insertGate(efd::uniqueCastForward<efd::NDGateSign>(ref->clone()));
+void efd::QModulefyVisitor::visit(NDGateDecl::Ref ref) {
+    auto clone = uniqueCastForward<NDGateSign>(ref->clone());
+
+    if (mCurIncl != nullptr) {
+        clone->setInInclude();
+    }
+
+    mMod.insertGate(std::move(clone));
+    
+    mCurGate = ref;
+    visitChildren(ref);
+    mCurGate = nullptr;
 }
 
-void QModulefyVisitor::visit(efd::NDOpaque::Ref ref) {
-    mMod.insertGate(efd::uniqueCastForward<efd::NDGateSign>(ref->clone()));
+void efd::QModulefyVisitor::visit(NDOpaque::Ref ref) {
+    mMod.insertGate(uniqueCastForward<NDGateSign>(ref->clone()));
 }
 
 
-void QModulefyVisitor::visit(efd::NDQOpMeasure::Ref ref) {
+void efd::QModulefyVisitor::visit(NDQOpMeasure::Ref ref) {
     insertIfNotInsideGate(ref);
 }
 
 
-void QModulefyVisitor::visit(efd::NDQOpReset::Ref ref) {
+void efd::QModulefyVisitor::visit(NDQOpReset::Ref ref) {
     insertIfNotInsideGate(ref);
 }
 
 
-void QModulefyVisitor::visit(efd::NDQOpU::Ref ref) {
+void efd::QModulefyVisitor::visit(NDQOpU::Ref ref) {
     insertIfNotInsideGate(ref);
 }
 
 
-void QModulefyVisitor::visit(efd::NDQOpCX::Ref ref) {
+void efd::QModulefyVisitor::visit(NDQOpCX::Ref ref) {
     insertIfNotInsideGate(ref);
 }
 
-void QModulefyVisitor::visit(efd::NDQOpBarrier::Ref ref) {
+void efd::QModulefyVisitor::visit(NDQOpBarrier::Ref ref) {
     insertIfNotInsideGate(ref);
 }
 
-void QModulefyVisitor::visit(efd::NDQOpGeneric::Ref ref) {
+void efd::QModulefyVisitor::visit(NDQOpGeneric::Ref ref) {
     insertIfNotInsideGate(ref);
 }
 
-void QModulefyVisitor::visit(efd::NDIfStmt::Ref ref) {
+void efd::QModulefyVisitor::visit(NDIfStmt::Ref ref) {
     insertIfNotInsideGate(ref);
+}
+
+void efd::QModulefyVisitor::visit(NDStmtList::Ref ref) {
+    visitChildren(ref);
+}
+
+void efd::QModulefyVisitor::visit(NDGOpList::Ref ref) {
+    visitChildren(ref);
 }
 
 void efd::ProcessAST(QModule::Ref qmod, Node::Ref root) {
@@ -202,14 +231,34 @@ void efd::InlineGate(QModule::Ref qmod, NDQOpGeneric::Ref qop) {
     QArgsReplaceVisitor visitor(varMap);
     auto gop = uniqueCastForward<NDGOpList>(gateDecl->getGOpList()->clone());
 
+
     // Replacing
-    auto it = qmod->findStatement(qop);
+    NDIfStmt::Ref ifstmt = dynCast<NDIfStmt>(qop->getParent());
+
+    // 'stmt' is the node we are going to replace.
+    Node::Ref stmt = nullptr;
+    if (ifstmt != nullptr) stmt = ifstmt;
+    else stmt = qop;
+
+    auto it = qmod->findStatement(stmt);
     for (auto& op : *gop) {
-        op->apply(&visitor);
-        it = qmod->insertStatementAfter(it, std::move(op));
+        auto newStmt = std::move(op);
+        auto qop = newStmt.get();
+
+        if (ifstmt != nullptr) {
+            newStmt = uniqueCastBackward<Node>(NDIfStmt::Create(
+                    uniqueCastForward<NDId>(ifstmt->getCondId()->clone()),
+                    uniqueCastForward<NDInt>(ifstmt->getCondN()->clone()),
+                    std::move(newStmt)));
+            qop = dynCast<NDIfStmt>(newStmt.get())->getQOp();
+        }
+
+        // The 'visitor' is applied only in the 'qop'.
+        qop->apply(&visitor);
+        it = qmod->insertStatementAfter(it, std::move(newStmt));
     }
 
-    it = qmod->findStatement(qop);
+    it = qmod->findStatement(stmt);
     qmod->removeStatement(it);
 }
 
@@ -223,11 +272,11 @@ void efd::ReverseCNode(QModule::Ref qmod, Node::Ref node) {
                 NDQOpCX::Ref refCX = dynCast<NDQOpCX>(node);
                 assert(refCX != nullptr && "Malformed node.");
 
-                Node::Ref lhs = refCX->getLhs();
-                Node::Ref rhs = refCX->getRhs();
+                auto lhs = refCX->getLhs()->clone();
+                auto rhs = refCX->getRhs()->clone();
                 // Swapping the arguments.
-                refCX->setLhs(rhs->clone());
-                refCX->setRhs(lhs->clone());
+                refCX->setLhs(std::move(rhs));
+                refCX->setRhs(std::move(lhs));
 
                 qArgs.push_back(refCX->getLhs());
                 qArgs.push_back(refCX->getRhs());

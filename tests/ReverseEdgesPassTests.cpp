@@ -37,8 +37,8 @@ h q[0];\
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
         ArchIBMQX2::sRef graph = toShared(ArchIBMQX2::Create());
 
-        ReverseEdgesPass::uRef revPass = ReverseEdgesPass::Create(qmod, graph);
-        qmod->runPass(revPass.get());
+        auto revPass = ReverseEdgesPass::Create(graph);
+        revPass->run(qmod.get());
 
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -93,8 +93,8 @@ h q[3];\
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
         ArchIBMQX2::sRef graph = toShared(ArchIBMQX2::Create());
 
-        ReverseEdgesPass::uRef revPass = ReverseEdgesPass::Create(qmod, graph);
-        qmod->runPass(revPass.get());
+        auto revPass = ReverseEdgesPass::Create(graph);
+        revPass->run(qmod.get());
 
         ASSERT_EQ(qmod->toString(), result);
     }

@@ -1,38 +1,58 @@
 #include "enfield/Transform/InlineAllPass.h"
+#include "enfield/Analysis/NodeVisitor.h"
 
-efd::InlineAllPass::InlineAllPass(QModule::sRef qmod, std::vector<std::string> basis) :
-    mMod(qmod), mInlined(false) {
+namespace efd {
+    class InlineAllVisitor : public NodeVisitor {
+        private:
+            QModule& mMod;
+            std::set<std::string> mBasis;
 
-    mBasis = std::set<std::string>(basis.begin(), basis.end());
-    mUK += Pass::K_STMT_PASS;
+        public:
+            std::vector<NDQOpGeneric::Ref> mInlineVector;
+
+            InlineAllVisitor(QModule& qmod, std::set<std::string> basis)
+                : mMod(qmod), mBasis(basis) {}
+
+            void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDIfStmt::Ref ref) override;
+    };
 }
 
-void efd::InlineAllPass::initImpl(bool force) {
-    mInlined = false;
-}
-
-void efd::InlineAllPass::recursiveInline(NDQOpGeneric::Ref ref) {
-}
-
-void efd::InlineAllPass::visit(NDQOpGeneric::Ref ref) {
+void efd::InlineAllVisitor::visit(NDQOpGeneric::Ref ref) {
     if (mBasis.find(ref->getId()->getVal()) == mBasis.end()) {
-        mMod->inlineCall(ref);
-        mInlined = true;
+        mInlineVector.push_back(ref);
     }
 }
 
-void efd::InlineAllPass::visit(NDIfStmt::Ref ref) {
+void efd::InlineAllVisitor::visit(NDIfStmt::Ref ref) {
     ref->getQOp()->apply(this);
 }
 
-bool efd::InlineAllPass::hasInlined() const {
-    return mInlined;
+efd::InlineAllPass::InlineAllPass(std::vector<std::string> basis) {
+    mBasis = std::set<std::string>(basis.begin(), basis.end());
 }
 
-bool efd::InlineAllPass::doesInvalidatesModule() const {
-    return true;
+void efd::InlineAllPass::run(QModule::Ref qmod) {
+    InlineAllVisitor visitor(*qmod, mBasis);
+
+    do {
+        visitor.mInlineVector.clear();
+        // Inline until we can't inline anything anymore.
+        for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it) {
+            (*it)->apply(&visitor);
+        }
+
+        for (auto call : visitor.mInlineVector) {
+            auto sign = qmod->getQGate(call->getId()->getVal());
+
+            // Inline only non-opaque gates.
+            if (!sign->isOpaque()) {
+                qmod->inlineCall(call);
+            }
+        }
+    } while (!visitor.mInlineVector.empty());
 }
 
-efd::InlineAllPass::uRef efd::InlineAllPass::Create(QModule::sRef qmod, std::vector<std::string> basis) {
-    return uRef(new InlineAllPass(qmod, basis));
+efd::InlineAllPass::uRef efd::InlineAllPass::Create(std::vector<std::string> basis) {
+    return uRef(new InlineAllPass(basis));
 }

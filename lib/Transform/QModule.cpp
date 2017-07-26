@@ -1,12 +1,11 @@
 #include "enfield/Analysis/Driver.h"
 #include "enfield/Transform/QModule.h"
-#include "enfield/Transform/IdTable.h"
 #include "enfield/Transform/Utils.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
-#include "enfield/Pass.h"
 
 #include <cassert>
+#include <unordered_set>
 #include <iterator>
 
 namespace efd {
@@ -20,7 +19,7 @@ efd::QModule::QModule() : mVersion(nullptr) {
 }
 
 void efd::QModule::registerSwapGate() {
-    bool isSwapRegistered = getQGate("__swap__") != nullptr;
+    bool isSwapRegistered = hasQGate("__swap__");
     if (!isSwapRegistered) {
         // The quantum arguments that will be used
         auto qargLhs = NDId::Create("a");
@@ -132,14 +131,14 @@ efd::QModule::Iterator efd::QModule::insertStatementBefore(Iterator it, Node::uR
 }
 
 efd::QModule::Iterator efd::QModule::insertStatementFront(Node::uRef ref) {
-    mStatements->addChild(std::move(ref));
+    auto it = mStatements->begin();
+    mStatements->addChild(it, std::move(ref));
     return mStatements->begin();
 }
 
 efd::QModule::Iterator efd::QModule::insertStatementLast(Node::uRef ref) {
-    auto it = mStatements->begin();
-    mStatements->addChild(it, std::move(ref));
-    return it;
+    mStatements->addChild(std::move(ref));
+    return mStatements->begin() + (mStatements->getChildNumber() - 1);
 }
 
 static efd::NDQOpGeneric::uRef createSwapCallNode(efd::Node::Ref lhs,
@@ -148,9 +147,11 @@ static efd::NDQOpGeneric::uRef createSwapCallNode(efd::Node::Ref lhs,
     qargs->addChild(lhs->clone());
     qargs->addChild(rhs->clone());
 
-    return efd::NDQOpGeneric::Create(
+    auto swap = efd::NDQOpGeneric::Create(
             efd::uniqueCastForward<efd::NDId>(efd::SWAP_ID_NODE->clone()),
             efd::NDList::Create(), std::move(qargs));
+    swap->setGenerated();
+    return std::move(swap);
 }
 
 efd::QModule::Iterator efd::QModule::insertSwapBefore(Iterator it, Node::Ref lhs, Node::Ref rhs) {
@@ -243,8 +244,41 @@ std::string efd::QModule::toString(bool pretty, bool printGates) const {
         str += incl->toString(pretty);
 
     if (printGates) {
+        // Print all quantum gates.
         for (auto gate : mGates)
             str += gate->toString(pretty);
+    } else {
+        // Print those gates that are being used.
+        std::unordered_set<std::string> doPrint;
+
+        for (auto& stmt : *mStatements) {
+            NDQOpGeneric::Ref qcall = nullptr;
+
+            if (auto ifstmt = dynCast<NDIfStmt>(stmt.get())) {
+                // Get the QOp part (if it is a NDIfStmt node).
+                if (auto ifcall = dynCast<NDQOpGeneric>(ifstmt->getQOp())) {
+                    qcall = ifcall;
+                }
+            } else {
+                qcall = dynCast<NDQOpGeneric>(stmt.get());
+            }
+
+            if (qcall != nullptr) {
+                std::string gateId = qcall->getId()->getVal();
+
+                // Print if it was not yet printed.
+                if (doPrint.find(gateId) == doPrint.end()) {
+                    doPrint.insert(gateId);
+                }
+            }
+        }
+
+        for (auto gate : mGates) {
+            if (doPrint.find(gate->getId()->getVal()) != doPrint.end() &&
+                    !gate->isInInclude()) {
+                str += gate->toString(pretty);
+            }
+        }
     }
 
     for (auto& reg : mRegs)
@@ -254,45 +288,43 @@ std::string efd::QModule::toString(bool pretty, bool printGates) const {
     return str;
 }
 
-efd::Node::Ref efd::QModule::getQVar(std::string id, NDGateDecl::Ref gate) {
+efd::Node::Ref efd::QModule::getQVar(std::string id, NDGateDecl::Ref gate) const {
     if (gate != nullptr) {
         assert(mGateIdMap.find(gate) != mGateIdMap.end() && "No such gate found.");
 
-        IdMap& idMap = mGateIdMap[gate];
+        const IdMap& idMap = mGateIdMap.at(gate);
         assert(idMap.find(id) != idMap.end() && "No such id inside this gate.");
 
-        return idMap[id];
+        return idMap.at(id);
     }
 
     // If gate == nullptr, then we want a quantum register in the global context.
-    return mRegsMap[id].get();
+    return mRegsMap.at(id).get();
 }
 
-efd::NDGateSign::Ref efd::QModule::getQGate(std::string id) {
+bool efd::QModule::hasQVar(std::string id, NDGateDecl::Ref gate) const {
+    if (gate != nullptr) {
+        if (mGateIdMap.find(gate) == mGateIdMap.end()) return false;
+
+        const IdMap& idMap = mGateIdMap.at(gate);
+        if (idMap.find(id) == idMap.end()) return false;
+
+        return true;
+    }
+
+    if (mRegsMap.find(id) == mRegsMap.end()) return false;
+    // If gate == nullptr, then we want a quantum register in the global context.
+    return true;
+}
+
+efd::NDGateSign::Ref efd::QModule::getQGate(std::string id) const {
     assert(mGatesMap.find(id) != mGatesMap.end() && "Gate not found.");
-    return mGatesMap[id].get();
+    return mGatesMap.at(id).get();
 }
 
-void efd::QModule::runPass(Pass::Ref pass, bool force) {
-    if (pass->wasApplied() && !force)
-        return;
-
-    pass->init(force);
-
-    if (pass->isRegDeclPass()) {
-        for (auto reg : mRegs)
-            reg->apply(pass);
-    }
-    
-    if (pass->isGatePass()) {
-        for (auto gate : mGates)
-            gate->apply(pass);
-    }
-
-    if (pass->isStatementPass()) {
-        for (auto& stmt : *mStatements)
-            stmt->apply(pass);
-    }
+bool efd::QModule::hasQGate(std::string id) const {
+    if (mGatesMap.find(id) == mGatesMap.end()) return false;
+    return true;
 }
 
 efd::QModule::uRef efd::QModule::clone() const {

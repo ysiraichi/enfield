@@ -28,35 +28,35 @@ efd::Opt<unsigned> SwapCost
 efd::Opt<unsigned> RevCost
 ("-rev-cost", "Cost of using a reverse edge.", 4, false);
 
-void efd::QbitAllocator::updateDepSet() {
-    mDepSet = mDepPass->getDependencies();
+void efd::QbitAllocator::updateDependencies() {
+    auto depPass = DependencyBuilderWrapperPass::Create();
+    depPass->run(mMod);
+
+    mDepBuilder = depPass->getData();
+    mQbitToNumber = mDepBuilder.getQbitToNumber();
 }
 
-efd::QbitAllocator::QbitAllocator(QModule::sRef qmod, ArchGraph::sRef archGraph) 
-    : mMod(qmod), mArchGraph(archGraph), mRun(false), mInlineAll(false) {
-    mDepPass = DependencyBuilderPass::sRef(DependencyBuilderPass::Create(mMod).release());
+efd::QbitAllocator::QbitAllocator(ArchGraph::sRef archGraph) 
+    : mArchGraph(archGraph), mInlineAll(false) {
 }
 
-efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(Iterator it) {
+efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(QbitAllocator::Iterator it) {
     Iterator newIt = it;
 
     if (NDQOpGeneric::Ref refCall = dynCast<NDQOpGeneric>(it->mCallPoint)) {
-        unsigned dist = std::distance(mDepSet.begin(), it);
+        auto& deps = mDepBuilder.getDependencies();
+        unsigned dist = std::distance(deps.begin(), it);
 
         mMod->inlineCall(refCall);
-        mMod->runPass(mDepPass.get(), true);
-        updateDepSet();
-
-        newIt = mDepSet.begin() + dist;
+        newIt = deps.begin() + dist;
     }
 
     return newIt;
 }
 
 void efd::QbitAllocator::insertSwapBefore(Dependencies& deps, unsigned u, unsigned v) {
-    QbitToNumberPass::sRef qbitPass = mDepPass->getUIdPass();
-    Node::Ref lhs = qbitPass->getNode(u);
-    Node::Ref rhs = qbitPass->getNode(v);
+    Node::Ref lhs = mQbitToNumber.getNode(u);
+    Node::Ref rhs = mQbitToNumber.getNode(v);
 
     Node::Ref parent = deps.mCallPoint->getParent();
     auto it = parent->findChild(deps.mCallPoint);
@@ -64,29 +64,28 @@ void efd::QbitAllocator::insertSwapBefore(Dependencies& deps, unsigned u, unsign
 }
 
 unsigned efd::QbitAllocator::getNumQbits() {
-    return mDepPass->getUIdPass()->getSize();
+    return mQbitToNumber.getSize();
 }
 
 void efd::QbitAllocator::inlineAllGates() {
-    auto inlinePass = InlineAllPass::Create(mMod, mBasis);
-
-    do {
-        mMod->runPass(inlinePass.get(), true);
-    } while (inlinePass->hasInlined());
+    auto inlinePass = InlineAllPass::Create(mBasis);
+    inlinePass->run(mMod);
 }
 
 void efd::QbitAllocator::replaceWithArchSpecs() {
     // Renaming program qbits to architecture qbits.
     RenameQbitPass::ArchMap toArchMap;
 
-    mMod->runPass(mDepPass.get());
-    QbitToNumberPass::sRef uidPass = mDepPass->getUIdPass();
-    for (unsigned i = 0, e = uidPass->getSize(); i < e; ++i) {
-        toArchMap[uidPass->getStrId(i)] = mArchGraph->getNode(i);
+    auto qtn = QbitToNumberWrapperPass::Create();
+    qtn->run(mMod);
+
+    auto qbitToNumber = qtn->getData();
+    for (unsigned i = 0, e = qbitToNumber.getSize(); i < e; ++i) {
+        toArchMap[qbitToNumber.getStrId(i)] = mArchGraph->getNode(i);
     }
 
     auto renamePass = RenameQbitPass::Create(toArchMap);
-    mMod->runPass(renamePass.get());
+    renamePass->run(mMod);
 
     // Replacing the old qbit declarations with the architecture's qbit
     // declaration.
@@ -99,29 +98,34 @@ void efd::QbitAllocator::replaceWithArchSpecs() {
 }
 
 void efd::QbitAllocator::renameQbits() {
-    QbitToNumberPass::sRef uidPass = mDepPass->getUIdPass();
+    auto qtn = QbitToNumberWrapperPass::Create();
+    qtn->run(mMod);
 
+    auto qbitToNumber = qtn->getData();
     // Renaming the qbits with the mapping that this algorithm got from solving
     // the dependencies.
     RenameQbitPass::ArchMap archConstMap;
     if (!mArchGraph->isGeneric()) {
-        for (unsigned i = 0, e = uidPass->getSize(); i < e; ++i) {
-            std::string id = uidPass->getStrId(i);
-            archConstMap[id] = mArchGraph->getNode(mMapping[i]);
+        for (unsigned i = 0, e = qbitToNumber.getSize(); i < e; ++i) {
+            std::string id = qbitToNumber.getStrId(i);
+            archConstMap[id] = mArchGraph->getNode(mData[i]);
         }
     } else {
-        for (unsigned i = 0, e = uidPass->getSize(); i < e; ++i) {
-            std::string id = uidPass->getStrId(i);
-            archConstMap[id] = uidPass->getNode(mMapping[i]);
+        for (unsigned i = 0, e = qbitToNumber.getSize(); i < e; ++i) {
+            std::string id = qbitToNumber.getStrId(i);
+            archConstMap[id] = qbitToNumber.getNode(mData[i]);
         }
     }
 
     auto renamePass = RenameQbitPass::Create(archConstMap);
-    mMod->runPass(renamePass.get());
+    renamePass->run(mMod);
 }
 
-void efd::QbitAllocator::run() {
+void efd::QbitAllocator::run(QModule::Ref qmod) {
     Timer timer;
+
+    // Setting the class QModule.
+    mMod = qmod;
 
     if (mInlineAll) {
         // Setting up timer ----------------
@@ -151,12 +155,12 @@ void efd::QbitAllocator::run() {
 
     // Getting the new information, since it can be the case that the qmodule
     // was modified.
-    mMod->runPass(mDepPass.get(), true);
-    updateDepSet();
+    updateDependencies();
+    auto& deps = mDepBuilder.getDependencies();
 
     // Counting total dependencies.
     unsigned totalDeps = 0;
-    for (auto& d : mDepSet)
+    for (auto& d : deps)
         totalDeps += d.mDeps.size();
     DepStat = totalDeps;
 
@@ -164,7 +168,7 @@ void efd::QbitAllocator::run() {
     timer.start();
     // ---------------------------------
 
-    mMapping = solveDependencies(mDepSet);
+    mData = solveDependencies(deps);
 
     // Stopping timer and setting the stat -----------------
     timer.stop();
@@ -181,8 +185,6 @@ void efd::QbitAllocator::run() {
     timer.stop();
     RenameTime = ((double) timer.getMicroseconds() / 1000000.0);
     // -----------------------------------------------------
-
-    mRun = true;
 }
 
 void efd::QbitAllocator::setInlineAll(BasisVector basis) {
@@ -192,9 +194,4 @@ void efd::QbitAllocator::setInlineAll(BasisVector basis) {
 
 void efd::QbitAllocator::setDontInline() {
     mInlineAll = false;
-}
-
-efd::QbitAllocator::Mapping efd::QbitAllocator::getMapping() {
-    assert(mRun && "You have to run the allocator before getting the mapping.");
-    return mMapping;
 }

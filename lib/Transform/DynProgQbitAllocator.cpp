@@ -310,11 +310,11 @@ efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet
     return result.initial;
 }
 
-efd::DynProgQbitAllocator::DynProgQbitAllocator(QModule::sRef qmod, ArchGraph::sRef pGraph) 
-    : QbitAllocator(qmod, pGraph) {
+efd::DynProgQbitAllocator::DynProgQbitAllocator(ArchGraph::sRef pGraph) 
+    : QbitAllocator(pGraph) {
 }
 
-efd::DynProgQbitAllocator::uRef efd::DynProgQbitAllocator::Create(QModule::sRef qmod, 
-        ArchGraph::sRef archGraph) {
-    return uRef(new DynProgQbitAllocator(qmod, archGraph));
+efd::DynProgQbitAllocator::uRef efd::DynProgQbitAllocator::Create
+(ArchGraph::sRef archGraph) {
+    return uRef(new DynProgQbitAllocator(archGraph));
 }

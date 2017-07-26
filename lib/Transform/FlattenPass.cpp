@@ -1,33 +1,67 @@
 #include "enfield/Transform/FlattenPass.h"
+#include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
 
 #include <cassert>
 #include <limits>
 
-efd::FlattenPass::FlattenPass(QModule::sRef qmod) : mMod(qmod) {
-    mUK += Pass::K_STMT_PASS;
+namespace efd {
+    class FlattenVisitor : public NodeVisitor {
+        private:
+            QModule& mMod;
+
+            /// \brief Returns true if \p ref is an IdRef.
+            bool isIdRef(Node::Ref ref);
+            /// \brief Returns true if \p ref is an Id.
+            bool isId(Node::Ref ref);
+
+            /// \brief Gets the declaration node from an Id node.
+            NDRegDecl::Ref getDeclFromId(Node::Ref ref);
+            /// \brief Creates \p max NDIdRef's related to that Id. If \p max
+            /// is 0, then create all of them.
+            std::vector<NDIdRef::uRef> toIdRef(Node::Ref ref, unsigned max = 0);
+
+            /// \brief Returns the size of the declaration of this Id node.
+            unsigned getSize(Node::Ref ref);
+            /// \brief Returns a list with all IdRef's possible of all QArgs.
+            std::vector<std::vector<NDIdRef::uRef>> getFlattenedOpsArgs(Node::Ref ref);
+            /// \brief Returns true if all the childrem are IdRef node.
+            bool isChildremIdRef(Node::Ref ref);
+
+        public:
+            std::unordered_map<Node::Ref, std::vector<Node::uRef>> mRepMap;
+
+            FlattenVisitor(QModule& qmod) : mMod(qmod) {}
+
+            void visit(NDQOpBarrier::Ref ref) override;
+            void visit(NDQOpMeasure::Ref ref) override;
+            void visit(NDQOpReset::Ref ref) override;
+            void visit(NDQOpCX::Ref ref) override;
+            void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDIfStmt::Ref ref) override;
+    };
 }
 
-bool efd::FlattenPass::isIdRef(Node::Ref ref) {
+bool efd::FlattenVisitor::isIdRef(Node::Ref ref) {
     return instanceOf<NDIdRef>(ref);
 }
 
-bool efd::FlattenPass::isId(Node::Ref ref) {
+bool efd::FlattenVisitor::isId(Node::Ref ref) {
     return instanceOf<NDId>(ref);
 }
 
-efd::NDRegDecl::Ref efd::FlattenPass::getDeclFromId(Node::Ref ref) {
+efd::NDRegDecl::Ref efd::FlattenVisitor::getDeclFromId(Node::Ref ref) {
     NDId::Ref refId = dynCast<NDId>(ref);
     assert(refId != nullptr && "Malformed statement.");
 
-    NDRegDecl::Ref refDecl = dynCast<NDRegDecl>(mMod->getQVar(refId->getVal()));
+    NDRegDecl::Ref refDecl = dynCast<NDRegDecl>(mMod.getQVar(refId->getVal()));
     assert(refDecl != nullptr && "No such qubit declared.");
 
     return refDecl;
 }
 
-std::vector<efd::NDIdRef::uRef> efd::FlattenPass::toIdRef(Node::Ref ref, unsigned max) {
+std::vector<efd::NDIdRef::uRef> efd::FlattenVisitor::toIdRef(Node::Ref ref, unsigned max) {
     std::vector<NDIdRef::uRef> idRefV;
 
     if (isIdRef(ref)) {
@@ -49,36 +83,11 @@ std::vector<efd::NDIdRef::uRef> efd::FlattenPass::toIdRef(Node::Ref ref, unsigne
     return idRefV;
 }
 
-void efd::FlattenPass::replace(Node::Ref ref, std::vector<Node::uRef> nodes) {
-    NDList::Ref list = dynCast<NDList>(ref->getParent());
-
-    if (list == nullptr) {
-        auto parent = dynCast<NDIfStmt>(ref->getParent());
-        assert(parent != nullptr && "Parent should be either IfStmt or List.");
-
-        list = dynCast<NDList>(parent->getParent());
-        assert(list != nullptr && "We should end up in a List.");
-
-        for (unsigned i = 0, e = nodes.size(); i < e; ++i) {
-            auto ifstmt = uniqueCastForward<NDIfStmt>(parent->clone());
-            ifstmt->setQOp(std::move(nodes[i]));
-            nodes[i] = uniqueCastBackward<Node>(std::move(ifstmt));
-        }
-    }
-
-    auto It = list->findChild(ref);
-    for (auto& child : nodes) {
-        list->addChild(It, child->clone());
-        ++It;
-    }
-    list->removeChild(ref);
-}
-
-unsigned efd::FlattenPass::getSize(Node::Ref ref) {
+unsigned efd::FlattenVisitor::getSize(Node::Ref ref) {
     return getDeclFromId(ref)->getSize()->getVal().mV;
 }
 
-std::vector<std::vector<efd::NDIdRef::uRef>> efd::FlattenPass::getFlattenedOpsArgs(Node::Ref ref) {
+std::vector<std::vector<efd::NDIdRef::uRef>> efd::FlattenVisitor::getFlattenedOpsArgs(Node::Ref ref) {
     std::vector<std::vector<NDIdRef::uRef>> newNodesArgs;
 
     unsigned min = std::numeric_limits<unsigned>::max();
@@ -95,14 +104,14 @@ std::vector<std::vector<efd::NDIdRef::uRef>> efd::FlattenPass::getFlattenedOpsAr
     return newNodesArgs;
 }
 
-bool efd::FlattenPass::isChildremIdRef(Node::Ref ref) {
+bool efd::FlattenVisitor::isChildremIdRef(Node::Ref ref) {
     for (auto& child : *ref)
         if (isId(child.get()))
             return false;
     return true;
 }
 
-void efd::FlattenPass::visit(NDQOpBarrier::Ref ref) {
+void efd::FlattenVisitor::visit(NDQOpBarrier::Ref ref) {
     if (isChildremIdRef(ref->getQArgs()))
         return;
 
@@ -116,10 +125,10 @@ void efd::FlattenPass::visit(NDQOpBarrier::Ref ref) {
         newNodes.push_back(uniqueCastBackward<Node>
                 (NDQOpBarrier::Create(std::move(qargs))));
     }
-    replace(ref, std::move(newNodes));
+    mRepMap[ref] = std::move(newNodes);;
 }
 
-void efd::FlattenPass::visit(NDQOpMeasure::Ref ref) {
+void efd::FlattenVisitor::visit(NDQOpMeasure::Ref ref) {
     if (isChildremIdRef(ref))
         return;
 
@@ -129,10 +138,10 @@ void efd::FlattenPass::visit(NDQOpMeasure::Ref ref) {
         newNodes.push_back(uniqueCastBackward<Node>
                 (NDQOpMeasure::Create
                  (std::move(flatArgs[0][i]), std::move(flatArgs[1][i]))));
-    replace(ref, std::move(newNodes));
+    mRepMap[ref] = std::move(newNodes);;
 }
 
-void efd::FlattenPass::visit(NDQOpReset::Ref ref) {
+void efd::FlattenVisitor::visit(NDQOpReset::Ref ref) {
     if (isChildremIdRef(ref))
         return;
 
@@ -141,10 +150,10 @@ void efd::FlattenPass::visit(NDQOpReset::Ref ref) {
     for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i)
         newNodes.push_back(uniqueCastBackward<Node>
                 (NDQOpReset::Create(std::move(flatArgs[0][i]))));
-    replace(ref, std::move(newNodes));
+    mRepMap[ref] = std::move(newNodes);;
 }
 
-void efd::FlattenPass::visit(NDQOpCX::Ref ref) {
+void efd::FlattenVisitor::visit(NDQOpCX::Ref ref) {
     if (isChildremIdRef(ref))
         return;
 
@@ -153,10 +162,10 @@ void efd::FlattenPass::visit(NDQOpCX::Ref ref) {
     for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i)
         newNodes.push_back(uniqueCastBackward<Node>
                (NDQOpCX::Create(std::move(flatArgs[0][i]), std::move(flatArgs[1][i]))));
-    replace(ref, std::move(newNodes));
+    mRepMap[ref] = std::move(newNodes);;
 }
 
-void efd::FlattenPass::visit(NDQOpGeneric::Ref ref) {
+void efd::FlattenVisitor::visit(NDQOpGeneric::Ref ref) {
     if (isChildremIdRef(ref->getQArgs()))
         return;
 
@@ -173,18 +182,60 @@ void efd::FlattenPass::visit(NDQOpGeneric::Ref ref) {
                     uniqueCastForward<NDList>(ref->getArgs()->clone()),
                     std::move(qaList)));
     }
-    replace(ref, std::move(newNodes));
+    mRepMap[ref] = std::move(newNodes);;
 }
 
-void efd::FlattenPass::initImpl(bool force) {
-    mIfNewNodes.clear();
+void efd::FlattenVisitor::visit(NDIfStmt::Ref ref) {
+    visitChildren(ref);
 }
 
-bool efd::FlattenPass::doesInvalidatesModule() const {
-    return true;
+efd::FlattenPass::FlattenPass() {
 }
 
-efd::FlattenPass::uRef efd::FlattenPass::Create(QModule::sRef qmod) {
-    return uRef(new FlattenPass(qmod));
+void efd::FlattenPass::run(QModule::Ref qmod) {
+    FlattenVisitor visitor(*qmod);
+
+    for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it) {
+        (*it)->apply(&visitor);
+    }
+
+    for (auto& pair : visitor.mRepMap) {
+        replace(pair.first, std::move(pair.second));
+    }
+}
+
+void efd::FlattenPass::replace(Node::Ref ref, std::vector<Node::uRef> nodes) {
+    NDList::Ref list = dynCast<NDList>(ref->getParent());
+    Node::Ref listEl = ref;
+
+    if (list == nullptr) {
+        auto parent = dynCast<NDIfStmt>(ref->getParent());
+        assert(parent != nullptr && "Parent should be either IfStmt or List.");
+
+        list = dynCast<NDList>(parent->getParent());
+        assert(list != nullptr && "We should end up in a List.");
+
+        for (unsigned i = 0, e = nodes.size(); i < e; ++i) {
+            auto ifstmt = uniqueCastForward<NDIfStmt>(parent->clone());
+            ifstmt->setQOp(std::move(nodes[i]));
+            nodes[i] = uniqueCastBackward<Node>(std::move(ifstmt));
+        }
+
+        // When 'ref' is: if ( id == int ) qop
+        // we the element to be searched is the parent node (the NDIfStmt node).
+        listEl = parent;
+    }
+
+    auto It = list->findChild(listEl);
+    for (auto& child : nodes) {
+        list->addChild(It, child->clone());
+        ++It;
+    }
+
+    list->removeChild(listEl);
+}
+
+efd::FlattenPass::uRef efd::FlattenPass::Create() {
+    return uRef(new FlattenPass());
 }
 
