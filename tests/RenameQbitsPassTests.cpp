@@ -29,7 +29,7 @@ CX q[1], q[0];\
         };
 
         RenameQbitPass::uRef pass = RenameQbitPass::Create(aMap);
-        qmod->runPass(pass.get());
+        pass->run(qmod.get());
     }
 
     {
@@ -62,6 +62,6 @@ CX q[0], q[4];\
         };
 
         RenameQbitPass::uRef pass = RenameQbitPass::Create(aMap);
-        qmod->runPass(pass.get());
+        pass->run(qmod.get());
     }
 }

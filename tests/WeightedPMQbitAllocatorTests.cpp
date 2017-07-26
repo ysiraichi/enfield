@@ -46,10 +46,10 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
-        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(qmod, graph);
+        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
-        allocator->run();
+        allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
 
@@ -79,10 +79,10 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
-        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(qmod, graph);
+        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
-        allocator->run();
+        allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
 }
@@ -98,7 +98,6 @@ test q[0], q[1], q[2];\
         const std::string result =
 "\
 qreg q[5];\
-gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
 CX q[0], q[1];\
 CX q[0], q[2];\
 CX q[1], q[2];\
@@ -107,10 +106,10 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
-        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(qmod, graph);
+        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
-        allocator->run();
+        allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
 
@@ -125,7 +124,6 @@ test q[3], q[4], q[2];\
         const std::string result =
 "\
 qreg q[5];\
-gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
 CX q[3], q[4];\
 CX q[3], q[2];\
 CX q[4], q[2];\
@@ -137,10 +135,10 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
-        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(qmod, graph);
+        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
-        allocator->run();
+        allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
 }
@@ -157,10 +155,9 @@ test q[4], q[1], q[0];\
         // Expected mapping: [ 0 2 1 3 4 ]
         const std::string result =
 "\
-qreg q[5];\
-gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
-CX q[1], q[2];\
 gate __swap__ a, b {cx a, b;h a;h b;cx a, b;h a;h b;cx a, b;}\
+qreg q[5];\
+CX q[1], q[2];\
 __swap__ q[3], q[2];\
 CX q[1], q[2];\
 CX q[3], q[2];\
@@ -173,10 +170,10 @@ CX q[2], q[1];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
-        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(qmod, graph);
+        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
-        allocator->run();
+        allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
 }
