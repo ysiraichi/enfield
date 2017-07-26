@@ -32,9 +32,8 @@ namespace efd {
             virtual void visit(NDValue<IntVal>::Ref ref);
             virtual void visit(NDValue<RealVal>::Ref ref);
 
-            /// \brief Method for initializing the class before
-            /// every run.
-            virtual void init();
+            /// \brief Visits the children of \p ref.
+            void visitChildren(Node::Ref ref);
     };
 
 };

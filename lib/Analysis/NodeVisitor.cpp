@@ -22,4 +22,8 @@ void efd::NodeVisitor::visit(NDValue<std::string>::Ref ref) {}
 void efd::NodeVisitor::visit(NDValue<IntVal>::Ref ref) {}
 void efd::NodeVisitor::visit(NDValue<RealVal>::Ref ref) {}
 
-void efd::NodeVisitor::init() {}
+void efd::NodeVisitor::visitChildren(Node::Ref ref) {
+    for (auto& child : *ref) {
+        child->apply(this);
+    }
+}
