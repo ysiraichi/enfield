@@ -1,6 +1,7 @@
 #include "enfield/Support/CommandLine.h"
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/FlattenPass.h"
+#include "enfield/Transform/QbitToNumberPass.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Transform/WeightedPMQbitAllocator.h"
 #include "enfield/Transform/DynProgQbitAllocator.h"
@@ -44,27 +45,28 @@ int main(int argc, char** argv) {
 
     if (qmod.get() != nullptr) {
         // Creating default passes.
-        auto flattenPass = FlattenPass::Create(qmod);
-        auto qbitUidPass = QbitToNumberPass::Create();
+        auto flattenPass = FlattenPass::Create();
+        auto qbitUidPass = QbitToNumberWrapperPass::Create();
 
-        qmod->runPass(flattenPass.get());
-        qmod->runPass(qbitUidPass.get());
+        flattenPass->run(qmod.get());
+        qbitUidPass->run(qmod.get());
 
+        auto qbitToNumber = qbitUidPass->getData(); 
         // Architecture-dependent fragment.
         auto graph = toShared(ArchIBMQX2::Create());
-        assert(qbitUidPass->getSize() <= graph->size() &&
+        assert(qbitToNumber.getSize() <= graph->size() &&
                 "Using more qbits than the maximum.");
 
         QbitAllocator::Ref allocator;
         if (Allocator.getVal() == "WPM")
-            allocator = WeightedPMQbitAllocator::Create(qmod, graph).release();
-        else allocator = DynProgQbitAllocator::Create(qmod, graph).release();
+            allocator = WeightedPMQbitAllocator::Create(graph).release();
+        else allocator = DynProgQbitAllocator::Create(graph).release();
         allocator->setInlineAll({ "cx", "u1", "u2", "u3" });
-        allocator->run();
+        allocator->run(qmod.get());
 
         // Reversing the edges.
-        ReverseEdgesPass::uRef revPass = ReverseEdgesPass::Create(qmod, graph);
-        qmod->runPass(revPass.get());
+        auto revPass = ReverseEdgesPass::Create(graph);
+        revPass->run(qmod.get());
 
         DumpToOutFile(qmod.get());
 

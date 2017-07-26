@@ -152,12 +152,12 @@ TEST(ASTNodeTests, UnaryOpCreationTest) {
 
 TEST(ASTNodeTests, DeclCreationTest) {
     std::string cStr = "creg r0[5];";
-    auto refC = NDDecl::Create(NDDecl::CONCRETE, Id("r0"), Int("5"));
+    auto refC = NDRegDecl::CreateC(Id("r0"), Int("5"));
     TestPrinting(refC.get(), cStr);
     TestFind(refC.get());
 
     std::string qStr = "qreg r0[5];";
-    auto refQ = NDDecl::Create(NDDecl::QUANTUM, Id("r0"), Int("5"));
+    auto refQ = NDRegDecl::CreateQ(Id("r0"), Int("5"));
     TestPrinting(refQ.get(), qStr);
     TestFind(refQ.get());
 }

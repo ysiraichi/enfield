@@ -8,9 +8,11 @@ namespace efd {
     /// \brief Interface class to be used as a visitor.
     class NodeVisitor {
         public:
+            typedef NodeVisitor* Ref;
+
             virtual void visit(NDQasmVersion::Ref ref);
             virtual void visit(NDInclude::Ref ref);
-            virtual void visit(NDDecl::Ref ref);
+            virtual void visit(NDRegDecl::Ref ref);
             virtual void visit(NDGateDecl::Ref ref);
             virtual void visit(NDOpaque::Ref ref);
             virtual void visit(NDQOpMeasure::Ref ref);
@@ -30,9 +32,8 @@ namespace efd {
             virtual void visit(NDValue<IntVal>::Ref ref);
             virtual void visit(NDValue<RealVal>::Ref ref);
 
-            /// \brief Method for initializing the class before
-            /// every run.
-            virtual void init();
+            /// \brief Visits the children of \p ref.
+            void visitChildren(Node::Ref ref);
     };
 
 };

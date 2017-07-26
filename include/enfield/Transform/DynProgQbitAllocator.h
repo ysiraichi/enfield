@@ -15,13 +15,13 @@ namespace efd {
             typedef std::unique_ptr<DynProgQbitAllocator> uRef;
 
         private:
-            DynProgQbitAllocator(QModule::sRef qmod, ArchGraph::sRef archGraph);
+            DynProgQbitAllocator(ArchGraph::sRef archGraph);
 
         public:
             Mapping solveDependencies(DepsSet& deps) override;
 
             /// \brief Create a new instance of this class.
-            static uRef Create(QModule::sRef qmod, ArchGraph::sRef archGraph);
+            static uRef Create(ArchGraph::sRef archGraph);
     };
 }
 

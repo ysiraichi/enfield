@@ -1,13 +1,11 @@
 #include "enfield/Analysis/Driver.h"
 #include "enfield/Transform/QModule.h"
-#include "enfield/Transform/QModulefyPass.h"
-#include "enfield/Transform/IdTable.h"
 #include "enfield/Transform/Utils.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
-#include "enfield/Pass.h"
 
 #include <cassert>
+#include <unordered_set>
 #include <iterator>
 
 namespace efd {
@@ -16,12 +14,12 @@ namespace efd {
     extern NDId::uRef CX_ID_NODE;
 }
 
-efd::QModule::QModule(Node::uRef ref) : mAST(std::move(ref)), mVersion(nullptr), 
-    mQModulefy(nullptr), mValid(true), mStdLibsParsed(false), mStmtList(nullptr) {
+efd::QModule::QModule() : mVersion(nullptr) {
+    mStatements = NDStmtList::Create();
 }
 
-void efd::QModule::registerSwapGate(Iterator it) {
-    bool isSwapRegistered = getQGate("__swap__") != nullptr;
+void efd::QModule::registerSwapGate() {
+    bool isSwapRegistered = hasQGate("__swap__");
     if (!isSwapRegistered) {
         // The quantum arguments that will be used
         auto qargLhs = NDId::Create("a");
@@ -67,41 +65,50 @@ void efd::QModule::registerSwapGate(Iterator it) {
                 (uniqueCastForward<NDId>(CX_ID_NODE->clone()), NDList::Create(),
                  uniqueCastForward<NDList>(qargsLhsRhs->clone())));
 
-        auto swap = uniqueCastBackward<Node>(NDGateDecl::Create
-                (uniqueCastForward<NDId>(SWAP_ID_NODE->clone()), NDList::Create(),
-                 std::move(qargsLhsRhs), std::move(gop)));
+        auto swap = NDGateDecl::Create
+                (uniqueCastForward<NDId>(SWAP_ID_NODE->clone()),
+                 NDList::Create(),
+                 std::move(qargsLhsRhs),
+                 std::move(gop));
 
-        // Inserts swap declaration before first use.
-        insertNodeBefore(it, std::move(swap));
+        insertGate(std::move(swap));
     }
 }
 
-efd::Node::Ref efd::QModule::getVersion() {
-    return mVersion;
+efd::NDQasmVersion::Ref efd::QModule::getVersion() {
+    return mVersion.get();
 }
 
-void efd::QModule::replaceAllRegsWith(std::vector<NDDecl::uRef> newRegs) {
-    if (!mRegDecls.empty()) {
-        NDStmtList::Ref parent = dynCast<NDStmtList>(mRegDecls[0]->getParent());
-        assert(parent != nullptr && 
-                "All register declaration must be in the main statement list.");
+void efd::QModule::setVersion(NDQasmVersion::uRef version) {
+    mVersion = std::move(version);
+}
 
-        for (int i = mRegDecls.size() - 1; i >= 0; --i) {
-            auto child = dynCast<NDDecl>(mRegDecls[i]);
-            if (child->isQReg()) {
-                auto it = parent->findChild(child);
-                parent->removeChild(it);
-            }
-        }
+void efd::QModule::insertInclude(NDInclude::uRef incl) {
+    mIncludes.push_back(std::move(incl));
+}
+
+void efd::QModule::insertReg(NDRegDecl::uRef reg) {
+    std::string id = reg->getId()->getVal();
+    mRegsMap[id] = std::move(reg);
+    mRegs.push_back(mRegsMap[id].get());
+}
+
+void efd::QModule::replaceAllRegsWith(std::vector<NDRegDecl::uRef> newRegs) {
+    mRegs.clear();
+
+    for (auto& reg : newRegs) {
+        insertReg(std::move(reg));
     }
+}
 
-    assert(!mStatements.empty() &&
-            "Trying to replace regs with no statements in the program.");
-    auto firstStmt = *stmt_begin();
-    auto it = firstStmt->getParent()->findChild(firstStmt);
-    for (auto& decl : newRegs)
-        InsertNodeBefore(it, std::move(decl));
-    invalidate();
+efd::QModule::Iterator efd::QModule::findStatement(Node::Ref ref) {
+    auto it = mStatements->findChild(ref);
+    assert(it != mStatements->end() && "Node not in the main statement list.");
+    return it;
+}
+
+void efd::QModule::removeStatement(Iterator it) {
+    mStatements->removeChild(it);
 }
 
 efd::QModule::Iterator efd::QModule::inlineCall(NDQOpGeneric::Ref call) {
@@ -110,208 +117,236 @@ efd::QModule::Iterator efd::QModule::inlineCall(NDQOpGeneric::Ref call) {
     unsigned dist = std::distance(parent->begin(), it);
 
     InlineGate(this, call);
-    invalidate();
     return parent->begin() + dist;
 }
 
-efd::QModule::Iterator efd::QModule::insertNodeAfter(Iterator it, Node::uRef ref) {
-    InsertNodeAfter(it, std::move(ref));
-    invalidate();
+efd::QModule::Iterator efd::QModule::insertStatementAfter(Iterator it, Node::uRef ref) {
+    mStatements->addChild(++it, std::move(ref));
     return it;
 }
 
-efd::QModule::Iterator efd::QModule::insertNodeBefore(Iterator it, Node::uRef ref) {
-    InsertNodeBefore(it, std::move(ref));
-    invalidate();
+efd::QModule::Iterator efd::QModule::insertStatementBefore(Iterator it, Node::uRef ref) {
+    mStatements->addChild(it, std::move(ref));
     return it;
+}
+
+efd::QModule::Iterator efd::QModule::insertStatementFront(Node::uRef ref) {
+    auto it = mStatements->begin();
+    mStatements->addChild(it, std::move(ref));
+    return mStatements->begin();
+}
+
+efd::QModule::Iterator efd::QModule::insertStatementLast(Node::uRef ref) {
+    mStatements->addChild(std::move(ref));
+    return mStatements->begin() + (mStatements->getChildNumber() - 1);
+}
+
+static efd::NDQOpGeneric::uRef createSwapCallNode(efd::Node::Ref lhs,
+        efd::Node::Ref rhs) {
+    auto qargs = efd::NDList::Create();
+    qargs->addChild(lhs->clone());
+    qargs->addChild(rhs->clone());
+
+    auto swap = efd::NDQOpGeneric::Create(
+            efd::uniqueCastForward<efd::NDId>(efd::SWAP_ID_NODE->clone()),
+            efd::NDList::Create(), std::move(qargs));
+    swap->setGenerated();
+    return std::move(swap);
 }
 
 efd::QModule::Iterator efd::QModule::insertSwapBefore(Iterator it, Node::Ref lhs, Node::Ref rhs) {
     Node::Ref parent = (*it)->getParent();
     unsigned dist = std::distance(parent->begin(), it);
-    InsertSwapBefore(it->get(), lhs, rhs);
-    // Register the gate must be done after inserting the swap, as it does not require
-    // any iterator. Else, this would invalidate the iterator passed as parammeter.
-    it = parent->begin() + dist;
-    registerSwapGate(it);
-    invalidate();
+    insertStatementBefore(it, createSwapCallNode(lhs, rhs));
+    registerSwapGate();
     return parent->begin() + dist;
 }
 
 efd::QModule::Iterator efd::QModule::insertSwapAfter(Iterator it, Node::Ref lhs, Node::Ref rhs) {
     Node::Ref parent = (*it)->getParent();
     unsigned dist = std::distance(parent->begin(), it);
-    InsertSwapAfter(it->get(), lhs, rhs);
-    // Register the gate must be done after inserting the swap, as it does not require
-    // any iterator. Else, this would invalidate the iterator passed as parammeter.
-    registerSwapGate(it);
-    invalidate();
+    insertStatementAfter(it, createSwapCallNode(lhs, rhs));
+    registerSwapGate();
     return parent->begin() + dist;
 }
 
-void efd::QModule::insertStatementLast(Node::uRef node) {
-    assert(mStmtList != nullptr && "Statement list is null.");
-    mStmtList->addChild(std::move(node));
-    invalidate();
+void efd::QModule::insertGate(NDGateSign::uRef gate) {
+    assert(gate.get() != nullptr && "Trying to insert a 'nullptr' gate.");
+    assert(gate->getId() != nullptr && "Trying to insert a gate with 'nullptr' id.");
+
+    std::string id = gate->getId()->getVal();
+    assert(mGatesMap.find(id) == mGatesMap.end() &&
+            "Trying to insert a gate with repeated id.");
+
+    mGatesMap[id] = std::move(gate);
+    mGates.push_back(mGatesMap[id].get());
 }
 
 efd::QModule::RegIterator efd::QModule::reg_begin() {
-    if (!isValid()) validate();
-    return mRegDecls.begin();
+    return mRegs.begin();
 }
 
 efd::QModule::RegConstIterator efd::QModule::reg_begin() const {
-    assert(isValid() && "Const QModule modified.");
-    return mRegDecls.begin();
+    return mRegs.begin();
 }
 
 efd::QModule::RegIterator efd::QModule::reg_end() {
-    if (!isValid()) validate();
-    return mRegDecls.end();
+    return mRegs.end();
 }
 
 efd::QModule::RegConstIterator efd::QModule::reg_end() const {
-    assert(isValid() && "Const QModule modified.");
-    return mRegDecls.end();
+    return mRegs.end();
 }
 
 efd::QModule::GateIterator efd::QModule::gates_begin() {
-    if (!isValid()) validate();
     return mGates.begin();
 }
 
 efd::QModule::GateConstIterator efd::QModule::gates_begin() const {
-    assert(isValid() && "Const QModule modified.");
     return mGates.begin();
 }
 
 efd::QModule::GateIterator efd::QModule::gates_end() {
-    if (!isValid()) validate();
     return mGates.end();
 }
 
 efd::QModule::GateConstIterator efd::QModule::gates_end() const {
-    assert(isValid() && "Const QModule modified.");
     return mGates.end();
 }
 
-efd::QModule::NodeIterator efd::QModule::stmt_begin() {
-    if (!isValid()) validate();
-    return mStatements.begin();
+efd::QModule::Iterator efd::QModule::stmt_begin() {
+    return mStatements->begin();
 }
 
-efd::QModule::NodeConstIterator efd::QModule::stmt_begin() const {
-    assert(isValid() && "Const QModule modified.");
-    return mStatements.begin();
+efd::QModule::ConstIterator efd::QModule::stmt_begin() const {
+    return mStatements->begin();
 }
 
-efd::QModule::NodeIterator efd::QModule::stmt_end() {
-    if (!isValid()) validate();
-    return mStatements.end();
+efd::QModule::Iterator efd::QModule::stmt_end() {
+    return mStatements->end();
 }
 
-efd::QModule::NodeConstIterator efd::QModule::stmt_end() const {
-    assert(isValid() && "Const QModule modified.");
-    return mStatements.end();
+efd::QModule::ConstIterator efd::QModule::stmt_end() const {
+    return mStatements->end();
 }
 
-void efd::QModule::print(std::ostream& O, bool pretty) const {
-    O << toString(pretty);
+void efd::QModule::print(std::ostream& O, bool pretty, bool printGates) const {
+    O << toString(pretty, printGates);
 }
 
-std::string efd::QModule::toString(bool pretty) const {
-    return mAST->toString(pretty);
-}
+std::string efd::QModule::toString(bool pretty, bool printGates) const {
+    std::string str;
 
-efd::IdTable::Ref efd::QModule::getIdTable(NDGateDecl* ref) {
-    if (!isValid()) validate();
+    if (mVersion.get() != nullptr)
+        str += mVersion->toString(pretty);
 
-    if (ref != nullptr && mIdTableMap.find(ref) != mIdTableMap.end())
-        return mIdTableMap[ref].get();
-    return mTable.get();
-}
+    for (auto& incl : mIncludes)
+        str += incl->toString(pretty);
 
-efd::Node::Ref efd::QModule::getQVar(std::string id, NDGateDecl* gate, bool recursive) {
-    if (!isValid()) validate();
-
-    IdTable::Ref gTable = getIdTable(gate);
-    return gTable->getQVar(id, recursive);
-}
-
-efd::NDGateDecl* efd::QModule::getQGate(std::string id, bool recursive) {
-    if (!isValid()) validate();
-    return mTable->getQGate(id, recursive);
-}
-
-void efd::QModule::invalidate() {
-    mValid = false;
-}
-
-void efd::QModule::validate() {
-    if (mQModulefy.get() == nullptr)
-        mQModulefy = toShared(QModulefyPass::Create(this));
-    mQModulefy->setQModule(this);
-
-    mVersion = nullptr;
-    mStmtList = nullptr;
-    mRegDecls.clear();
-    mGates.clear();
-    mStatements.clear();
-
-    // mValid must be set before calling 'runPass'. Otherwise,
-    // infinite loop!.
-    mValid = true;
-    runPass(mQModulefy.get(), true);
-}
-
-bool efd::QModule::isValid() const {
-    return mValid;
-}
-
-void efd::QModule::runPass(Pass::Ref pass, bool force) {
-    if (pass->wasApplied() && !force)
-        return;
-
-    if (!isValid()) validate();
-
-    pass->init(force);
-
-    if (pass->isASTPass()) {
-        mAST->apply(pass);
+    if (printGates) {
+        // Print all quantum gates.
+        for (auto gate : mGates)
+            str += gate->toString(pretty);
     } else {
-        if (pass->isRegDeclPass()) {
-            auto regsCopy = mRegDecls;
-            for (auto regdecl : regsCopy)
-                regdecl->apply(pass);
-        }
-        
-        if (pass->isGatePass()) {
-            auto gatesCopy = mGates;
-            for (auto gate : gatesCopy)
-                gate->apply(pass);
+        // Print those gates that are being used.
+        std::unordered_set<std::string> doPrint;
+
+        for (auto& stmt : *mStatements) {
+            NDQOpGeneric::Ref qcall = nullptr;
+
+            if (auto ifstmt = dynCast<NDIfStmt>(stmt.get())) {
+                // Get the QOp part (if it is a NDIfStmt node).
+                if (auto ifcall = dynCast<NDQOpGeneric>(ifstmt->getQOp())) {
+                    qcall = ifcall;
+                }
+            } else {
+                qcall = dynCast<NDQOpGeneric>(stmt.get());
+            }
+
+            if (qcall != nullptr) {
+                std::string gateId = qcall->getId()->getVal();
+
+                // Print if it was not yet printed.
+                if (doPrint.find(gateId) == doPrint.end()) {
+                    doPrint.insert(gateId);
+                }
+            }
         }
 
-        if (pass->isStatementPass()) {
-            auto stmtCopy = mStatements;
-            for (auto stmt : stmtCopy)
-                stmt->apply(pass);
+        for (auto gate : mGates) {
+            if (doPrint.find(gate->getId()->getVal()) != doPrint.end() &&
+                    !gate->isInInclude()) {
+                str += gate->toString(pretty);
+            }
         }
     }
 
-    // Invalidates itself it the pass does invalidate. e.g.: modifies the nodes
-    // inside the module.
-    if (pass->doesInvalidatesModule()) {
-        invalidate();
-        validate();
+    for (auto& reg : mRegs)
+        str += reg->toString(pretty);
+
+    str += mStatements->toString(pretty);
+    return str;
+}
+
+efd::Node::Ref efd::QModule::getQVar(std::string id, NDGateDecl::Ref gate) const {
+    if (gate != nullptr) {
+        assert(mGateIdMap.find(gate) != mGateIdMap.end() && "No such gate found.");
+
+        const IdMap& idMap = mGateIdMap.at(gate);
+        assert(idMap.find(id) != idMap.end() && "No such id inside this gate.");
+
+        return idMap.at(id);
     }
+
+    // If gate == nullptr, then we want a quantum register in the global context.
+    return mRegsMap.at(id).get();
 }
 
-std::unique_ptr<efd::QModule> efd::QModule::clone() const {
-    auto newAST = mAST->clone();
-    return GetFromAST(std::move(newAST));
+bool efd::QModule::hasQVar(std::string id, NDGateDecl::Ref gate) const {
+    if (gate != nullptr) {
+        if (mGateIdMap.find(gate) == mGateIdMap.end()) return false;
+
+        const IdMap& idMap = mGateIdMap.at(gate);
+        if (idMap.find(id) == idMap.end()) return false;
+
+        return true;
+    }
+
+    if (mRegsMap.find(id) == mRegsMap.end()) return false;
+    // If gate == nullptr, then we want a quantum register in the global context.
+    return true;
 }
 
-std::unique_ptr<efd::QModule> efd::QModule::Create(bool forceStdLib) {
+efd::NDGateSign::Ref efd::QModule::getQGate(std::string id) const {
+    assert(mGatesMap.find(id) != mGatesMap.end() && "Gate not found.");
+    return mGatesMap.at(id).get();
+}
+
+bool efd::QModule::hasQGate(std::string id) const {
+    if (mGatesMap.find(id) == mGatesMap.end()) return false;
+    return true;
+}
+
+efd::QModule::uRef efd::QModule::clone() const {
+    auto qmod = new QModule();
+
+    if (mVersion.get() != nullptr)
+        qmod->mVersion = uniqueCastForward<NDQasmVersion>(mVersion->clone());
+
+    for (auto& incl : mIncludes)
+        qmod->insertInclude(uniqueCastForward<NDInclude>(incl->clone()));
+
+    for (auto reg : mRegs)
+        qmod->insertReg(uniqueCastForward<NDRegDecl>(reg->clone()));
+
+    for (auto gate : mGates)
+        qmod->insertGate(uniqueCastForward<NDGateSign>(gate->clone()));
+
+    qmod->mStatements = uniqueCastForward<NDStmtList>(mStatements->clone());
+    return uRef(qmod);
+}
+
+efd::QModule::uRef efd::QModule::Create(bool forceStdLib) {
     std::string program;
     program = "OPENQASM 2.0;\n";
 
@@ -322,13 +357,13 @@ std::unique_ptr<efd::QModule> efd::QModule::Create(bool forceStdLib) {
     return uRef(nullptr);
 }
 
-std::unique_ptr<efd::QModule> efd::QModule::GetFromAST(Node::uRef ref) {
-    uRef qmod(new QModule(std::move(ref)));
-    qmod->validate();
+efd::QModule::uRef efd::QModule::GetFromAST(Node::uRef ref) {
+    uRef qmod(new QModule());
+    efd::ProcessAST(qmod.get(), ref.get());
     return qmod;
 }
 
-std::unique_ptr<efd::QModule> efd::QModule::Parse(std::string filename, 
+efd::QModule::uRef efd::QModule::Parse(std::string filename, 
         std::string path, bool forceStdLib) {
     auto ast = efd::ParseFile(filename, path, forceStdLib);
 
@@ -338,7 +373,7 @@ std::unique_ptr<efd::QModule> efd::QModule::Parse(std::string filename,
     return uRef(nullptr);
 }
 
-std::unique_ptr<efd::QModule> efd::QModule::ParseString(std::string program, bool forceStdLib) {
+efd::QModule::uRef efd::QModule::ParseString(std::string program, bool forceStdLib) {
     auto ast = efd::ParseString(program, forceStdLib);
 
     if (ast != nullptr)

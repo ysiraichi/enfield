@@ -1,7 +1,8 @@
 #include "gtest/gtest.h"
 
-#include "enfield/Pass.h"
+#include "enfield/Transform/Pass.h"
 #include "enfield/Analysis/Nodes.h"
+#include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Transform/QModule.h"
 #include "enfield/Support/RTTI.h"
 
@@ -10,27 +11,20 @@
 using namespace efd;
 
 namespace {
-    class ASTVectorPass : public Pass {
+    class ASTVectorVisitor : public NodeVisitor, public PassT<void> {
         public:
             std::vector<Node::Ref> mV;
 
-            ASTVectorPass() {
-                mUK = Pass::K_AST_PASS;
-            }
-
-            void init() override {
-                mV.clear();
-            }
+            ASTVectorVisitor() {}
 
             void visitNode(Node::Ref ref) {
                 mV.push_back(ref);
-                for (auto& child : *ref)
-                    child->apply(this);
+                visitChildren(ref);
             }
 
             void visit(NDQasmVersion::Ref ref) override { visitNode(ref); }
             void visit(NDInclude::Ref ref) override { visitNode(ref); }
-            void visit(NDDecl::Ref ref) override { visitNode(ref); }
+            void visit(NDRegDecl::Ref ref) override { visitNode(ref); }
             void visit(NDGateDecl::Ref ref) override { visitNode(ref); }
             void visit(NDOpaque::Ref ref) override { visitNode(ref); }
             void visit(NDQOpMeasure::Ref ref) override { visitNode(ref); }
@@ -49,17 +43,36 @@ namespace {
             void visit(NDValue<std::string>::Ref ref) override { visitNode(ref); }
             void visit(NDValue<IntVal>::Ref ref) override { visitNode(ref); }
             void visit(NDValue<RealVal>::Ref ref) override { visitNode(ref); }
+
+            void run(QModule::Ref qmod) override {
+                mV.clear();
+
+                auto version = qmod->getVersion();
+                if (version != nullptr)
+                    qmod->getVersion()->apply(this);
+
+                for (auto it = qmod->reg_begin(), e = qmod->reg_end(); it != e; ++it) {
+                    (*it)->apply(this);
+                }
+
+                for (auto it = qmod->gates_begin(), e = qmod->gates_end(); it != e; ++it) {
+                    (*it)->apply(this);
+                }
+
+                for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it) {
+                    (*it)->apply(this);
+                }
+            }
     };
 }
 
 void compareClonedPrograms(const std::string program) {
-    std::unique_ptr<QModule> qmod = QModule::ParseString(program);
+    std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
     std::unique_ptr<QModule> clone = qmod->clone();
 
-    ASTVectorPass vQMod, vClone;
-
-    qmod->runPass(&vQMod);
-    clone->runPass(&vClone);
+    ASTVectorVisitor vQMod, vClone;
+    vQMod.run(qmod.get());
+    vClone.run(clone.get());
 
     ASSERT_EQ(qmod->toString(), clone->toString());
     ASSERT_EQ(vQMod.mV.size(), vClone.mV.size());
@@ -81,7 +94,7 @@ TEST_CLONE(OpaqueGateTest, "opaque ogate(x, y) a, b, c;");
 TEST_CLONE(MeasureTest, "measure q[0] -> c[0];");
 TEST_CLONE(ResetTest, "reset q0[0];");
 TEST_CLONE(BarrierTest, "barrier q0, q1;");
-TEST_CLONE(GenericTest, "notid(pi + 3 / 8) q0[0], q[1];");
+TEST_CLONE(GenericTest, "gate notid(cc) a, b { CX a, b; } notid(pi + 3 / 8) q0[0], q[1];");
 TEST_CLONE(CXTest, "CX q0[0], q[1];");
 TEST_CLONE(UTest, "U q0[0];");
 TEST_CLONE(GOPListTest, "gate notid a, b { CX a, b; U(pi) a; }");

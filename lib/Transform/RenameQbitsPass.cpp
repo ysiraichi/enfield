@@ -1,47 +1,66 @@
 #include "enfield/Transform/RenameQbitsPass.h"
+#include "enfield/Analysis/NodeVisitor.h"
 
 #include <cassert>
 
 namespace efd {
     extern NDId::uRef SWAP_ID_NODE;
+
+    class RenameQbitVisitor : public NodeVisitor {
+        private:
+            RenameQbitPass::ArchMap& mAMap;
+
+            /// \brief Gets the node associated with the old node (that is currently
+            /// inside)
+            Node::uRef getNodeFromOld(Node::Ref old);
+            /// \brief Returns true if this call is a call to the swap gate.
+            bool isSwapGate(NDQOpGeneric::Ref ref);
+
+        public:
+            RenameQbitVisitor(RenameQbitPass::ArchMap& map) : mAMap(map) {}
+
+            void visit(NDQOpMeasure::Ref ref) override;
+            void visit(NDQOpReset::Ref ref) override;
+            void visit(NDQOpU::Ref ref) override;
+            void visit(NDQOpCX::Ref ref) override;
+            void visit(NDQOpBarrier::Ref ref) override;
+            void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDList::Ref ref) override;
+    };
 }
 
-efd::RenameQbitPass::RenameQbitPass(ArchMap map) : mAMap(map) {
-    mUK += Pass::K_STMT_PASS;
-}
-
-efd::Node::uRef efd::RenameQbitPass::getNodeFromOld(Node::Ref old) {
+efd::Node::uRef efd::RenameQbitVisitor::getNodeFromOld(Node::Ref old) {
     std::string id = old->toString();
     assert(mAMap.find(id) != mAMap.end() && "Node not found for id/idref.");
     return mAMap[id]->clone();
 }
 
-bool efd::RenameQbitPass::isSwapGate(NDQOpGeneric::Ref ref) {
+bool efd::RenameQbitVisitor::isSwapGate(NDQOpGeneric::Ref ref) {
     return ref->getId()->toString() == SWAP_ID_NODE->toString();
 }
 
-void efd::RenameQbitPass::visit(NDQOpMeasure::Ref ref) {
+void efd::RenameQbitVisitor::visit(NDQOpMeasure::Ref ref) {
     ref->setQBit(getNodeFromOld(ref->getQBit()));
 }
 
-void efd::RenameQbitPass::visit(NDQOpReset::Ref ref) {
+void efd::RenameQbitVisitor::visit(NDQOpReset::Ref ref) {
     ref->setQArg(getNodeFromOld(ref->getQArg()));
 }
 
-void efd::RenameQbitPass::visit(NDQOpU::Ref ref) {
+void efd::RenameQbitVisitor::visit(NDQOpU::Ref ref) {
     ref->setQArg(getNodeFromOld(ref->getQArg()));
 }
 
-void efd::RenameQbitPass::visit(NDQOpCX::Ref ref) {
+void efd::RenameQbitVisitor::visit(NDQOpCX::Ref ref) {
     ref->setLhs(getNodeFromOld(ref->getLhs()));
     ref->setRhs(getNodeFromOld(ref->getRhs()));
 }
 
-void efd::RenameQbitPass::visit(NDQOpBarrier::Ref ref) {
+void efd::RenameQbitVisitor::visit(NDQOpBarrier::Ref ref) {
     ref->getQArgs()->apply(this);
 }
 
-void efd::RenameQbitPass::visit(NDQOpGeneric::Ref ref) {
+void efd::RenameQbitVisitor::visit(NDQOpGeneric::Ref ref) {
     std::string lhs, rhs;
 
     // Will only swap the values in the map if this is a swap call, and
@@ -63,14 +82,21 @@ void efd::RenameQbitPass::visit(NDQOpGeneric::Ref ref) {
         std::swap(mAMap[lhs], mAMap[rhs]);
 }
 
-void efd::RenameQbitPass::visit(NDList::Ref ref) {
+void efd::RenameQbitVisitor::visit(NDList::Ref ref) {
     for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
         ref->setChild(i, getNodeFromOld(ref->getChild(i)));
     }
 }
 
-bool efd::RenameQbitPass::doesInvalidatesModule() const {
-    return true;
+efd::RenameQbitPass::RenameQbitPass(ArchMap map) : mAMap(map) {
+}
+
+void efd::RenameQbitPass::run(QModule::Ref qmod) {
+    RenameQbitVisitor visitor(mAMap);
+
+    for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it) {
+        (*it)->apply(&visitor);
+    }
 }
 
 efd::RenameQbitPass::uRef efd::RenameQbitPass::Create(ArchMap map) {

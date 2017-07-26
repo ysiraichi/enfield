@@ -2,6 +2,7 @@
 
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
+#include "enfield/Transform/QbitToNumberPass.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
 
@@ -10,23 +11,24 @@
 
 using namespace efd;
 
-TEST(QbitToNumberPassTests, WholeProgramTest) {
+TEST(QbitToNumberWrapperPassTests, WholeProgramTest) {
     {
         const std::string program = \
 "\
 qreg q[5];\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
-        auto pass = QbitToNumberPass::Create();
-        qmod->runPass(pass.get());
+        auto qmod = toShared(QModule::ParseString(program, false));
+        auto pass = QbitToNumberWrapperPass::Create();
+        pass->run(qmod.get());
 
-        ASSERT_DEATH({ pass->getUId("q"); }, "Id not found");
-        ASSERT_TRUE(pass->getUId("q[0]") == 0);
-        ASSERT_TRUE(pass->getUId("q[1]") == 1);
-        ASSERT_TRUE(pass->getUId("q[2]") == 2);
-        ASSERT_TRUE(pass->getUId("q[3]") == 3);
-        ASSERT_TRUE(pass->getUId("q[4]") == 4);
+        auto data = pass->getData();
+        ASSERT_DEATH({ data.getUId("q"); }, "Id not found");
+        ASSERT_TRUE(data.getUId("q[0]") == 0);
+        ASSERT_TRUE(data.getUId("q[1]") == 1);
+        ASSERT_TRUE(data.getUId("q[2]") == 2);
+        ASSERT_TRUE(data.getUId("q[3]") == 3);
+        ASSERT_TRUE(data.getUId("q[4]") == 4);
     }
 
     {
@@ -37,21 +39,24 @@ gate mygate(a, b, c) x, y, z {\
 }\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
-        auto pass = QbitToNumberPass::Create();
-        qmod->runPass(pass.get());
+        auto qmod = toShared(QModule::ParseString(program, false));
+        auto pass = QbitToNumberWrapperPass::Create();
+        pass->run(qmod.get());
 
-        NDGateDecl* gate = qmod->getQGate("mygate");
+        auto sign = qmod->getQGate("mygate");
+        ASSERT_FALSE(sign == nullptr);
+
+        auto data = pass->getData();
+        ASSERT_DEATH({ data.getUId("mygate"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("x"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("y"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("z"); }, "Id not found");
+
+        NDGateDecl::Ref gate = dynCast<NDGateDecl>(sign);
         ASSERT_FALSE(gate == nullptr);
-
-        ASSERT_DEATH({ pass->getUId("mygate"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("x"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("y"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("z"); }, "Id not found");
-
-        ASSERT_TRUE(pass->getUId("x", gate) == 0);
-        ASSERT_TRUE(pass->getUId("y", gate) == 1);
-        ASSERT_TRUE(pass->getUId("z", gate) == 2);
+        ASSERT_TRUE(data.getUId("x", gate) == 0);
+        ASSERT_TRUE(data.getUId("y", gate) == 1);
+        ASSERT_TRUE(data.getUId("z", gate) == 2);
     }
 
     {
@@ -74,39 +79,46 @@ measure q[3] -> c[3];\
 measure q[4] -> c[4];\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
-        auto pass = QbitToNumberPass::Create();
-        qmod->runPass(pass.get());
+        auto qmod = toShared(QModule::ParseString(program, false));
+        auto pass = QbitToNumberWrapperPass::Create();
+        pass->run(qmod.get());
 
-        NDGateDecl* idGate = qmod->getQGate("id");
+        auto data = pass->getData();
+
+        auto idSign = qmod->getQGate("id");
+        ASSERT_FALSE(idSign == nullptr);
+        NDGateDecl::Ref idGate = dynCast<NDGateDecl>(idSign);
         ASSERT_FALSE(idGate == nullptr);
-        NDGateDecl* cnotGate = qmod->getQGate("cnot");
+
+        auto cnotSign = qmod->getQGate("cnot");
+        ASSERT_FALSE(cnotSign == nullptr);
+        NDGateDecl::Ref cnotGate = dynCast<NDGateDecl>(cnotSign);
         ASSERT_FALSE(cnotGate == nullptr);
 
-        ASSERT_DEATH({ pass->getUId("id"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("cnot"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("a"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("b"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("q"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("c"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("c[0]"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("c[1]"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("c[2]"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("c[3]"); }, "Id not found");
-        ASSERT_DEATH({ pass->getUId("c[4]"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("id"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("cnot"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("a"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("b"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("q"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("c"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("c[0]"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("c[1]"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("c[2]"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("c[3]"); }, "Id not found");
+        ASSERT_DEATH({ data.getUId("c[4]"); }, "Id not found");
 
-        ASSERT_TRUE(pass->getUId("a", idGate) == 0);
-        ASSERT_TRUE(pass->getUId("a", cnotGate) == 0);
-        ASSERT_TRUE(pass->getUId("b", cnotGate) == 1);
-        ASSERT_TRUE(pass->getUId("q[0]") == 0);
-        ASSERT_TRUE(pass->getUId("q[1]") == 1);
-        ASSERT_TRUE(pass->getUId("q[2]") == 2);
-        ASSERT_TRUE(pass->getUId("q[3]") == 3);
-        ASSERT_TRUE(pass->getUId("q[4]") == 4);
+        ASSERT_TRUE(data.getUId("a", idGate) == 0);
+        ASSERT_TRUE(data.getUId("a", cnotGate) == 0);
+        ASSERT_TRUE(data.getUId("b", cnotGate) == 1);
+        ASSERT_TRUE(data.getUId("q[0]") == 0);
+        ASSERT_TRUE(data.getUId("q[1]") == 1);
+        ASSERT_TRUE(data.getUId("q[2]") == 2);
+        ASSERT_TRUE(data.getUId("q[3]") == 3);
+        ASSERT_TRUE(data.getUId("q[4]") == 4);
     }
 }
 
-TEST(DependencyBuilderPassTest, GateDependenciesTest) {
+TEST(DependencyBuilderWrapperPassTest, GateDependenciesTest) {
     {
         const std::string program = \
 "\
@@ -115,17 +127,20 @@ gate cnot x, y {\
 }\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
-        DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
-        qmod->runPass(pass.get());
+        auto qmod = toShared(QModule::ParseString(program, false));
+        auto pass = DependencyBuilderWrapperPass::Create();
+        pass->run(qmod.get());
 
         unsigned x = 0;
         unsigned y = 1;
 
-        NDGateDecl* gate = qmod->getQGate("cnot");
+        auto sign = qmod->getQGate("cnot");
+        ASSERT_FALSE(sign == nullptr);
+        NDGateDecl::Ref gate = dynCast<NDGateDecl>(sign);
         ASSERT_FALSE(gate == nullptr);
 
-        DependencyBuilderPass::DepsSet deps = pass->getDependencies(gate);
+        auto data = pass->getData();
+        auto deps = data.getDependencies(gate);
         // Has only one parallel dependency.
         ASSERT_EQ(deps.size(), 1);
         // The only paralel dependency has only one parallel dependency.
@@ -148,20 +163,26 @@ gate cnot x, y {\
 }\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
-        DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
-        qmod->runPass(pass.get());
+        auto qmod = toShared(QModule::ParseString(program, false));
+        auto pass = DependencyBuilderWrapperPass::Create();
+        pass->run(qmod.get());
 
         unsigned x = 0;
         unsigned y = 1;
 
-        NDGateDecl* cxGate = qmod->getQGate("cx");
+        auto cxSign = qmod->getQGate("cx");
+        ASSERT_FALSE(cxSign == nullptr);
+        NDGateDecl::Ref cxGate = dynCast<NDGateDecl>(cxSign);
         ASSERT_FALSE(cxGate == nullptr);
-        NDGateDecl* cnotGate = qmod->getQGate("cnot");
+
+        auto cnotSign = qmod->getQGate("cnot");
+        ASSERT_FALSE(cnotSign == nullptr);
+        NDGateDecl::Ref cnotGate = dynCast<NDGateDecl>(cnotSign);
         ASSERT_FALSE(cnotGate == nullptr);
 
-        DependencyBuilderPass::DepsSet cxDeps = pass->getDependencies(cxGate);
-        DependencyBuilderPass::DepsSet cnotDeps = pass->getDependencies(cnotGate);
+        auto data = pass->getData();
+        auto cxDeps = data.getDependencies(cxGate);
+        auto cnotDeps = data.getDependencies(cnotGate);
 
         // Has only one parallel dependency.
         ASSERT_EQ(cxDeps.size(), 1);
@@ -185,7 +206,7 @@ gate cnot x, y {\
     }
 }
 
-TEST(DependencyBuilderPassTest, ProgramDependenciesTest) {
+TEST(DependencyBuilderWrapperPassTest, ProgramDependenciesTest) {
     {
         const std::string program = \
 "\
@@ -193,14 +214,15 @@ qreg q[2];\
 CX q[0], q[1];\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
-        DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
-        qmod->runPass(pass.get());
+        auto qmod = toShared(QModule::ParseString(program, false));
+        auto pass = DependencyBuilderWrapperPass::Create();
+        pass->run(qmod.get());
 
         unsigned q0 = 0;
         unsigned q1 = 1;
 
-        DependencyBuilderPass::DepsSet deps = pass->getDependencies();
+        auto data = pass->getData();
+        auto deps = data.getDependencies();
 
         // Has only one parallel dependency.
         ASSERT_EQ(deps.size(), 1);
@@ -265,21 +287,22 @@ measure b[7] -> ans[7];\
 measure carry[0] -> carryout[0];\
 ";
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
-        DependencyBuilderPass::uRef pass = DependencyBuilderPass::Create(qmod);
-        qmod->runPass(pass.get());
-
+        auto qmod = toShared(QModule::ParseString(program, false));
+        auto pass = DependencyBuilderWrapperPass::Create();
+        pass->run(qmod.get());
 
         std::unordered_map<std::string, std::pair<unsigned, unsigned>> gatesInfo = {
             { "ccx", { 6, 6 } }, { "cx", { 1, 1 } }, { "x", { 0, 0 } }, { "majority", { 3, 8 } }, { "add4", { 9, 65 } }, { "unmaj", { 3, 8 } }
         };
 
-        DependencyBuilderPass::DepsSet deps;
+        auto data = pass->getData();
+        DependencyBuilder::DepsSet deps;
         for (auto pair : gatesInfo) {
-            NDGateDecl* gate = qmod->getQGate(pair.first);
+            auto sign = qmod->getQGate(pair.first);
+            NDGateDecl::Ref gate = dynCast<NDGateDecl>(sign);
             ASSERT_FALSE(gate == nullptr);
 
-            deps = pass->getDependencies(gate);
+            auto deps = data.getDependencies(gate);
             ASSERT_EQ(deps.size(), pair.second.first);
 
             unsigned sum = 0;

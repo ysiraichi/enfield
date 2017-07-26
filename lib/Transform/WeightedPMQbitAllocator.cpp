@@ -4,8 +4,8 @@
 #include <cassert>
 #include <map>
 
-efd::WeightedPMQbitAllocator::WeightedPMQbitAllocator(QModule::sRef qmod, ArchGraph::sRef agraph) :
-    QbitAllocator(qmod, agraph), mWG(nullptr), mPMFinder(nullptr) {
+efd::WeightedPMQbitAllocator::WeightedPMQbitAllocator(ArchGraph::sRef agraph) :
+    QbitAllocator(agraph), mWG(nullptr), mPMFinder(nullptr) {
 }
 
 std::unique_ptr<efd::WeightedGraph<efd::WeightedPMQbitAllocator::WeightTy>>
@@ -97,6 +97,6 @@ efd::WeightedPMQbitAllocator::solveDependencies(DepsSet& deps) {
 }
 
 efd::WeightedPMQbitAllocator::uRef
-efd::WeightedPMQbitAllocator::Create(QModule::sRef qmod, ArchGraph::sRef agraph) {
-    return uRef(new WeightedPMQbitAllocator(qmod, agraph));
+efd::WeightedPMQbitAllocator::Create(ArchGraph::sRef agraph) {
+    return uRef(new WeightedPMQbitAllocator(agraph));
 }

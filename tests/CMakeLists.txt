@@ -34,42 +34,39 @@ efd_test (DriverFileTests
 
 # ==-------- Arch ----------==
 efd_test (ArchGraphTests
-    EfdArch EfdAnalysis EfdCore EfdSupport)
+    EfdArch EfdAnalysis EfdSupport)
 
 efd_test (IBMQX2Tests
-    EfdArch EfdAnalysis EfdCore EfdSupport)
+    EfdArch EfdAnalysis EfdSupport)
 
 # ==-------- Transforms ----------==
 efd_test (QModuleTests
-    EfdTransform EfdAnalysis EfdCore EfdSupport)
-
-efd_test (IdTableTests
-    EfdTransform EfdAnalysis EfdCore EfdSupport)
+    EfdTransform EfdAnalysis EfdSupport)
 
 efd_test (QModuleCloneTests
-    EfdTransform EfdAnalysis EfdCore EfdSupport)
+    EfdTransform EfdAnalysis EfdSupport)
 
 efd_test (DependencyBuilderPassTests
-    EfdTransform EfdAnalysis EfdCore EfdSupport)
+    EfdTransform EfdAnalysis EfdSupport)
 
 efd_test (FlattenPassTests
-    EfdTransform EfdAnalysis EfdCore EfdSupport)
+    EfdTransform EfdAnalysis EfdSupport)
 
 efd_test (TransformUtilsTests
-    EfdTransform EfdAnalysis EfdCore EfdSupport)
+    EfdTransform EfdAnalysis EfdSupport)
 
 efd_test (InlineAllPassTests
-    EfdTransform EfdAnalysis EfdCore EfdSupport)
+    EfdTransform EfdAnalysis EfdSupport)
 
 efd_test (RenameQbitsPassTests
-    EfdTransform EfdAnalysis EfdCore EfdSupport)
+    EfdTransform EfdAnalysis EfdSupport)
 
 efd_test (DynProgQbitAllocatorTests
-    EfdTransform EfdArch EfdAnalysis EfdCore EfdSupport)
+    EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 efd_test (WeightedPMQbitAllocatorTests
-    EfdTransform EfdArch EfdAnalysis EfdCore EfdSupport)
+    EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 efd_test (ReverseEdgesPassTests
-    EfdTransform EfdArch EfdAnalysis EfdCore EfdSupport)
+    EfdTransform EfdArch EfdAnalysis EfdSupport)
 

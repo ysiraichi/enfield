@@ -2,7 +2,7 @@
 
 void efd::NodeVisitor::visit(NDQasmVersion::Ref ref) {}
 void efd::NodeVisitor::visit(NDInclude::Ref ref) {}
-void efd::NodeVisitor::visit(NDDecl::Ref ref) {}
+void efd::NodeVisitor::visit(NDRegDecl::Ref ref) {}
 void efd::NodeVisitor::visit(NDGateDecl::Ref ref) {}
 void efd::NodeVisitor::visit(NDOpaque::Ref ref) {}
 void efd::NodeVisitor::visit(NDQOpMeasure::Ref ref) {}
@@ -22,4 +22,8 @@ void efd::NodeVisitor::visit(NDValue<std::string>::Ref ref) {}
 void efd::NodeVisitor::visit(NDValue<IntVal>::Ref ref) {}
 void efd::NodeVisitor::visit(NDValue<RealVal>::Ref ref) {}
 
-void efd::NodeVisitor::init() {}
+void efd::NodeVisitor::visitChildren(Node::Ref ref) {
+    for (auto& child : *ref) {
+        child->apply(this);
+    }
+}
