@@ -61,12 +61,13 @@ efd_test (InlineAllPassTests
 efd_test (RenameQbitsPassTests
     EfdTransform EfdAnalysis EfdSupport)
 
+# ==-------- Allocator ----------==
 efd_test (DynProgQbitAllocatorTests
-    EfdTransform EfdArch EfdAnalysis EfdSupport)
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 efd_test (WeightedPMQbitAllocatorTests
-    EfdTransform EfdArch EfdAnalysis EfdSupport)
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 efd_test (ReverseEdgesPassTests
-    EfdTransform EfdArch EfdAnalysis EfdSupport)
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 

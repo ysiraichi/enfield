@@ -7,8 +7,11 @@ add_library (EfdTransform
     FlattenPass.cpp
     Utils.cpp
     InlineAllPass.cpp
-    DynProgQbitAllocator.cpp
-    QbitAllocator.cpp
     RenameQbitsPass.cpp
-    ReverseEdgesPass.cpp
-    WeightedPMQbitAllocator.cpp)
+    ReverseEdgesPass.cpp)
+
+add_library(EfdAllocator
+    QbitAllocator.cpp
+    DynProgQbitAllocator.cpp
+    WeightedPMQbitAllocator.cpp
+    RandomQbitAllocator.cpp)
