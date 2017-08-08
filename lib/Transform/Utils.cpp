@@ -139,7 +139,7 @@ void efd::ProcessAST(QModule::Ref qmod, Node::Ref root) {
 // ==--------------- Inlining ---------------==
 typedef std::unordered_map<std::string, efd::Node::Ref> VarMap;
 
-namespace {
+namespace efd {
     class QArgsReplaceVisitor : public efd::NodeVisitor {
         public:
             VarMap& varMap;
@@ -151,6 +151,7 @@ namespace {
 
             void visit(efd::NDQOpU::Ref ref) override;
             void visit(efd::NDQOpCX::Ref ref) override;
+            void visit(efd::NDList::Ref ref) override;
             void visit(efd::NDQOpBarrier::Ref ref) override;
             void visit(efd::NDQOpGeneric::Ref ref) override;
             void visit(efd::NDBinOp::Ref ref) override;
@@ -158,7 +159,7 @@ namespace {
     };
 }
 
-efd::Node::uRef QArgsReplaceVisitor::replaceChild(efd::Node::Ref child) {
+efd::Node::uRef efd::QArgsReplaceVisitor::replaceChild(efd::Node::Ref child) {
     std::string _id = child->toString();
 
     if (varMap.find(_id) != varMap.end()) {
@@ -168,7 +169,7 @@ efd::Node::uRef QArgsReplaceVisitor::replaceChild(efd::Node::Ref child) {
     return efd::Node::uRef(nullptr);
 }
 
-void QArgsReplaceVisitor::substituteChildrem(efd::Node::Ref ref) {
+void efd::QArgsReplaceVisitor::substituteChildrem(efd::Node::Ref ref) {
     for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
         auto newChild = replaceChild(ref->getChild(i));
         if (newChild.get() != nullptr) {
@@ -177,33 +178,37 @@ void QArgsReplaceVisitor::substituteChildrem(efd::Node::Ref ref) {
     }
 }
 
-void QArgsReplaceVisitor::visit(efd::NDQOpU::Ref ref) {
+void efd::QArgsReplaceVisitor::visit(efd::NDQOpU::Ref ref) {
     ref->getArgs()->apply(this);
-    substituteChildrem(ref->getArgs());
     ref->setQArg(replaceChild(ref->getQArg()));
 }
 
-void QArgsReplaceVisitor::visit(efd::NDQOpCX::Ref ref) {
+void efd::QArgsReplaceVisitor::visit(efd::NDQOpCX::Ref ref) {
     substituteChildrem(ref);
 }
 
-void QArgsReplaceVisitor::visit(efd::NDQOpBarrier::Ref ref) {
+void efd::QArgsReplaceVisitor::visit(efd::NDList::Ref ref) {
+    visitChildren(ref);
     substituteChildrem(ref);
 }
 
-void QArgsReplaceVisitor::visit(efd::NDQOpGeneric::Ref ref) {
+void efd::QArgsReplaceVisitor::visit(efd::NDQOpBarrier::Ref ref) {
+    substituteChildrem(ref);
+}
+
+void efd::QArgsReplaceVisitor::visit(efd::NDQOpGeneric::Ref ref) {
     ref->getArgs()->apply(this);
-    substituteChildrem(ref->getArgs());
-    substituteChildrem(ref->getQArgs());
+    ref->getQArgs()->apply(this);
 }
 
-void QArgsReplaceVisitor::visit(efd::NDBinOp::Ref ref) {
+void efd::QArgsReplaceVisitor::visit(efd::NDBinOp::Ref ref) {
     ref->getLhs()->apply(this);
     ref->getRhs()->apply(this);
     substituteChildrem(ref);
 }
 
-void QArgsReplaceVisitor::visit(efd::NDUnaryOp::Ref ref) {
+void efd::QArgsReplaceVisitor::visit(efd::NDUnaryOp::Ref ref) {
+    visitChildren(ref);
     substituteChildrem(ref);
 }
 
