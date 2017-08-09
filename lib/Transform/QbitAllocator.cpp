@@ -89,12 +89,10 @@ void efd::QbitAllocator::replaceWithArchSpecs() {
 
     // Replacing the old qbit declarations with the architecture's qbit
     // declaration.
-    std::vector<NDRegDecl::uRef> decls;
+    mMod->removeAllQRegs();
     for (auto it = mArchGraph->reg_begin(), e = mArchGraph->reg_end(); it != e; ++it)
-        decls.push_back(NDRegDecl::CreateQ(
-                        NDId::Create(it->first), 
-                        NDInt::Create(std::to_string(it->second))));
-    mMod->replaceAllRegsWith(std::move(decls));
+        mMod->insertReg(NDRegDecl::CreateQ
+                (NDId::Create(it->first), NDInt::Create(std::to_string(it->second))));
 }
 
 void efd::QbitAllocator::renameQbits() {

@@ -63,11 +63,8 @@ namespace efd {
             /// \brief Inserts a register declaration node.
             void insertReg(NDRegDecl::uRef reg);
 
-            /// \brief Replace all quantum registers with this sequence of declarations.
-            /// 
-            /// This should be used when renaming registers to the architecture's register
-            /// set.
-            void replaceAllRegsWith(std::vector<NDRegDecl::uRef> newRegs);
+            /// \brief Removes all quantum registers.
+            void removeAllQRegs();
 
             /// \brief Returns a iterator pointing to \p ref, if it exists.
             Iterator findStatement(Node::Ref ref);

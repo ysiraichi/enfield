@@ -93,11 +93,18 @@ void efd::QModule::insertReg(NDRegDecl::uRef reg) {
     mRegs.push_back(mRegsMap[id].get());
 }
 
-void efd::QModule::replaceAllRegsWith(std::vector<NDRegDecl::uRef> newRegs) {
-    mRegs.clear();
+void efd::QModule::removeAllQRegs() {
+    std::vector<unsigned> ridx;
 
-    for (auto& reg : newRegs) {
-        insertReg(std::move(reg));
+    for (unsigned i = 0, e = mRegs.size(); i < e; ++i) {
+        if (mRegs[i]->isQReg())
+            ridx.push_back(i);
+    }
+
+    // Starting from the end. So that we don't need to update the indexes
+    // for every removal.
+    for (auto it = ridx.rbegin(), e = ridx.rend(); it != e; ++it) {
+        mRegs.erase(mRegs.begin() + *it);
     }
 }
 
