@@ -5,6 +5,7 @@
 #include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Transform/WeightedPMQbitAllocator.h"
 #include "enfield/Transform/DynProgQbitAllocator.h"
+#include "enfield/Transform/QbitterQbitAllocator.h"
 #include "enfield/Transform/RandomQbitAllocator.h"
 #include "enfield/Transform/ReverseEdgesPass.h"
 #include "enfield/Support/OneRestrictionSwapFinder.h"
@@ -31,7 +32,7 @@ static Opt<bool> ShowStats
 static Opt<std::string> Allocator
 ("alloc", "Sets the allocator to be used. \
 Default: DynProg. \
-Options: DynProg; WPM; Random.", "DynProg", false);
+Options: DynProg; WPM; Qbitter; Random.", "DynProg", false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
@@ -63,7 +64,12 @@ int main(int argc, char** argv) {
             allocator = WeightedPMQbitAllocator::Create(graph).release();
         else if (Allocator.getVal() == "Random")
             allocator = RandomQbitAllocator::Create(graph).release();
-        else allocator = DynProgQbitAllocator::Create(graph).release();
+        else if (Allocator.getVal() == "DynProg")
+            allocator = DynProgQbitAllocator::Create(graph).release();
+        else if (Allocator.getVal() == "Qbitter")
+            allocator = QbitterQbitAllocator::Create(graph).release();
+        else
+            assert(false && "No such allocator.");
         allocator->setInlineAll({ "cx", "u1", "u2", "u3" });
         allocator->run(qmod.get());
 
