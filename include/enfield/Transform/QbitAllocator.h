@@ -42,7 +42,11 @@ namespace efd {
 
             /// \brief Inserts a swap between u and v. (note that these indexes must be
             /// the indexes of the program's qbit)
-            virtual void insertSwapBefore(Dependencies& deps, unsigned u, unsigned v);
+            void insertSwapBefore(Dependencies& deps, unsigned u, unsigned v);
+
+            /// \brief Inserts a CNOT operation between two qubits that have two edges
+            /// between them.
+            void replaceByLCNOT(Dependencies& deps, unsigned u, unsigned w, unsigned v);
 
             /// \brief Returns the number of qbits in the program.
             unsigned getNumQbits();
