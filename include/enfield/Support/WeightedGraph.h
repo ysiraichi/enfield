@@ -28,6 +28,9 @@ namespace efd {
             /// \brief Gets the weight of an edge (i, j).
             T getW(unsigned i, unsigned j);
     
+            /// \brief Returns true if \p g is of this type.
+            static bool ClassOf(const Graph* g);
+    
             /// \brief Encapsulates the creation of a new Graph.
             static uRef Create(unsigned n);
             /// \brief Parses the file \p filename into a Graph representation.
@@ -38,7 +41,7 @@ namespace efd {
 }
 
 template <typename T>
-efd::WeightedGraph<T>::WeightedGraph(unsigned n) : Graph(n) {}
+efd::WeightedGraph<T>::WeightedGraph(unsigned n) : Graph(K_WEIGHTED, n) {}
 
 template <typename T>
 void efd::WeightedGraph<T>::putEdge(unsigned i, unsigned j, T w) {
@@ -51,6 +54,11 @@ T efd::WeightedGraph<T>::getW(unsigned i, unsigned j) {
     auto pair = std::make_pair(i, j);
     assert(mW.find(pair) != mW.end() && "Edge weight not found.");
     return mW[pair];
+}
+
+template <typename T>
+bool efd::WeightedGraph<T>::ClassOf(const Graph* g) {
+    return g->isWeighted();
 }
 
 template <typename T>

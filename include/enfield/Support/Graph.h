@@ -14,12 +14,20 @@ namespace efd {
             typedef std::unique_ptr<Graph> uRef;
             typedef std::shared_ptr<Graph> sRef;
 
+            enum Kind {
+                K_GRAPH,
+                K_WEIGHTED,
+                K_ARCH
+            };
+
         protected:
+            Kind mK;
             unsigned mN;
+
             std::vector<std::set<unsigned>> mSuccessors;
             std::vector<std::set<unsigned>> mPredecessors;
 
-            Graph(unsigned n);
+            Graph(Kind k, unsigned n);
 
         public:
             /// \brief Return the degree entering the vertex \p i.
@@ -37,9 +45,16 @@ namespace efd {
             /// \brief Inserts an edge (i, j) in the successor's list and
             /// an edge (j, i) in the predecessor's list.
             void putEdge(unsigned i, unsigned j);
-    
             /// \brief Returns true whether it has an edge (i, j).
             bool hasEdge(unsigned i, unsigned j); 
+
+            /// \brief Returns true if this is a weighted graph.
+            bool isWeighted() const;
+            /// \brief Returns true if this is an architecture graph.
+            bool isArch() const;
+
+            /// \brief Returns true if \p g is of this type.
+            static bool ClassOf(const Graph* g);
     
             /// \brief Encapsulates the creation of a new Graph.
             static uRef Create(unsigned n);

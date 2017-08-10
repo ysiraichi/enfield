@@ -6,7 +6,7 @@
 #include <cassert>
 
 // ----------------------------- Graph -------------------------------
-efd::Graph::Graph(unsigned n) : mN(n) {
+efd::Graph::Graph(Kind k, unsigned n) : mK(k), mN(n) {
     mSuccessors.assign(n, std::set<unsigned>());
     mPredecessors.assign(n, std::set<unsigned>());
 }
@@ -41,8 +41,20 @@ void efd::Graph::putEdge(unsigned i, unsigned j) {
     mPredecessors[j].insert(i);
 }
 
+bool efd::Graph::isWeighted() const {
+    return mK == K_WEIGHTED;
+}
+
+bool efd::Graph::isArch() const {
+    return mK == K_ARCH;
+}
+
+bool efd::Graph::ClassOf(const Graph* g) {
+    return true;
+}
+
 efd::Graph::uRef efd::Graph::Create(unsigned n) {
-    return std::unique_ptr<Graph>(new Graph(n));
+    return std::unique_ptr<Graph>(new Graph(K_GRAPH, n));
 }
 
 static efd::Graph::uRef ReadFromIn(std::istream& in) {

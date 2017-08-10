@@ -58,12 +58,13 @@ namespace efd {
             /// \brief The end iterator for the \p mRegs.
             RegsIterator reg_end();
 
+            /// \brief Returns true if \p g is of this type.
+            static bool ClassOf(const Graph* g);
+
             /// \brief Encapsulates the creation of a new ArchGraph.
             static uRef Create(unsigned n);
-
             /// \brief Parses the file \p filename into a ArchGraph representation.
             static uRef Read(std::string filepath);
-
             /// \brief Parses the string \p graphStr into a ArchGraph representation.
             static uRef ReadString(std::string graphStr);
     };
