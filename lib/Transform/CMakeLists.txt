@@ -13,4 +13,5 @@ add_library(EfdAllocator
     QbitAllocator.cpp
     DynProgQbitAllocator.cpp
     WeightedPMQbitAllocator.cpp
-    RandomQbitAllocator.cpp)
+    RandomQbitAllocator.cpp
+    QbitterQbitAllocator.cpp)
