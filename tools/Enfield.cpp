@@ -1,14 +1,11 @@
 #include "enfield/Support/CommandLine.h"
+#include "enfield/Transform/Allocators.h"
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/FlattenPass.h"
 #include "enfield/Transform/QbitToNumberPass.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
-#include "enfield/Transform/WeightedPMQbitAllocator.h"
 #include "enfield/Transform/DynProgQbitAllocator.h"
-#include "enfield/Transform/QbitterQbitAllocator.h"
-#include "enfield/Transform/RandomQbitAllocator.h"
 #include "enfield/Transform/ReverseEdgesPass.h"
-#include "enfield/Support/OneRestrictionSwapFinder.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/Stats.h"
 #include "enfield/Support/uRefCast.h"
@@ -31,8 +28,8 @@ static Opt<bool> ShowStats
 // TODO: This should be change to a nicer interface.
 static Opt<std::string> Allocator
 ("alloc", "Sets the allocator to be used. \
-Default: DynProg. \
-Options: DynProg; WPM; Qbitter; Random.", "DynProg", false);
+Default: dynprog. \
+Options: dynprog; wpm; qbitter; qbitter; random.", "dynprog", false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
@@ -41,6 +38,7 @@ static void DumpToOutFile(QModule* qmod) {
 }
 
 int main(int argc, char** argv) {
+    InitializeAllQbitAllocators();
     ParseArguments(argc, argv);
 
     QModule::sRef qmod = toShared(QModule::Parse(InFilepath.getVal()));
@@ -59,17 +57,7 @@ int main(int argc, char** argv) {
         assert(qbitToNumber.getSize() <= graph->size() &&
                 "Using more qbits than the maximum.");
 
-        QbitAllocator::Ref allocator;
-        if (Allocator.getVal() == "WPM")
-            allocator = WeightedPMQbitAllocator::Create(graph).release();
-        else if (Allocator.getVal() == "Random")
-            allocator = RandomQbitAllocator::Create(graph).release();
-        else if (Allocator.getVal() == "DynProg")
-            allocator = DynProgQbitAllocator::Create(graph).release();
-        else if (Allocator.getVal() == "Qbitter")
-            allocator = QbitterQbitAllocator::Create(graph).release();
-        else
-            assert(false && "No such allocator.");
+        auto allocator = efd::CreateQbitAllocator(Allocator.getVal(), graph);
         allocator->setInlineAll({ "cx", "u1", "u2", "u3" });
         allocator->run(qmod.get());
 
@@ -78,8 +66,6 @@ int main(int argc, char** argv) {
         revPass->run(qmod.get());
 
         DumpToOutFile(qmod.get());
-
-        delete allocator;
     }
 
     if (ShowStats.getVal())
