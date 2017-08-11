@@ -2,6 +2,6 @@ add_library (EfdSupport
     CommandLine.cpp
     WrapperVal.cpp
     Graph.cpp
-    OneRestrictionSwapFinder.cpp
+    BFSPathFinder.cpp
     Timer.cpp
     Stats.cpp)
