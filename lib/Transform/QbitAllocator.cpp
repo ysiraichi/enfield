@@ -28,6 +28,8 @@ efd::Opt<unsigned> SwapCost
 ("-swap-cost", "Cost of using a swap function.", 7, false);
 efd::Opt<unsigned> RevCost
 ("-rev-cost", "Cost of using a reverse edge.", 4, false);
+efd::Opt<unsigned> LCXCost
+("-lcx-cost", "Cost of using long cnot gate.", 10, false);
 
 namespace efd {
     extern NDId::uRef CX_ID_NODE;
@@ -57,66 +59,6 @@ efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(QbitAllocator::Iterat
     }
 
     return newIt;
-}
-
-void efd::QbitAllocator::insertSwapBefore(Dependencies& deps, unsigned u, unsigned v) {
-    Node::Ref lhs = mQbitToNumber.getNode(u);
-    Node::Ref rhs = mQbitToNumber.getNode(v);
-
-    Node::Ref rootStmt = deps.mCallPoint;
-    Node::Ref parent = deps.mCallPoint->getParent();
-    if (instanceOf<NDIfStmt>(parent))
-        rootStmt = parent;
-
-    auto it = mMod->findStatement(rootStmt);
-    mMod->insertSwapBefore(it, lhs, rhs);
-}
-
-void efd::QbitAllocator::replaceByLCNOT(Dependencies& deps,
-        unsigned u, unsigned w, unsigned v) {
-    auto lhs = mQbitToNumber.getNode(u);
-    auto mid = mQbitToNumber.getNode(w);
-    auto rhs = mQbitToNumber.getNode(v);
-
-    auto lhsMid = NDList::Create();
-    lhsMid->addChild(lhs->clone());
-    lhsMid->addChild(mid->clone());
-    auto midRhs = NDList::Create();
-    midRhs->addChild(mid->clone());
-    midRhs->addChild(rhs->clone());
-
-    Node::uRef cxLhsMid = NDQOpGeneric::Create
-        (uniqueCastForward<NDId>(CX_ID_NODE->clone()),
-         NDList::Create(), std::move(lhsMid));
-    Node::uRef cxMidRhs = NDQOpGeneric::Create
-        (uniqueCastForward<NDId>(CX_ID_NODE->clone()),
-         NDList::Create(), std::move(midRhs));
-
-    Node::Ref rootStmt = deps.mCallPoint;
-    Node::Ref parent = deps.mCallPoint->getParent();
-    if (instanceOf<NDIfStmt>(parent)) {
-        NDIfStmt::uRef ndAux;
-        rootStmt = parent;
-
-        ndAux = uniqueCastForward<NDIfStmt>(parent->clone());
-        ndAux->setQOp(std::move(cxLhsMid));
-        cxLhsMid = std::move(ndAux);
-
-        ndAux = uniqueCastForward<NDIfStmt>(parent->clone());
-        ndAux->setQOp(std::move(cxMidRhs));
-        cxMidRhs = std::move(ndAux);
-    }
-
-    auto it = mMod->findStatement(rootStmt);
-    it = mMod->insertStatementBefore(it, std::move(cxMidRhs->clone()));
-    it = mMod->insertStatementAfter(it, std::move(cxLhsMid->clone()));
-    it = mMod->insertStatementAfter(it, std::move(cxMidRhs->clone()));
-    it = mMod->insertStatementAfter(it, std::move(cxLhsMid->clone()));
-    mMod->removeStatement(mMod->findStatement(rootStmt));
-}
-
-unsigned efd::QbitAllocator::getNumQbits() {
-    return mQbitToNumber.getSize();
 }
 
 void efd::QbitAllocator::inlineAllGates() {
@@ -235,6 +177,83 @@ void efd::QbitAllocator::run(QModule::Ref qmod) {
     timer.stop();
     RenameTime = ((double) timer.getMicroseconds() / 1000000.0);
     // -----------------------------------------------------
+}
+
+void efd::QbitAllocator::insertSwapBefore(Dependencies& deps, unsigned u, unsigned v) {
+    Node::Ref lhs = mQbitToNumber.getNode(u);
+    Node::Ref rhs = mQbitToNumber.getNode(v);
+
+    Node::Ref rootStmt = deps.mCallPoint;
+    Node::Ref parent = deps.mCallPoint->getParent();
+    if (instanceOf<NDIfStmt>(parent))
+        rootStmt = parent;
+
+    auto it = mMod->findStatement(rootStmt);
+    mMod->insertSwapBefore(it, lhs, rhs);
+}
+
+void efd::QbitAllocator::replaceByLCNOT(Dependencies& deps,
+        unsigned u, unsigned w, unsigned v) {
+    auto lhs = mQbitToNumber.getNode(u);
+    auto mid = mQbitToNumber.getNode(w);
+    auto rhs = mQbitToNumber.getNode(v);
+
+    auto lhsMid = NDList::Create();
+    lhsMid->addChild(lhs->clone());
+    lhsMid->addChild(mid->clone());
+    auto midRhs = NDList::Create();
+    midRhs->addChild(mid->clone());
+    midRhs->addChild(rhs->clone());
+
+    Node::uRef cxLhsMid = NDQOpGeneric::Create
+        (uniqueCastForward<NDId>(CX_ID_NODE->clone()),
+         NDList::Create(), std::move(lhsMid));
+    Node::uRef cxMidRhs = NDQOpGeneric::Create
+        (uniqueCastForward<NDId>(CX_ID_NODE->clone()),
+         NDList::Create(), std::move(midRhs));
+
+    Node::Ref rootStmt = deps.mCallPoint;
+    Node::Ref parent = deps.mCallPoint->getParent();
+    if (instanceOf<NDIfStmt>(parent)) {
+        NDIfStmt::uRef ndAux;
+        rootStmt = parent;
+
+        ndAux = uniqueCastForward<NDIfStmt>(parent->clone());
+        ndAux->setQOp(std::move(cxLhsMid));
+        cxLhsMid = std::move(ndAux);
+
+        ndAux = uniqueCastForward<NDIfStmt>(parent->clone());
+        ndAux->setQOp(std::move(cxMidRhs));
+        cxMidRhs = std::move(ndAux);
+    }
+
+    auto it = mMod->findStatement(rootStmt);
+    it = mMod->insertStatementBefore(it, std::move(cxMidRhs->clone()));
+    it = mMod->insertStatementAfter(it, std::move(cxLhsMid->clone()));
+    it = mMod->insertStatementAfter(it, std::move(cxMidRhs->clone()));
+    it = mMod->insertStatementAfter(it, std::move(cxLhsMid->clone()));
+    mMod->removeStatement(mMod->findStatement(rootStmt));
+}
+
+unsigned efd::QbitAllocator::getNumQbits() {
+    return mQbitToNumber.getSize();
+}
+
+efd::QbitAllocator::Mapping efd::QbitAllocator::genAssign(Mapping mapping) {
+    unsigned size = mArchGraph->size();
+    std::vector<unsigned> assign(size, size);
+
+    // for 'u' in arch; and 'a' in prog:
+    // if 'a' -> 'u', then 'u' -> 'a'
+    for (unsigned i = 0, e = mapping.size(); i < e; ++i)
+        assign[mapping[i]] = i;
+
+    // Fill the qubits in the architecture that were not mapped.
+    unsigned id = mapping.size();
+    for (unsigned i = 0; i < size; ++i)
+        assign[i] = (assign[i] == size) ? id++ : assign[i];
+
+    return assign;
 }
 
 void efd::QbitAllocator::setInlineAll(BasisVector basis) {

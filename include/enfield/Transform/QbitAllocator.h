@@ -40,17 +40,6 @@ namespace efd {
             /// referenced by \p it. If the node is not an NDQOpGeneric, it does nothing.
             Iterator inlineDep(Iterator it);
 
-            /// \brief Inserts a swap between u and v. (note that these indexes must be
-            /// the indexes of the program's qbit)
-            void insertSwapBefore(Dependencies& deps, unsigned u, unsigned v);
-
-            /// \brief Inserts a CNOT operation between two qubits that have two edges
-            /// between them.
-            void replaceByLCNOT(Dependencies& deps, unsigned u, unsigned w, unsigned v);
-
-            /// \brief Returns the number of qbits in the program.
-            unsigned getNumQbits();
-
             /// \brief Inlines all gates, but those flagged.
             void inlineAllGates();
 
@@ -63,6 +52,21 @@ namespace efd {
 
         public:
             void run(QModule::Ref qmod) override;
+
+            /// \brief Inserts a swap between u and v. (note that these indexes must be
+            /// the indexes of the program's qbit)
+            void insertSwapBefore(Dependencies& deps, unsigned u, unsigned v);
+
+            /// \brief Inserts a CNOT operation between two qubits that have two edges
+            /// between them.
+            void replaceByLCNOT(Dependencies& deps, unsigned u, unsigned w, unsigned v);
+
+            /// \brief Returns the number of qbits in the program.
+            unsigned getNumQbits();
+
+            /// \brief Generates an assignment mapping (maps the architecture's qubits
+            /// to the logical ones).
+            Mapping genAssign(Mapping mapping);
 
             /// \brief Flags the QbitAllocator to inline all gates, but those inside the
             /// \p basis vector, before mapping.
@@ -79,5 +83,6 @@ namespace efd {
 extern efd::Stat<unsigned> TotalCost;
 extern efd::Opt<unsigned> SwapCost;
 extern efd::Opt<unsigned> RevCost;
+extern efd::Opt<unsigned> LCXCost;
 
 #endif
