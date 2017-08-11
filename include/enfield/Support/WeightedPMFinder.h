@@ -3,9 +3,11 @@
 
 #include "enfield/Support/WeightedGraph.h"
 #include "enfield/Support/PartialMatchingFinder.h"
+#include "enfield/Support/RTTI.h"
 
 #include <algorithm>
 #include <cstdlib>
+#include <cassert>
 #include <queue>
 #include <iostream>
 
@@ -24,22 +26,21 @@ namespace efd {
             typedef std::shared_ptr<WeightedPMFinder<T>> sRef;
 
         protected:
-            Graph& mG;
-            WeightedGraph<T>& mH;
+            typename WeightedGraph<T>::Ref mH;
 
             std::vector<bool> matched;
             std::vector<unsigned> matching;
             std::vector<unsigned> gOutDegree;
 
-            WeightedPMFinder(Graph& g, WeightedGraph<T>& h);
+            WeightedPMFinder(Graph::sRef g);
             unsigned findBestVertex(unsigned a, unsigned b);
             unsigned getFirstFree();
 
         public:
-            virtual std::vector<unsigned> find() override;
+            virtual std::vector<unsigned> find(Graph::Ref h) override;
 
             /// \brief Creates an instance of this class.
-            static uRef Create(Graph& g, WeightedGraph<T>& h);
+            static uRef Create(Graph::sRef g);
     };
 
     /// \brief Helper class to sort an index vector based on a value vector.
@@ -52,14 +53,13 @@ namespace efd {
 }
 
 template <typename T>
-efd::WeightedPMFinder<T>::WeightedPMFinder(Graph& g, WeightedGraph<T>& h) :
-    mG(g), mH(h) {}
+efd::WeightedPMFinder<T>::WeightedPMFinder(Graph::sRef g) : PartialMatchingFinder(g) {}
 
 template <typename T>
 unsigned efd::WeightedPMFinder<T>::findBestVertex(unsigned a, unsigned b) {
-    unsigned gSize = mG.size();
-    unsigned hSize = mH.size();
-    unsigned bOutDegree = mH.outDegree(b);
+    unsigned gSize = mG->size();
+    unsigned hSize = mH->size();
+    unsigned bOutDegree = mH->outDegree(b);
 
     std::vector<unsigned> gCandidates;
     if (a == hSize) {
@@ -67,7 +67,7 @@ unsigned efd::WeightedPMFinder<T>::findBestVertex(unsigned a, unsigned b) {
             gCandidates.push_back(u);
         }
     } else {
-        auto& succ = mG.succ(matching[a]);
+        auto& succ = mG->succ(matching[a]);
         gCandidates = std::vector<unsigned>(succ.begin(), succ.end());
     }
 
@@ -99,13 +99,13 @@ unsigned efd::WeightedPMFinder<T>::findBestVertex(unsigned a, unsigned b) {
     }
 
     matched[u] = true;
-    for (auto v : mG.pred(u)) --gOutDegree[v];
+    for (auto v : mG->pred(u)) --gOutDegree[v];
     return u;
 }
 
 template <typename T>
 unsigned efd::WeightedPMFinder<T>::getFirstFree() {
-    unsigned gSize = mG.size();
+    unsigned gSize = mG->size();
 
     for (unsigned u = 0; u < gSize; ++u) {
         if (!matched[u]) return u;
@@ -113,14 +113,19 @@ unsigned efd::WeightedPMFinder<T>::getFirstFree() {
 }
 
 template <typename T>
-std::vector<unsigned> efd::WeightedPMFinder<T>::find() {
-    unsigned hSize = mH.size();
-    unsigned gSize = mG.size();
+std::vector<unsigned> efd::WeightedPMFinder<T>::find(Graph::Ref h) {
+    assert(h->isWeighted() && "Trying to use weighted partial matching on unweighted graph.");
 
-    // Copying the out-degree of each vertex of \p mG.
+    mH = dynCast<WeightedGraph<T>>(h);
+    assert(mH != nullptr && "Graph 'h' is not of the specified type.");
+
+    unsigned hSize = mH->size();
+    unsigned gSize = mG->size();
+
+    // Copying the out-degree of each vertex of \p mG->
     gOutDegree.assign(gSize, 0);
     for (unsigned u = 0; u < gSize; ++u) {
-        gOutDegree[u] = mG.outDegree(u);
+        gOutDegree[u] = mG->outDegree(u);
     }
 
     // Computing the weight of each vertex.
@@ -128,8 +133,8 @@ std::vector<unsigned> efd::WeightedPMFinder<T>::find() {
     // After that, we sort the indexes of the vertices by their weight.
     std::vector<T> w(hSize, 0);
     for (unsigned a = 0; a < hSize; ++a) {
-        for (auto b : mH.succ(a))
-            w[a] += mH.getW(a, b);
+        for (auto b : mH->succ(a))
+            w[a] += mH->getW(a, b);
     }
 
     std::vector<unsigned> wOrdIdx(hSize, 0);
@@ -145,7 +150,7 @@ std::vector<unsigned> efd::WeightedPMFinder<T>::find() {
     for (int i = hSize-1; i >= 0; --i) {
         unsigned a = wOrdIdx[i];
 
-        // Vertex a from mH has not been matched yet.
+        // Vertex a from mH->has not been matched yet.
         if (matching[a] == hSize) {
             std::vector<unsigned> parent(hSize, hSize);
             std::vector<bool> inQueue(hSize, false);
@@ -165,7 +170,7 @@ std::vector<unsigned> efd::WeightedPMFinder<T>::find() {
                     break;
                 } else {
                     matching[a] = u;
-                    for (auto b : mH.succ(a)) {
+                    for (auto b : mH->succ(a)) {
                         if (matching[b] == hSize && !inQueue[b]) {
                             parent[b] = a;
 
@@ -188,8 +193,8 @@ std::vector<unsigned> efd::WeightedPMFinder<T>::find() {
 
 template <typename T>
 typename efd::WeightedPMFinder<T>::uRef
-efd::WeightedPMFinder<T>::Create(Graph& g, WeightedGraph<T>& h) {
-    return uRef(new WeightedPMFinder<T>(g, h));
+efd::WeightedPMFinder<T>::Create(Graph::sRef g) {
+    return uRef(new WeightedPMFinder<T>(g));
 }
 
 #endif

@@ -1,5 +1,5 @@
 #include "enfield/Transform/WeightedPMQbitAllocator.h"
-#include "enfield/Support/OneRestrictionSwapFinder.h"
+#include "enfield/Support/BFSPathFinder.h"
 
 #include <cassert>
 #include <map>
@@ -55,11 +55,15 @@ efd::WeightedPMQbitAllocator::solveDependencies(DepsSet& deps) {
     const unsigned REV_COST = RevCost.getVal();
 
     mWG = createWG(deps);
-    mPMFinder = WeightedPMFinder<WeightTy>::Create(*mArchGraph, *mWG);
-    mSFinder.reset(OneRestrictionSwapFinder::Create(mArchGraph).release());
 
-    Mapping initial = mPMFinder->find();
+    if (mPMFinder.get() == nullptr)
+        mPMFinder = WeightedPMFinder<WeightTy>::Create(mArchGraph);
+    if (mPathFinder.get() == nullptr)
+        mPathFinder = BFSPathFinder::Create(mArchGraph);
+
+    Mapping initial = mPMFinder->find(mWG.get());
     Mapping match = initial;
+
     for (auto& dep : deps) {
         Dep d = dep.mDeps[0];
 
@@ -76,11 +80,13 @@ efd::WeightedPMQbitAllocator::solveDependencies(DepsSet& deps) {
         }
 
         auto assign = genAssign(match);
-        auto swapVector = mSFinder->findSwaps({ { u, v } });
-        for (auto& swap : swapVector) {
-            unsigned u = swap.mU, v = swap.mV;
+        auto path = mPathFinder->find(u, v);
 
-            if (mArchGraph->isReverseEdge(swap.mU, swap.mV))
+        // It should stop before swapping the 'source' qubit.
+        for (auto i = path.size() - 2; i >= 1; --i) {
+            unsigned u = path[i], v = path[i+1];
+
+            if (mArchGraph->isReverseEdge(u, v))
                 std::swap(u, v);
 
             unsigned a = assign[u], b = assign[v];
@@ -94,6 +100,14 @@ efd::WeightedPMQbitAllocator::solveDependencies(DepsSet& deps) {
     }
 
     return initial;
+}
+
+void efd::WeightedPMQbitAllocator::setWPMFinder(WeightedPMFinder<WeightTy>::sRef finder) {
+    mPMFinder = finder;
+}
+
+void efd::WeightedPMQbitAllocator::setPathFinder(PathFinder::sRef finder) {
+    mPathFinder = finder;
 }
 
 efd::WeightedPMQbitAllocator::uRef

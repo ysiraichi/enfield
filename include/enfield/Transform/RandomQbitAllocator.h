@@ -2,7 +2,6 @@
 #define __EFD_RANDOM_QBIT_ALLOCATOR_H__
 
 #include "enfield/Transform/QbitAllocator.h"
-#include "enfield/Support/SwapFinder.h"
 
 namespace efd {
     /// \brief QbitAllocator that allocates the qubits randomly.

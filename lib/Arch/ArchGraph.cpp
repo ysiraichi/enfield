@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 
-efd::ArchGraph::ArchGraph(unsigned n, bool isGeneric) : Graph(n), mNodes(n),
+efd::ArchGraph::ArchGraph(unsigned n, bool isGeneric) : Graph(K_ARCH, n), mNodes(n),
     mVID(0), mGeneric(isGeneric), mId(n, "") {
 }
 
@@ -66,6 +66,10 @@ efd::ArchGraph::RegsIterator efd::ArchGraph::reg_begin() {
 
 efd::ArchGraph::RegsIterator efd::ArchGraph::reg_end() {
     return mRegs.end();
+}
+
+bool efd::ArchGraph::ClassOf(const Graph* g) {
+    return g->isArch();
 }
 
 std::unique_ptr<efd::ArchGraph> efd::ArchGraph::Create(unsigned n) {

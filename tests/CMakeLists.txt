@@ -19,7 +19,7 @@ efd_test (WeightedGraphTests
 efd_test (PartialMatchingFinderTests
     EfdSupport)
 
-efd_test (OneRestrictionSwapFinderTests
+efd_test (BFSPathFinderTests
     EfdSupport)
 
 # ==-------- Analysis ----------==
