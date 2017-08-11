@@ -8,15 +8,15 @@
 using namespace efd;
 
 static void check(const std::string gS, const std::string wGS) {
-    auto graph = Graph::ReadString(gS);
+    Graph::sRef graph = Graph::ReadString(gS);
     auto wGraph = WeightedGraph<int>::ReadString(wGS);
-    auto matcher = WeightedPMFinder<int>::Create(*graph, *wGraph);
+    auto matcher = WeightedPMFinder<int>::Create(graph);
     
     unsigned gSize = graph->size();
     std::vector<bool> matched(gSize, false);
 
     // For all 'a' in 'graph'; and 'u' in 'wGraph'
-    auto match = matcher->find();
+    auto match = matcher->find(wGraph.get());
     for (unsigned a = 0; a < match.size(); ++a) {
         // 'a' must be assigned to a 'u' >= 0
         ASSERT_TRUE(match[a] >= 0);

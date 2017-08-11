@@ -1,6 +1,6 @@
 #include "enfield/Transform/RandomQbitAllocator.h"
+#include "enfield/Support/BFSPathFinder.h"
 #include "enfield/Arch/ArchGraph.h"
-#include "enfield/Support/OneRestrictionSwapFinder.h"
 
 #include <algorithm>
 #include <ctime>
@@ -35,7 +35,7 @@ efd::RandomQbitAllocator::Mapping efd::RandomQbitAllocator::solveDependencies
         assign[mapping[i]] = i;
     }
 
-    auto finder = OneRestrictionSwapFinder::Create(mArchGraph);
+    auto finder = BFSPathFinder::Create(mArchGraph);
 
     // Inserting swaps.
     Mapping copy = mapping;
@@ -50,11 +50,11 @@ efd::RandomQbitAllocator::Mapping efd::RandomQbitAllocator::solveDependencies
             continue;
         }
 
-        auto swapVector = finder->findSwaps({ { u, v } });
-        for (auto& swap : swapVector) {
-            unsigned u = swap.mU, v = swap.mV;
+        auto path = finder->find(u, v);
+        for (auto i = path.size() - 2; i >= 1; --i) {
+            unsigned u = path[i], v = path[i+1];
 
-            if (mArchGraph->isReverseEdge(swap.mU, swap.mV))
+            if (mArchGraph->isReverseEdge(u, v))
                 std::swap(u, v);
 
             unsigned a = assign[u], b = assign[v];
