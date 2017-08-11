@@ -3,7 +3,6 @@
 
 #include "enfield/Transform/DynProgQbitAllocator.h"
 #include "enfield/Arch/ArchGraph.h"
-#include "enfield/Support/OneRestrictionSwapFinder.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
 
