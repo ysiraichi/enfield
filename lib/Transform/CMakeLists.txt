@@ -12,6 +12,8 @@ add_library (EfdTransform
 add_library(EfdAllocator
     QbitAllocator.cpp
     DynProgQbitAllocator.cpp
-    WeightedPMQbitAllocator.cpp
-    RandomQbitAllocator.cpp
-    QbitterQbitAllocator.cpp)
+    SimpleQbitAllocator.cpp
+    WeightedPMMappingFinder.cpp
+    RandomMappingFinder.cpp
+    PathGuidedDepSolver.cpp
+    QbitterDepSolver.cpp)
