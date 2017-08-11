@@ -10,10 +10,12 @@ add_library (EfdTransform
     ReverseEdgesPass.cpp)
 
 add_library(EfdAllocator
+    Allocators.cpp
     QbitAllocator.cpp
     DynProgQbitAllocator.cpp
     SimpleQbitAllocator.cpp
     WeightedPMMappingFinder.cpp
+    IdentityMappingFinder.cpp
     RandomMappingFinder.cpp
     PathGuidedDepSolver.cpp
     QbitterDepSolver.cpp)
