@@ -6,14 +6,14 @@
 #include <set>
 #include <limits>
 
-efd::BFSPathFinder::BFSPathFinder(Graph::sRef g) : PathFinder(g) {
+efd::BFSPathFinder::BFSPathFinder() {
 }
 
-std::vector<unsigned> efd::BFSPathFinder::find(unsigned u, unsigned v) {
+std::vector<unsigned> efd::BFSPathFinder::find(Graph::Ref g, unsigned u, unsigned v) {
     const unsigned ROOT = std::numeric_limits<unsigned>::max();
 
-    std::vector<unsigned> parent(mG->size(), ROOT);
-    std::vector<bool> marked(mG->size(), false);
+    std::vector<unsigned> parent(g->size(), ROOT);
+    std::vector<bool> marked(g->size(), false);
 
     std::queue<unsigned> q;
     q.push(u);
@@ -25,8 +25,8 @@ std::vector<unsigned> efd::BFSPathFinder::find(unsigned u, unsigned v) {
 
         if (x == v) break;
 
-        std::set<unsigned> &succ = mG->succ(x);
-        std::set<unsigned> &pred = mG->pred(x);
+        std::set<unsigned> &succ = g->succ(x);
+        std::set<unsigned> &pred = g->pred(x);
         for (unsigned k : succ) {
             if (!marked[k]) {
                 q.push(k);
@@ -57,6 +57,6 @@ std::vector<unsigned> efd::BFSPathFinder::find(unsigned u, unsigned v) {
     return path;
 }
 
-efd::BFSPathFinder::uRef efd::BFSPathFinder::Create(Graph::sRef g) {
-    return uRef(new BFSPathFinder(g));
+efd::BFSPathFinder::uRef efd::BFSPathFinder::Create() {
+    return uRef(new BFSPathFinder());
 }

@@ -10,17 +10,11 @@ namespace efd {
             typedef PathFinder* Ref;
             typedef std::shared_ptr<PathFinder> sRef;
 
-        protected:
-            Graph::sRef mG;
-
-            PathFinder(Graph::sRef g) : mG(g) {}
-
-        public:
-            /// \brief Searches for a path from \p u to \p v in the graph \em mG.
+            /// \brief Searches for a path from \p u to \p v in the graph \p g.
             ///
             /// This function is to be implemented by the concrete classes. It should
             /// return the path from \p u to \p v (including them both).
-            virtual std::vector<unsigned> find(unsigned u, unsigned v) = 0;
+            virtual std::vector<unsigned> find(Graph::Ref g, unsigned u, unsigned v) = 0;
     };
 }
 
