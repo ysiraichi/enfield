@@ -14,18 +14,13 @@ namespace efd {
             typedef PartialMatchingFinder* Ref;
             typedef std::unique_ptr<PartialMatchingFinder> uRef;
             typedef std::shared_ptr<PartialMatchingFinder> sRef;
-            
-        protected:
-            Graph::sRef mG;
 
-            PartialMatchingFinder(Graph::sRef g) : mG(g) {}
-
-        public:
-            /// \brief Returns a valid matching.
+            /// \brief Returns a valid matching of \p h in \p g.
+            ///
             /// Note that this is not necessairly an exact match (exact 
             /// subgraph isomorphism). That is because this is a NP-Complete
             /// problem.
-            virtual std::vector<unsigned> find(Graph::Ref h) = 0;
+            virtual std::vector<unsigned> find(Graph::Ref g, Graph::Ref h) = 0;
     };
 }
 

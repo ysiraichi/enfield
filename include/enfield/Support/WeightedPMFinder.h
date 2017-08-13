@@ -26,21 +26,22 @@ namespace efd {
             typedef std::shared_ptr<WeightedPMFinder<T>> sRef;
 
         protected:
+            Graph::Ref mG;
             typename WeightedGraph<T>::Ref mH;
 
             std::vector<bool> matched;
             std::vector<unsigned> matching;
             std::vector<unsigned> gOutDegree;
 
-            WeightedPMFinder(Graph::sRef g);
+            WeightedPMFinder();
             unsigned findBestVertex(unsigned a, unsigned b);
             unsigned getFirstFree();
 
         public:
-            virtual std::vector<unsigned> find(Graph::Ref h) override;
+            virtual std::vector<unsigned> find(Graph::Ref g, Graph::Ref h) override;
 
             /// \brief Creates an instance of this class.
-            static uRef Create(Graph::sRef g);
+            static uRef Create();
     };
 
     /// \brief Helper class to sort an index vector based on a value vector.
@@ -53,7 +54,7 @@ namespace efd {
 }
 
 template <typename T>
-efd::WeightedPMFinder<T>::WeightedPMFinder(Graph::sRef g) : PartialMatchingFinder(g) {}
+efd::WeightedPMFinder<T>::WeightedPMFinder() {}
 
 template <typename T>
 unsigned efd::WeightedPMFinder<T>::findBestVertex(unsigned a, unsigned b) {
@@ -113,9 +114,10 @@ unsigned efd::WeightedPMFinder<T>::getFirstFree() {
 }
 
 template <typename T>
-std::vector<unsigned> efd::WeightedPMFinder<T>::find(Graph::Ref h) {
+std::vector<unsigned> efd::WeightedPMFinder<T>::find(Graph::Ref g, Graph::Ref h) {
     assert(h->isWeighted() && "Trying to use weighted partial matching on unweighted graph.");
 
+    mG = g;
     mH = dynCast<WeightedGraph<T>>(h);
     assert(mH != nullptr && "Graph 'h' is not of the specified type.");
 
@@ -193,8 +195,8 @@ std::vector<unsigned> efd::WeightedPMFinder<T>::find(Graph::Ref h) {
 
 template <typename T>
 typename efd::WeightedPMFinder<T>::uRef
-efd::WeightedPMFinder<T>::Create(Graph::sRef g) {
-    return uRef(new WeightedPMFinder<T>(g));
+efd::WeightedPMFinder<T>::Create() {
+    return uRef(new WeightedPMFinder<T>());
 }
 
 #endif
