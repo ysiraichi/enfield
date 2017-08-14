@@ -12,13 +12,13 @@ namespace efd {
             typedef std::shared_ptr<BFSPathFinder> sRef;
 
         protected:
-            BFSPathFinder(Graph::sRef g);
+            BFSPathFinder();
 
         public:
-            std::vector<unsigned> find(unsigned u, unsigned v) override;
+            std::vector<unsigned> find(Graph::Ref g, unsigned u, unsigned v) override;
 
             /// \brief Creates one instance of this finder.
-            static uRef Create(Graph::sRef g);
+            static uRef Create();
     };
 }
 

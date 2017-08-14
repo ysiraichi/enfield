@@ -1,9 +1,10 @@
 
 #include "gtest/gtest.h"
 
-#include "enfield/Transform/WeightedPMQbitAllocator.h"
+#include "enfield/Transform/SimpleQbitAllocator.h"
+#include "enfield/Transform/WeightedPMMappingFinder.h"
+#include "enfield/Transform/PathGuidedDepSolver.h"
 #include "enfield/Arch/ArchGraph.h"
-#include "enfield/Support/OneRestrictionSwapFinder.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
 
@@ -46,7 +47,9 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
-        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(graph);
+        auto allocator = SimpleQbitAllocator::Create(graph);
+        allocator->setMapFinder(WeightedPMMappingFinder::Create());
+        allocator->setDepSolver(PathGuidedDepSolver::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -79,7 +82,9 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
-        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(graph);
+        auto allocator = SimpleQbitAllocator::Create(graph);
+        allocator->setMapFinder(WeightedPMMappingFinder::Create());
+        allocator->setDepSolver(PathGuidedDepSolver::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -106,7 +111,9 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
-        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(graph);
+        auto allocator = SimpleQbitAllocator::Create(graph);
+        allocator->setMapFinder(WeightedPMMappingFinder::Create());
+        allocator->setDepSolver(PathGuidedDepSolver::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -135,7 +142,9 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
-        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(graph);
+        auto allocator = SimpleQbitAllocator::Create(graph);
+        allocator->setMapFinder(WeightedPMMappingFinder::Create());
+        allocator->setDepSolver(PathGuidedDepSolver::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -170,7 +179,9 @@ CX q[2], q[1];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(std::move(QModule::ParseString(program, false)));
-        WeightedPMQbitAllocator::uRef allocator = WeightedPMQbitAllocator::Create(graph);
+        auto allocator = SimpleQbitAllocator::Create(graph);
+        allocator->setMapFinder(WeightedPMMappingFinder::Create());
+        allocator->setDepSolver(PathGuidedDepSolver::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());

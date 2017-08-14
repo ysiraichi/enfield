@@ -1,8 +1,9 @@
-#ifndef __EFD_DIJKSTRA_SWAP_FINDER_H__
-#define __EFD_DIJKSTRA_SWAP_FINDER_H__
+#ifndef __EFD_DIJKSTRA_PATH_FINDER_H__
+#define __EFD_DIJKSTRA_PATH_FINDER_H__
 
-#include "enfield/Support/SwapFinder.h"
+#include "enfield/Support/PathFinder.h"
 #include "enfield/Support/WeightedGraph.h"
+#include "enfield/Support/RTTI.h"
 
 #include <queue>
 #include <cassert>
@@ -12,40 +13,38 @@ namespace efd {
     /// \brief Dijkstra algorithm for finding a swap sequence in a
     /// weighted graph.
     template <typename T>
-    class DijkstraSwapFinder : public SwapFinder {
+    class DijkstraPathFinder : public PathFinder {
         public:
-            typedef DijkstraSwapFinder* Ref;
-            typedef std::unique_ptr<DijkstraSwapFinder> uRef;
+            typedef DijkstraPathFinder* Ref;
+            typedef std::unique_ptr<DijkstraPathFinder> uRef;
 
         private:
-            typename WeightedGraph<T>::sRef mWG;
-
-            DijkstraSwapFinder(typename WeightedGraph<T>::sRef wg);
-
+            DijkstraPathFinder();
             inline bool equal(T l, T r);
 
         public:
-            SwapVector findSwaps(RestrictionVector restrictions) override;
+            std::vector<unsigned> find(Graph::Ref g, unsigned u, unsigned v) override;
 
             /// \brief Create an instance of this class.
-            static uRef Create(typename WeightedGraph<T>::sRef wg);
+            static uRef Create();
     };
 
-    template <> bool DijkstraSwapFinder<unsigned>::equal(unsigned l, unsigned r);
-    template <> bool DijkstraSwapFinder<double>::equal(double l, double r);
+    template <> bool DijkstraPathFinder<unsigned>::equal(unsigned l, unsigned r);
+    template <> bool DijkstraPathFinder<double>::equal(double l, double r);
 }
 
 template <typename T>
-efd::DijkstraSwapFinder<T>::DijkstraSwapFinder(typename WeightedGraph<T>::sRef wg) : mWG(wg) {}
+efd::DijkstraPathFinder<T>::DijkstraPathFinder() {}
 
 template <typename T>
-efd::SwapFinder::SwapVector
-efd::DijkstraSwapFinder<T>::findSwaps(RestrictionVector restrictions) {
-    assert(restrictions.size() == 1 && "Only one restriction allowed for dijkstra.");
+std::vector<unsigned>
+efd::DijkstraPathFinder<T>::find(Graph::Ref g, unsigned u, unsigned v) {
+    auto wg = dynCast<WeightedGraph<T>>(g);
+    assert(wg != nullptr && "Invalid weighted graph for this Dijkstra implementation.");
 
-    unsigned size = mWG->size();
-    unsigned from = restrictions[0].mFrom;
-    unsigned to = restrictions[0].mTo;
+    unsigned size = wg->size();
+    unsigned from = u;
+    unsigned to = v;
 
     unsigned inf = std::numeric_limits<unsigned>::max();
     unsigned infw = std::numeric_limits<T>::max();
@@ -65,7 +64,7 @@ efd::DijkstraSwapFinder<T>::findSwaps(RestrictionVector restrictions) {
         if (visited[u]) continue;
         visited[u] = true;
 
-        for (auto v : mWG->succ(u)) {
+        for (auto v : wg->succ(u)) {
             T newW = dist[u];
             if (newW < dist[v]) {
                 parent[v] = u;
@@ -77,33 +76,33 @@ efd::DijkstraSwapFinder<T>::findSwaps(RestrictionVector restrictions) {
     // Reconstructing the path
     assert(!equal(dist[to], infw) && "No existing path in this graph.");
 
-    SwapVector sv;
+    std::vector<unsigned> path;
 
     // If the path is "from -> x -> y -> to", the swap vector will contain
     // "(y, to), (x, y)" in this order. In other words, "to" will go to "x".
-    unsigned v = to, u;
     while ((u = parent[v]) != from) {
-        sv.push_back({ u, v });
+        path.push_back(v);
         v = u;
     }
+    path.push_back(u);
 
-    return sv;
+    return path;
 }
 
-template <> bool efd::DijkstraSwapFinder<unsigned>::equal(unsigned l, unsigned r) {
+template <> bool efd::DijkstraPathFinder<unsigned>::equal(unsigned l, unsigned r) {
     return l == r;
 }
 
-template <> bool efd::DijkstraSwapFinder<double>::equal(double l, double r) {
+template <> bool efd::DijkstraPathFinder<double>::equal(double l, double r) {
     double epsilon = 0.0001;
     double diff = l - r;
     return diff >= -epsilon && diff <= epsilon;
 }
 
 template <typename T>
-typename efd::DijkstraSwapFinder<T>::uRef
-efd::DijkstraSwapFinder<T>::Create(typename WeightedGraph<T>::sRef wg) {
-    return uRef(new DijkstraSwapFinder<T>(wg));
+typename efd::DijkstraPathFinder<T>::uRef
+efd::DijkstraPathFinder<T>::Create() {
+    return uRef(new DijkstraPathFinder<T>());
 }
 
 #endif
