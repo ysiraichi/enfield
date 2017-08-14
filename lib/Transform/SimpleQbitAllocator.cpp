@@ -6,8 +6,8 @@ efd::SimpleQbitAllocator::SimpleQbitAllocator(ArchGraph::sRef agraph) :
 
 efd::QbitAllocator::Mapping efd::SimpleQbitAllocator::
 solveDependencies(DepsSet& deps) {
-    auto initial = mMapFinder->find(mArchGraph, deps);
-    mDepSolver->solve(initial, deps, mArchGraph, this);
+    auto initial = mMapFinder->find(mArchGraph.get(), deps);
+    mDepSolver->solve(initial, deps, mArchGraph.get(), this);
     return initial;
 }
 
