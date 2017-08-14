@@ -19,7 +19,7 @@ namespace efd {
             PartialMatchingFinder::sRef mPMFinder;
 
         public:
-            Mapping find(ArchGraph::sRef agraph, DepsSet& deps) override;
+            Mapping find(ArchGraph::Ref g, DepsSet& deps) override;
 
             /// \brief Sets the partial matching finder to \p finder.
             void setPMFinder(PartialMatchingFinder::sRef finder);

@@ -11,8 +11,8 @@ efd::Stat<unsigned> SeedStat
 int rnd(int i) { int r = std::rand() % i; return r; }
 
 efd::MappingFinder::Mapping
-efd::RandomMappingFinder::find(ArchGraph::sRef agraph, DepsSet& deps) {
-    unsigned qbits = agraph->size();
+efd::RandomMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
+    unsigned qbits = g->size();
     Mapping mapping(qbits);
 
     for (unsigned i = 0; i < qbits; ++i) {

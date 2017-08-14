@@ -14,7 +14,7 @@ namespace efd {
             typedef std::shared_ptr<MappingFinder> sRef;
 
             /// \brief Returns a mapping generated from a set of dependencies.
-            virtual Mapping find(ArchGraph::sRef agraph, DepsSet& deps) = 0;
+            virtual Mapping find(ArchGraph::Ref g, DepsSet& deps) = 0;
     };
 }
 

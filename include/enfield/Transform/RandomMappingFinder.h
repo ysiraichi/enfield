@@ -12,7 +12,7 @@ namespace efd {
             typedef RandomMappingFinder* Ref;
             typedef std::unique_ptr<RandomMappingFinder> uRef;
 
-            Mapping find(ArchGraph::sRef agraph, DepsSet& deps) override;
+            Mapping find(ArchGraph::Ref g, DepsSet& deps) override;
 
             /// \brief Creates an instance of this class.
             static uRef Create();

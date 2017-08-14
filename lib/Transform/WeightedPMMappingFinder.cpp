@@ -3,11 +3,11 @@
 #include "enfield/Support/uRefCast.h"
 
 efd::WeightedPMMappingFinder::Mapping
-efd::WeightedPMMappingFinder::find(ArchGraph::sRef agraph, DepsSet& deps) {
-    unsigned qbits = agraph->size();
+efd::WeightedPMMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
+    unsigned qbits = g->size();
 
     if (mPMFinder.get() == nullptr)
-        mPMFinder = WeightedPMFinder<WeightTy>::Create(agraph);
+        mPMFinder = WeightedPMFinder<WeightTy>::Create();
 
     auto wg = toShared(WeightedGraph<WeightTy>::Create(qbits));
 
@@ -24,7 +24,7 @@ efd::WeightedPMMappingFinder::find(ArchGraph::sRef agraph, DepsSet& deps) {
         wg->putEdge(pair.first.first, pair.first.second, pair.second);
     }
 
-    return mPMFinder->find(wg.get());
+    return mPMFinder->find(g, wg.get());
 }
 
 efd::WeightedPMMappingFinder::uRef efd::WeightedPMMappingFinder::Create() {
