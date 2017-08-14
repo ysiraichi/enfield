@@ -1,0 +1,26 @@
+1) The decision problem:
+Given a directed graph G = (Q, A), where Q is a list of vertices,
+representing physical qubits, and A are edges, plus a sequence of cnot
+gates X = (V*V)^n, we want to know if there is a mapping L:V->Q that
+lets us implement X.
+- This problem is equivalent to subgraph isomorphism in directed graphs.
+
+2) Minimum swaps:
+Given a directed graph G = (Q, A), plus a sequence of cnot gates X =
+(V*V)^n, we want to find the minimum sequence of swaps that can be
+interposed within X, to allow compiling the problem.
+- Currently, we solve this problem using the dynamic programming algorithm.
+
+3) Minimum cost allocation:
+Given a directed graph G = (Q, A), a sequence of cnot gates X =
+(V*V)^n, and a cost function C, that assigns costs to swaps and
+inversions, we want to find the sequence of swaps and inversions that
+minimizes the cost, given C. Here, we are assuming that we can invert
+gates, but inversion is not permanent state.
+- Again, the dynamic programming algorithm solves this problem.
+
+4) Minimum cost allocation with simplification:
+This problem is the same as before, but now we consider the
+simplifications that are possible, once we implement the qubit
+allocation. For instance, two Hadamard gates cancel out each other.
+
