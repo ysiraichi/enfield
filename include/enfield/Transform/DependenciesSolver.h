@@ -15,7 +15,7 @@ namespace efd {
 
             /// \brief Inserts swaps and other gates in order to solve the dependencies
             /// \p deps from the mapping \p initial, using the functions of \p allocator.
-            virtual void solve(Mapping initial, DepsSet& deps, ArchGraph::sRef agraph,
+            virtual void solve(Mapping initial, DepsSet& deps, ArchGraph::Ref g,
                     QbitAllocator::Ref allocator) = 0;
     };
 }

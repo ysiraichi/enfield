@@ -15,7 +15,7 @@ namespace efd {
             PathFinder::sRef mPathFinder;
 
         public:
-            void solve(Mapping initial, DepsSet& deps, ArchGraph::sRef agraph,
+            void solve(Mapping initial, DepsSet& deps, ArchGraph::Ref g,
                     QbitAllocator::Ref allocator) override;
 
             /// \brief Sets the path finder to be used.

@@ -13,7 +13,7 @@ namespace efd {
             typedef QbitterDepSolver* Ref;
             typedef std::unique_ptr<QbitterDepSolver> uRef;
 
-            void solve(Mapping initial, DepsSet& deps, ArchGraph::sRef agraph,
+            void solve(Mapping initial, DepsSet& deps, ArchGraph::Ref g,
                     QbitAllocator::Ref allocator) override;
 
             /// \brief Creates an instance of this class.

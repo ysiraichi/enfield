@@ -2,10 +2,10 @@
 #include "enfield/Support/BFSPathFinder.h"
 
 void efd::PathGuidedDepSolver::solve(Mapping initial, DepsSet& deps,
-        ArchGraph::sRef agraph, QbitAllocator::Ref allocator) {
+        ArchGraph::Ref g, QbitAllocator::Ref allocator) {
 
     if (mPathFinder.get() == nullptr)
-        mPathFinder = BFSPathFinder::Create(agraph);
+        mPathFinder = BFSPathFinder::Create();
 
     Mapping match = initial;
 
@@ -18,20 +18,20 @@ void efd::PathGuidedDepSolver::solve(Mapping initial, DepsSet& deps,
         // Physical qubits (u, v)
         unsigned u = match[a], v = match[b];
 
-        if (agraph->hasEdge(u, v)) continue;
-        if (agraph->isReverseEdge(u, v)) {
+        if (g->hasEdge(u, v)) continue;
+        if (g->isReverseEdge(u, v)) {
             TotalCost += RevCost.getVal();
             continue;
         }
 
         auto assign = allocator->genAssign(match);
-        auto path = mPathFinder->find(u, v);
+        auto path = mPathFinder->find(g, u, v);
 
         // It should stop before swapping the 'source' qubit.
         for (auto i = path.size() - 2; i >= 1; --i) {
             unsigned u = path[i], v = path[i+1];
 
-            if (agraph->isReverseEdge(u, v))
+            if (g->isReverseEdge(u, v))
                 std::swap(u, v);
 
             unsigned a = assign[u], b = assign[v];
