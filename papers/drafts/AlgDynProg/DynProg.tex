@@ -1,0 +1,125 @@
+\documentclass[paper=a4, fontsize=12pt]{scrartcl}
+
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{titlesec}
+\titleformat*{\section}{\large\bfseries}
+\titleformat*{\subsection}{\large\bfseries}
+
+\begin{document}
+	\begin{center}
+		\Large Dynamic Programming Algorithm
+	\end{center}
+
+	\section{Overview}
+	For simplicity, we reduce the problem of finding the best sequence of swap sequences which yields the minimum to the problem to find the minimum cost. From the dynamic programming algorithm found, it is straight-forward the solution for the former problem.
+	
+	Suppose $S_{ij}$ is the cost of satisfying the $j$-th dependency with the $i$-th permutation. Assuming it is possible (satisfying the $j$-th dependency with the $i$-th permutation), its cost will be the minimum value given by the sum of:
+	
+	\begin{itemize}
+		\item the cost of solving the previous dependency ($j-1$) with the $p$-th permutation, for any $p$;
+		
+		\item the cost of transforming the $p$-th permutation into the $i$-th;
+		
+		\item the cost of the operation that will be used (\textit{cnot}, \textit{r-cnot} or \textit{l-cnot}).
+	\end{itemize}
+
+	Let $P$ be the permutation set, \textit{Swap}, \textit{Inv} and \textit{Lcx} be some constant and $Swaps_{pi}$ be the number of swaps in order to transform the $p$-th into the $i$-th permutation. We have that the optimal cost to solve the $j$-th dependency, using the $i$-th permutation $S_{ij}$ is showed by Equation \ref{eq:dynprog}:
+	
+	\begin{equation}
+	\label{eq:dynprog}
+	S_{ij}	=
+	\begin{cases}
+	0 & j = 0 \\
+	\displaystyle\min_{\forall p \in P}{S_{pj-1} + (Swaps_{pi} \cdot Swap)} & (u,v) \in G.E \\
+	\displaystyle\min_{\forall p \in P}{S_{pj-1} + (Swaps_{pi} \cdot Swap)} + Inv & (u,v) \in G.InvE \\
+	\displaystyle\min_{\forall p \in P}{S_{pj-1} + (Swaps_{pi} \cdot Swap)} + Lcx & dist(u,v) = 2 \\
+	\textrm{\textit{UNREACH}} &
+	\end{cases}
+	\end{equation}
+	
+	\section{Algorithm}
+	
+	Algorithm \ref{alg:mapping} shows is a pseudo-algorithm of the implementation of the description given in the previous section. Assuming that $k$ is the number of dependencies and $n$ is the number of vertices of the graph, follows a brief explanation of some operations:
+	
+	\begin{itemize}
+		\item \textbf{Line 2:} preprocess the graph, calculating the swaps needed to transform from one permutation into another;
+		
+		\item \textbf{Line 3:} generates all permutations for the graph;
+		
+		\item \textbf{Line 4:} initializes $dyn$ which is a $n! \times k$ matrix with the subproblem's solution. The first column of this matrix is initialized with $0$;
+		
+		\item \textbf{Line 5\textasciitilde16:} calculates the optimal cost from left to right, since we need the costs from the last dependency;
+		
+		\item \textbf{Line 12:} calculates $S_{i,tgt}$.
+	\end{itemize}
+
+	\begin{algorithm}
+		\caption{Exact algorithm.}
+		
+		\begin{algorithmic}[1]
+			\Require{A directed graph $G = (V, E)$, and the program dependencies $Deps$}
+			\Statex
+			
+			\Function{Solve}{$G, Deps$}
+			\State $SwapsMap \gets constructSwapsMap(G)$
+			\State $PermVector \gets generatePermutations(G)$
+			\State $initialize(dyn)$
+			
+			\For{$i \in \{1, \dots, k\}$}
+			\State $(a, b) \gets Deps[i-1]$
+			
+			\For{$tgt \in \{0, \dots, n!\}$}
+			\State $tgtPerm \gets getIthPermutation(tgt)$
+			\State $u \gets tgtPerm.get(a)$
+			\State $v \gets tgtPerm.get(b)$
+			
+			\If{$(u,v) \in G.E$ \textbf{or} $dist(u, v) = 2$}
+			\State $minVal \gets CalculateMinVal(G, i, tgt, dyn)$
+			\EndIf
+			
+			\State $dyn[tgt][i] \gets minVal$
+			\EndFor
+			\EndFor
+			
+			\State \Return $\min_{i < n!}(dyn[i][k])$
+			\EndFunction
+		\end{algorithmic}
+		\label{alg:mapping}
+	\end{algorithm}
+
+	The Algorithm \ref{alg:minTgtSrc} shows the four possibilities for calculating the $S_{ij}$ for some $i \in P$ and $j \leq k$. Lines 7\textasciitilde9 get the transformation cost and lines 10\textasciitilde16 add the cost of using some operation if $(u, v)$ is not a non-reverse edge of $G$.
+
+	\begin{algorithm}
+		\caption{Finds the best cost to solve a dependency.}
+		\begin{algorithmic}[1]
+			\Require{A directed graph $G = (V, E)$, the dependency number $i$, the target permutation index $tgt$ and the computed sub-problems $dyn$.}
+			\Statex
+			\Function{CalculateMinVal}{$G, i, tgt, dyn$}
+			\State $minVal \gets \{tgt, \textrm{\textit{NULL}}, \textrm{\textit{UNREACH}}\}$
+			\For{$src \in  \{0, \dots, n!\}$}
+			\State $srcVal \gets dyn[src][i-1]$
+			\If{$srcVal.cost \neq \textrm{\textit{UNREACH}}$}
+			\State $final \gets srcVal.cost$
+			\If{$tgt \neq src$}
+			\State $final \gets final + (getSwapNum(src, tgt) \cdot Swap)$
+			\EndIf
+			\If{$(u, v) \in G.InvE$}
+			\State $final \gets final + Inv$
+			\Else
+			\If{$dist(u, v) = 2$}
+			\State $final \gets final + Lcx$
+			\EndIf
+			\EndIf
+			
+			\State $minVal \gets \min(minVal, final)$
+			\EndIf
+			\EndFor
+			\State \Return $minVal$
+			\EndFunction
+		\end{algorithmic}
+		\label{alg:minTgtSrc}
+	\end{algorithm}
+\end{document}

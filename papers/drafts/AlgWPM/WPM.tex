@@ -1,0 +1,120 @@
+\documentclass[paper=a4, fontsize=12pt]{scrartcl}
+
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{titlesec}
+\titleformat*{\section}{\large\bfseries}
+\titleformat*{\subsection}{\large\bfseries}
+
+\begin{document}
+	\begin{center}
+		\Large Weighted Partial Matching Algorithm
+	\end{center}
+
+	It is possible to divide our problem into two parts:
+	
+	\begin{itemize}
+		\item \textbf{initial mapping:} finds the initial configuration that our graph will assume;
+		
+		\item \textbf{dependency resolution:} from the initial mapping found, we iterate each dependency $(a, b)$ checking if we can use some operation or if we must use swaps.
+	\end{itemize}
+
+	\section{Initial Mapping}
+	
+	The Algorithm \ref{alg:bestMapping} presents the pseudo-code of our implementation. In the next paragraph, we will explain it briefly. 
+	
+	In order to find an initial mapping, we first construct a weighted graph $G_d = (V_d, E_d)$ from the dependencies $P$ (line 2). Each vertex $a \in V_d$ represents one logical qubit, and there is an edge $(a, b) \in E_d$ if, and only if, $(a, b) \in P$. Finally, the weight $w(a, b)$ corresponding to an edge $(a, b) \in E_d$ will be equal the number of occurrences of the dependency $(a, b)$ in $P$.
+	
+	From $G_d$, we can define the weight of each vertex $a$ as the sum of the weights of the edges $(a, b) \in E_d$. By calculating these weights, we order the vertices into a sequence $V'$ (line 3). In the lines 5\textasciitilde21, we run one BFS (Breadth First Search) for each non-allocated vertex. In other words, we start allocating the most used vertex and its adjacent vertices until we finally give up, and assign one physical qubit to each non-allocated logical qubit.
+	
+	The \textit{findBest} function call in the line 11 finds the best candidate $u$ for the logical qubit $a$. There are two cases:
+	
+	\begin{itemize}
+		\item $parent[a] = \textrm{\textit{NULL}}$ -- finds the vertex that best fits from all vertices available;
+		
+		\item $parent[a] = u$ -- finds the vertex that best fits from the ones adjacent to $u$.
+	\end{itemize}
+
+	\section{Dependency Resolution}
+	
+	The dependency resolution algorithm is straight-forward. It starts with the initial mapping $f^0$ and iterates all dependencies, creating a new mapping $f^i$ for each dependency $i \geq 1$. It is worth noting lines 13 and 22, where we set the first mapping $f^k_0$ and the last mapping $f^k$.
+		
+	\begin{algorithm}
+	\caption{Find a mapping for a sequence of dependencies.}
+	\begin{algorithmic}[1]
+		\Require{A directed graph $G = (V, E)$ and the sequence of dependencies $P$.}
+		\Statex
+		\Function{FindMapping}{$G, P$}
+		\State $G_d \gets \textrm{\textit{BuildDepGraph}}(P)$
+		\State $V' \gets order(V_d)$
+		\State $M \gets \{\}$
+		
+		\For{$a \in V'$}
+		\If{$visited[a]$}
+		\State \textit{continue}
+		\EndIf
+		
+		\State $Q \gets \{ a \}$
+		
+		\While{$Q \neq \emptyset$}
+		\State $a \gets pop(Q)$
+		\State $u \gets \textrm{\textit{findBest}}(G, parent[a], a)$ 
+		\State $visited[a] \gets true$
+		\State $M \gets M \cup \{a \rightarrow u\}$
+		
+		\For{$b \in G_d.adj[a]$}
+		\If	{$b \notin Q \textrm{ \textbf{and} } \neg visited[b]$}
+		\State $push(Q, b)$
+		\State $parent[b] \gets a$
+		\EndIf
+		\EndFor
+		\EndWhile
+		\EndFor
+		\State \Return $M$			
+		\EndFunction
+	\end{algorithmic}
+	\label{alg:bestMapping}
+	\end{algorithm}
+
+	\begin{algorithm}
+		\caption{Heuristic algorithm.}
+		\begin{algorithmic}[1]
+			\Require{A directed graph $G = (V, E)$ and the quantum dependencies $P$.}
+			\Statex
+			\Function{Solve}{$G, P$}
+			\State $Cost \gets 0$
+			\State $f^0 \gets FindMapping(G, P)$
+			
+			\For{$(a_k, b_k) \in P$}
+			\State $(u, v) \gets (L(a_k), L(b_k))$
+			\If{$(u, v) \in G.E$}
+			\State \textit{continue}
+			\EndIf
+			
+			\If{$(v, u) \in G.InvE$}
+			\State $Cost \gets Cost + inv$
+			\State \textit{continue}
+			\EndIf
+			
+			\State $f_{0}^{k}=f^{k-1}$
+			\State $Swaps \gets \textrm{findSwaps}(G, u, v)$
+			\For$(u_i, v_i) \in Swaps$
+			\State \textit{InsertSwap}$(k, u_i, v_i)$
+			\State $a_i \gets getAssigned(f_{i-1}^k, u_i)$
+			\State $b_i \gets getAssigned(f_{i-1}^k, v_i)$
+			\State $f_{i}^{k} \gets genNewMapping(f_{i-1}^{k}, a_i, b_i)$
+			%\State $a_i \gets x \mid f_{i-1}^k(x) = u_i$
+			%\State $b_i \gets x \mid f_{i-1}^k(x) = v_i$
+			%\State $f_{i}^{k}=f_{i-1}^{k}[a_i \rightarrow v_i, b \rightarrow u_i]$
+			\EndFor
+			
+			\State $Cost \gets Cost + (len(Swaps) * Swap)$
+			\State $f^{k}=f_{n_k}^{k}$
+			\EndFor
+			\EndFunction
+		\end{algorithmic}
+		\label{alg:solving}
+	\end{algorithm}
+\end{document}
