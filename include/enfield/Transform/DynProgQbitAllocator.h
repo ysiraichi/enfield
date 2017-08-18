@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <string>
 
+struct MapResult;
+
 namespace efd {
     /// \brief Implementation of QbitAllocator that uses dynamic programming to
     /// obtain an optimal solution.
@@ -16,6 +18,9 @@ namespace efd {
 
         private:
             DynProgQbitAllocator(ArchGraph::sRef archGraph);
+
+            MapResult dynsolve(std::vector<Dependencies>& deps);
+            unsigned getIntermediateV(unsigned u, unsigned v);
 
         public:
             Mapping solveDependencies(DepsSet& deps) override;
