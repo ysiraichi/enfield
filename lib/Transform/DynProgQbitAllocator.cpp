@@ -48,7 +48,8 @@ static void genPermutationMap(unsigned n) {
     } while (next_permutation(perm.begin(), perm.end()));
 }
 
-PermVal translateToPermVal(std::vector<unsigned>& source, std::vector<unsigned>& target) {
+static PermVal translateToPermVal
+(std::vector<unsigned>& source, std::vector<unsigned>& target) {
     int size = source.size();
     std::vector<unsigned> realTgt(size, 0);
     std::vector<unsigned> inTranslator(size, 0);
@@ -66,20 +67,23 @@ PermVal translateToPermVal(std::vector<unsigned>& source, std::vector<unsigned>&
 }
 
 // Source and Target are Phys->Prog mapping.
-unsigned getSwapNum(std::vector<unsigned>& source, std::vector<unsigned>& target) {
+static unsigned getSwapNum
+(std::vector<unsigned>& source, std::vector<unsigned>& target) {
     unsigned id = translateToPermVal(source, target).idx;
     return swaps[id].size();
 }
 
 // Returns the swaps of the physical qubits.
-std::vector<std::pair<unsigned, unsigned>>
+static std::vector<std::pair<unsigned, unsigned>>
 getSwaps(std::vector<unsigned>& source, std::vector<unsigned>& target) {
     unsigned id = translateToPermVal(source, target).idx;
     return swaps[id];
     // return vector<pair<int, int>>();
 }
 
-void computeSwaps(efd::Graph archG) {
+// Pre-process the architechture graph, calculating the optimal swaps from every
+// permutation.
+static void computeSwaps(efd::Graph archG) {
     int size = archG.size();
     genPermutationMap(size);
 
@@ -151,24 +155,26 @@ static inline Val minVal(Val& a, Val& b) {
     else return b;
 }
 
-std::vector<unsigned> genAssign(std::vector<unsigned> mapping) {
-    int size = mapping.size();
-    std::vector<unsigned> assign(mapping.size(), -1);
-    for (int i = 0; i < size; ++i)
-        assign[mapping[i]] = i;
-    // Mapping the extra physical qubits into valid program qubits.
-    for (int i = 0; i < size; ++i)
-        if (mapping[i] == -1)
-            mapping[i] = size++;
-    return assign;
+unsigned efd::DynProgQbitAllocator::getIntermediateV(unsigned u, unsigned v) {
+    auto& succ = mArchGraph->succ(u);
+
+    for (auto& w : succ) {
+        for (auto& z : mArchGraph->succ(w))
+            if (z == v) return w;
+        for (auto& z : mArchGraph->pred(w))
+            if (z == v) return w;
+    }
+
+    return UNREACH;
 }
 
-static MapResult dynsolve(efd::ArchGraph &physGraph, std::vector<efd::Dependencies>& deps) {
+MapResult efd::DynProgQbitAllocator::dynsolve(std::vector<Dependencies>& deps) {
     int qubits;
     const unsigned SWAP_COST = SwapCost.getVal();
     const unsigned REV_COST = RevCost.getVal();
+    const unsigned LCX_COST = LCXCost.getVal();
 
-    computeSwaps(physGraph);
+    computeSwaps(*mArchGraph);
 
     int permN = PermMap.size();
     int depN = deps.size();
@@ -204,9 +210,12 @@ static MapResult dynsolve(efd::ArchGraph &physGraph, std::vector<efd::Dependenci
             unsigned u = tgtPerm[dep.mFrom], v = tgtPerm[dep.mTo];
 
             // We don't use this configuration if (u, v) is neither a norma edge
-            // nor a reverse edge of the physical graph.
-            if (!physGraph.hasEdge(u, v) &&
-                    !physGraph.isReverseEdge(u, v))
+            // nor a reverse edge of the physical graph nor is at a 2-edge distance
+            // (u -> w -> v).
+            bool hasEdge = mArchGraph->hasEdge(u, v);
+            bool isReverse = mArchGraph->isReverseEdge(u, v);
+            unsigned w = getIntermediateV(u, v);
+            if (!hasEdge && !isReverse && w == UNREACH)
                 continue;
 
             Val minimum { tgt, nullptr, UNREACH };
@@ -224,8 +233,14 @@ static MapResult dynsolve(efd::ArchGraph &physGraph, std::vector<efd::Dependenci
                     finalCost += getSwapNum(srcAssign, tgtAssign) * SWAP_COST;
                 }
 
-                if (physGraph.isReverseEdge(u, v))
-                    finalCost += REV_COST;
+                if (!hasEdge) {
+                    // Increase cost if using reverse edge.
+                    if (mArchGraph->isReverseEdge(u, v))
+                        finalCost += REV_COST;
+                    // Else, increase cost if using long cnot gate.
+                    else if (w != UNREACH)
+                        finalCost += LCX_COST;
+                }
 
                 Val thisVal { tgt, &srcVal, finalCost };
                 minimum = minVal(minimum, thisVal);
@@ -293,8 +308,9 @@ static MapResult dynsolve(efd::ArchGraph &physGraph, std::vector<efd::Dependenci
 
 efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet& deps) {
     // Map Prog -> Arch
-    MapResult result = dynsolve(*mArchGraph, deps);
-    auto assignMap = genAssign(result.initial);
+    MapResult result = dynsolve(deps);
+    auto mapping = result.initial;
+    auto assignMap = genAssign(mapping);
 
     for (unsigned i = 0, e = result.swaps.size(); i < e; ++i) {
         for (auto pair : result.swaps[i]) {
@@ -303,8 +319,20 @@ efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet
             // rename them afterwards.
             unsigned u = assignMap[pair.first], v = assignMap[pair.second];
             insertSwapBefore(deps[i], u, v);
+
             std::swap(assignMap[pair.first], assignMap[pair.second]);
+            std::swap(mapping[u], mapping[v]);
         }
+
+        auto dep = deps[i][0];
+        unsigned u = mapping[dep.mFrom], v = mapping[dep.mTo];
+
+        // Insert the LCNOT only if there is no better way of doing it.
+        if (!mArchGraph->hasEdge(u, v) && !mArchGraph->isReverseEdge(u, v)) {
+            unsigned w = getIntermediateV(u, v);
+            replaceByLCNOT(deps[i], u, w, v);
+        }
+
     }
 
     return result.initial;
