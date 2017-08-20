@@ -40,13 +40,14 @@ CX q[0], q[1];\
 ";
         const std::string result =
 "\
+include \"qelib1.inc\";\
 qreg q[5];\
 CX q[0], q[1];\
 ";
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setDepSolver(QbitterDepSolver::Create());
@@ -70,6 +71,7 @@ CX q[3], q[0];\
         // Expected [ 2 1 0 4 3 ]
         const std::string result =
 "\
+include \"qelib1.inc\";\
 qreg q[5];\
 CX q[2], q[1];\
 CX q[2], q[0];\
@@ -87,7 +89,7 @@ cx q[3], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setDepSolver(QbitterDepSolver::Create());
@@ -108,6 +110,7 @@ test q[0], q[1], q[2];\
 ";
         const std::string result =
 "\
+include \"qelib1.inc\";\
 qreg q[5];\
 CX q[0], q[1];\
 CX q[0], q[2];\
@@ -116,7 +119,7 @@ CX q[1], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setDepSolver(QbitterDepSolver::Create());
@@ -136,6 +139,7 @@ test q[3], q[4], q[2];\
 ";
         const std::string result =
 "\
+include \"qelib1.inc\";\
 qreg q[5];\
 CX q[0], q[1];\
 CX q[0], q[2];\
@@ -147,7 +151,7 @@ CX q[4], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setDepSolver(QbitterDepSolver::Create());
@@ -170,6 +174,7 @@ test q[4], q[1], q[0];\
         // Expected mapping: [ 0 2 1 3 4 ]
         const std::string result =
 "\
+include \"qelib1.inc\";\
 qreg q[5];\
 CX q[0], q[1];\
 CX q[0], q[2];\
@@ -187,7 +192,7 @@ CX q[1], q[0];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setDepSolver(QbitterDepSolver::Create());

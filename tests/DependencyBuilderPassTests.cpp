@@ -18,7 +18,7 @@ TEST(QbitToNumberWrapperPassTests, WholeProgramTest) {
 qreg q[5];\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = QbitToNumberWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -39,7 +39,7 @@ gate mygate(a, b, c) x, y, z {\
 }\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = QbitToNumberWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -79,7 +79,7 @@ measure q[3] -> c[3];\
 measure q[4] -> c[4];\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = QbitToNumberWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -127,7 +127,7 @@ gate cnot x, y {\
 }\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -163,7 +163,7 @@ gate cnot x, y {\
 }\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -214,7 +214,7 @@ qreg q[2];\
 CX q[0], q[1];\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -287,7 +287,7 @@ measure b[7] -> ans[7];\
 measure carry[0] -> carryout[0];\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 

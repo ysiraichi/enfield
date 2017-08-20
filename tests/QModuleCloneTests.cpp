@@ -67,7 +67,7 @@ namespace {
 }
 
 void compareClonedPrograms(const std::string program) {
-    std::unique_ptr<QModule> qmod = QModule::ParseString(program, false);
+    std::unique_ptr<QModule> qmod = QModule::ParseString(program);
     std::unique_ptr<QModule> clone = qmod->clone();
 
     ASTVectorVisitor vQMod, vClone;

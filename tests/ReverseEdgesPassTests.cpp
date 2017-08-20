@@ -23,6 +23,7 @@ cx q[1], q[0];\
 ";
         const std::string result = 
 "\
+include \"qelib1.inc\";\
 gate h a {}\
 gate cx a, b {CX a, b;}\
 qreg q[5];\
@@ -33,7 +34,7 @@ cx q[0], q[1];\
 h q[1];\
 h q[0];\
 ";
-        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
         ArchIBMQX2::sRef graph = toShared(ArchIBMQX2::Create());
 
         auto revPass = ReverseEdgesPass::Create(graph);
@@ -61,6 +62,7 @@ cx q[4], q[3];\
 ";
         const std::string result = 
 "\
+include \"qelib1.inc\";\
 gate h a {}\
 gate cx a, b {CX a, b;}\
 qreg q[5];\
@@ -89,7 +91,7 @@ cx q[3], q[4];\
 h q[4];\
 h q[3];\
 ";
-        auto qmod = toShared(std::move(QModule::ParseString(program, false)));
+        auto qmod = toShared(std::move(QModule::ParseString(program)));
         ArchIBMQX2::sRef graph = toShared(ArchIBMQX2::Create());
 
         auto revPass = ReverseEdgesPass::Create(graph);
