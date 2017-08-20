@@ -182,8 +182,19 @@ void efd::QModule::insertGate(NDGateSign::uRef gate) {
     assert(gate->getId() != nullptr && "Trying to insert a gate with 'nullptr' id.");
 
     std::string id = gate->getId()->getVal();
-    assert(mGatesMap.find(id) == mGatesMap.end() &&
-            "Trying to insert a gate with repeated id.");
+
+    if (mGatesMap.find(id) != mGatesMap.end()) {
+        std::cerr << "Replacing gate: '" << id << "'." << std::endl;
+
+        for (auto it = mGates.begin(), end = mGates.end(); it != end; ++it) {
+            if ((*it)->getId()->getVal() == id) {
+                mGates.erase(it);
+                break;
+            }
+        }
+
+        mGatesMap.erase(mGatesMap.find(id));
+    }
 
     mGatesMap[id] = std::move(gate);
     mGates.push_back(mGatesMap[id].get());
@@ -353,11 +364,11 @@ efd::QModule::uRef efd::QModule::clone() const {
     return uRef(qmod);
 }
 
-efd::QModule::uRef efd::QModule::Create(bool forceStdLib) {
+efd::QModule::uRef efd::QModule::Create() {
     std::string program;
     program = "OPENQASM 2.0;\n";
 
-    auto ast = efd::ParseString(program, forceStdLib);
+    auto ast = efd::ParseString(program, true);
     if (ast.get() != nullptr)
         return GetFromAST(std::move(ast));
 
@@ -367,12 +378,16 @@ efd::QModule::uRef efd::QModule::Create(bool forceStdLib) {
 efd::QModule::uRef efd::QModule::GetFromAST(Node::uRef ref) {
     uRef qmod(new QModule());
     efd::ProcessAST(qmod.get(), ref.get());
+
+    auto gates = efd::GetIntrinsicGates();
+    for (auto& gate : gates)
+        qmod->insertGate(std::move(gate));
+
     return qmod;
 }
 
-efd::QModule::uRef efd::QModule::Parse(std::string filename, 
-        std::string path, bool forceStdLib) {
-    auto ast = efd::ParseFile(filename, path, forceStdLib);
+efd::QModule::uRef efd::QModule::Parse(std::string filename, std::string path) {
+    auto ast = efd::ParseFile(filename, path, true);
 
     if (ast.get() != nullptr)
         return GetFromAST(std::move(ast));
@@ -380,8 +395,8 @@ efd::QModule::uRef efd::QModule::Parse(std::string filename,
     return uRef(nullptr);
 }
 
-efd::QModule::uRef efd::QModule::ParseString(std::string program, bool forceStdLib) {
-    auto ast = efd::ParseString(program, forceStdLib);
+efd::QModule::uRef efd::QModule::ParseString(std::string program) {
+    auto ast = efd::ParseString(program, true);
 
     if (ast != nullptr)
         return GetFromAST(std::move(ast));

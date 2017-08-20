@@ -137,13 +137,13 @@ namespace efd {
             uRef clone() const;
 
             /// \brief Create a new empty QModule.
-            static uRef Create(bool forceStdLib = true);
+            static uRef Create();
             /// \brief Process the AST in order to obtain the QModule.
             static uRef GetFromAST(Node::uRef ref);
             /// \brief Parses the file \p filename and returns a QModule.
-            static uRef Parse(std::string filename, std::string path = "./", bool forceStdLib = true);
+            static uRef Parse(std::string filename, std::string path = "./");
             /// \brief Parses the string \p program and returns a QModule.
-            static uRef ParseString(std::string program, bool forceStdLib = true);
+            static uRef ParseString(std::string program);
     };
 }
 
