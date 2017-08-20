@@ -3,6 +3,7 @@
 
 #include "enfield/Support/WrapperVal.h"
 
+#include <initializer_list>
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -138,7 +139,7 @@ namespace efd {
     /// \brief Node for literal types.
     template <typename T>
         class NDValue : public Node {
-            private:
+            protected:
                 T mVal;
 
                 NDValue(T val);
@@ -226,7 +227,7 @@ namespace efd {
             typedef NDRegDecl* Ref;
             typedef std::unique_ptr<NDRegDecl> uRef;
 
-        private:
+        protected:
             enum ChildType {
                 I_SIZE = 1
             };
@@ -272,7 +273,7 @@ namespace efd {
 
     /// \brief Node for id references (register specific positions).
     class NDIdRef : public Node {
-        private:
+        protected:
             enum ChildType {
                 I_ID = 0,
                 I_N
@@ -314,10 +315,8 @@ namespace efd {
             typedef NDList* Ref;
             typedef std::unique_ptr<NDList> uRef;
 
-        private:
-            NDList();
-
         protected:
+            NDList();
             NDList(Kind k, unsigned size);
 
             /// \brief Deep-copies the childrem.
@@ -354,7 +353,7 @@ namespace efd {
 
     /// \brief Node for list of qubit operation sequences.
     class NDStmtList : public NDList {
-        private:
+        protected:
             NDStmtList();
 
         public:
@@ -376,7 +375,7 @@ namespace efd {
 
     /// \brief Node for list of qubit operation sequences inside gate declarations.
     class NDGOpList : public NDList {
-        private:
+        protected:
             NDGOpList();
 
         public:
@@ -408,7 +407,7 @@ namespace efd {
                 I_QOP
             };
 
-        private:
+        protected:
             NDIfStmt(NDId::uRef cidNode, NDInt::uRef nNode, Node::uRef qopNode);
 
         public:
@@ -444,7 +443,7 @@ namespace efd {
     /// \brief Node that holds the current Qasm version and the
     /// rest of the program.
     class NDQasmVersion : public Node {
-        private:
+        protected:
             enum ChildType {
                 I_VERSION = 0,
                 I_STMTS
@@ -486,7 +485,7 @@ namespace efd {
     /// 
     /// The AST from this other file is a child of this node.
     class NDInclude : public Node {
-        private:
+        protected:
             enum ChildType {
                 I_FILE = 0,
                 I_INNER_AST
@@ -525,7 +524,7 @@ namespace efd {
 
     /// \brief Node for declaration of opaque quantum gates.
     class NDGateSign : public NDDecl {
-        private:
+        protected:
             enum ChildType {
                 I_ARGS = 1,
                 I_QARGS
@@ -570,7 +569,7 @@ namespace efd {
 
     /// \brief Node for declaration of quantum gates.
     class NDGateDecl : public NDGateSign {
-        private:
+        protected:
             enum ChildType {
                 I_GOPLIST = 3
             };
@@ -632,7 +631,7 @@ namespace efd {
 
     /// \brief NDQOp specialized for reset operation.
     class NDQOpReset : public NDQOp {
-        private:
+        protected:
             enum ChildType {
                 I_ONLY = 0
             };
@@ -666,7 +665,7 @@ namespace efd {
 
     /// \brief NDQOp specialized for barrier operation.
     class NDQOpBarrier : public NDQOp {
-        private:
+        protected:
             enum ChildType {
                 I_ONLY = 0
             };
@@ -700,7 +699,7 @@ namespace efd {
 
     /// \brief NDQOp specialized for measure operation.
     class NDQOpMeasure : public NDQOp {
-        private:
+        protected:
             enum ChildType {
                 I_QBIT = 0,
                 I_CBIT
@@ -739,7 +738,7 @@ namespace efd {
 
     /// \brief NDQOp specialized for barrier operation.
     class NDQOpU : public NDQOp {
-        private:
+        protected:
             enum ChildType {
                 I_ARGS = 0,
                 I_QARG
@@ -778,7 +777,7 @@ namespace efd {
 
     /// \brief NDQOp specialized for barrier operation.
     class NDQOpCX : public NDQOp {
-        private:
+        protected:
             enum ChildType {
                 I_LHS = 0,
                 I_RHS
@@ -817,7 +816,7 @@ namespace efd {
 
     /// \brief NDQOp specialized for generic operation.
     class NDQOpGeneric : public NDQOp {
-        private:
+        protected:
             enum ChildType {
                 I_ID = 0,
                 I_ARGS,
@@ -861,7 +860,7 @@ namespace efd {
 
     /// \brief Binary operation node.
     class NDBinOp : public Node {
-        private:
+        protected:
             enum ChildType {
                 I_LHS = 0,
                 I_RHS
@@ -880,7 +879,7 @@ namespace efd {
                 OP_POW
             };
 
-        private:
+        protected:
             OpType mT;
 
             NDBinOp(OpType t, Node::uRef lhsNode, Node::uRef rhsNode);
@@ -937,7 +936,7 @@ namespace efd {
 
     /// \brief Unary operation node.
     class NDUnaryOp : public Node {
-        private:
+        protected:
             enum ChildType {
                 I_ONLY = 0
             };
@@ -957,7 +956,7 @@ namespace efd {
                 UOP_NEG
             };
 
-        private:
+        protected:
             UOpType mT;
 
             NDUnaryOp(UOpType t, Node::uRef oNode);
