@@ -8,71 +8,8 @@
 #include <unordered_set>
 #include <iterator>
 
-namespace efd {
-    extern NDId::uRef SWAP_ID_NODE;
-    extern NDId::uRef H_ID_NODE;
-    extern NDId::uRef CX_ID_NODE;
-}
-
 efd::QModule::QModule() : mVersion(nullptr) {
     mStatements = NDStmtList::Create();
-}
-
-void efd::QModule::registerSwapGate() {
-    bool isSwapRegistered = hasQGate("__swap__");
-    if (!isSwapRegistered) {
-        // The quantum arguments that will be used
-        auto qargLhs = NDId::Create("a");
-        auto qargRhs = NDId::Create("b");
-
-        auto qargsLhs = NDList::Create();
-        auto qargsRhs = NDList::Create();
-        auto qargsLhsRhs = NDList::Create();
-
-        qargsLhs->addChild(qargLhs->clone());
-        qargsRhs->addChild(qargRhs->clone());
-        qargsLhsRhs->addChild(qargLhs->clone());
-        qargsLhsRhs->addChild(qargRhs->clone());
-
-        // The quantum operations
-        auto gop = NDGOpList::Create();
-        // cx a, b;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(CX_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastForward<NDList>(qargsLhsRhs->clone())));
-        // h a;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(), 
-                 uniqueCastForward<NDList>(qargsLhs->clone())));
-        // h b;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(), 
-                 uniqueCastForward<NDList>(qargsRhs->clone())));
-        // cx a, b;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(CX_ID_NODE->clone()), NDList::Create(), 
-                 uniqueCastForward<NDList>(qargsLhsRhs->clone())));
-        // h a;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastForward<NDList>(qargsLhs->clone())));
-        // h b;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastForward<NDList>(qargsRhs->clone())));
-        // cx a, b;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(CX_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastForward<NDList>(qargsLhsRhs->clone())));
-
-        auto swap = NDGateDecl::Create
-                (uniqueCastForward<NDId>(SWAP_ID_NODE->clone()),
-                 NDList::Create(),
-                 std::move(qargsLhsRhs),
-                 std::move(gop));
-
-        insertGate(std::move(swap));
-    }
 }
 
 efd::NDQasmVersion::Ref efd::QModule::getVersion() {
@@ -148,33 +85,17 @@ efd::QModule::Iterator efd::QModule::insertStatementLast(Node::uRef ref) {
     return mStatements->begin() + (mStatements->getChildNumber() - 1);
 }
 
-static efd::NDQOpGeneric::uRef createSwapCallNode(efd::Node::Ref lhs,
-        efd::Node::Ref rhs) {
-    auto qargs = efd::NDList::Create();
-    qargs->addChild(lhs->clone());
-    qargs->addChild(rhs->clone());
+efd::QModule::Iterator efd::QModule::replaceStatement
+(Node::Ref stmt, std::vector<Node::uRef>&& stmts) {
+    auto it = mStatements->findChild(stmt);
+    assert(it != mStatements->end() &&
+            "Trying to replace a non-existing statement.");
 
-    auto swap = efd::NDQOpGeneric::Create(
-            efd::uniqueCastForward<efd::NDId>(efd::SWAP_ID_NODE->clone()),
-            efd::NDList::Create(), std::move(qargs));
-    swap->setGenerated();
-    return std::move(swap);
-}
+    unsigned stmtsSize = stmts.size();
+    it = mStatements->addChildren(it, std::move(stmts));
 
-efd::QModule::Iterator efd::QModule::insertSwapBefore(Iterator it, Node::Ref lhs, Node::Ref rhs) {
-    Node::Ref parent = (*it)->getParent();
-    unsigned dist = std::distance(parent->begin(), it);
-    insertStatementBefore(it, createSwapCallNode(lhs, rhs));
-    registerSwapGate();
-    return parent->begin() + dist;
-}
-
-efd::QModule::Iterator efd::QModule::insertSwapAfter(Iterator it, Node::Ref lhs, Node::Ref rhs) {
-    Node::Ref parent = (*it)->getParent();
-    unsigned dist = std::distance(parent->begin(), it);
-    insertStatementAfter(it, createSwapCallNode(lhs, rhs));
-    registerSwapGate();
-    return parent->begin() + dist;
+    mStatements->removeChild(it + (stmtsSize - 1));
+    return it;
 }
 
 void efd::QModule::insertGate(NDGateSign::uRef gate) {

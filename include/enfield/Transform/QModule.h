@@ -49,9 +49,6 @@ namespace efd {
 
             QModule();
 
-            /// \brief Registers the swap gate in the module.
-            void registerSwapGate();
-
         public:
             /// \brief Gets the qasm version.
             NDQasmVersion::Ref getVersion();
@@ -81,12 +78,9 @@ namespace efd {
             Iterator insertStatementFront(Node::uRef ref);
             /// \brief Inserts \p ref at the back, and returns a iterator to this node.
             Iterator insertStatementLast(Node::uRef ref);
-            /// \brief Inserts a swap call between \p lhs and \p rhs, before the iterator
-            /// location. Returns a iterator to the first swap instruction.
-            Iterator insertSwapAfter(Iterator it, Node::Ref lhs, Node::Ref rhs);
-            /// \brief Inserts a swap call between \p lhs and \p rhs, after the iterator
-            /// location. Returns the iterator on the same position.
-            Iterator insertSwapBefore(Iterator it, Node::Ref lhs, Node::Ref rhs);
+
+            /// \brief Replaces the \p stmt by the vector \p stmts.
+            Iterator replaceStatement(Node::Ref stmt, std::vector<Node::uRef>&& stmts);
 
             /// \brief Inserts a gate to the QModule.
             void insertGate(NDGateSign::uRef gate);
@@ -119,7 +113,8 @@ namespace efd {
             ConstIterator stmt_end() const;
 
             /// \brief Prints the QModule to a std::ostream.
-            void print(std::ostream& O = std::cout, bool pretty = false, bool printGates = false) const;
+            void print(std::ostream& O = std::cout, bool pretty = false,
+                    bool printGates = false) const;
             /// \brief Returns a std::string representation of the QModule.
             std::string toString(bool pretty = false, bool printGates = false) const;
 
