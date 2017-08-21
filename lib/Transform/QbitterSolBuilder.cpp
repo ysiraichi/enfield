@@ -2,12 +2,8 @@
 
 efd::QbitterSolBuilder::Solution efd::QbitterSolBuilder::build
 (Mapping initial, DepsSet& deps, ArchGraph::Ref g) {
-    Solution solution;
-
     auto mapping = initial;
-
-    solution.mInitial = initial;
-    solution.mCost = 0;
+    Solution solution { initial, QbitAllocator::SwapSequences(deps.size()), 0 };
 
     for (auto& lineDeps : deps) {
         auto dep = lineDeps[0];

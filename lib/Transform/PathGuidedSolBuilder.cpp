@@ -4,15 +4,11 @@
 
 efd::PathGuidedSolBuilder::Solution efd::PathGuidedSolBuilder::build
 (Mapping initial, DepsSet& deps, ArchGraph::Ref g) {
-    Solution solution;
-
     if (mPathFinder.get() == nullptr)
         mPathFinder = BFSPathFinder::Create();
 
     Mapping match = initial;
-
-    solution.mInitial = initial;
-    solution.mCost = 0;
+    Solution solution { initial, QbitAllocator::SwapSequences(deps.size()), 0 };
 
     for (unsigned i = 0, e = deps.size(); i < e; ++i) {
         Dep d = deps[i].mDeps[0];

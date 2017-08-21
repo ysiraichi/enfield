@@ -272,7 +272,7 @@ efd::QbitAllocator::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
 
     // Get the dep->swaps mapping.
     unsigned swapId = depN-1;
-    std::vector<std::vector<Solution::Swap>> swaps(depN, std::vector<Solution::Swap>());
+    SwapSequences swaps(depN);
     while (val->parent != nullptr) {
         unsigned srcId = val->parent->pId, tgtId = val->pId;
 

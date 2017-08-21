@@ -15,16 +15,17 @@ namespace efd {
             typedef std::unique_ptr<QbitAllocator> uRef;
 
             typedef std::vector<unsigned> Mapping;
+            typedef std::pair<unsigned, unsigned> Swap;
+            typedef std::vector<std::vector<Swap>> SwapSequences;
+
             typedef std::vector<std::string> BasisVector;
             typedef DependencyBuilder::DepsSet DepsSet;
             typedef DependencyBuilder::DepsSet::iterator Iterator;
 
             /// \brief The solution for the allocation problem.
             struct Solution {
-                typedef std::pair<unsigned, unsigned> Swap;
-
-                std::vector<unsigned> mInitial;
-                std::vector<std::vector<Swap>> mSwaps;
+                Mapping mInitial;
+                SwapSequences mSwaps;
                 unsigned mCost;
             };
 
