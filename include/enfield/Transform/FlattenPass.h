@@ -17,9 +17,6 @@ namespace efd {
         private:
             FlattenPass();
 
-            /// \brief Replaces \p ref by the nodes in \p nodes.
-            void replace(Node::Ref ref, std::vector<Node::uRef> nodes);
-
         public:
             void run(QModule::Ref qmod) override;
 
