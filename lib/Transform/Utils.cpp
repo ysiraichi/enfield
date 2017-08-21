@@ -232,6 +232,7 @@ namespace efd {
             void visit(efd::NDQOpGeneric::Ref ref) override;
             void visit(efd::NDBinOp::Ref ref) override;
             void visit(efd::NDUnaryOp::Ref ref) override;
+            void visit(efd::NDIfStmt::Ref ref) override;
     };
 }
 
@@ -288,6 +289,11 @@ void efd::QArgsReplaceVisitor::visit(efd::NDUnaryOp::Ref ref) {
     substituteChildrem(ref);
 }
 
+void efd::QArgsReplaceVisitor::visit(efd::NDIfStmt::Ref ref) {
+    // We only need to visit the qop.
+    ref->getQOp()->apply(this);
+}
+
 void efd::InlineGate(QModule::Ref qmod, NDQOpGeneric::Ref qop) {
     std::string gateId = qop->getId()->getVal();
     
@@ -309,38 +315,34 @@ void efd::InlineGate(QModule::Ref qmod, NDQOpGeneric::Ref qop) {
     for (unsigned i = 0, e = gateArgs->getChildNumber(); i < e; ++i)
         varMap[gateArgs->getChild(i)->toString()] = qopArgs->getChild(i);
 
+    // ------ Replacing
     QArgsReplaceVisitor visitor(varMap);
     auto gop = uniqueCastForward<NDGOpList>(gateDecl->getGOpList()->clone());
 
-
-    // Replacing
-    NDIfStmt::Ref ifstmt = dynCast<NDIfStmt>(qop->getParent());
-
     // 'stmt' is the node we are going to replace.
     Node::Ref stmt = nullptr;
+    auto ifstmt = dynCast<NDIfStmt>(qop->getParent());
     if (ifstmt != nullptr) stmt = ifstmt;
     else stmt = qop;
 
-    auto it = qmod->findStatement(stmt);
+    // Replace the arguments.
+    std::vector<Node::uRef> inlinedNodes;
     for (auto& op : *gop) {
-        auto newStmt = std::move(op);
-        auto qop = newStmt.get();
-
+        auto qop = std::move(op);
+        // If its parent is an NDIfStmt, we wrap the the operation into
+        // a clone of the if.
         if (ifstmt != nullptr) {
-            newStmt = uniqueCastBackward<Node>(NDIfStmt::Create(
-                    uniqueCastForward<NDId>(ifstmt->getCondId()->clone()),
-                    uniqueCastForward<NDInt>(ifstmt->getCondN()->clone()),
-                    std::move(newStmt)));
-            qop = dynCast<NDIfStmt>(newStmt.get())->getQOp();
+            auto ifclone = uniqueCastForward<NDIfStmt>(ifstmt->clone());
+            ifclone->setQOp(std::move(qop));
+            qop.reset(ifclone.release());
         }
 
         // The 'visitor' is applied only in the 'qop'.
         qop->apply(&visitor);
-        it = qmod->insertStatementAfter(it, std::move(newStmt));
+        inlinedNodes.push_back(std::move(qop));
     }
 
-    it = qmod->findStatement(stmt);
-    qmod->removeStatement(it);
+    qmod->replaceStatement(stmt, std::move(inlinedNodes));
 }
 
 // ==--------------- Reverse Gate ---------------==
