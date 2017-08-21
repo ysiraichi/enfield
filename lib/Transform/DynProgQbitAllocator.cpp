@@ -9,17 +9,9 @@
 
 const unsigned UNREACH = std::numeric_limits<unsigned>::max();
 
-typedef std::vector<std::pair<unsigned, unsigned>> SwapVector;
-
 struct Val {
     unsigned pId;
     Val* parent;
-    unsigned cost;
-};
-
-struct MapResult {
-    std::vector<unsigned> initial;
-    std::vector<SwapVector> swaps;
     unsigned cost;
 };
 
@@ -168,8 +160,8 @@ unsigned efd::DynProgQbitAllocator::getIntermediateV(unsigned u, unsigned v) {
     return UNREACH;
 }
 
-MapResult efd::DynProgQbitAllocator::dynsolve(std::vector<Dependencies>& deps) {
-    int qubits;
+efd::QbitAllocator::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
+    unsigned archQ = mArchGraph->size();
     const unsigned SWAP_COST = SwapCost.getVal();
     const unsigned REV_COST = RevCost.getVal();
     const unsigned LCX_COST = LCXCost.getVal();
@@ -228,8 +220,8 @@ MapResult efd::DynProgQbitAllocator::dynsolve(std::vector<Dependencies>& deps) {
                 unsigned finalCost = srcVal.cost;
 
                 if (tgt != src) {
-                    auto srcAssign = genAssign(*permIdMap[src]);
-                    auto tgtAssign = genAssign(tgtPerm);
+                    auto srcAssign = GenAssignment(archQ, *permIdMap[src]);
+                    auto tgtAssign = GenAssignment(archQ, tgtPerm);
                     finalCost += getSwapNum(srcAssign, tgtAssign) * SWAP_COST;
                 }
 
@@ -280,13 +272,13 @@ MapResult efd::DynProgQbitAllocator::dynsolve(std::vector<Dependencies>& deps) {
 
     // Get the dep->swaps mapping.
     unsigned swapId = depN-1;
-    std::vector<SwapVector> swaps(depN, SwapVector());
+    SwapSequences swaps(depN);
     while (val->parent != nullptr) {
         unsigned srcId = val->parent->pId, tgtId = val->pId;
 
         if (srcId != tgtId) {
-            auto srcAssign = genAssign(*permIdMap[srcId]);
-            auto tgtAssign = genAssign(*permIdMap[tgtId]);
+            auto srcAssign = GenAssignment(archQ, *permIdMap[srcId]);
+            auto tgtAssign = GenAssignment(archQ, *permIdMap[tgtId]);
             swaps[swapId] = getSwaps(srcAssign, tgtAssign);
         }
 
@@ -302,40 +294,7 @@ MapResult efd::DynProgQbitAllocator::dynsolve(std::vector<Dependencies>& deps) {
     cout << " }" << endl;
     */
 
-    TotalCost = bestCost;
     return { initial, swaps, bestCost };
-}
-
-efd::QbitAllocator::Mapping efd::DynProgQbitAllocator::solveDependencies(DepsSet& deps) {
-    // Map Prog -> Arch
-    MapResult result = dynsolve(deps);
-    auto mapping = result.initial;
-    auto assignMap = genAssign(mapping);
-
-    for (unsigned i = 0, e = result.swaps.size(); i < e; ++i) {
-        for (auto pair : result.swaps[i]) {
-            // (u, v) are program qubits.
-            // At first we issue swaps from program qubits. The allocator will
-            // rename them afterwards.
-            unsigned u = assignMap[pair.first], v = assignMap[pair.second];
-            insertSwapBefore(deps[i], u, v);
-
-            std::swap(assignMap[pair.first], assignMap[pair.second]);
-            std::swap(mapping[u], mapping[v]);
-        }
-
-        auto dep = deps[i][0];
-        unsigned u = mapping[dep.mFrom], v = mapping[dep.mTo];
-
-        // Insert the LCNOT only if there is no better way of doing it.
-        if (!mArchGraph->hasEdge(u, v) && !mArchGraph->isReverseEdge(u, v)) {
-            unsigned w = getIntermediateV(u, v);
-            replaceByLCNOT(deps[i], u, w, v);
-        }
-
-    }
-
-    return result.initial;
 }
 
 efd::DynProgQbitAllocator::DynProgQbitAllocator(ArchGraph::sRef pGraph) 

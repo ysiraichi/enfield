@@ -1,22 +1,21 @@
-#ifndef __EFD_PATH_GUIDED_DEP_SOLVER_H__
-#define __EFD_PATH_GUIDED_DEP_SOLVER_H__
+#ifndef __EFD_PATH_GUIDED_SOL_BUILDER_H__
+#define __EFD_PATH_GUIDED_SOL_BUILDER_H__
 
-#include "enfield/Transform/DependenciesSolver.h"
+#include "enfield/Transform/SolutionBuilder.h"
 #include "enfield/Support/PathFinder.h"
 
 namespace efd {
     /// \brief Solves the dependencies by looking at the path in the graph.
-    class PathGuidedDepSolver : public DependenciesSolver {
+    class PathGuidedSolBuilder : public SolutionBuilder {
         public:
-            typedef PathGuidedDepSolver* Ref;
-            typedef std::unique_ptr<PathGuidedDepSolver> uRef;
+            typedef PathGuidedSolBuilder* Ref;
+            typedef std::unique_ptr<PathGuidedSolBuilder> uRef;
 
         protected:
             PathFinder::sRef mPathFinder;
 
         public:
-            void solve(Mapping initial, DepsSet& deps, ArchGraph::Ref g,
-                    QbitAllocator::Ref allocator) override;
+            Solution build(Mapping initial, DepsSet& deps, ArchGraph::Ref g) override;
 
             /// \brief Sets the path finder to be used.
             void setPathFinder(PathFinder::sRef finder);

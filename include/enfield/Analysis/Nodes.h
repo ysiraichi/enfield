@@ -336,17 +336,17 @@ namespace efd {
 
             /// \brief Appends a child to the end of the list.
             Iterator addChild(Node::uRef child);
-            /// \brief Inserts a child in the iterator \p It. The iterator goes to
+            /// \brief Inserts a child in the iterator \p it. The iterator goes to
             /// the new inserted element.
-            Iterator addChild(Iterator It, Node::uRef child);
+            Iterator addChild(Iterator it, Node::uRef child);
             /// \brief Appends \p children to the end of the list.
-            Iterator addChildren(std::vector<Node::uRef>&& children);
-            /// \brief Inserts \p children in the iterator \p It. The iterator goes to
+            Iterator addChildren(std::vector<Node::uRef> children);
+            /// \brief Inserts \p children in the iterator \p it. The iterator goes to
             /// the first new inserted element.
-            Iterator addChildren(Iterator It, std::vector<Node::uRef>&& children);
-            /// \brief Removes the child in the iterator \p It. The iterator moves
+            Iterator addChildren(Iterator it, std::vector<Node::uRef> children);
+            /// \brief Removes the child in the iterator \p it. The iterator moves
             /// to the next element.
-            Iterator removeChild(Iterator It);
+            Iterator removeChild(Iterator it);
             /// \brief Removes the \p child (must exist).
             void removeChild(Node::Ref child);
 

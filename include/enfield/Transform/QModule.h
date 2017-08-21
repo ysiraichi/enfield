@@ -80,7 +80,7 @@ namespace efd {
             Iterator insertStatementLast(Node::uRef ref);
 
             /// \brief Replaces the \p stmt by the vector \p stmts.
-            Iterator replaceStatement(Node::Ref stmt, std::vector<Node::uRef>&& stmts);
+            Iterator replaceStatement(Node::Ref stmt, std::vector<Node::uRef> stmts);
 
             /// \brief Inserts a gate to the QModule.
             void insertGate(NDGateSign::uRef gate);

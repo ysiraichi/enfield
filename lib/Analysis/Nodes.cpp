@@ -356,44 +356,45 @@ efd::Node::Iterator efd::NDList::addChild(Node::uRef child) {
     return mChild.begin() + (mChild.size() - 1);
 }
 
-efd::Node::Iterator efd::NDList::addChild(Iterator It, Node::uRef child) {
+efd::Node::Iterator efd::NDList::addChild(Iterator it, Node::uRef child) {
     child->setParent(this);
-    It = mChild.insert(It, std::move(child));
+    it = mChild.insert(it, std::move(child));
     Node::mIsEmpty = false;
-    return It;
+    return it;
 }
 
-efd::Node::Iterator efd::NDList::addChildren(std::vector<Node::uRef>&& children) {
+efd::Node::Iterator efd::NDList::addChildren(std::vector<Node::uRef> children) {
     auto it = addChildren(mChild.end(), std::move(children));
     return it;
 }
 
 efd::Node::Iterator efd::NDList::addChildren
-(Iterator It, std::vector<Node::uRef>&& children) {
+(Iterator it, std::vector<Node::uRef> children) {
     if (children.empty()) return mChild.end();
 
     for (auto& child : children)
         child->setParent(this);
 
-    auto it = mChild.insert(It, std::make_move_iterator(mChild.begin()),
-            std::make_move_iterator(mChild.end()));
+    it = mChild.insert(it,
+            std::make_move_iterator(children.begin()),
+            std::make_move_iterator(children.end()));
 
     Node::mIsEmpty = false;
-    return It;
+    return it;
 }
 
-efd::Node::Iterator efd::NDList::removeChild(Iterator It) {
-    It = mChild.erase(It);
+efd::Node::Iterator efd::NDList::removeChild(Iterator it) {
+    it = mChild.erase(it);
     if (mChild.empty())
         Node::mIsEmpty = true;
-    return It;
+    return it;
 }
 
 void efd::NDList::removeChild(Node::Ref ref) {
-    auto It = findChild(ref);
-    assert(It != end() && "Can't remove inexistent child.");
+    auto it = findChild(ref);
+    assert(it != end() && "Can't remove inexistent child.");
 
-    removeChild(It);
+    removeChild(it);
     if (mChild.empty())
         Node::mIsEmpty = true;
 }

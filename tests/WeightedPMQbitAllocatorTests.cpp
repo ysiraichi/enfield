@@ -3,7 +3,7 @@
 
 #include "enfield/Transform/SimpleQbitAllocator.h"
 #include "enfield/Transform/WeightedPMMappingFinder.h"
-#include "enfield/Transform/PathGuidedDepSolver.h"
+#include "enfield/Transform/PathGuidedSolBuilder.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
@@ -50,7 +50,7 @@ CX q[1], q[2];\
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
-        allocator->setDepSolver(PathGuidedDepSolver::Create());
+        allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -86,7 +86,7 @@ CX q[1], q[2];\
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
-        allocator->setDepSolver(PathGuidedDepSolver::Create());
+        allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -116,7 +116,7 @@ CX q[1], q[2];\
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
-        allocator->setDepSolver(PathGuidedDepSolver::Create());
+        allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -148,7 +148,7 @@ CX q[1], q[2];\
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
-        allocator->setDepSolver(PathGuidedDepSolver::Create());
+        allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -186,7 +186,7 @@ CX q[2], q[1];\
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
-        allocator->setDepSolver(PathGuidedDepSolver::Create());
+        allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());

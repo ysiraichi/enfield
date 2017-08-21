@@ -86,16 +86,15 @@ efd::QModule::Iterator efd::QModule::insertStatementLast(Node::uRef ref) {
 }
 
 efd::QModule::Iterator efd::QModule::replaceStatement
-(Node::Ref stmt, std::vector<Node::uRef>&& stmts) {
+(Node::Ref stmt, std::vector<Node::uRef> stmts) {
     auto it = mStatements->findChild(stmt);
     assert(it != mStatements->end() &&
             "Trying to replace a non-existing statement.");
 
     unsigned stmtsSize = stmts.size();
     it = mStatements->addChildren(it, std::move(stmts));
-
-    mStatements->removeChild(it + (stmtsSize - 1));
-    return it;
+    it = mStatements->removeChild(it + stmtsSize);
+    return it - stmtsSize;
 }
 
 void efd::QModule::insertGate(NDGateSign::uRef gate) {

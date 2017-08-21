@@ -17,5 +17,5 @@ add_library(EfdAllocator
     WeightedPMMappingFinder.cpp
     IdentityMappingFinder.cpp
     RandomMappingFinder.cpp
-    PathGuidedDepSolver.cpp
-    QbitterDepSolver.cpp)
+    PathGuidedSolBuilder.cpp
+    QbitterSolBuilder.cpp)

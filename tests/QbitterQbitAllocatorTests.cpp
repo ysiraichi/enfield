@@ -3,7 +3,7 @@
 
 #include "enfield/Transform/SimpleQbitAllocator.h"
 #include "enfield/Transform/IdentityMappingFinder.h"
-#include "enfield/Transform/QbitterDepSolver.h"
+#include "enfield/Transform/QbitterSolBuilder.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
@@ -50,7 +50,7 @@ CX q[0], q[1];\
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
-        allocator->setDepSolver(QbitterDepSolver::Create());
+        allocator->setSolBuilder(QbitterSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -92,7 +92,7 @@ cx q[3], q[2];\
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
-        allocator->setDepSolver(QbitterDepSolver::Create());
+        allocator->setSolBuilder(QbitterSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -122,7 +122,7 @@ CX q[1], q[2];\
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
-        allocator->setDepSolver(QbitterDepSolver::Create());
+        allocator->setSolBuilder(QbitterSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -154,7 +154,7 @@ CX q[4], q[2];\
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
-        allocator->setDepSolver(QbitterDepSolver::Create());
+        allocator->setSolBuilder(QbitterSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -195,7 +195,7 @@ CX q[1], q[0];\
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
-        allocator->setDepSolver(QbitterDepSolver::Create());
+        allocator->setSolBuilder(QbitterSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());

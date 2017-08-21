@@ -16,15 +16,16 @@ namespace efd {
             typedef DynProgQbitAllocator* Ref;
             typedef std::unique_ptr<DynProgQbitAllocator> uRef;
 
-        private:
+        protected:
             DynProgQbitAllocator(ArchGraph::sRef archGraph);
 
-            MapResult dynsolve(std::vector<Dependencies>& deps);
+            /// \brief Gets the intermediate vertex between 'u' and 'v', if
+            /// there exists one.
             unsigned getIntermediateV(unsigned u, unsigned v);
 
-        public:
-            Mapping solveDependencies(DepsSet& deps) override;
+            Solution solve(DepsSet& deps) override;
 
+        public:
             /// \brief Create a new instance of this class.
             static uRef Create(ArchGraph::sRef archGraph);
     };
