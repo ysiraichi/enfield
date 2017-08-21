@@ -20,8 +20,8 @@ namespace efd {
 
 #define EFD_ALLOCATOR(_Name_, _Class_) \
     alloc::RetTy Create##_Class_(alloc::ArgTy arg);
-#define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Solver_) \
-    alloc::RetTy Create##_Finder_##With##_Solver_(alloc::ArgTy arg);
+#define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
+    alloc::RetTy Create##_Finder_##With##_Builder_(alloc::ArgTy arg);
 #include "enfield/Transform/Allocators.def"
 #undef EFD_ALLOCATOR
 #undef EFD_ALLOCATOR_SIMPLE

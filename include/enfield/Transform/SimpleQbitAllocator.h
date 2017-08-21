@@ -3,7 +3,7 @@
 
 #include "enfield/Transform/QbitAllocator.h"
 #include "enfield/Transform/MappingFinder.h"
-#include "enfield/Transform/DependenciesSolver.h"
+#include "enfield/Transform/SolutionBuilder.h"
 
 namespace efd {
     /// \brief QbitAllocator that allocates the logical qubits from an initial mapping.
@@ -14,17 +14,17 @@ namespace efd {
 
         protected:
             MappingFinder::sRef mMapFinder;
-            DependenciesSolver::sRef mDepSolver;
+            SolutionBuilder::sRef mSolBuilder;
 
             SimpleQbitAllocator(ArchGraph::sRef agraph);
 
-        public:
-            Mapping solveDependencies(DepsSet& deps) override;
+            Solution solve(DepsSet& deps) override;
 
+        public:
             /// \brief Sets the mapping finder to \p finder.
             void setMapFinder(MappingFinder::sRef finder);
-            /// \brief Sets the dependency solver to \p solver.
-            void setDepSolver(DependenciesSolver::sRef solver);
+            /// \brief Sets the solution builder to \p builder.
+            void setSolBuilder(SolutionBuilder::sRef builder);
 
             /// \brief Creates an instance of this class.
             static uRef Create(ArchGraph::sRef agraph);

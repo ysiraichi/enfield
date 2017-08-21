@@ -1,16 +1,21 @@
-#include "enfield/Transform/PathGuidedDepSolver.h"
+#include "enfield/Transform/PathGuidedSolBuilder.h"
+#include "enfield/Transform/QbitAllocator.h"
 #include "enfield/Support/BFSPathFinder.h"
 
-void efd::PathGuidedDepSolver::solve(Mapping initial, DepsSet& deps,
-        ArchGraph::Ref g, QbitAllocator::Ref allocator) {
+efd::PathGuidedSolBuilder::Solution efd::PathGuidedSolBuilder::build
+(Mapping initial, DepsSet& deps, ArchGraph::Ref g) {
+    Solution solution;
 
     if (mPathFinder.get() == nullptr)
         mPathFinder = BFSPathFinder::Create();
 
     Mapping match = initial;
 
-    for (auto& dep : deps) {
-        Dep d = dep.mDeps[0];
+    solution.mInitial = initial;
+    solution.mCost = 0;
+
+    for (unsigned i = 0, e = deps.size(); i < e; ++i) {
+        Dep d = deps[i].mDeps[0];
 
         // Program qubits (a, b)
         unsigned a = d.mFrom, b = d.mTo;
@@ -20,11 +25,11 @@ void efd::PathGuidedDepSolver::solve(Mapping initial, DepsSet& deps,
 
         if (g->hasEdge(u, v)) continue;
         if (g->isReverseEdge(u, v)) {
-            TotalCost += RevCost.getVal();
+            solution.mCost += RevCost.getVal();
             continue;
         }
 
-        auto assign = allocator->genAssign(match);
+        auto assign = GenAssignment(g->size(), match);
         auto path = mPathFinder->find(g, u, v);
 
         // It should stop before swapping the 'source' qubit.
@@ -36,19 +41,21 @@ void efd::PathGuidedDepSolver::solve(Mapping initial, DepsSet& deps,
 
             unsigned a = assign[u], b = assign[v];
 
-            TotalCost += SwapCost.getVal();
-            allocator->insertSwapBefore(dep, a, b);
+            solution.mCost += SwapCost.getVal();
+            solution.mSwaps[i].push_back({ u, v });
 
             std::swap(match[a], match[b]);
             std::swap(assign[u], assign[v]);
         }
     }
+
+    return solution;
 }
 
-void efd::PathGuidedDepSolver::setPathFinder(PathFinder::sRef finder) {
+void efd::PathGuidedSolBuilder::setPathFinder(PathFinder::sRef finder) {
     mPathFinder = finder;
 }
 
-efd::PathGuidedDepSolver::uRef efd::PathGuidedDepSolver::Create() {
-    return uRef(new PathGuidedDepSolver());
+efd::PathGuidedSolBuilder::uRef efd::PathGuidedSolBuilder::Create() {
+    return uRef(new PathGuidedSolBuilder());
 }
