@@ -2,6 +2,7 @@
 #include "enfield/Transform/Utils.h"
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/uRefCast.h"
 
 #include <cassert>
 
@@ -10,13 +11,35 @@ namespace efd {
         private:
             ArchGraph::sRef mG;
 
+            /// \brief Inserts this triple into \em mRevVector.
+            ///
+            /// This also checks if it is inside an if statement.
+            void insertIntoRevVector(Node::Ref ref, Node::Ref lhs, Node::Ref rhs);
+
         public:
-            std::vector<Node::Ref> mRevVector;
+            std::vector<std::pair<Node::Ref, Node::uRef>> mRevVector;
             ReverseEdgesVisitor(ArchGraph::sRef g) : mG(g) {}
 
             void visit(NDQOpCX::Ref ref) override;
             void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDIfStmt::Ref ref) override;
     };
+}
+
+void efd::ReverseEdgesVisitor::insertIntoRevVector
+(Node::Ref ref, Node::Ref lhs, Node::Ref rhs) {
+    Node::uRef revcall = efd::CreateIRevCX(lhs->clone(), rhs->clone());
+
+    auto parent = dynCast<NDIfStmt>(ref->getParent());
+    if (parent != nullptr) {
+        auto ifrevcall = uniqueCastForward<NDIfStmt>(parent->clone());
+        ifrevcall->setQOp(std::move(revcall));
+
+        revcall.reset(ifrevcall.release());
+        ref = parent;
+    }
+
+    mRevVector.push_back(std::make_pair(ref, std::move(revcall)));
 }
 
 void efd::ReverseEdgesVisitor::visit(NDQOpCX::Ref ref) {
@@ -24,7 +47,7 @@ void efd::ReverseEdgesVisitor::visit(NDQOpCX::Ref ref) {
     unsigned uidRhs = mG->getUId(ref->getRhs()->toString());
 
     if (mG->isReverseEdge(uidLhs, uidRhs)) {
-        mRevVector.push_back(ref);
+        insertIntoRevVector(ref, ref->getLhs(), ref->getRhs());
     }
 }
 
@@ -37,9 +60,13 @@ void efd::ReverseEdgesVisitor::visit(NDQOpGeneric::Ref ref) {
         unsigned uidRhs = mG->getUId(qargs->getChild(1)->toString());
 
         if (mG->isReverseEdge(uidLhs, uidRhs)) {
-            mRevVector.push_back(ref);
+            insertIntoRevVector(ref, qargs->getChild(0), qargs->getChild(1));
         }
     }
+}
+
+void efd::ReverseEdgesVisitor::visit(NDIfStmt::Ref ref) {
+    ref->getQOp()->apply(this);
 }
 
 efd::ReverseEdgesPass::ReverseEdgesPass(ArchGraph::sRef graph) : mG(graph) {
@@ -52,8 +79,10 @@ void efd::ReverseEdgesPass::run(QModule::Ref qmod) {
         (*it)->apply(&visitor);
     }
 
-    for (auto node : visitor.mRevVector) {
-        ReverseCNode(qmod, node);
+    for (auto& pair : visitor.mRevVector) {
+        std::vector<Node::uRef> repl;
+        repl.push_back(std::move(pair.second));
+        qmod->replaceStatement(pair.first, std::move(repl));
     }
 }
 

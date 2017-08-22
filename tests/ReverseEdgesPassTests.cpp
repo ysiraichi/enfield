@@ -15,8 +15,7 @@ TEST(ReverseEdgesTest, SimpleEdgeReversalTest) {
     {
         const std::string program = 
 "\
-gate h a {}\
-gate cx a, b {CX a, b;}\
+include \"qelib1.inc\";\
 qreg q[5];\
 cx q[0], q[1];\
 cx q[1], q[0];\
@@ -24,15 +23,10 @@ cx q[1], q[0];\
         const std::string result = 
 "\
 include \"qelib1.inc\";\
-gate h a {}\
-gate cx a, b {CX a, b;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
 qreg q[5];\
 cx q[0], q[1];\
-h q[0];\
-h q[1];\
-cx q[0], q[1];\
-h q[1];\
-h q[0];\
+intrinsic_rev_cx__ q[1], q[0];\
 ";
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         ArchIBMQX2::sRef graph = toShared(ArchIBMQX2::Create());
@@ -48,8 +42,7 @@ TEST(ReverseEdgesTest, ManyEdgeReversalTest) {
     {
         const std::string program = 
 "\
-gate h a {}\
-gate cx a, b {CX a, b;}\
+include \"qelib1.inc\";\
 qreg q[5];\
 cx q[0], q[1];\
 cx q[1], q[0];\
@@ -63,33 +56,16 @@ cx q[4], q[3];\
         const std::string result = 
 "\
 include \"qelib1.inc\";\
-gate h a {}\
-gate cx a, b {CX a, b;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
 qreg q[5];\
 cx q[0], q[1];\
-h q[0];\
-h q[1];\
-cx q[0], q[1];\
-h q[1];\
-h q[0];\
+intrinsic_rev_cx__ q[1], q[0];\
 cx q[0], q[2];\
-h q[0];\
-h q[2];\
-cx q[0], q[2];\
-h q[2];\
-h q[0];\
+intrinsic_rev_cx__ q[2], q[0];\
 cx q[3], q[2];\
-h q[3];\
-h q[2];\
-cx q[3], q[2];\
-h q[2];\
-h q[3];\
+intrinsic_rev_cx__ q[2], q[3];\
 cx q[3], q[4];\
-h q[3];\
-h q[4];\
-cx q[3], q[4];\
-h q[4];\
-h q[3];\
+intrinsic_rev_cx__ q[4], q[3];\
 ";
         auto qmod = toShared(std::move(QModule::ParseString(program)));
         ArchIBMQX2::sRef graph = toShared(ArchIBMQX2::Create());
