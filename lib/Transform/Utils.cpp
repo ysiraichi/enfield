@@ -9,12 +9,6 @@
 #include <iterator>
 #include <iostream>
 
-namespace efd {
-    NDId::uRef SWAP_ID_NODE(efd::NDId::Create("__swap__"));
-    NDId::uRef H_ID_NODE(efd::NDId::Create("h")); 
-    NDId::uRef CX_ID_NODE(efd::NDId::Create("cx")); 
-}
-
 // ==--------------- Intrinsic Gates ---------------==
 static std::vector<efd::NDGateSign::uRef> IntrinsicGates;
 static const std::string IntrinsicGatesStr =
@@ -343,68 +337,4 @@ void efd::InlineGate(QModule::Ref qmod, NDQOpGeneric::Ref qop) {
     }
 
     qmod->replaceStatement(stmt, std::move(inlinedNodes));
-}
-
-// ==--------------- Reverse Gate ---------------==
-void efd::ReverseCNode(QModule::Ref qmod, Node::Ref node) {
-    std::vector<Node::Ref> qArgs;
-
-    switch (node->getKind()) {
-        case Node::K_QOP_CX:
-            {
-                NDQOpCX::Ref refCX = dynCast<NDQOpCX>(node);
-                assert(refCX != nullptr && "Malformed node.");
-
-                auto lhs = refCX->getLhs()->clone();
-                auto rhs = refCX->getRhs()->clone();
-                // Swapping the arguments.
-                refCX->setLhs(std::move(rhs));
-                refCX->setRhs(std::move(lhs));
-
-                qArgs.push_back(refCX->getLhs());
-                qArgs.push_back(refCX->getRhs());
-            }
-            break;
-
-        case Node::K_QOP_GENERIC:
-            {
-                NDQOpGeneric::Ref refGen = dynCast<NDQOpGeneric>(node);
-                assert(refGen != nullptr && "Malformed node.");
-
-                NDList::Ref qargs = refGen->getQArgs();
-                assert(qargs->getChildNumber() == 2 && "Malformed CNOT call.");
-
-                auto lhs = qargs->getChild(0)->clone();
-                auto rhs = qargs->getChild(1)->clone();
-                // Swapping the arguments.
-                qargs->setChild(0, std::move(rhs));
-                qargs->setChild(1, std::move(lhs));
-
-                qArgs.push_back(qargs->getChild(0));
-                qArgs.push_back(qargs->getChild(1));
-            }
-            break;
-
-        default:
-            assert(false && "Can't reverse any other node, but CX and QOpGeneric.");
-    }
-
-    Node::Ref parent = node->getParent();
-    Node::Iterator it;
-    for (auto qbit : qArgs) {
-        auto qArgs = NDList::Create();
-        qArgs->addChild(qbit->clone());
-
-        it = parent->findChild(node);
-        qmod->insertStatementBefore(it, NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()),
-                 NDList::Create(),
-                 uniqueCastForward<NDList>(qArgs->clone())));
-
-        it = parent->findChild(node);
-        qmod->insertStatementAfter(it, NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()),
-                 NDList::Create(),
-                 uniqueCastForward<NDList>(qArgs->clone())));
-    }
 }
