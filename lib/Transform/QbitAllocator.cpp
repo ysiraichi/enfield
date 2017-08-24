@@ -3,6 +3,7 @@
 #include "enfield/Transform/InlineAllPass.h"
 #include "enfield/Transform/Utils.h"
 #include "enfield/Arch/ArchGraph.h"
+#include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
 #include "enfield/Support/Timer.h"
@@ -10,6 +11,206 @@
 #include <iterator>
 #include <cassert>
 
+// ------------------ Solution Implementer ----------------------
+namespace efd {
+    class SolutionImplPass : public PassT<void>, public NodeVisitor {
+        private:
+            Solution& mSol;
+            QbitToNumberWrapperPass::sRef mQbitToNumberPass;
+
+            QbitToNumber mQbitToNumber;
+            std::vector<Node::Ref> mMap;
+
+            std::unordered_map<Node::Ref, std::vector<Node::uRef>> mReplVector;
+
+            unsigned mDepIdx;
+
+            /// \brief Gets the node mapped to the string version of \p ref.
+            Node::uRef getMappedNode(Node::Ref ref);
+            /// \brief Apply the swaps for the current dependency.
+            void applyOperations(Node::Ref ref);
+
+            Node::uRef wrapWithIfNode(Node::uRef ref, NDIfStmt::Ref ifstmt);
+
+        public:
+            SolutionImplPass(Solution& sol) : mSol(sol), mQbitToNumberPass(nullptr) {}
+
+            void setQbitToNumberPass(QbitToNumberWrapperPass::sRef pass);
+
+            void run(QModule::Ref qmod) override;
+            void visit(NDQOpMeasure::Ref ref) override;
+            void visit(NDQOpReset::Ref ref) override;
+            void visit(NDQOpU::Ref ref) override;
+            void visit(NDQOpBarrier::Ref ref) override;
+            void visit(NDIfStmt::Ref ref) override;
+            void visit(NDList::Ref ref) override;
+            void visit(NDQOpCX::Ref ref) override;
+            void visit(NDQOpGeneric::Ref ref) override;
+    };
+}
+
+efd::Node::uRef efd::SolutionImplPass::getMappedNode(Node::Ref ref) {
+    unsigned id = mQbitToNumber.getUId(ref->toString());
+    return mMap[id]->clone();
+}
+
+void efd::SolutionImplPass::applyOperations(Node::Ref ref) {
+    auto& ops = mSol.mOpSeqs[mDepIdx].second;
+    ++mDepIdx;
+
+    // If there is nothing to be done in this dep, simply return.
+    if (ops.empty()) return;
+
+    NDIfStmt::Ref ifstmt = efd::dynCast<NDIfStmt>(ref->getParent());
+
+    Node::Ref key;
+    if (ifstmt != nullptr) {
+        key = ifstmt;
+    } else {
+        key = ref;
+    }
+
+    mReplVector[key] = std::vector<Node::uRef>();
+
+    for (auto& op : ops) {
+        switch (op.mK) {
+            case Operation::K_OP_CNOT:
+                {
+                    auto clone = ref->clone();
+
+                    if (auto generic = dynCast<NDQOpGeneric>(clone.get())) {
+                        auto qargs = generic->getQArgs();
+                        qargs->setChild(0, mMap[op.mU]->clone());
+                        qargs->setChild(1, mMap[op.mV]->clone());
+                    } else if (auto cx = dynCast<NDQOpCX>(clone.get())) {
+                        cx->setLhs(mMap[op.mU]->clone());
+                        cx->setRhs(mMap[op.mV]->clone());
+                    }
+
+                    mReplVector[key].push_back(std::move(clone));
+                }
+                break;
+
+            case Operation::K_OP_SWAP:
+                mReplVector[key].push_back(
+                        efd::CreateISwap(mMap[op.mU]->clone(), mMap[op.mV]->clone()));
+                std::swap(mMap[op.mU], mMap[op.mV]);
+                break;
+
+            case Operation::K_OP_REV:
+                {
+                    Node::uRef call = efd::CreateIRevCX(
+                                mMap[op.mU]->clone(),
+                                mMap[op.mV]->clone());
+
+                    if (ifstmt != nullptr) {
+                        auto ifclone = uniqueCastForward<NDIfStmt>(ifstmt->clone());
+                        ifclone->setQOp(std::move(call));
+                        call = std::move(ifclone);
+                    }
+
+                    mReplVector[key].push_back(wrapWithIfNode(std::move(call), ifstmt));
+                }
+                break;
+
+            case Operation::K_OP_LCNOT:
+                {
+                    Node::uRef call = efd::CreateILongCX(
+                                mMap[op.mU]->clone(), 
+                                mMap[op.mW]->clone(), 
+                                mMap[op.mV]->clone());
+                    mReplVector[key].push_back(wrapWithIfNode(std::move(call), ifstmt));
+                }
+                break;
+        }
+    }
+}
+
+efd::Node::uRef efd::SolutionImplPass::wrapWithIfNode
+(Node::uRef ref, NDIfStmt::Ref ifstmt) {
+
+    if (ifstmt != nullptr) {
+        auto ifclone = uniqueCastForward<NDIfStmt>(ifstmt->clone());
+        ifclone->setQOp(std::move(ref));
+        ref = std::move(ifclone);
+    }
+
+    return ref;
+}
+
+void efd::SolutionImplPass::setQbitToNumberPass(QbitToNumberWrapperPass::sRef pass) {
+    mQbitToNumberPass = pass;
+}
+
+void efd::SolutionImplPass::run(QModule::Ref qmod) {
+    if (mQbitToNumberPass.get() == nullptr) {
+        mQbitToNumberPass = QbitToNumberWrapperPass::Create();
+        mQbitToNumberPass->run(qmod);
+    }
+
+    mQbitToNumber = mQbitToNumberPass->getData();
+    mMap.assign(mQbitToNumber.getSize(), nullptr);
+
+    for (unsigned i = 0, e = mQbitToNumber.getSize(); i < e; ++i)
+        mMap[i] = mQbitToNumber.getNode(mSol.mInitial[i]);
+
+    mDepIdx = 0;
+    for (auto it = qmod->stmt_begin(), end = qmod->stmt_end(); it != end; ++it) {
+        (*it)->apply(this);
+    }
+
+    for (auto& pair : mReplVector) {
+        if (!pair.second.empty())
+            qmod->replaceStatement(pair.first, std::move(pair.second));
+    }
+}
+
+void efd::SolutionImplPass::visit(NDQOpMeasure::Ref ref) {
+    ref->setQBit(getMappedNode(ref->getQBit()));
+}
+
+void efd::SolutionImplPass::visit(NDQOpReset::Ref ref) {
+    ref->setQArg(getMappedNode(ref->getQArg()));
+}
+
+void efd::SolutionImplPass::visit(NDQOpU::Ref ref) {
+    ref->setQArg(getMappedNode(ref->getQArg()));
+}
+
+void efd::SolutionImplPass::visit(NDQOpBarrier::Ref ref) {
+    ref->getQArgs()->apply(this);
+}
+
+void efd::SolutionImplPass::visit(NDIfStmt::Ref ref) {
+    ref->getQOp()->apply(this);
+}
+
+void efd::SolutionImplPass::visit(NDList::Ref ref) {
+    for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
+        ref->setChild(i, getMappedNode(ref->getChild(i)));
+    }
+}
+
+void efd::SolutionImplPass::visit(NDQOpCX::Ref ref) {
+    ref->setLhs(getMappedNode(ref->getLhs()));
+    ref->setRhs(getMappedNode(ref->getRhs()));
+
+    assert(ref == mSol.mOpSeqs[mDepIdx].first &&
+            "Wrong cnot dependency.");
+
+    applyOperations(ref);
+}
+
+void efd::SolutionImplPass::visit(NDQOpGeneric::Ref ref) {
+    ref->getQArgs()->apply(this);
+
+    if (!mSol.mOpSeqs.empty() && ref == mSol.mOpSeqs[mDepIdx].first) {
+        applyOperations(ref);
+    }
+}
+
+
+// ------------------ QbitAllocator ----------------------
 static efd::Stat<unsigned> DepStat
 ("Dependencies", "The number of dependencies of this program.");
 static efd::Stat<double> AllocTime
@@ -166,7 +367,9 @@ void efd::QbitAllocator::run(QModule::Ref qmod) {
     timer.start();
     // ---------------------------------
 
-    renameQbits();
+    SolutionImplPass pass(mSol);
+    pass.run(mMod);
+    // renameQbits();
 
     // Stopping timer and setting the stat -----------------
     timer.stop();
