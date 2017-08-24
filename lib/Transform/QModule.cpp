@@ -92,7 +92,10 @@ efd::QModule::Iterator efd::QModule::replaceStatement
             "Trying to replace a non-existing statement.");
 
     unsigned stmtsSize = stmts.size();
-    it = mStatements->addChildren(it, std::move(stmts));
+    if (!stmts.empty()) {
+        it = mStatements->addChildren(it, std::move(stmts));
+    }
+
     it = mStatements->removeChild(it + stmtsSize);
     return it - stmtsSize;
 }
