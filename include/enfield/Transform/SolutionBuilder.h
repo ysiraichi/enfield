@@ -8,7 +8,6 @@ namespace efd {
     class SolutionBuilder {
         public:
             typedef QbitAllocator::Mapping Mapping;
-            typedef QbitAllocator::Solution Solution;
             typedef QbitAllocator::DepsSet DepsSet;
 
             typedef SolutionBuilder* Ref;

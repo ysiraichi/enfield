@@ -4,7 +4,7 @@ efd::SimpleQbitAllocator::SimpleQbitAllocator(ArchGraph::sRef agraph) :
     QbitAllocator(agraph) {
 }
 
-efd::QbitAllocator::Solution efd::SimpleQbitAllocator::solve(DepsSet& deps) {
+efd::Solution efd::SimpleQbitAllocator::solve(DepsSet& deps) {
     auto initial = mMapFinder->find(mArchGraph.get(), deps);
     return mSolBuilder->build(initial, deps, mArchGraph.get());
 }
