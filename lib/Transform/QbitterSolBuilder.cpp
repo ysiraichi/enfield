@@ -1,25 +1,39 @@
 #include "enfield/Transform/QbitterSolBuilder.h"
+#include "enfield/Support/BFSPathFinder.h"
 
-efd::QbitterSolBuilder::Solution efd::QbitterSolBuilder::build
+efd::Solution efd::QbitterSolBuilder::build
 (Mapping initial, DepsSet& deps, ArchGraph::Ref g) {
     auto mapping = initial;
-    Solution solution { initial, QbitAllocator::SwapSequences(deps.size()), 0 };
+    auto assign = GenAssignment(g->size(), mapping);
+    auto finder = BFSPathFinder::Create();
 
-    for (auto& lineDeps : deps) {
-        auto dep = lineDeps[0];
+    Solution solution { initial, Solution::OpSequences(deps.size()), 0 };
+
+    for (unsigned i = 0, e = deps.size(); i < e; ++i) {
+        auto dep = deps[i][0];
+
+        auto& ops = solution.mOpSeqs[i];
+        ops.first = deps[i].mCallPoint;
 
         // (u, v) edge in Arch
-        unsigned u = mapping[dep.mFrom], v = mapping[dep.mTo];
+        unsigned a = dep.mFrom, b = dep.mTo;
+        unsigned u = mapping[a], v = mapping[b];
 
-        if (g->hasEdge(u, v))
-            continue;
+        Operation operation;
+        if (g->hasEdge(u, v)) {
+            operation = { Operation::K_OP_CNOT, a, b };
+        } else if (g->isReverseEdge(u, v)) {
+            solution.mCost += RevCost.getVal();
+            operation = { Operation::K_OP_REV, a, b };
+        } else {
+            solution.mCost += LCXCost.getVal();
+            operation = { Operation::K_OP_LCNOT, a, b };
 
-        if (g->isReverseEdge(u, v)) {
-            TotalCost += RevCost.getVal();
-            continue;
+            auto path = finder->find(g, u, v);
+            assert(path.size() == 3 && "Can't apply a long cnot.");
+            operation.mW = assign[path[1]];
         }
-
-        solution.mCost += LCXCost.getVal();
+        ops.second.push_back(operation);
     }
 
     return solution;

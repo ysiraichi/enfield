@@ -169,16 +169,17 @@ test q[4], q[1], q[0];\
         const std::string result =
 "\
 include \"qelib1.inc\";\
-gate __swap__ a, b {cx a, b;h a;h b;cx a, b;h a;h b;cx a, b;}\
+gate intrinsic_swap__ a, b {cx a, b;cx b, a;cx a, b;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
 qreg q[5];\
 CX q[1], q[2];\
-__swap__ q[3], q[2];\
+intrinsic_swap__ q[3], q[2];\
 CX q[1], q[2];\
 CX q[3], q[2];\
-__swap__ q[3], q[2];\
+intrinsic_swap__ q[3], q[2];\
 CX q[0], q[2];\
 CX q[0], q[1];\
-CX q[2], q[1];\
+intrinsic_rev_cx__ q[2], q[1];\
 ";
 
         ArchGraph::sRef graph = getGraph();

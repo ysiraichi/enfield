@@ -72,19 +72,15 @@ CX q[3], q[0];\
         const std::string result =
 "\
 include \"qelib1.inc\";\
+gate intrinsic_lcx__ a, c, b {cx c, b;cx a, c;cx c, b;cx a, c;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
 qreg q[5];\
-CX q[2], q[1];\
-CX q[2], q[0];\
-CX q[1], q[0];\
-CX q[4], q[3];\
-cx q[2], q[0];\
-cx q[4], q[2];\
-cx q[2], q[0];\
-cx q[4], q[2];\
-cx q[2], q[0];\
-cx q[3], q[2];\
-cx q[2], q[0];\
-cx q[3], q[2];\
+intrinsic_rev_cx__ q[2], q[1];\
+intrinsic_rev_cx__ q[2], q[0];\
+intrinsic_rev_cx__ q[1], q[0];\
+intrinsic_rev_cx__ q[4], q[3];\
+intrinsic_lcx__ q[4], q[2], q[0];\
+intrinsic_lcx__ q[3], q[2], q[0];\
 ";
 
         ArchGraph::sRef graph = getGraph();
@@ -175,19 +171,15 @@ test q[4], q[1], q[0];\
         const std::string result =
 "\
 include \"qelib1.inc\";\
+gate intrinsic_lcx__ a, c, b {cx c, b;cx a, c;cx c, b;cx a, c;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
 qreg q[5];\
 CX q[0], q[1];\
 CX q[0], q[2];\
 CX q[1], q[2];\
-cx q[2], q[1];\
-cx q[4], q[2];\
-cx q[2], q[1];\
-cx q[4], q[2];\
-cx q[2], q[0];\
-cx q[4], q[2];\
-cx q[2], q[0];\
-cx q[4], q[2];\
-CX q[1], q[0];\
+intrinsic_lcx__ q[4], q[2], q[1];\
+intrinsic_lcx__ q[4], q[2], q[0];\
+intrinsic_rev_cx__ q[1], q[0];\
 ";
 
         ArchGraph::sRef graph = getGraph();

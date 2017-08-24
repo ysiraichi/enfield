@@ -1,4 +1,5 @@
 #include "enfield/Transform/DynProgQbitAllocator.h"
+#include "enfield/Support/BFSPathFinder.h"
 #include "enfield/Support/CommandLine.h"
 
 #include <unordered_map>
@@ -160,16 +161,18 @@ unsigned efd::DynProgQbitAllocator::getIntermediateV(unsigned u, unsigned v) {
     return UNREACH;
 }
 
-efd::QbitAllocator::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
+efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
+    computeSwaps(*mArchGraph);
+
     unsigned archQ = mArchGraph->size();
     const unsigned SWAP_COST = SwapCost.getVal();
     const unsigned REV_COST = RevCost.getVal();
     const unsigned LCX_COST = LCXCost.getVal();
 
-    computeSwaps(*mArchGraph);
-
     int permN = PermMap.size();
     int depN = deps.size();
+
+    auto finder = BFSPathFinder::Create();
 
     std::vector<std::vector<unsigned>*> permIdMap(permN, nullptr);
     for (auto &pair : PermMap)
@@ -190,11 +193,6 @@ efd::QbitAllocator::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
                 "Trying to allocate qbits to a gate with more than one dependency.");
         efd::Dep dep = deps[i-1].mDeps[0];
 
-        /*
-        cout << "---------------------------------------" << endl;
-        cout << "from:" << dep.first << " - to:" << dep.second << endl;
-        */
-
         for (unsigned tgt = 0; tgt < permN; ++tgt) {
             // Check if target tgtPermutation has the dependency required.
             auto& tgtPerm = *permIdMap[tgt];
@@ -206,8 +204,8 @@ efd::QbitAllocator::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
             // (u -> w -> v).
             bool hasEdge = mArchGraph->hasEdge(u, v);
             bool isReverse = mArchGraph->isReverseEdge(u, v);
-            unsigned w = getIntermediateV(u, v);
-            if (!hasEdge && !isReverse && w == UNREACH)
+            bool is2Dist = finder->find(mArchGraph.get(), u, v).size() == 3;
+            if (!hasEdge && !isReverse && !is2Dist)
                 continue;
 
             Val minimum { tgt, nullptr, UNREACH };
@@ -227,29 +225,16 @@ efd::QbitAllocator::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
 
                 if (!hasEdge) {
                     // Increase cost if using reverse edge.
-                    if (mArchGraph->isReverseEdge(u, v))
+                    if (isReverse)
                         finalCost += REV_COST;
                     // Else, increase cost if using long cnot gate.
-                    else if (w != UNREACH)
+                    else if (is2Dist)
                         finalCost += LCX_COST;
                 }
 
                 Val thisVal { tgt, &srcVal, finalCost };
                 minimum = minVal(minimum, thisVal);
             }
-
-            /*
-            Val *srcVal = minimum.parent;
-            cout << "{id:" << srcVal->pId << ", cost:" << srcVal->cost << ", perm:[";
-            for (int i : *permIdMap[srcVal->pId]) cout << " " << i;
-            cout << " ]}";
-
-            cout << " >> ";
-
-            cout << "{id:" << minimum.pId << ", cost:" << minimum.cost << ", perm:[";
-            for (int i : *permIdMap[minimum.pId]) cout << " " << i;
-            cout << " ]}" << endl;
-            */
 
             vals[tgt][i] = minimum;
         }
@@ -262,39 +247,73 @@ efd::QbitAllocator::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
         val = (minCost == val->cost) ? val : &vals[i][depN];
     }
 
-    /*
-    cout << "Best: {id:" << val->pId << ", cost:" << val->cost << ", perm:[";
-    for (int i : *permIdMap[val->pId]) cout << " " << i;
-    cout << " }" << endl;
-    */
+    Solution solution;
+    solution.mCost = val->cost;
+    solution.mOpSeqs.assign(depN, std::pair<Node::Ref, Solution::OpVector>());
 
-    unsigned bestCost = val->cost;
+    // Get the target mappings for each dependency (with its id).
+    std::vector<std::pair<unsigned, Mapping>> mappings(depN);
 
-    // Get the dep->swaps mapping.
-    unsigned swapId = depN-1;
-    SwapSequences swaps(depN);
-    while (val->parent != nullptr) {
-        unsigned srcId = val->parent->pId, tgtId = val->pId;
-
-        if (srcId != tgtId) {
-            auto srcAssign = GenAssignment(archQ, *permIdMap[srcId]);
-            auto tgtAssign = GenAssignment(archQ, *permIdMap[tgtId]);
-            swaps[swapId] = getSwaps(srcAssign, tgtAssign);
-        }
-
+    for (int i = depN-1; i >= 0; --i) {
+        assert(val->parent != nullptr && "Nullptr reached too soon.");
+        mappings[i] = std::make_pair(val->pId, *(permIdMap)[val->pId]);
         val = val->parent;
-        --swapId;
     }
 
-    auto initial = *permIdMap[val->pId];
+    if (depN == 0) {
+        for (int i = 0; i < archQ; ++i)
+            solution.mInitial.push_back(i);
+        solution.mCost = 0;
+    } else {
+        solution.mInitial = mappings[0].second;
+        solution.mOpSeqs[0].first = deps[0].mCallPoint;
+        for (int i = 1; i < depN; ++i) {
+            unsigned srcId = mappings[i-1].first, tgtId = mappings[i].first;
 
-    /*
-    cout << "Initial: {id:" << val->pId << ", cost:" << val->cost << ", perm:[";
-    for (int i : *permIdMap[val->pId]) cout << " " << i;
-    cout << " }" << endl;
-    */
+            auto& ops = solution.mOpSeqs[i];
+            auto& src = mappings[i-1].second;
+            auto& tgt = mappings[i].second;
 
-    return { initial, swaps, bestCost };
+            if (srcId != tgtId) {
+                auto srcAssign = GenAssignment(archQ, src);
+                auto tgtAssign = GenAssignment(archQ, tgt);
+
+                auto swaps = getSwaps(srcAssign, tgtAssign);
+                for (auto pair : swaps) {
+                    unsigned u = pair.first, v = pair.second;
+
+                    if (mArchGraph->isReverseEdge(u, v))
+                        std::swap(u, v);
+
+                    ops.second.push_back({ Operation::K_OP_SWAP, srcAssign[u], srcAssign[v] });
+                    std::swap(srcAssign[u], srcAssign[v]);
+                }
+            }
+
+            auto dep = deps[i][0];
+            unsigned a = dep.mFrom, b = dep.mTo;
+            unsigned u = tgt[a], v = tgt[b];
+            auto assign = GenAssignment(mArchGraph->size(), tgt);
+
+            Operation operation;
+
+            if (mArchGraph->hasEdge(u, v))
+                operation = { Operation::K_OP_CNOT, a, b };
+            else if (mArchGraph->isReverseEdge(u, v))
+                operation = { Operation::K_OP_REV, a, b };
+            else {
+                auto path = finder->find(mArchGraph.get(), u, v);
+                assert(path.size() == 3 && "Can't apply a long cnot.");
+                operation = { Operation::K_OP_LCNOT, a, b };
+                operation.mW = assign[path[1]];
+            }
+
+            ops.first = deps[i].mCallPoint;
+            ops.second.push_back(operation);
+        }
+    }
+
+    return solution;
 }
 
 efd::DynProgQbitAllocator::DynProgQbitAllocator(ArchGraph::sRef pGraph) 
