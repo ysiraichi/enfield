@@ -69,7 +69,7 @@ namespace efd {
             void removeStatement(Iterator it);
 
             /// \brief Inlines \p call and returns an iterator to the first node inserted.
-            Iterator inlineCall(NDQOpGeneric::Ref call);
+            Iterator inlineCall(NDQOp::Ref call);
             /// \brief Inserts \p ref after \p it, and returns a iterator to this node.
             Iterator insertStatementAfter(Iterator it, Node::uRef ref);
             /// \brief Inserts \p ref before \p it, and returns a iterator to this node.

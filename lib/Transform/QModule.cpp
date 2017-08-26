@@ -55,7 +55,9 @@ void efd::QModule::removeStatement(Iterator it) {
     mStatements->removeChild(it);
 }
 
-efd::QModule::Iterator efd::QModule::inlineCall(NDQOpGeneric::Ref call) {
+efd::QModule::Iterator efd::QModule::inlineCall(NDQOp::Ref call) {
+    assert(call->isGeneric() && "Trying to inline a non-generic call.");
+
     Node::Ref parent = call->getParent();
     Iterator it = parent->findChild(call);
     unsigned dist = std::distance(parent->begin(), it);
@@ -193,15 +195,15 @@ std::string efd::QModule::toString(bool pretty, bool printGates) const {
         std::unordered_set<std::string> doPrint;
 
         for (auto& stmt : *mStatements) {
-            NDQOpGeneric::Ref qcall = nullptr;
+            NDQOp::Ref qcall = nullptr;
 
             if (auto ifstmt = dynCast<NDIfStmt>(stmt.get())) {
                 // Get the QOp part (if it is a NDIfStmt node).
-                if (auto ifcall = dynCast<NDQOpGeneric>(ifstmt->getQOp())) {
-                    qcall = ifcall;
+                if (ifstmt->getQOp()->isGeneric()) {
+                    qcall = ifstmt->getQOp();
                 }
             } else {
-                qcall = dynCast<NDQOpGeneric>(stmt.get());
+                qcall = dynCast<NDQOp>(stmt.get());
             }
 
             if (qcall != nullptr) {
