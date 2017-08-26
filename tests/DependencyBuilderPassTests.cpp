@@ -1,5 +1,7 @@
 #include "gtest/gtest.h"
 
+#include "enfield/Analysis/Driver.h"
+#include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Transform/QbitToNumberPass.h"
@@ -202,7 +204,7 @@ gate cnot x, y {\
         ASSERT_EQ(cnotDeps[0][0].mTo, y);
 
         ASSERT_FALSE(cnotDeps[0].mCallPoint == nullptr);
-        ASSERT_TRUE(efd::instanceOf<NDQOpGeneric>(cnotDeps[0].mCallPoint));
+        ASSERT_TRUE(efd::instanceOf<NDQOp>(cnotDeps[0].mCallPoint));
     }
 }
 
@@ -238,7 +240,7 @@ CX q[0], q[1];\
     {
         const std::string program = \
 "\
-include \"files/qelib1.inc\";\
+include \"qelib1.inc\";\
 gate majority a, b, c {\
 cx c, b;\
 cx c, a;\

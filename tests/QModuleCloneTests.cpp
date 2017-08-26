@@ -32,7 +32,7 @@ namespace {
             void visit(NDQOpU::Ref ref) override { visitNode(ref); }
             void visit(NDQOpCX::Ref ref) override { visitNode(ref); }
             void visit(NDQOpBarrier::Ref ref) override { visitNode(ref); }
-            void visit(NDQOpGeneric::Ref ref) override { visitNode(ref); }
+            void visit(NDQOp::Ref ref) override { visitNode(ref); }
             void visit(NDBinOp::Ref ref) override { visitNode(ref); }
             void visit(NDUnaryOp::Ref ref) override { visitNode(ref); }
             void visit(NDIdRef::Ref ref) override { visitNode(ref); }
@@ -87,7 +87,7 @@ void compareClonedPrograms(const std::string program) {
     }
 
 TEST_CLONE(QASMVersionTest, "OPENQASM 2.0;");
-TEST_CLONE(IncludeTest,"include \"files/qelib1.inc\";");
+TEST_CLONE(IncludeTest,"include \"qelib1.inc\";");
 TEST_CLONE(DeclTest, "qreg q0[10];qreg q1[10];creg c0[10];");
 TEST_CLONE(GateTest, "gate notid a {}");
 TEST_CLONE(OpaqueGateTest, "opaque ogate(x, y) a, b, c;");
@@ -102,7 +102,7 @@ TEST_CLONE(GOPListTest, "gate notid a, b { CX a, b; U(pi) a; }");
 TEST_CLONE(WholeProgramTest, 
 "\
 OPENQASM 2.0;\
-include \"files/qelib1.inc\";\
+include \"qelib1.inc\";\
 qreg q0[10];\
 qreg q1[10];\
 creg c0[10];\
