@@ -4,19 +4,17 @@ efd::SimpleQbitAllocator::SimpleQbitAllocator(ArchGraph::sRef agraph) :
     QbitAllocator(agraph) {
 }
 
-efd::QbitAllocator::Mapping efd::SimpleQbitAllocator::
-solveDependencies(DepsSet& deps) {
+efd::Solution efd::SimpleQbitAllocator::solve(DepsSet& deps) {
     auto initial = mMapFinder->find(mArchGraph.get(), deps);
-    mDepSolver->solve(initial, deps, mArchGraph.get(), this);
-    return initial;
+    return mSolBuilder->build(initial, deps, mArchGraph.get());
 }
 
 void efd::SimpleQbitAllocator::setMapFinder(MappingFinder::sRef finder) {
     mMapFinder = finder;
 }
 
-void efd::SimpleQbitAllocator::setDepSolver(DependenciesSolver::sRef solver) {
-    mDepSolver = solver;
+void efd::SimpleQbitAllocator::setSolBuilder(SolutionBuilder::sRef builder) {
+    mSolBuilder = builder;
 }
 
 efd::SimpleQbitAllocator::uRef efd::SimpleQbitAllocator::

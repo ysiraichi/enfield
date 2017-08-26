@@ -4,8 +4,8 @@
 #include "enfield/Transform/WeightedPMMappingFinder.h"
 #include "enfield/Transform/RandomMappingFinder.h"
 #include "enfield/Transform/IdentityMappingFinder.h"
-#include "enfield/Transform/PathGuidedDepSolver.h"
-#include "enfield/Transform/QbitterDepSolver.h"
+#include "enfield/Transform/PathGuidedSolBuilder.h"
+#include "enfield/Transform/QbitterSolBuilder.h"
 
 #include <unordered_map>
 #include <functional>
@@ -58,8 +58,8 @@ static AllocatorRegistryPtr GetRegistry() {
 void efd::InitializeAllQbitAllocators() {
 #define EFD_ALLOCATOR(_Name_, _Class_) \
     RegisterQbitAllocator(#_Name_, Create##_Class_);
-#define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Solver_) \
-    RegisterQbitAllocator(#_Name_, Create##_Finder_##With##_Solver_);
+#define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
+    RegisterQbitAllocator(#_Name_, Create##_Finder_##With##_Builder_);
 #include "enfield/Transform/Allocators.def"
 #undef EFD_ALLOCATOR
 #undef EFD_ALLOCATOR_SIMPLE
@@ -78,11 +78,11 @@ efd::alloc::RetTy efd::CreateQbitAllocator(std::string name, alloc::ArgTy arg) {
     efd::alloc::RetTy efd::Create##_Class_(alloc::ArgTy arg) {\
         return _Class_::Create(arg);\
     }
-#define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Solver_) \
-    efd::alloc::RetTy efd::Create##_Finder_##With##_Solver_(alloc::ArgTy arg) {\
+#define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
+    efd::alloc::RetTy efd::Create##_Finder_##With##_Builder_(alloc::ArgTy arg) {\
         auto allocator = SimpleQbitAllocator::Create(arg);\
         allocator->setMapFinder(_Finder_::Create());\
-        allocator->setDepSolver(_Solver_::Create());\
+        allocator->setSolBuilder(_Builder_::Create());\
         return std::move(allocator);\
     }
 #include "enfield/Transform/Allocators.def"

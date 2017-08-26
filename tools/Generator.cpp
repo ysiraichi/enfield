@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
         arch = efd::ArchGraph::Read(Arch.getVal()).release();
     }
 
-    auto qmod = efd::QModule::Create(true);
+    auto qmod = efd::QModule::Create();
     std::ofstream o(Out.getVal());
     unsigned size = arch->size();
 

@@ -1,5 +1,6 @@
 #include "enfield/Transform/Utils.h"
 #include "enfield/Analysis/NodeVisitor.h"
+#include "enfield/Analysis/Driver.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
 
@@ -8,10 +9,95 @@
 #include <iterator>
 #include <iostream>
 
+// ==--------------- Intrinsic Gates ---------------==
+static std::vector<efd::NDGateSign::uRef> IntrinsicGates;
+static const std::string IntrinsicGatesStr =
+#define EFD_LIB(...) #__VA_ARGS__
+#include "enfield/StdLib/intrinsic.inc"
+#undef EFD_LIB
+;
+
+static void ProcessIntrinsicGates() {
+    if (IntrinsicGates.empty()) {
+        auto ast = efd::ParseString(IntrinsicGatesStr, false);
+        assert(efd::instanceOf<efd::NDStmtList>(ast.get()) &&
+                "Intrinsic gates root node of wrong type.");
+
+        for (auto& gate : *ast) {
+            auto gateNode = efd::uniqueCastForward<efd::NDGateSign>(std::move(gate));
+            assert(gateNode.get() != nullptr && "Statement is not a gate declaration.");
+            IntrinsicGates.push_back(std::move(gateNode));
+        }
+    }
+}
+
+std::vector<efd::NDGateSign::uRef> efd::GetIntrinsicGates() {
+    ProcessIntrinsicGates();
+
+    std::vector<NDGateSign::uRef> gates;
+    for (auto& gate : IntrinsicGates)
+        gates.push_back(uniqueCastForward<NDGateSign>(gate->clone()));
+
+    return gates;
+}
+
 namespace efd {
-    NDId::uRef SWAP_ID_NODE(efd::NDId::Create("__swap__"));
-    NDId::uRef H_ID_NODE(efd::NDId::Create("h")); 
-    NDId::uRef CX_ID_NODE(efd::NDId::Create("cx")); 
+    /// \brief Special node for swap calls.
+    struct NDQOpSwap : public NDQOp {
+        static const std::string IdStr;
+
+        NDQOpSwap(Node::uRef lhs, Node::uRef rhs) :
+            NDQOp(K_QOP, NDId::Create(IdStr), NDList::Create(), NDList::Create()) {
+                auto qargs = getQArgs();
+                qargs->addChild(std::move(lhs));
+                qargs->addChild(std::move(rhs));
+            }
+    };
+
+    /// \brief Special node for long cnot calls.
+    struct NDQOpLongCX : public NDQOp {
+        static const std::string IdStr;
+
+        NDQOpLongCX(Node::uRef lhs, Node::uRef middle, Node::uRef rhs) :
+            NDQOp(K_QOP, NDId::Create(IdStr), NDList::Create(), NDList::Create()) {
+                auto qargs = getQArgs();
+                qargs->addChild(std::move(lhs));
+                qargs->addChild(std::move(middle));
+                qargs->addChild(std::move(rhs));
+            }
+    };
+
+    /// \brief Special node for reversal cnot calls.
+    struct NDQOpRevCX : public NDQOp {
+        static const std::string IdStr;
+
+        NDQOpRevCX(Node::uRef lhs, Node::uRef rhs) :
+            NDQOp(K_QOP, NDId::Create(IdStr), NDList::Create(), NDList::Create()) {
+                auto qargs = getQArgs();
+                qargs->addChild(std::move(lhs));
+                qargs->addChild(std::move(rhs));
+            }
+    };
+}
+
+const std::string efd::NDQOpSwap::IdStr = "intrinsic_swap__";
+const std::string efd::NDQOpLongCX::IdStr = "intrinsic_lcx__";
+const std::string efd::NDQOpRevCX::IdStr = "intrinsic_rev_cx__";
+
+efd::NDQOp::uRef efd::CreateISwap(Node::uRef lhs, Node::uRef rhs) {
+    auto node = new NDQOpSwap(std::move(lhs), std::move(rhs));
+    return NDQOp::uRef(node);
+}
+
+efd::NDQOp::uRef efd::CreateILongCX
+(Node::uRef lhs, Node::uRef middle, Node::uRef rhs) {
+    auto node = new NDQOpLongCX(std::move(lhs), std::move(middle), std::move(rhs));
+    return NDQOp::uRef(node);
+}
+
+efd::NDQOp::uRef efd::CreateIRevCX(Node::uRef lhs, Node::uRef rhs) {
+    auto node = new NDQOpRevCX(std::move(lhs), std::move(rhs));
+    return NDQOp::uRef(node);
 }
 
 // ==--------------- QModulefy ---------------==
@@ -26,8 +112,6 @@ namespace efd {
             QModulefyVisitor(QModule& qmod)
                 : mMod(qmod), mCurGate(nullptr), mCurIncl(nullptr) {}
 
-            void insertIfNotInsideGate(Node::Ref ref);
-
             void visit(NDQasmVersion::Ref ref) override;
             void visit(NDInclude::Ref ref) override;
             void visit(NDRegDecl::Ref ref) override;
@@ -38,16 +122,10 @@ namespace efd {
             void visit(NDQOpU::Ref ref) override;
             void visit(NDQOpCX::Ref ref) override;
             void visit(NDQOpBarrier::Ref ref) override;
-            void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDQOp::Ref ref) override;
             void visit(NDIfStmt::Ref ref) override;
             void visit(NDStmtList::Ref ref) override;
-            void visit(NDGOpList::Ref ref) override;
     };
-}
-
-void efd::QModulefyVisitor::insertIfNotInsideGate(Node::Ref ref) {
-    if (mCurGate != nullptr) return;
-    mMod.insertStatementLast(ref->clone());
 }
 
 void efd::QModulefyVisitor::visit(NDQasmVersion::Ref ref) {
@@ -81,10 +159,6 @@ void efd::QModulefyVisitor::visit(NDGateDecl::Ref ref) {
     }
 
     mMod.insertGate(std::move(clone));
-    
-    mCurGate = ref;
-    visitChildren(ref);
-    mCurGate = nullptr;
 }
 
 void efd::QModulefyVisitor::visit(NDOpaque::Ref ref) {
@@ -93,41 +167,37 @@ void efd::QModulefyVisitor::visit(NDOpaque::Ref ref) {
 
 
 void efd::QModulefyVisitor::visit(NDQOpMeasure::Ref ref) {
-    insertIfNotInsideGate(ref);
+    mMod.insertStatementLast(ref->clone());
 }
 
 
 void efd::QModulefyVisitor::visit(NDQOpReset::Ref ref) {
-    insertIfNotInsideGate(ref);
+    mMod.insertStatementLast(ref->clone());
 }
 
 
 void efd::QModulefyVisitor::visit(NDQOpU::Ref ref) {
-    insertIfNotInsideGate(ref);
+    mMod.insertStatementLast(ref->clone());
 }
 
 
 void efd::QModulefyVisitor::visit(NDQOpCX::Ref ref) {
-    insertIfNotInsideGate(ref);
+    mMod.insertStatementLast(ref->clone());
 }
 
 void efd::QModulefyVisitor::visit(NDQOpBarrier::Ref ref) {
-    insertIfNotInsideGate(ref);
+    mMod.insertStatementLast(ref->clone());
 }
 
-void efd::QModulefyVisitor::visit(NDQOpGeneric::Ref ref) {
-    insertIfNotInsideGate(ref);
+void efd::QModulefyVisitor::visit(NDQOp::Ref ref) {
+    mMod.insertStatementLast(ref->clone());
 }
 
 void efd::QModulefyVisitor::visit(NDIfStmt::Ref ref) {
-    insertIfNotInsideGate(ref);
+    mMod.insertStatementLast(ref->clone());
 }
 
 void efd::QModulefyVisitor::visit(NDStmtList::Ref ref) {
-    visitChildren(ref);
-}
-
-void efd::QModulefyVisitor::visit(NDGOpList::Ref ref) {
     visitChildren(ref);
 }
 
@@ -153,9 +223,10 @@ namespace efd {
             void visit(efd::NDQOpCX::Ref ref) override;
             void visit(efd::NDList::Ref ref) override;
             void visit(efd::NDQOpBarrier::Ref ref) override;
-            void visit(efd::NDQOpGeneric::Ref ref) override;
+            void visit(efd::NDQOp::Ref ref) override;
             void visit(efd::NDBinOp::Ref ref) override;
             void visit(efd::NDUnaryOp::Ref ref) override;
+            void visit(efd::NDIfStmt::Ref ref) override;
     };
 }
 
@@ -178,25 +249,24 @@ void efd::QArgsReplaceVisitor::substituteChildrem(efd::Node::Ref ref) {
     }
 }
 
-void efd::QArgsReplaceVisitor::visit(efd::NDQOpU::Ref ref) {
-    ref->getArgs()->apply(this);
-    ref->setQArg(replaceChild(ref->getQArg()));
-}
-
-void efd::QArgsReplaceVisitor::visit(efd::NDQOpCX::Ref ref) {
-    substituteChildrem(ref);
-}
-
 void efd::QArgsReplaceVisitor::visit(efd::NDList::Ref ref) {
     visitChildren(ref);
     substituteChildrem(ref);
 }
 
-void efd::QArgsReplaceVisitor::visit(efd::NDQOpBarrier::Ref ref) {
-    substituteChildrem(ref);
+void efd::QArgsReplaceVisitor::visit(efd::NDQOpU::Ref ref) {
+    visit((NDQOp::Ref) ref);
 }
 
-void efd::QArgsReplaceVisitor::visit(efd::NDQOpGeneric::Ref ref) {
+void efd::QArgsReplaceVisitor::visit(efd::NDQOpCX::Ref ref) {
+    visit((NDQOp::Ref) ref);
+}
+
+void efd::QArgsReplaceVisitor::visit(efd::NDQOpBarrier::Ref ref) {
+    visit((NDQOp::Ref) ref);
+}
+
+void efd::QArgsReplaceVisitor::visit(efd::NDQOp::Ref ref) {
     ref->getArgs()->apply(this);
     ref->getQArgs()->apply(this);
 }
@@ -212,7 +282,12 @@ void efd::QArgsReplaceVisitor::visit(efd::NDUnaryOp::Ref ref) {
     substituteChildrem(ref);
 }
 
-void efd::InlineGate(QModule::Ref qmod, NDQOpGeneric::Ref qop) {
+void efd::QArgsReplaceVisitor::visit(efd::NDIfStmt::Ref ref) {
+    // We only need to visit the qop.
+    ref->getQOp()->apply(this);
+}
+
+void efd::InlineGate(QModule::Ref qmod, NDQOp::Ref qop) {
     std::string gateId = qop->getId()->getVal();
     
     auto gate = qmod->getQGate(gateId);
@@ -233,100 +308,32 @@ void efd::InlineGate(QModule::Ref qmod, NDQOpGeneric::Ref qop) {
     for (unsigned i = 0, e = gateArgs->getChildNumber(); i < e; ++i)
         varMap[gateArgs->getChild(i)->toString()] = qopArgs->getChild(i);
 
+    // ------ Replacing
     QArgsReplaceVisitor visitor(varMap);
     auto gop = uniqueCastForward<NDGOpList>(gateDecl->getGOpList()->clone());
 
-
-    // Replacing
-    NDIfStmt::Ref ifstmt = dynCast<NDIfStmt>(qop->getParent());
-
     // 'stmt' is the node we are going to replace.
     Node::Ref stmt = nullptr;
+    auto ifstmt = dynCast<NDIfStmt>(qop->getParent());
     if (ifstmt != nullptr) stmt = ifstmt;
     else stmt = qop;
 
-    auto it = qmod->findStatement(stmt);
+    // Replace the arguments.
+    std::vector<Node::uRef> inlinedNodes;
     for (auto& op : *gop) {
-        auto newStmt = std::move(op);
-        auto qop = newStmt.get();
-
+        auto qop = std::move(op);
+        // If its parent is an NDIfStmt, we wrap the the operation into
+        // a clone of the if.
         if (ifstmt != nullptr) {
-            newStmt = uniqueCastBackward<Node>(NDIfStmt::Create(
-                    uniqueCastForward<NDId>(ifstmt->getCondId()->clone()),
-                    uniqueCastForward<NDInt>(ifstmt->getCondN()->clone()),
-                    std::move(newStmt)));
-            qop = dynCast<NDIfStmt>(newStmt.get())->getQOp();
+            auto ifclone = uniqueCastForward<NDIfStmt>(ifstmt->clone());
+            ifclone->setQOp(uniqueCastForward<NDQOp>(std::move(qop)));
+            qop.reset(ifclone.release());
         }
 
         // The 'visitor' is applied only in the 'qop'.
         qop->apply(&visitor);
-        it = qmod->insertStatementAfter(it, std::move(newStmt));
+        inlinedNodes.push_back(std::move(qop));
     }
 
-    it = qmod->findStatement(stmt);
-    qmod->removeStatement(it);
-}
-
-// ==--------------- Reverse Gate ---------------==
-void efd::ReverseCNode(QModule::Ref qmod, Node::Ref node) {
-    std::vector<Node::Ref> qArgs;
-
-    switch (node->getKind()) {
-        case Node::K_QOP_CX:
-            {
-                NDQOpCX::Ref refCX = dynCast<NDQOpCX>(node);
-                assert(refCX != nullptr && "Malformed node.");
-
-                auto lhs = refCX->getLhs()->clone();
-                auto rhs = refCX->getRhs()->clone();
-                // Swapping the arguments.
-                refCX->setLhs(std::move(rhs));
-                refCX->setRhs(std::move(lhs));
-
-                qArgs.push_back(refCX->getLhs());
-                qArgs.push_back(refCX->getRhs());
-            }
-            break;
-
-        case Node::K_QOP_GENERIC:
-            {
-                NDQOpGeneric::Ref refGen = dynCast<NDQOpGeneric>(node);
-                assert(refGen != nullptr && "Malformed node.");
-
-                NDList::Ref qargs = refGen->getQArgs();
-                assert(qargs->getChildNumber() == 2 && "Malformed CNOT call.");
-
-                auto lhs = qargs->getChild(0)->clone();
-                auto rhs = qargs->getChild(1)->clone();
-                // Swapping the arguments.
-                qargs->setChild(0, std::move(rhs));
-                qargs->setChild(1, std::move(lhs));
-
-                qArgs.push_back(qargs->getChild(0));
-                qArgs.push_back(qargs->getChild(1));
-            }
-            break;
-
-        default:
-            assert(false && "Can't reverse any other node, but CX and QOpGeneric.");
-    }
-
-    Node::Ref parent = node->getParent();
-    Node::Iterator it;
-    for (auto qbit : qArgs) {
-        auto qArgs = NDList::Create();
-        qArgs->addChild(qbit->clone());
-
-        it = parent->findChild(node);
-        qmod->insertStatementBefore(it, NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()),
-                 NDList::Create(),
-                 uniqueCastForward<NDList>(qArgs->clone())));
-
-        it = parent->findChild(node);
-        qmod->insertStatementAfter(it, NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()),
-                 NDList::Create(),
-                 uniqueCastForward<NDList>(qArgs->clone())));
-    }
+    qmod->replaceStatement(stmt, std::move(inlinedNodes));
 }

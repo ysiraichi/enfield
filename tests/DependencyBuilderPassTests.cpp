@@ -1,5 +1,7 @@
 #include "gtest/gtest.h"
 
+#include "enfield/Analysis/Driver.h"
+#include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Transform/QbitToNumberPass.h"
@@ -18,7 +20,7 @@ TEST(QbitToNumberWrapperPassTests, WholeProgramTest) {
 qreg q[5];\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = QbitToNumberWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -39,7 +41,7 @@ gate mygate(a, b, c) x, y, z {\
 }\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = QbitToNumberWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -79,7 +81,7 @@ measure q[3] -> c[3];\
 measure q[4] -> c[4];\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = QbitToNumberWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -127,7 +129,7 @@ gate cnot x, y {\
 }\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -163,7 +165,7 @@ gate cnot x, y {\
 }\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -202,7 +204,7 @@ gate cnot x, y {\
         ASSERT_EQ(cnotDeps[0][0].mTo, y);
 
         ASSERT_FALSE(cnotDeps[0].mCallPoint == nullptr);
-        ASSERT_TRUE(efd::instanceOf<NDQOpGeneric>(cnotDeps[0].mCallPoint));
+        ASSERT_TRUE(efd::instanceOf<NDQOp>(cnotDeps[0].mCallPoint));
     }
 }
 
@@ -214,7 +216,7 @@ qreg q[2];\
 CX q[0], q[1];\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 
@@ -238,7 +240,7 @@ CX q[0], q[1];\
     {
         const std::string program = \
 "\
-include \"files/qelib1.inc\";\
+include \"qelib1.inc\";\
 gate majority a, b, c {\
 cx c, b;\
 cx c, a;\
@@ -287,7 +289,7 @@ measure b[7] -> ans[7];\
 measure carry[0] -> carryout[0];\
 ";
 
-        auto qmod = toShared(QModule::ParseString(program, false));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 

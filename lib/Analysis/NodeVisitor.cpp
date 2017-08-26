@@ -10,7 +10,7 @@ void efd::NodeVisitor::visit(NDQOpReset::Ref ref) {}
 void efd::NodeVisitor::visit(NDQOpU::Ref ref) {}
 void efd::NodeVisitor::visit(NDQOpCX::Ref ref) {}
 void efd::NodeVisitor::visit(NDQOpBarrier::Ref ref) {}
-void efd::NodeVisitor::visit(NDQOpGeneric::Ref ref) {}
+void efd::NodeVisitor::visit(NDQOp::Ref ref) {}
 void efd::NodeVisitor::visit(NDBinOp::Ref ref) {}
 void efd::NodeVisitor::visit(NDUnaryOp::Ref ref) {}
 void efd::NodeVisitor::visit(NDIdRef::Ref ref) {}

@@ -132,8 +132,9 @@
 
 %type <efd::Node::Ref> program statement
 %type <efd::Node::Ref> include decl gatedecl opaquedecl ifstmt
-%type <efd::Node::Ref> qop uop barrier reset measure
 %type <efd::Node::Ref> exp arg
+
+%type <efd::NDQOp::Ref> qop uop barrier reset measure
 
 %type <efd::NDStmtList::Ref> stmtlist stmtlist_
 %type <efd::NDGOpList::Ref> goplist
@@ -254,7 +255,7 @@ measure: MEASURE arg "->" arg ";"   { $$ = efd::NDQOpMeasure::Create(efd::Node::
 
 ifstmt: IF "(" id "==" integer ")" qop  {
                                             $$ = efd::NDIfStmt::Create
-                                            (efd::NDId::uRef($3), efd::NDInt::uRef($5), efd::Node::uRef($7))
+                                            (efd::NDId::uRef($3), efd::NDInt::uRef($5), efd::NDQOp::uRef($7))
                                             .release();
                                         }
 
@@ -279,7 +280,7 @@ qop: uop        { $$ = $1; }
    ;
 
 uop: id args anylist ";"    {
-                                $$ = efd::NDQOpGeneric::Create
+                                $$ = efd::NDQOp::Create
                                 (efd::NDId::uRef($1), efd::NDList::uRef($2), efd::NDList::uRef($3))
                                 .release();
                             }

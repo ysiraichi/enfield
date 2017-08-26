@@ -8,71 +8,8 @@
 #include <unordered_set>
 #include <iterator>
 
-namespace efd {
-    extern NDId::uRef SWAP_ID_NODE;
-    extern NDId::uRef H_ID_NODE;
-    extern NDId::uRef CX_ID_NODE;
-}
-
 efd::QModule::QModule() : mVersion(nullptr) {
     mStatements = NDStmtList::Create();
-}
-
-void efd::QModule::registerSwapGate() {
-    bool isSwapRegistered = hasQGate("__swap__");
-    if (!isSwapRegistered) {
-        // The quantum arguments that will be used
-        auto qargLhs = NDId::Create("a");
-        auto qargRhs = NDId::Create("b");
-
-        auto qargsLhs = NDList::Create();
-        auto qargsRhs = NDList::Create();
-        auto qargsLhsRhs = NDList::Create();
-
-        qargsLhs->addChild(qargLhs->clone());
-        qargsRhs->addChild(qargRhs->clone());
-        qargsLhsRhs->addChild(qargLhs->clone());
-        qargsLhsRhs->addChild(qargRhs->clone());
-
-        // The quantum operations
-        auto gop = NDGOpList::Create();
-        // cx a, b;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(CX_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastForward<NDList>(qargsLhsRhs->clone())));
-        // h a;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(), 
-                 uniqueCastForward<NDList>(qargsLhs->clone())));
-        // h b;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(), 
-                 uniqueCastForward<NDList>(qargsRhs->clone())));
-        // cx a, b;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(CX_ID_NODE->clone()), NDList::Create(), 
-                 uniqueCastForward<NDList>(qargsLhsRhs->clone())));
-        // h a;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastForward<NDList>(qargsLhs->clone())));
-        // h b;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(H_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastForward<NDList>(qargsRhs->clone())));
-        // cx a, b;
-        gop->addChild(NDQOpGeneric::Create
-                (uniqueCastForward<NDId>(CX_ID_NODE->clone()), NDList::Create(),
-                 uniqueCastForward<NDList>(qargsLhsRhs->clone())));
-
-        auto swap = NDGateDecl::Create
-                (uniqueCastForward<NDId>(SWAP_ID_NODE->clone()),
-                 NDList::Create(),
-                 std::move(qargsLhsRhs),
-                 std::move(gop));
-
-        insertGate(std::move(swap));
-    }
 }
 
 efd::NDQasmVersion::Ref efd::QModule::getVersion() {
@@ -118,7 +55,9 @@ void efd::QModule::removeStatement(Iterator it) {
     mStatements->removeChild(it);
 }
 
-efd::QModule::Iterator efd::QModule::inlineCall(NDQOpGeneric::Ref call) {
+efd::QModule::Iterator efd::QModule::inlineCall(NDQOp::Ref call) {
+    assert(call->isGeneric() && "Trying to inline a non-generic call.");
+
     Node::Ref parent = call->getParent();
     Iterator it = parent->findChild(call);
     unsigned dist = std::distance(parent->begin(), it);
@@ -148,33 +87,19 @@ efd::QModule::Iterator efd::QModule::insertStatementLast(Node::uRef ref) {
     return mStatements->begin() + (mStatements->getChildNumber() - 1);
 }
 
-static efd::NDQOpGeneric::uRef createSwapCallNode(efd::Node::Ref lhs,
-        efd::Node::Ref rhs) {
-    auto qargs = efd::NDList::Create();
-    qargs->addChild(lhs->clone());
-    qargs->addChild(rhs->clone());
+efd::QModule::Iterator efd::QModule::replaceStatement
+(Node::Ref stmt, std::vector<Node::uRef> stmts) {
+    auto it = mStatements->findChild(stmt);
+    assert(it != mStatements->end() &&
+            "Trying to replace a non-existing statement.");
 
-    auto swap = efd::NDQOpGeneric::Create(
-            efd::uniqueCastForward<efd::NDId>(efd::SWAP_ID_NODE->clone()),
-            efd::NDList::Create(), std::move(qargs));
-    swap->setGenerated();
-    return std::move(swap);
-}
+    unsigned stmtsSize = stmts.size();
+    if (!stmts.empty()) {
+        it = mStatements->addChildren(it, std::move(stmts));
+    }
 
-efd::QModule::Iterator efd::QModule::insertSwapBefore(Iterator it, Node::Ref lhs, Node::Ref rhs) {
-    Node::Ref parent = (*it)->getParent();
-    unsigned dist = std::distance(parent->begin(), it);
-    insertStatementBefore(it, createSwapCallNode(lhs, rhs));
-    registerSwapGate();
-    return parent->begin() + dist;
-}
-
-efd::QModule::Iterator efd::QModule::insertSwapAfter(Iterator it, Node::Ref lhs, Node::Ref rhs) {
-    Node::Ref parent = (*it)->getParent();
-    unsigned dist = std::distance(parent->begin(), it);
-    insertStatementAfter(it, createSwapCallNode(lhs, rhs));
-    registerSwapGate();
-    return parent->begin() + dist;
+    it = mStatements->removeChild(it + stmtsSize);
+    return it - stmtsSize;
 }
 
 void efd::QModule::insertGate(NDGateSign::uRef gate) {
@@ -182,8 +107,19 @@ void efd::QModule::insertGate(NDGateSign::uRef gate) {
     assert(gate->getId() != nullptr && "Trying to insert a gate with 'nullptr' id.");
 
     std::string id = gate->getId()->getVal();
-    assert(mGatesMap.find(id) == mGatesMap.end() &&
-            "Trying to insert a gate with repeated id.");
+
+    if (mGatesMap.find(id) != mGatesMap.end()) {
+        std::cerr << "Replacing gate: '" << id << "'." << std::endl;
+
+        for (auto it = mGates.begin(), end = mGates.end(); it != end; ++it) {
+            if ((*it)->getId()->getVal() == id) {
+                mGates.erase(it);
+                break;
+            }
+        }
+
+        mGatesMap.erase(mGatesMap.find(id));
+    }
 
     mGatesMap[id] = std::move(gate);
     mGates.push_back(mGatesMap[id].get());
@@ -259,15 +195,15 @@ std::string efd::QModule::toString(bool pretty, bool printGates) const {
         std::unordered_set<std::string> doPrint;
 
         for (auto& stmt : *mStatements) {
-            NDQOpGeneric::Ref qcall = nullptr;
+            NDQOp::Ref qcall = nullptr;
 
             if (auto ifstmt = dynCast<NDIfStmt>(stmt.get())) {
                 // Get the QOp part (if it is a NDIfStmt node).
-                if (auto ifcall = dynCast<NDQOpGeneric>(ifstmt->getQOp())) {
-                    qcall = ifcall;
+                if (ifstmt->getQOp()->isGeneric()) {
+                    qcall = ifstmt->getQOp();
                 }
             } else {
-                qcall = dynCast<NDQOpGeneric>(stmt.get());
+                qcall = dynCast<NDQOp>(stmt.get());
             }
 
             if (qcall != nullptr) {
@@ -353,11 +289,11 @@ efd::QModule::uRef efd::QModule::clone() const {
     return uRef(qmod);
 }
 
-efd::QModule::uRef efd::QModule::Create(bool forceStdLib) {
+efd::QModule::uRef efd::QModule::Create() {
     std::string program;
     program = "OPENQASM 2.0;\n";
 
-    auto ast = efd::ParseString(program, forceStdLib);
+    auto ast = efd::ParseString(program, true);
     if (ast.get() != nullptr)
         return GetFromAST(std::move(ast));
 
@@ -367,12 +303,16 @@ efd::QModule::uRef efd::QModule::Create(bool forceStdLib) {
 efd::QModule::uRef efd::QModule::GetFromAST(Node::uRef ref) {
     uRef qmod(new QModule());
     efd::ProcessAST(qmod.get(), ref.get());
+
+    auto gates = efd::GetIntrinsicGates();
+    for (auto& gate : gates)
+        qmod->insertGate(std::move(gate));
+
     return qmod;
 }
 
-efd::QModule::uRef efd::QModule::Parse(std::string filename, 
-        std::string path, bool forceStdLib) {
-    auto ast = efd::ParseFile(filename, path, forceStdLib);
+efd::QModule::uRef efd::QModule::Parse(std::string filename, std::string path) {
+    auto ast = efd::ParseFile(filename, path, true);
 
     if (ast.get() != nullptr)
         return GetFromAST(std::move(ast));
@@ -380,8 +320,8 @@ efd::QModule::uRef efd::QModule::Parse(std::string filename,
     return uRef(nullptr);
 }
 
-efd::QModule::uRef efd::QModule::ParseString(std::string program, bool forceStdLib) {
-    auto ast = efd::ParseString(program, forceStdLib);
+efd::QModule::uRef efd::QModule::ParseString(std::string program) {
+    auto ast = efd::ParseString(program, true);
 
     if (ast != nullptr)
         return GetFromAST(std::move(ast));

@@ -49,9 +49,6 @@ namespace efd {
 
             QModule();
 
-            /// \brief Registers the swap gate in the module.
-            void registerSwapGate();
-
         public:
             /// \brief Gets the qasm version.
             NDQasmVersion::Ref getVersion();
@@ -72,7 +69,7 @@ namespace efd {
             void removeStatement(Iterator it);
 
             /// \brief Inlines \p call and returns an iterator to the first node inserted.
-            Iterator inlineCall(NDQOpGeneric::Ref call);
+            Iterator inlineCall(NDQOp::Ref call);
             /// \brief Inserts \p ref after \p it, and returns a iterator to this node.
             Iterator insertStatementAfter(Iterator it, Node::uRef ref);
             /// \brief Inserts \p ref before \p it, and returns a iterator to this node.
@@ -81,12 +78,9 @@ namespace efd {
             Iterator insertStatementFront(Node::uRef ref);
             /// \brief Inserts \p ref at the back, and returns a iterator to this node.
             Iterator insertStatementLast(Node::uRef ref);
-            /// \brief Inserts a swap call between \p lhs and \p rhs, before the iterator
-            /// location. Returns a iterator to the first swap instruction.
-            Iterator insertSwapAfter(Iterator it, Node::Ref lhs, Node::Ref rhs);
-            /// \brief Inserts a swap call between \p lhs and \p rhs, after the iterator
-            /// location. Returns the iterator on the same position.
-            Iterator insertSwapBefore(Iterator it, Node::Ref lhs, Node::Ref rhs);
+
+            /// \brief Replaces the \p stmt by the vector \p stmts.
+            Iterator replaceStatement(Node::Ref stmt, std::vector<Node::uRef> stmts);
 
             /// \brief Inserts a gate to the QModule.
             void insertGate(NDGateSign::uRef gate);
@@ -119,7 +113,8 @@ namespace efd {
             ConstIterator stmt_end() const;
 
             /// \brief Prints the QModule to a std::ostream.
-            void print(std::ostream& O = std::cout, bool pretty = false, bool printGates = false) const;
+            void print(std::ostream& O = std::cout, bool pretty = false,
+                    bool printGates = false) const;
             /// \brief Returns a std::string representation of the QModule.
             std::string toString(bool pretty = false, bool printGates = false) const;
 
@@ -137,13 +132,13 @@ namespace efd {
             uRef clone() const;
 
             /// \brief Create a new empty QModule.
-            static uRef Create(bool forceStdLib = true);
+            static uRef Create();
             /// \brief Process the AST in order to obtain the QModule.
             static uRef GetFromAST(Node::uRef ref);
             /// \brief Parses the file \p filename and returns a QModule.
-            static uRef Parse(std::string filename, std::string path = "./", bool forceStdLib = true);
+            static uRef Parse(std::string filename, std::string path = "./");
             /// \brief Parses the string \p program and returns a QModule.
-            static uRef ParseString(std::string program, bool forceStdLib = true);
+            static uRef ParseString(std::string program);
     };
 }
 
