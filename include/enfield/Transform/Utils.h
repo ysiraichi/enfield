@@ -6,7 +6,7 @@
 
 namespace efd {
     /// \brief If found, inlines the gate that \p qop calls.
-    void InlineGate(QModule::Ref qmod, NDQOpGeneric::Ref qop);
+    void InlineGate(QModule::Ref qmod, NDQOp::Ref qop);
     /// \brief Processes the \p root node, and transform the entire AST into
     /// a QModule.
     void ProcessAST(QModule::Ref qmod, Node::Ref root);
@@ -15,11 +15,11 @@ namespace efd {
     std::vector<NDGateSign::uRef> GetIntrinsicGates();
 
     /// \brief Creates a call to the intrinsic swap function.
-    NDQOpGeneric::uRef CreateISwap(Node::uRef lhs, Node::uRef rhs);
+    NDQOp::uRef CreateISwap(Node::uRef lhs, Node::uRef rhs);
     /// \brief Creates a call to the intrinsic long cnot function.
-    NDQOpGeneric::uRef CreateILongCX(Node::uRef lhs, Node::uRef middle, Node::uRef rhs);
+    NDQOp::uRef CreateILongCX(Node::uRef lhs, Node::uRef middle, Node::uRef rhs);
     /// \brief Creates a call to the intrinsic reversal cnot function.
-    NDQOpGeneric::uRef CreateIRevCX(Node::uRef lhs, Node::uRef rhs);
+    NDQOp::uRef CreateIRevCX(Node::uRef lhs, Node::uRef rhs);
 }
 
 #endif

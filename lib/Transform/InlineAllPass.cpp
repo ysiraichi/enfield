@@ -8,17 +8,17 @@ namespace efd {
             std::set<std::string> mBasis;
 
         public:
-            std::vector<NDQOpGeneric::Ref> mInlineVector;
+            std::vector<NDQOp::Ref> mInlineVector;
 
             InlineAllVisitor(QModule& qmod, std::set<std::string> basis)
                 : mMod(qmod), mBasis(basis) {}
 
-            void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDQOp::Ref ref) override;
             void visit(NDIfStmt::Ref ref) override;
     };
 }
 
-void efd::InlineAllVisitor::visit(NDQOpGeneric::Ref ref) {
+void efd::InlineAllVisitor::visit(NDQOp::Ref ref) {
     if (mBasis.find(ref->getId()->getVal()) == mBasis.end()) {
         mInlineVector.push_back(ref);
     }

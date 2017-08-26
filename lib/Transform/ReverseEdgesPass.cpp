@@ -21,7 +21,7 @@ namespace efd {
             ReverseEdgesVisitor(ArchGraph::sRef g) : mG(g) {}
 
             void visit(NDQOpCX::Ref ref) override;
-            void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDQOp::Ref ref) override;
             void visit(NDIfStmt::Ref ref) override;
     };
 }
@@ -33,7 +33,7 @@ void efd::ReverseEdgesVisitor::insertIntoRevVector
     auto parent = dynCast<NDIfStmt>(ref->getParent());
     if (parent != nullptr) {
         auto ifrevcall = uniqueCastForward<NDIfStmt>(parent->clone());
-        ifrevcall->setQOp(std::move(revcall));
+        ifrevcall->setQOp(uniqueCastForward<NDQOp>(std::move(revcall)));
 
         revcall.reset(ifrevcall.release());
         ref = parent;
@@ -51,7 +51,7 @@ void efd::ReverseEdgesVisitor::visit(NDQOpCX::Ref ref) {
     }
 }
 
-void efd::ReverseEdgesVisitor::visit(NDQOpGeneric::Ref ref) {
+void efd::ReverseEdgesVisitor::visit(NDQOp::Ref ref) {
     if (ref->getId()->getVal() == "cx") {
         // Have to come up a way to overcome this.
         assert(ref->getQArgs()->getChildNumber() == 2 && "CNot gate malformed.");

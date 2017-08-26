@@ -26,7 +26,8 @@ namespace efd {
             /// \brief Returns the size of the declaration of this Id node.
             unsigned getSize(Node::Ref ref);
             /// \brief Returns a list with all IdRef's possible of all QArgs.
-            std::vector<std::vector<NDIdRef::uRef>> getFlattenedOpsArgs(Node::Ref ref);
+            std::vector<std::vector<NDIdRef::uRef>>
+                getFlattenedOpsArgs(NDList::Ref ref);
             /// \brief Returns true if all the childrem are IdRef node.
             bool isChildremIdRef(Node::Ref ref);
 
@@ -42,7 +43,7 @@ namespace efd {
             void visit(NDQOpMeasure::Ref ref) override;
             void visit(NDQOpReset::Ref ref) override;
             void visit(NDQOpCX::Ref ref) override;
-            void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDQOp::Ref ref) override;
             void visit(NDIfStmt::Ref ref) override;
     };
 }
@@ -91,7 +92,8 @@ unsigned efd::FlattenVisitor::getSize(Node::Ref ref) {
     return getDeclFromId(ref)->getSize()->getVal().mV;
 }
 
-std::vector<std::vector<efd::NDIdRef::uRef>> efd::FlattenVisitor::getFlattenedOpsArgs(Node::Ref ref) {
+std::vector<std::vector<efd::NDIdRef::uRef>>
+efd::FlattenVisitor::getFlattenedOpsArgs(NDList::Ref ref) {
     std::vector<std::vector<NDIdRef::uRef>> newNodesArgs;
 
     unsigned min = std::numeric_limits<unsigned>::max();
@@ -101,8 +103,10 @@ std::vector<std::vector<efd::NDIdRef::uRef>> efd::FlattenVisitor::getFlattenedOp
             min = getSize(child);
     }
 
-    for (auto& child : *ref) {
-        newNodesArgs.push_back(toIdRef(child.get(), min));
+    if (min != std::numeric_limits<unsigned>::max()) {
+        for (auto& child : *ref) {
+            newNodesArgs.push_back(toIdRef(child.get(), min));
+        }
     }
 
     return newNodesArgs;
@@ -120,7 +124,7 @@ efd::Node::uRef efd::FlattenVisitor::wrapWithIfStmt(Node::uRef node) {
 
     if (mIf != nullptr) {
         auto ifstmt = uniqueCastForward<NDIfStmt>(mIf->clone());
-        ifstmt->setQOp(std::move(wrapped));
+        ifstmt->setQOp(uniqueCastForward<NDQOp>(std::move(wrapped)));
         wrapped = std::move(ifstmt);
     }
 
@@ -128,23 +132,7 @@ efd::Node::uRef efd::FlattenVisitor::wrapWithIfStmt(Node::uRef node) {
 }
 
 void efd::FlattenVisitor::visit(NDQOpBarrier::Ref ref) {
-    if (isChildremIdRef(ref->getQArgs()))
-        return;
-
-    Node::Ref key = (mIf == nullptr) ? (Node::Ref) ref : (Node::Ref) mIf;
-
-    std::vector<Node::uRef> newNodes;
-    auto flatArgs = getFlattenedOpsArgs(ref->getQArgs());
-    for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i) {
-        auto qargs = NDList::Create();
-
-        for (unsigned j = 0, f = flatArgs.size(); j < f; ++j)
-            qargs->addChild(std::move(flatArgs[j][i]));
-
-        newNodes.push_back(wrapWithIfStmt(NDQOpBarrier::Create(std::move(qargs))));
-    }
-
-    mRepMap[key] = std::move(newNodes);;
+    visit((NDQOp::Ref) ref);
 }
 
 void efd::FlattenVisitor::visit(NDQOpMeasure::Ref ref) {
@@ -154,45 +142,26 @@ void efd::FlattenVisitor::visit(NDQOpMeasure::Ref ref) {
     Node::Ref key = (mIf == nullptr) ? (Node::Ref) ref : (Node::Ref) mIf;
 
     std::vector<Node::uRef> newNodes;
-    auto flatArgs = getFlattenedOpsArgs(ref);
-    for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i)
-        newNodes.push_back(wrapWithIfStmt
-                (NDQOpMeasure::Create(std::move(flatArgs[0][i]),
-                                      std::move(flatArgs[1][i]))));
+    auto flatArgs = getFlattenedOpsArgs(ref->getQArgs());
 
-    mRepMap[key] = std::move(newNodes);;
+    if (!flatArgs.empty()) {
+        for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i)
+            newNodes.push_back(wrapWithIfStmt
+                    (NDQOpMeasure::Create(std::move(flatArgs[0][i]),
+                                          std::move(flatArgs[1][i]))));
+        mRepMap[key] = std::move(newNodes);;
+    }
 }
 
 void efd::FlattenVisitor::visit(NDQOpReset::Ref ref) {
-    if (isChildremIdRef(ref))
-        return;
-
-    Node::Ref key = (mIf == nullptr) ? (Node::Ref) ref : (Node::Ref) mIf;
-
-    std::vector<Node::uRef> newNodes;
-    auto flatArgs = getFlattenedOpsArgs(ref);
-    for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i)
-        newNodes.push_back(wrapWithIfStmt(NDQOpReset::Create(std::move(flatArgs[0][i]))));
-
-    mRepMap[key] = std::move(newNodes);;
+    visit((NDQOp::Ref) ref);
 }
 
 void efd::FlattenVisitor::visit(NDQOpCX::Ref ref) {
-    if (isChildremIdRef(ref))
-        return;
-
-    Node::Ref key = (mIf == nullptr) ? (Node::Ref) ref : (Node::Ref) mIf;
-
-    std::vector<Node::uRef> newNodes;
-    auto flatArgs = getFlattenedOpsArgs(ref);
-    for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i)
-        newNodes.push_back(wrapWithIfStmt
-               (NDQOpCX::Create(std::move(flatArgs[0][i]), std::move(flatArgs[1][i]))));
-
-    mRepMap[key] = std::move(newNodes);;
+    visit((NDQOp::Ref) ref);
 }
 
-void efd::FlattenVisitor::visit(NDQOpGeneric::Ref ref) {
+void efd::FlattenVisitor::visit(NDQOp::Ref ref) {
     if (isChildremIdRef(ref->getQArgs()))
         return;
 
@@ -200,20 +169,21 @@ void efd::FlattenVisitor::visit(NDQOpGeneric::Ref ref) {
 
     std::vector<Node::uRef> newNodes;
     auto flatArgs = getFlattenedOpsArgs(ref->getQArgs());
-    for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i) {
-        auto qaList = NDList::Create();
 
-        for (auto& qarg : flatArgs)
-            qaList->addChild(std::move(qarg[i]));
+    if (!flatArgs.empty()) {
+        for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i) {
+            auto qaList = NDList::Create();
 
-        newNodes.push_back(wrapWithIfStmt
-                (NDQOpGeneric::Create(
-                    uniqueCastForward<NDId>(ref->getId()->clone()),
-                    uniqueCastForward<NDList>(ref->getArgs()->clone()),
-                    std::move(qaList))));
+            for (auto& qarg : flatArgs)
+                qaList->addChild(std::move(qarg[i]));
+
+            auto clone = efd::uniqueCastForward<NDQOp>(ref->clone());
+            clone->setQArgs(std::move(qaList));
+            newNodes.push_back(wrapWithIfStmt(std::move(clone)));
+        }
+
+        mRepMap[key] = std::move(newNodes);;
     }
-
-    mRepMap[key] = std::move(newNodes);;
 }
 
 void efd::FlattenVisitor::visit(NDIfStmt::Ref ref) {

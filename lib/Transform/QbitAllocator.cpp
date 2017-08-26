@@ -27,10 +27,10 @@ namespace efd {
 
             /// \brief Gets the node mapped to the string version of \p ref.
             Node::uRef getMappedNode(Node::Ref ref);
+            /// \brief Wraps \p ref with \p ifstmt if \p ifstmt is not nullptr.
+            Node::uRef wrapWithIfNode(Node::uRef ref, NDIfStmt::Ref ifstmt);
             /// \brief Apply the swaps for the current dependency.
             void applyOperations(Node::Ref ref);
-
-            Node::uRef wrapWithIfNode(Node::uRef ref, NDIfStmt::Ref ifstmt);
 
         public:
             SolutionImplPass(Solution& sol) : mSol(sol), mQbitToNumberPass(nullptr) {}
@@ -45,13 +45,25 @@ namespace efd {
             void visit(NDIfStmt::Ref ref) override;
             void visit(NDList::Ref ref) override;
             void visit(NDQOpCX::Ref ref) override;
-            void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDQOp::Ref ref) override;
     };
 }
 
 efd::Node::uRef efd::SolutionImplPass::getMappedNode(Node::Ref ref) {
     unsigned id = mQbitToNumber.getUId(ref->toString());
     return mMap[id]->clone();
+}
+
+efd::Node::uRef efd::SolutionImplPass::wrapWithIfNode
+(Node::uRef ref, NDIfStmt::Ref ifstmt) {
+
+    if (ifstmt != nullptr) {
+        auto ifclone = uniqueCastForward<NDIfStmt>(ifstmt->clone());
+        ifclone->setQOp(uniqueCastForward<NDQOp>(std::move(ref)));
+        ref = std::move(ifclone);
+    }
+
+    return ref;
 }
 
 void efd::SolutionImplPass::applyOperations(Node::Ref ref) {
@@ -76,16 +88,11 @@ void efd::SolutionImplPass::applyOperations(Node::Ref ref) {
         switch (op.mK) {
             case Operation::K_OP_CNOT:
                 {
-                    auto clone = ref->clone();
+                    NDQOp::uRef clone = uniqueCastForward<NDQOp>(ref->clone());
 
-                    if (auto generic = dynCast<NDQOpGeneric>(clone.get())) {
-                        auto qargs = generic->getQArgs();
-                        qargs->setChild(0, mMap[op.mU]->clone());
-                        qargs->setChild(1, mMap[op.mV]->clone());
-                    } else if (auto cx = dynCast<NDQOpCX>(clone.get())) {
-                        cx->setLhs(mMap[op.mU]->clone());
-                        cx->setRhs(mMap[op.mV]->clone());
-                    }
+                    auto qargs = clone->getQArgs();
+                    qargs->setChild(0, mMap[op.mU]->clone());
+                    qargs->setChild(1, mMap[op.mV]->clone());
 
                     mReplVector[key].push_back(std::move(clone));
                 }
@@ -102,13 +109,7 @@ void efd::SolutionImplPass::applyOperations(Node::Ref ref) {
                     Node::uRef call = efd::CreateIRevCX(
                                 mMap[op.mU]->clone(),
                                 mMap[op.mV]->clone());
-
-                    if (ifstmt != nullptr) {
-                        auto ifclone = uniqueCastForward<NDIfStmt>(ifstmt->clone());
-                        ifclone->setQOp(std::move(call));
-                        call = std::move(ifclone);
-                    }
-
+                    call = wrapWithIfNode(std::move(call), ifstmt);
                     mReplVector[key].push_back(wrapWithIfNode(std::move(call), ifstmt));
                 }
                 break;
@@ -119,23 +120,12 @@ void efd::SolutionImplPass::applyOperations(Node::Ref ref) {
                                 mMap[op.mU]->clone(), 
                                 mMap[op.mW]->clone(), 
                                 mMap[op.mV]->clone());
+                    call = wrapWithIfNode(std::move(call), ifstmt);
                     mReplVector[key].push_back(wrapWithIfNode(std::move(call), ifstmt));
                 }
                 break;
         }
     }
-}
-
-efd::Node::uRef efd::SolutionImplPass::wrapWithIfNode
-(Node::uRef ref, NDIfStmt::Ref ifstmt) {
-
-    if (ifstmt != nullptr) {
-        auto ifclone = uniqueCastForward<NDIfStmt>(ifstmt->clone());
-        ifclone->setQOp(std::move(ref));
-        ref = std::move(ifclone);
-    }
-
-    return ref;
 }
 
 void efd::SolutionImplPass::setQbitToNumberPass(QbitToNumberWrapperPass::sRef pass) {
@@ -201,7 +191,7 @@ void efd::SolutionImplPass::visit(NDQOpCX::Ref ref) {
     applyOperations(ref);
 }
 
-void efd::SolutionImplPass::visit(NDQOpGeneric::Ref ref) {
+void efd::SolutionImplPass::visit(NDQOp::Ref ref) {
     ref->getQArgs()->apply(this);
 
     if (!mSol.mOpSeqs.empty() && ref == mSol.mOpSeqs[mDepIdx].first) {
@@ -246,7 +236,7 @@ void efd::QbitAllocator::updateDependencies() {
 efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(QbitAllocator::Iterator it) {
     Iterator newIt = it;
 
-    if (NDQOpGeneric::Ref refCall = dynCast<NDQOpGeneric>(it->mCallPoint)) {
+    if (NDQOp::Ref refCall = dynCast<NDQOp>(it->mCallPoint)) {
         auto& deps = mDepBuilder.getDependencies();
         unsigned dist = std::distance(deps.begin(), it);
 
@@ -362,6 +352,8 @@ void efd::QbitAllocator::run(QModule::Ref qmod) {
     timer.stop();
     AllocTime = ((double) timer.getMicroseconds() / 1000000.0);
     // -----------------------------------------------------
+
+    TotalCost = mSol.mCost;
 
     // Setting up timer ----------------
     timer.start();

@@ -102,7 +102,7 @@ namespace efd {
 
             void visit(NDGateDecl::Ref ref) override;
             void visit(NDQOpCX::Ref ref) override;
-            void visit(NDQOpGeneric::Ref ref) override;
+            void visit(NDQOp::Ref ref) override;
             void visit(NDIfStmt::Ref ref) override;
             void visit(NDGOpList::Ref ref) override;
     };
@@ -143,9 +143,9 @@ void efd::DependencyBuilderVisitor::visit(NDQOpCX::Ref ref) {
     deps->push_back(depV);
 }
 
-void efd::DependencyBuilderVisitor::visit(NDQOpGeneric::Ref ref) {
+void efd::DependencyBuilderVisitor::visit(NDQOp::Ref ref) {
     // Single qbit gate.
-    if (ref->getChildNumber() == 1) return;
+    if (ref->getQArgs()->getChildNumber() == 1) return;
 
     auto gate = getParentGate(ref);
     auto deps = mDepBuilder.getDepsSet(gate);
