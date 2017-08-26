@@ -58,7 +58,8 @@ int main(int argc, char** argv) {
                 "Using more qbits than the maximum.");
 
         auto allocator = efd::CreateQbitAllocator(Allocator.getVal(), graph);
-        allocator->setInlineAll({ "cx", "u1", "u2", "u3" });
+        allocator->setInlineAll({ "cx", "u1", "u2", "u3", "intrinsic_rev_cx__",
+                "intrinsic_swap__", "intrinsic_lcx__" });
         allocator->run(qmod.get());
 
         // Reversing the edges.
