@@ -41,6 +41,13 @@ efd::Solution efd::PathGuidedSolBuilder::build
             std::swap(assign[u], assign[v]);
         }
 
+        // If this is the first mapping
+        if (i == 0) {
+            solution.mCost -= (SwapCost.getVal() * ops.second.size());
+            solution.mInitial = match;
+            ops.second.clear();
+        }
+
         u = match[a], v = match[b];
 
         if (g->hasEdge(u, v)) {
