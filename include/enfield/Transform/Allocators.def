@@ -1,5 +1,5 @@
 EFD_ALLOCATOR(dynprog, DynProgQbitAllocator)
 EFD_ALLOCATOR_SIMPLE(wpm, WeightedPMMappingFinder, PathGuidedSolBuilder)
 EFD_ALLOCATOR_SIMPLE(random, RandomMappingFinder, PathGuidedSolBuilder)
-EFD_ALLOCATOR_SIMPLE(qbitter, IdentityMappingFinder, QbitterSolBuilder)
-EFD_ALLOCATOR_SIMPLE(wqbitter, WeightedPMMappingFinder, QbitterSolBuilder)
+EFD_ALLOCATOR_SIMPLE(qubiter, IdentityMappingFinder, QbitterSolBuilder)
+EFD_ALLOCATOR_SIMPLE(wqubiter, WeightedPMMappingFinder, QbitterSolBuilder)
