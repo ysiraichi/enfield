@@ -24,26 +24,46 @@ int main(int argc, char **argv) {
         arch = efd::ArchGraph::Read(Arch.getVal()).release();
     }
 
+    auto nqbts = arch->size();
     auto qmod = efd::QModule::Create();
+
+    for (auto it = arch->reg_begin(), end = arch->reg_end(); it != end; ++it) {
+        qmod->insertReg(efd::NDRegDecl::CreateQ(
+                    efd::NDId::Create(it->first),
+                    efd::NDInt::Create(std::to_string(it->second))));
+    }
+
     std::ofstream o(Out.getVal());
-    unsigned size = arch->size();
+    std::vector<std::pair<unsigned, unsigned>> edges;
+
+    for (unsigned i = 0; i < nqbts; ++i) {
+        for (unsigned j = 0; j < nqbts; ++j) {
+            if (i != j) edges.push_back(std::make_pair(i, j));
+        }
+    }
+
+    auto nedg = edges.size();
 
     std::random_device rd;
     std::mt19937 rng(rd());
-    std::uniform_int_distribution<unsigned> runit(0, size-1);
+    std::uniform_int_distribution<unsigned> runit(0, nedg - 1);
 
     for (unsigned i = 0, e = Deps.getVal(); i < e; ++i) {
-        unsigned u, v;
+        auto x = runit(rng);
+        auto edge = edges[x];
 
-        do {
-            u = runit(rng);
-            v = runit(rng);
-        } while (u == v);
+        auto lhs = arch->getNode(edge.first);
+        auto rhs = arch->getNode(edge.second);
 
-        std::string lhs = arch->getSId(u);
-        std::string rhs = arch->getSId(v);
+        auto qargs = efd::NDList::Create();
+        qargs->addChild(lhs->clone());
+        qargs->addChild(rhs->clone());
 
-        auto cx = efd::NDQOpCX::Create(efd::NDId::Create(lhs), efd::NDId::Create(rhs));
+        auto cx = efd::NDQOp::Create(
+                efd::NDId::Create("cx"),
+                efd::NDList::Create(),
+                std::move(qargs));
+
         qmod->insertStatementLast(std::move(cx));
     }
 

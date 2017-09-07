@@ -29,7 +29,7 @@ static Opt<bool> ShowStats
 static Opt<std::string> Allocator
 ("alloc", "Sets the allocator to be used. \
 Default: dynprog. \
-Options: dynprog; wpm; qbitter; qbitter; random.", "dynprog", false);
+Options: dynprog; wpm; qubiter; wqubiter; random.", "dynprog", false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
