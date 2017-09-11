@@ -21,6 +21,7 @@ namespace efd {
 // From a previous configuration file '.def', by including it, it'll generate
 // the declaration of the architectures.
 #include "enfield/Arch/IBMQX2.def"
+#include "enfield/Arch/IBMQX3.def"
 
 // Undefines all macros.
 #include "enfield/Arch/Undefs.h"
