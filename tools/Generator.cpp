@@ -20,6 +20,8 @@ int main(int argc, char **argv) {
     efd::ArchGraph* arch;
     if (Arch.getVal() == "IBMQX2") {
         arch = efd::ArchIBMQX2::Create().release();
+    } else if (Arch.getVal() == "IBMQX3") {
+        arch = efd::ArchIBMQX3::Create().release();
     } else {
         arch = efd::ArchGraph::Read(Arch.getVal()).release();
     }

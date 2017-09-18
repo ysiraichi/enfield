@@ -30,6 +30,9 @@ static Opt<std::string> Allocator
 ("alloc", "Sets the allocator to be used. \
 Default: dynprog. \
 Options: dynprog; wpm; qubiter; wqubiter; random.", "dynprog", false);
+static efd::Opt<std::string> Arch
+("arch", "Name of the architechture, or a file \
+with the connectivity graph.", "IBMQX2", false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
@@ -53,7 +56,16 @@ int main(int argc, char** argv) {
 
         auto qbitToNumber = qbitUidPass->getData(); 
         // Architecture-dependent fragment.
-        auto graph = toShared(ArchIBMQX2::Create());
+        std::shared_ptr<efd::ArchGraph> graph;
+
+        if (Arch.getVal() == "IBMQX2") {
+            graph = efd::ArchIBMQX2::Create();
+        } else if (Arch.getVal() == "IBMQX3") {
+            graph = efd::ArchIBMQX3::Create();
+        } else {
+            graph = efd::ArchGraph::Read(Arch.getVal());
+        }
+
         assert(qbitToNumber.getSize() <= graph->size() &&
                 "Using more qbits than the maximum.");
 
