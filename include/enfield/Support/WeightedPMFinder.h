@@ -111,6 +111,8 @@ unsigned efd::WeightedPMFinder<T>::getFirstFree() {
     for (unsigned u = 0; u < gSize; ++u) {
         if (!matched[u]) return u;
     }
+
+    assert(false && "Not enough qubits?");
 }
 
 template <typename T>
@@ -186,8 +188,10 @@ std::vector<unsigned> efd::WeightedPMFinder<T>::find(Graph::Ref g, Graph::Ref h)
     }
 
     for (auto a : notMatched) {
-        unsigned u = getFirstFree();
-        matching[a] = u;
+        if (matching[a] == hSize) {
+            unsigned u = getFirstFree();
+            matching[a] = u;
+        }
     }
 
     return matching;
