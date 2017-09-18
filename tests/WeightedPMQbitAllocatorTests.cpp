@@ -172,8 +172,7 @@ include \"qelib1.inc\";\
 gate intrinsic_swap__ a, b {cx a, b;cx b, a;cx a, b;}\
 gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
 qreg q[5];\
-CX q[1], q[2];\
-intrinsic_swap__ q[3], q[2];\
+CX q[1], q[3];\
 CX q[1], q[2];\
 CX q[3], q[2];\
 intrinsic_swap__ q[3], q[2];\
