@@ -32,7 +32,7 @@ Default: dynprog. \
 Options: dynprog; wpm; qubiter; wqubiter; random.", "dynprog", false);
 static efd::Opt<std::string> Arch
 ("arch", "Name of the architechture, or a file \
-with the connectivity graph.", "IBMQX2", false);
+with the connectivity graph.", "ibmqx2", false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
@@ -42,6 +42,7 @@ static void DumpToOutFile(QModule* qmod) {
 
 int main(int argc, char** argv) {
     InitializeAllQbitAllocators();
+    InitializeAllArchitectures();
     ParseArguments(argc, argv);
 
     QModule::sRef qmod = toShared(QModule::Parse(InFilepath.getVal()));
@@ -55,13 +56,11 @@ int main(int argc, char** argv) {
         qbitUidPass->run(qmod.get());
 
         auto qbitToNumber = qbitUidPass->getData(); 
+
         // Architecture-dependent fragment.
         std::shared_ptr<efd::ArchGraph> graph;
-
-        if (Arch.getVal() == "IBMQX2") {
-            graph = efd::ArchIBMQX2::Create();
-        } else if (Arch.getVal() == "IBMQX3") {
-            graph = efd::ArchIBMQX3::Create();
+        if (HasArchitecture(Arch.getVal())) {
+            graph = CreateArchitecture(Arch.getVal());
         } else {
             graph = efd::ArchGraph::Read(Arch.getVal());
         }

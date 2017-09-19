@@ -11,44 +11,13 @@
 #include <functional>
 
 namespace efd {
-    /// \brief Registry with the available qubit allocators.
-    class AllocatorRegistry {
-        private:
-            std::unordered_map<std::string, alloc::AllocCtorTy> mAllocCtorMap;
-
-        public:
-            /// \brief Registers an allocator referenced by \p name and constructed by
-            /// \p ctor.
-            void registerAllocator(std::string name, alloc::AllocCtorTy ctor); 
-            /// \brief Returns true if there is an allocator referenced by \p name.
-            bool hasAllocator(std::string name) const;
-            /// \brief Creates an allocator referenced by \p name with arguments \p arg.
-            alloc::RetTy createAllocator(std::string name, alloc::ArgTy arg) const;
-    };
-}
-
-void efd::AllocatorRegistry::registerAllocator
-(std::string name, alloc::AllocCtorTy ctor) {
-    assert(!hasAllocator(name) &&
-            "Trying to register a qubit allocator with a name already used.");
-    mAllocCtorMap[name] = ctor;
-}
-
-bool efd::AllocatorRegistry::hasAllocator(std::string name) const {
-    return mAllocCtorMap.find(name) != mAllocCtorMap.end();
-}
-
-efd::alloc::RetTy
-efd::AllocatorRegistry::createAllocator(std::string name, alloc::ArgTy arg) const {
-    assert(hasAllocator(name) && "Trying to create a qubit allocator not registered.");
-    return mAllocCtorMap.at(name)(arg);
+    typedef std::shared_ptr<efd::AllocatorRegistry> AllocatorRegistryPtr;
 }
 
 // -------------- Static -----------------
-typedef std::shared_ptr<efd::AllocatorRegistry> AllocatorRegistryPtr;
 
-static AllocatorRegistryPtr Registry(nullptr);
-static AllocatorRegistryPtr GetRegistry() {
+static efd::AllocatorRegistryPtr Registry(nullptr);
+static efd::AllocatorRegistryPtr GetRegistry() {
     if (Registry.get() == nullptr)
         Registry.reset(new efd::AllocatorRegistry());
     return Registry;
@@ -65,21 +34,27 @@ void efd::InitializeAllQbitAllocators() {
 #undef EFD_ALLOCATOR_SIMPLE
 }
 
-void efd::RegisterQbitAllocator(std::string name, alloc::AllocCtorTy ctor) {
-    GetRegistry()->registerAllocator(name, ctor);
+bool efd::HasAllocator(std::string key) {
+    return GetRegistry()->hasObj(key);
 }
 
-efd::alloc::RetTy efd::CreateQbitAllocator(std::string name, alloc::ArgTy arg) {
-    return GetRegistry()->createAllocator(name, arg);
+void efd::RegisterQbitAllocator(std::string key, AllocatorRegistry::CtorTy ctor) {
+    GetRegistry()->registerObj(key, ctor);
+}
+
+efd::AllocatorRegistry::RetTy
+efd::CreateQbitAllocator(std::string key, AllocatorRegistry::ArgTy arg) {
+    return GetRegistry()->createObj(key, arg);
 }
 
 // -------------- Allocator Functions -----------------
 #define EFD_ALLOCATOR(_Name_, _Class_) \
-    efd::alloc::RetTy efd::Create##_Class_(alloc::ArgTy arg) {\
+    efd::AllocatorRegistry::RetTy efd::Create##_Class_(AllocatorRegistry::ArgTy arg) {\
         return _Class_::Create(arg);\
     }
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
-    efd::alloc::RetTy efd::Create##_Finder_##With##_Builder_(alloc::ArgTy arg) {\
+    efd::AllocatorRegistry::RetTy\
+    efd::Create##_Finder_##With##_Builder_(AllocatorRegistry::ArgTy arg) {\
         auto allocator = SimpleQbitAllocator::Create(arg);\
         allocator->setMapFinder(_Finder_::Create());\
         allocator->setSolBuilder(_Builder_::Create());\

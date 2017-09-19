@@ -15,13 +15,12 @@ static efd::Opt<std::string> Out
 ("o", "Name of the output file.", "/dev/stdout", false);
 
 int main(int argc, char **argv) {
+    efd::InitializeAllArchitectures();
     efd::ParseArguments(argc, argv);
 
     efd::ArchGraph* arch;
-    if (Arch.getVal() == "IBMQX2") {
-        arch = efd::ArchIBMQX2::Create().release();
-    } else if (Arch.getVal() == "IBMQX3") {
-        arch = efd::ArchIBMQX3::Create().release();
+    if (efd::HasArchitecture(Arch.getVal())) {
+        arch = efd::CreateArchitecture(Arch.getVal()).release();
     } else {
         arch = efd::ArchGraph::Read(Arch.getVal()).release();
     }

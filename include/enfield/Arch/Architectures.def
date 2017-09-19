@@ -1,0 +1,2 @@
+EFD_ARCH(IBMQX2, ibmqx2)
+EFD_ARCH(IBMQX3, ibmqx3)
