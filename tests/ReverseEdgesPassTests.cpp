@@ -12,6 +12,8 @@
 using namespace efd;
 
 TEST(ReverseEdgesTest, SimpleEdgeReversalTest) {
+    InitializeAllArchitectures();
+
     {
         const std::string program = 
 "\
@@ -29,7 +31,7 @@ cx q[0], q[1];\
 intrinsic_rev_cx__ q[1], q[0];\
 ";
         auto qmod = toShared(std::move(QModule::ParseString(program)));
-        ArchIBMQX2::sRef graph = toShared(ArchIBMQX2::Create());
+        ArchGraph::sRef graph = efd::CreateArchitecture("ibmqx2");
 
         auto revPass = ReverseEdgesPass::Create(graph);
         revPass->run(qmod.get());
@@ -68,7 +70,7 @@ cx q[3], q[4];\
 intrinsic_rev_cx__ q[4], q[3];\
 ";
         auto qmod = toShared(std::move(QModule::ParseString(program)));
-        ArchIBMQX2::sRef graph = toShared(ArchIBMQX2::Create());
+        ArchGraph::sRef graph = efd::CreateArchitecture("ibmqx2");
 
         auto revPass = ReverseEdgesPass::Create(graph);
         revPass->run(qmod.get());

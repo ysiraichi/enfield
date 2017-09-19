@@ -9,7 +9,9 @@
 using namespace efd;
 
 TEST(IBMQX2Tests, IntantiationTest) {
-    std::unique_ptr<ArchIBMQX2> graph = ArchIBMQX2::Create();
+    InitializeAllArchitectures();
+    ArchGraph::uRef graph = efd::CreateArchitecture("ibmqx2");
+
     ASSERT_FALSE(graph == nullptr);
 
     ASSERT_EQ(graph->size(), 5);
