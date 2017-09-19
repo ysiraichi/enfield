@@ -2,30 +2,17 @@
 #define __EFD_ARCHITECTURES_H__
 
 #include "enfield/Arch/ArchGraph.h"
-
+#include "enfield/Support/Registry.h"
 namespace efd {
+    typedef Registry<ArchGraph::uRef, int> ArchRegistry;
 
-#define EFD_ARCHITECTURE(_Name_, _QbitNum_) \
-    class Arch##_Name_ : public ArchGraph {\
-        private:\
-            Arch##_Name_();\
-        public:\
-            static std::unique_ptr<Arch##_Name_> Create() {\
-                return std::unique_ptr<Arch##_Name_>(new Arch##_Name_());\
-            }\
-    };
-
-// Defines the undefined macros.
-#include "enfield/Arch/Defs.h"
-
-// From a previous configuration file '.def', by including it, it'll generate
-// the declaration of the architectures.
-#include "enfield/Arch/IBMQX2.def"
-#include "enfield/Arch/IBMQX3.def"
-
-// Undefines all macros.
-#include "enfield/Arch/Undefs.h"
-
+    void InitializeAllArchitectures();
+    /// \brief Returns true if there is an architecture mapped by \p key;
+    bool HasArchitecture(std::string key);
+    /// \brief Register an architecture, mapping \p key to \p ctor.
+    void RegisterArchitecture(std::string key, ArchRegistry::CtorTy ctor);
+    /// \brief Creates an architecture referenced by \p name.
+    ArchRegistry::RetTy CreateArchitecture(std::string key);
 }
 
 #endif
