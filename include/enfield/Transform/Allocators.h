@@ -3,25 +3,26 @@
 
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Transform/QbitAllocator.h"
+#include "enfield/Support/Registry.h"
 
 namespace efd {
-    namespace alloc {
-        typedef QbitAllocator::uRef RetTy;
-        typedef ArchGraph::sRef ArgTy;
-        typedef std::function<RetTy(ArgTy)> AllocCtorTy;
-    }
+    typedef Registry<QbitAllocator::uRef, ArchGraph::sRef> AllocatorRegistry;
 
     void InitializeAllQbitAllocators();
-    /// \brief Returns true if there is an allocator referenced by \p name.
-    void RegisterQbitAllocator(std::string name, alloc::AllocCtorTy ctor);
+    /// \brief Returns true if there is an allocator mapped by \p key;
+    bool HasAllocator(std::string key);
+    /// \brief Registers an allocator, mapping \p name to \p ctor.
+    void RegisterQbitAllocator(std::string key, AllocatorRegistry::CtorTy ctor);
     /// \brief Creates an allocator referenced by \p name with arguments \p arg.
-    alloc::RetTy CreateQbitAllocator(std::string name, alloc::ArgTy arg);
+    AllocatorRegistry::RetTy CreateQbitAllocator(std::string key, 
+            AllocatorRegistry::ArgTy arg);
 
 
 #define EFD_ALLOCATOR(_Name_, _Class_) \
-    alloc::RetTy Create##_Class_(alloc::ArgTy arg);
+    AllocatorRegistry::RetTy Create##_Class_(AllocatorRegistry::ArgTy arg);
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
-    alloc::RetTy Create##_Finder_##With##_Builder_(alloc::ArgTy arg);
+    AllocatorRegistry::RetTy Create##_Finder_##With##_Builder_\
+    (AllocatorRegistry::ArgTy arg);
 #include "enfield/Transform/Allocators.def"
 #undef EFD_ALLOCATOR
 #undef EFD_ALLOCATOR_SIMPLE
