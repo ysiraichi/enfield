@@ -1,5 +1,0 @@
-#undef EFD_ARCHITECTURE
-#undef EFD_ARCHITECTURE_END
-
-#undef EFD_REG
-#undef EFD_COUPLING
