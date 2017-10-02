@@ -7,7 +7,10 @@ add_library (EfdTransform
     Utils.cpp
     InlineAllPass.cpp
     RenameQbitsPass.cpp
-    ReverseEdgesPass.cpp)
+    ReverseEdgesPass.cpp
+    CircuitGraphBuilderPass.cpp
+    LayerBasedOrderingWrapperPass.cpp
+    CNOTLBOWrapperPass.cpp)
 
 add_library(EfdAllocator
     Allocators.cpp
