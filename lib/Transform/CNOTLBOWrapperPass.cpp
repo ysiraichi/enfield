@@ -4,11 +4,11 @@
 
 efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
     auto& layers = mData.layers;
-    auto qubits = graph.size();
+    auto xbits = graph.size();
 
     bool stop, ugate;
     auto ref = graph;
-    auto marked = std::vector<bool>(qubits, false);
+    auto marked = std::vector<bool>(xbits, false);
     auto reached = std::unordered_map<Node::Ref, unsigned>();
     auto order = Ordering();
 
@@ -22,46 +22,53 @@ efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
             Layer layer;
             ugate = false;
 
-            for (unsigned i = 0; i < qubits; ++i) {
-                if (ref[i]->qargsid.size() == 1) {
-                    order.push_back(getNodeId(ref[i]->node));
+            for (unsigned i = 0; i < xbits; ++i) {
+                if (ref[i] && ref[i]->qargsid.size() + ref[i]->cargsid.size() == 1) {
+                    layer.insert(ref[i]->node);
                     ref[i] = ref[i]->child[i];
                     ugate = true;
                 }
             }
 
-            if (!layer.empty()) layers.push_back(layer);
+            if (!layer.empty()) {
+                for (auto node : layer)
+                    order.push_back(getNodeId(node));
+                layers.push_back(layer);
+            }
         } while (ugate);
 
         Layer layer;
-        // Reach gates with non-marked qubits and mark them.
-        for (unsigned i = 0; i < qubits; ++i) {
-            if (!marked[i]) {
+        // Reach gates with non-marked xbits and mark them.
+        for (unsigned i = 0; i < xbits; ++i) {
+            if (ref[i] && !marked[i]) {
                 marked[i] = true;
 
                 if (reached.find(ref[i]->node) == reached.end())
-                    reached[ref[i]->node] = ref[i]->child.size() - 1;
+                    reached[ref[i]->node] = ref[i]->qargsid.size() +
+                        ref[i]->cargsid.size();
                 --reached[ref[i]->node];
             }
         }
 
-        // Advance the qubits' ref and unmark them.
-        for (unsigned i = 0; i < qubits; ++i) {
-            if (!reached[ref[i]->node]) {
-                order.push_back(getNodeId(ref[i]->node));
+        // Advance the xbits' ref and unmark them.
+        for (unsigned i = 0; i < xbits; ++i) {
+            if (ref[i] && !reached[ref[i]->node]) {
                 layer.insert(ref[i]->node);
-
                 marked[i] = false;
                 ref[i] = ref[i]->child[i];
             }
 
             // If ref isn't nullptr, it means that there still are
             // operations to emit.
-            if (ref[i] != nullptr)
-                stop = false;
+            if (ref[i]) stop = false;
         }
 
-        if (!layer.empty()) layers.push_back(layer);
+
+        if (!layer.empty()) {
+            for (auto node : layer)
+                order.push_back(getNodeId(node));
+            layers.push_back(layer);
+        }
     } while (!stop);
 
     return order;
