@@ -44,7 +44,7 @@ efd::DependencyBuilder::DependencyBuilder() {
 
 unsigned efd::DependencyBuilder::getUId(Node::Ref ref, NDGateDecl::Ref gate) {
     std::string _id = ref->toString();
-    return mQbitToNumber.getUId(_id, gate);
+    return mXbitToNumber.getQUId(_id, gate);
 }
 
 const efd::DependencyBuilder::DepsSet* efd::DependencyBuilder::getDepsSet
@@ -66,12 +66,12 @@ efd::DependencyBuilder::DepsSet* efd::DependencyBuilder::getDepsSet
             (this)->getDepsSet(gate));
 }
 
-efd::QbitToNumber& efd::DependencyBuilder::getQbitToNumber() {
-    return mQbitToNumber;
+efd::XbitToNumber& efd::DependencyBuilder::getXbitToNumber() {
+    return mXbitToNumber;
 }
 
-void efd::DependencyBuilder::setQbitToNumber(efd::QbitToNumber& qtn) {
-    mQbitToNumber = qtn;
+void efd::DependencyBuilder::setXbitToNumber(efd::XbitToNumber& xtn) {
+    mXbitToNumber = xtn;
 }
 
 const efd::DependencyBuilder::DepsSet& efd::DependencyBuilder::getDependencies
@@ -188,11 +188,11 @@ void efd::DependencyBuilderWrapperPass::run(QModule::Ref qmod) {
     mData.mLDeps.clear();
     mData.mGDeps.clear();
 
-    auto qtn = QbitToNumberWrapperPass::Create();
-    qtn->run(qmod);
+    auto xtn = XbitToNumberWrapperPass::Create();
+    xtn->run(qmod);
 
-    auto data = qtn->getData();
-    mData.setQbitToNumber(data);
+    auto data = xtn->getData();
+    mData.setXbitToNumber(data);
 
     DependencyBuilderVisitor visitor(*qmod, mData);
     for (auto it = qmod->gates_begin(), e = qmod->gates_end(); it != e; ++it) {

@@ -4,7 +4,7 @@
 #include "enfield/Analysis/Nodes.h"
 #include "enfield/Transform/Pass.h"
 #include "enfield/Transform/QModule.h"
-#include "enfield/Transform/QbitToNumberPass.h"
+#include "enfield/Transform/XbitToNumberPass.h"
 
 #include <unordered_map>
 #include <vector>
@@ -57,7 +57,7 @@ namespace efd {
     struct DependencyBuilder {
         typedef std::vector<Dependencies> DepsSet;
 
-        QbitToNumber mQbitToNumber;
+        XbitToNumber mXbitToNumber;
 
         std::unordered_map<NDGateDecl*, DepsSet> mLDeps;
         DepsSet mGDeps;
@@ -72,9 +72,9 @@ namespace efd {
         DepsSet* getDepsSet(NDGateDecl::Ref gate = nullptr);
 
         /// \brief Returns the structure that mapped the qbits.
-        QbitToNumber& getQbitToNumber();
+        XbitToNumber& getXbitToNumber();
         /// \brief Sets the structure that will map the qbits.
-        void setQbitToNumber(QbitToNumber& qtn);
+        void setXbitToNumber(XbitToNumber& xtn);
 
         /// \brief Gets the dependencies for some gate declaration. If it is a
         /// nullptr, then it is returned the dependencies for the whole program.
