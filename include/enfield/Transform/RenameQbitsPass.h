@@ -9,8 +9,6 @@
 #include <string>
 
 namespace efd {
-    class QbitToNumberPass;
-
     /// \brief Renames all the qbits according to the map from the constructor.
     class RenameQbitPass : public PassT<void> {
         public:
