@@ -140,6 +140,8 @@ namespace efd {
 
             /// \brief Clones the current node (deep copy).
             virtual Node::uRef clone() const = 0;
+
+            friend class QModule;
     };
 
     /// \brief Node for literal types.
