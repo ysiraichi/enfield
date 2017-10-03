@@ -1,17 +1,19 @@
 #include "enfield/Transform/CircuitGraphBuilderPass.h"
-#include "enfield/Transform/DependencyBuilderPass.h"
+#include "enfield/Transform/XbitToNumberPass.h"
 #include "enfield/Support/RTTI.h"
 
 void efd::CircuitGraphBuilderPass::run(QModule* qmod) {
     auto& graph = mData;
     CircuitGraph last;
 
-    auto qtonpass = QbitToNumberWrapperPass::Create();
-    qtonpass->run(qmod);
-    auto qton = qtonpass->getData();
+    auto xtonpass = XbitToNumberWrapperPass::Create();
+    xtonpass->run(qmod);
+    auto xton = xtonpass->getData();
 
-    graph.assign(qton.getSize(), nullptr);
-    last.assign(qton.getSize(), nullptr);
+    auto qubits = xton.getQSize();
+    auto cbits = xton.getCSize();
+    graph.assign(qubits + cbits, nullptr);
+    last.assign(qubits + cbits, nullptr);
 
     std::vector<Node::Ref> stmts;
     for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it)
@@ -21,19 +23,47 @@ void efd::CircuitGraphBuilderPass::run(QModule* qmod) {
         auto qopnode = dynCast<NDQOp>(node);
         auto parent = node;
 
+        auto newnode = new CircuitNode();
+        newnode->node = parent;
+
         if (auto ifstmt = dynCast<NDIfStmt>(node)) {
             qopnode = ifstmt->getQOp();
+
+            auto cbitstr = ifstmt->getCondId()->getVal();
+            for (auto cbit : xton.getRegUIds(cbitstr)) {
+                auto cbitid = qubits + cbit;
+
+                newnode->cargsid.insert(cbitid);
+
+                if (last[cbitid] == nullptr) {
+                    graph[cbitid] = newnode;
+                } else {
+                    last[cbitid]->child[cbitid] = newnode;
+                }
+
+                last[cbitid] = newnode;
+            }
+        } else if (auto measure = dynCast<NDQOpMeasure>(node)) {
+            auto cbitstr = measure->getCBit()->toString();
+            auto cbitid = qubits + xton.getCUId(cbitstr);
+
+            newnode->cargsid.insert(cbitid);
+
+            if (last[cbitid] == nullptr) {
+                graph[cbitid] = newnode;
+            } else {
+                last[cbitid]->child[cbitid] = newnode;
+            }
+
+            last[cbitid] = newnode;
         }
 
         auto qargs = qopnode->getQArgs();
-        auto newnode = new CircuitNode();
+        for (unsigned i = 0, e = qargs->getChildNumber(); i < e; ++i) {
+            auto qarg = qargs->getChild(i);
+            auto qargid = xton.getQUId(qarg->toString());
 
-        newnode->node = parent;
-        newnode->child = std::vector<CircuitNode*>(qton.getSize(), nullptr);
-
-        for (auto& qarg : *qargs) {
-            auto qargid = qton.getUId(qarg->toString());
-            newnode->qargsid.push_back(qargid);
+            newnode->qargsid.insert(qargid);
 
             if (last[qargid] == nullptr) {
                 graph[qargid] = newnode;

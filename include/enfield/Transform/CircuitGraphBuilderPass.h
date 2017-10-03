@@ -5,13 +5,15 @@
 #include "enfield/Transform/Pass.h"
 #include "enfield/Transform/QModule.h"
 #include <set>
+#include <map>
 
 namespace efd {
     /// \brief Circuit operation node.
     struct CircuitNode {
         Node::Ref node;
-        std::vector<unsigned> qargsid;
-        std::vector<CircuitNode*> child;
+        std::set<unsigned> qargsid;
+        std::set<unsigned> cargsid;
+        std::map<unsigned, CircuitNode*> child;
     };
 
     typedef std::vector<CircuitNode*> CircuitGraph;
