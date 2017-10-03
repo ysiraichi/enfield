@@ -4,7 +4,7 @@
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
-#include "enfield/Transform/QbitToNumberPass.h"
+#include "enfield/Transform/XbitToNumberPass.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
 
@@ -13,7 +13,7 @@
 
 using namespace efd;
 
-TEST(QbitToNumberWrapperPassTests, WholeProgramTest) {
+TEST(XbitToNumberWrapperPassTests, WholeProgramTest) {
     {
         const std::string program = \
 "\
@@ -21,16 +21,16 @@ qreg q[5];\
 ";
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto pass = QbitToNumberWrapperPass::Create();
+        auto pass = XbitToNumberWrapperPass::Create();
         pass->run(qmod.get());
 
         auto data = pass->getData();
-        ASSERT_DEATH({ data.getUId("q"); }, "Id not found");
-        ASSERT_TRUE(data.getUId("q[0]") == 0);
-        ASSERT_TRUE(data.getUId("q[1]") == 1);
-        ASSERT_TRUE(data.getUId("q[2]") == 2);
-        ASSERT_TRUE(data.getUId("q[3]") == 3);
-        ASSERT_TRUE(data.getUId("q[4]") == 4);
+        ASSERT_DEATH({ data.getQUId("q"); }, "Qubit id not found");
+        ASSERT_TRUE(data.getQUId("q[0]") == 0);
+        ASSERT_TRUE(data.getQUId("q[1]") == 1);
+        ASSERT_TRUE(data.getQUId("q[2]") == 2);
+        ASSERT_TRUE(data.getQUId("q[3]") == 3);
+        ASSERT_TRUE(data.getQUId("q[4]") == 4);
     }
 
     {
@@ -42,23 +42,23 @@ gate mygate(a, b, c) x, y, z {\
 ";
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto pass = QbitToNumberWrapperPass::Create();
+        auto pass = XbitToNumberWrapperPass::Create();
         pass->run(qmod.get());
 
         auto sign = qmod->getQGate("mygate");
         ASSERT_FALSE(sign == nullptr);
 
         auto data = pass->getData();
-        ASSERT_DEATH({ data.getUId("mygate"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("x"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("y"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("z"); }, "Id not found");
+        ASSERT_DEATH({ data.getQUId("mygate"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("x"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("y"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("z"); }, "Qubit id not found");
 
         NDGateDecl::Ref gate = dynCast<NDGateDecl>(sign);
         ASSERT_FALSE(gate == nullptr);
-        ASSERT_TRUE(data.getUId("x", gate) == 0);
-        ASSERT_TRUE(data.getUId("y", gate) == 1);
-        ASSERT_TRUE(data.getUId("z", gate) == 2);
+        ASSERT_TRUE(data.getQUId("x", gate) == 0);
+        ASSERT_TRUE(data.getQUId("y", gate) == 1);
+        ASSERT_TRUE(data.getQUId("z", gate) == 2);
     }
 
     {
@@ -82,7 +82,7 @@ measure q[4] -> c[4];\
 ";
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto pass = QbitToNumberWrapperPass::Create();
+        auto pass = XbitToNumberWrapperPass::Create();
         pass->run(qmod.get());
 
         auto data = pass->getData();
@@ -97,26 +97,26 @@ measure q[4] -> c[4];\
         NDGateDecl::Ref cnotGate = dynCast<NDGateDecl>(cnotSign);
         ASSERT_FALSE(cnotGate == nullptr);
 
-        ASSERT_DEATH({ data.getUId("id"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("cnot"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("a"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("b"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("q"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("c"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("c[0]"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("c[1]"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("c[2]"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("c[3]"); }, "Id not found");
-        ASSERT_DEATH({ data.getUId("c[4]"); }, "Id not found");
+        ASSERT_DEATH({ data.getQUId("id"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("cnot"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("a"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("b"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("q"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("c"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("c[0]"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("c[1]"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("c[2]"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("c[3]"); }, "Qubit id not found");
+        ASSERT_DEATH({ data.getQUId("c[4]"); }, "Qubit id not found");
 
-        ASSERT_TRUE(data.getUId("a", idGate) == 0);
-        ASSERT_TRUE(data.getUId("a", cnotGate) == 0);
-        ASSERT_TRUE(data.getUId("b", cnotGate) == 1);
-        ASSERT_TRUE(data.getUId("q[0]") == 0);
-        ASSERT_TRUE(data.getUId("q[1]") == 1);
-        ASSERT_TRUE(data.getUId("q[2]") == 2);
-        ASSERT_TRUE(data.getUId("q[3]") == 3);
-        ASSERT_TRUE(data.getUId("q[4]") == 4);
+        ASSERT_TRUE(data.getQUId("a", idGate) == 0);
+        ASSERT_TRUE(data.getQUId("a", cnotGate) == 0);
+        ASSERT_TRUE(data.getQUId("b", cnotGate) == 1);
+        ASSERT_TRUE(data.getQUId("q[0]") == 0);
+        ASSERT_TRUE(data.getQUId("q[1]") == 1);
+        ASSERT_TRUE(data.getQUId("q[2]") == 2);
+        ASSERT_TRUE(data.getQUId("q[3]") == 3);
+        ASSERT_TRUE(data.getQUId("q[4]") == 4);
     }
 }
 

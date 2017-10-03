@@ -2,7 +2,7 @@
 #include "enfield/Transform/Allocators.h"
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/FlattenPass.h"
-#include "enfield/Transform/QbitToNumberPass.h"
+#include "enfield/Transform/XbitToNumberPass.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Transform/DynProgQbitAllocator.h"
 #include "enfield/Transform/ReverseEdgesPass.h"
@@ -50,12 +50,12 @@ int main(int argc, char** argv) {
     if (qmod.get() != nullptr) {
         // Creating default passes.
         auto flattenPass = FlattenPass::Create();
-        auto qbitUidPass = QbitToNumberWrapperPass::Create();
+        auto xbitUidPass = XbitToNumberWrapperPass::Create();
 
         flattenPass->run(qmod.get());
-        qbitUidPass->run(qmod.get());
+        xbitUidPass->run(qmod.get());
 
-        auto qbitToNumber = qbitUidPass->getData(); 
+        auto xbitToNumber = xbitUidPass->getData(); 
 
         // Architecture-dependent fragment.
         std::shared_ptr<efd::ArchGraph> graph;
@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
             graph = efd::ArchGraph::Read(Arch.getVal());
         }
 
-        assert(qbitToNumber.getSize() <= graph->size() &&
+        assert(xbitToNumber.getQSize() <= graph->size() &&
                 "Using more qbits than the maximum.");
 
         auto allocator = efd::CreateQbitAllocator(Allocator.getVal(), graph);
