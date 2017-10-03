@@ -2,10 +2,11 @@
 #include "enfield/Transform/Allocators.h"
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/FlattenPass.h"
-#include "enfield/Transform/QbitToNumberPass.h"
+#include "enfield/Transform/XbitToNumberPass.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Transform/DynProgQbitAllocator.h"
 #include "enfield/Transform/ReverseEdgesPass.h"
+#include "enfield/Transform/CNOTLBOWrapperPass.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/Stats.h"
 #include "enfield/Support/uRefCast.h"
@@ -24,6 +25,8 @@ static Opt<bool> Pretty
 ("pretty", "Print in a pretty format.", true, false);
 static Opt<bool> ShowStats
 ("stats", "Print statistical data collected.", false, false);
+static Opt<bool> Reorder
+("ord", "Order the program input.", true, false);
 
 // TODO: This should be change to a nicer interface.
 static Opt<std::string> Allocator
@@ -50,12 +53,18 @@ int main(int argc, char** argv) {
     if (qmod.get() != nullptr) {
         // Creating default passes.
         auto flattenPass = FlattenPass::Create();
-        auto qbitUidPass = QbitToNumberWrapperPass::Create();
+        auto xbitUidPass = XbitToNumberWrapperPass::Create();
 
         flattenPass->run(qmod.get());
-        qbitUidPass->run(qmod.get());
 
-        auto qbitToNumber = qbitUidPass->getData(); 
+        if (Reorder.getVal()) {
+            auto cnotlbo = CNOTLBOWrapperPass::Create();
+            cnotlbo->run(qmod.get());
+        }
+
+        xbitUidPass->run(qmod.get());
+
+        auto xbitToNumber = xbitUidPass->getData(); 
 
         // Architecture-dependent fragment.
         std::shared_ptr<efd::ArchGraph> graph;
@@ -65,7 +74,7 @@ int main(int argc, char** argv) {
             graph = efd::ArchGraph::Read(Arch.getVal());
         }
 
-        assert(qbitToNumber.getSize() <= graph->size() &&
+        assert(xbitToNumber.getQSize() <= graph->size() &&
                 "Using more qbits than the maximum.");
 
         auto allocator = efd::CreateQbitAllocator(Allocator.getVal(), graph);

@@ -16,9 +16,9 @@ namespace efd {
     class SolutionImplPass : public PassT<void>, public NodeVisitor {
         private:
             Solution& mSol;
-            QbitToNumberWrapperPass::sRef mQbitToNumberPass;
+            XbitToNumberWrapperPass::sRef mXbitToNumberPass;
 
-            QbitToNumber mQbitToNumber;
+            XbitToNumber mXbitToNumber;
             std::vector<Node::Ref> mMap;
 
             std::unordered_map<Node::Ref, std::vector<Node::uRef>> mReplVector;
@@ -33,9 +33,9 @@ namespace efd {
             void applyOperations(Node::Ref ref);
 
         public:
-            SolutionImplPass(Solution& sol) : mSol(sol), mQbitToNumberPass(nullptr) {}
+            SolutionImplPass(Solution& sol) : mSol(sol), mXbitToNumberPass(nullptr) {}
 
-            void setQbitToNumberPass(QbitToNumberWrapperPass::sRef pass);
+            void setXbitToNumberPass(XbitToNumberWrapperPass::sRef pass);
 
             void run(QModule::Ref qmod) override;
             void visit(NDQOpMeasure::Ref ref) override;
@@ -50,7 +50,7 @@ namespace efd {
 }
 
 efd::Node::uRef efd::SolutionImplPass::getMappedNode(Node::Ref ref) {
-    unsigned id = mQbitToNumber.getUId(ref->toString());
+    unsigned id = mXbitToNumber.getQUId(ref->toString());
     return mMap[id]->clone();
 }
 
@@ -128,21 +128,21 @@ void efd::SolutionImplPass::applyOperations(Node::Ref ref) {
     }
 }
 
-void efd::SolutionImplPass::setQbitToNumberPass(QbitToNumberWrapperPass::sRef pass) {
-    mQbitToNumberPass = pass;
+void efd::SolutionImplPass::setXbitToNumberPass(XbitToNumberWrapperPass::sRef pass) {
+    mXbitToNumberPass = pass;
 }
 
 void efd::SolutionImplPass::run(QModule::Ref qmod) {
-    if (mQbitToNumberPass.get() == nullptr) {
-        mQbitToNumberPass = QbitToNumberWrapperPass::Create();
-        mQbitToNumberPass->run(qmod);
+    if (mXbitToNumberPass.get() == nullptr) {
+        mXbitToNumberPass = XbitToNumberWrapperPass::Create();
+        mXbitToNumberPass->run(qmod);
     }
 
-    mQbitToNumber = mQbitToNumberPass->getData();
-    mMap.assign(mQbitToNumber.getSize(), nullptr);
+    mXbitToNumber = mXbitToNumberPass->getData();
+    mMap.assign(mXbitToNumber.getQSize(), nullptr);
 
-    for (unsigned i = 0, e = mQbitToNumber.getSize(); i < e; ++i)
-        mMap[i] = mQbitToNumber.getNode(mSol.mInitial[i]);
+    for (unsigned i = 0, e = mXbitToNumber.getQSize(); i < e; ++i)
+        mMap[i] = mXbitToNumber.getQNode(mSol.mInitial[i]);
 
     mDepIdx = 0;
     for (auto it = qmod->stmt_begin(), end = qmod->stmt_end(); it != end; ++it) {
@@ -230,7 +230,7 @@ void efd::QbitAllocator::updateDependencies() {
     depPass->run(mMod);
 
     mDepBuilder = depPass->getData();
-    mQbitToNumber = mDepBuilder.getQbitToNumber();
+    mXbitToNumber = mDepBuilder.getXbitToNumber();
 }
 
 efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(QbitAllocator::Iterator it) {
@@ -256,12 +256,12 @@ void efd::QbitAllocator::replaceWithArchSpecs() {
     // Renaming program qbits to architecture qbits.
     RenameQbitPass::ArchMap toArchMap;
 
-    auto qtn = QbitToNumberWrapperPass::Create();
-    qtn->run(mMod);
+    auto xtn = XbitToNumberWrapperPass::Create();
+    xtn->run(mMod);
 
-    auto qbitToNumber = qtn->getData();
-    for (unsigned i = 0, e = qbitToNumber.getSize(); i < e; ++i) {
-        toArchMap[qbitToNumber.getStrId(i)] = mArchGraph->getNode(i);
+    auto xbitToNumber = xtn->getData();
+    for (unsigned i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
+        toArchMap[xbitToNumber.getQStrId(i)] = mArchGraph->getNode(i);
     }
 
     auto renamePass = RenameQbitPass::Create(toArchMap);
@@ -276,22 +276,22 @@ void efd::QbitAllocator::replaceWithArchSpecs() {
 }
 
 void efd::QbitAllocator::renameQbits() {
-    auto qtn = QbitToNumberWrapperPass::Create();
-    qtn->run(mMod);
+    auto xtn = XbitToNumberWrapperPass::Create();
+    xtn->run(mMod);
 
-    auto qbitToNumber = qtn->getData();
+    auto xbitToNumber = xtn->getData();
     // Renaming the qbits with the mapping that this algorithm got from solving
     // the dependencies.
     RenameQbitPass::ArchMap archConstMap;
     if (!mArchGraph->isGeneric()) {
-        for (unsigned i = 0, e = qbitToNumber.getSize(); i < e; ++i) {
-            std::string id = qbitToNumber.getStrId(i);
+        for (unsigned i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
+            std::string id = xbitToNumber.getQStrId(i);
             archConstMap[id] = mArchGraph->getNode(mSol.mInitial[i]);
         }
     } else {
-        for (unsigned i = 0, e = qbitToNumber.getSize(); i < e; ++i) {
-            std::string id = qbitToNumber.getStrId(i);
-            archConstMap[id] = qbitToNumber.getNode(mSol.mInitial[i]);
+        for (unsigned i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
+            std::string id = xbitToNumber.getQStrId(i);
+            archConstMap[id] = xbitToNumber.getQNode(mSol.mInitial[i]);
         }
     }
 
@@ -370,7 +370,7 @@ void efd::QbitAllocator::run(QModule::Ref qmod) {
 }
 
 unsigned efd::QbitAllocator::getNumQbits() {
-    return mQbitToNumber.getSize();
+    return mXbitToNumber.getQSize();
 }
 
 void efd::QbitAllocator::setInlineAll(BasisVector basis) {

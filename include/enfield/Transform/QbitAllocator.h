@@ -55,7 +55,7 @@ namespace efd {
 
         protected:
             DependencyBuilder mDepBuilder;
-            QbitToNumber mQbitToNumber;
+            XbitToNumber mXbitToNumber;
 
             bool mInlineAll;
 

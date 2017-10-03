@@ -61,6 +61,12 @@ efd_test (InlineAllPassTests
 efd_test (RenameQbitsPassTests
     EfdTransform EfdAnalysis EfdSupport)
 
+efd_test (CircuitGraphBuilderPassTests
+    EfdTransform EfdAnalysis EfdSupport)
+
+efd_test (CNOTLBOWrapperPassTests
+    EfdTransform EfdAnalysis EfdSupport)
+
 efd_test (ReverseEdgesPassTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 

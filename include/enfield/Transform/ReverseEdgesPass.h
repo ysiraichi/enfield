@@ -3,7 +3,6 @@
 
 #include "enfield/Transform/Pass.h"
 #include "enfield/Transform/QModule.h"
-#include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Arch/ArchGraph.h"
 
 namespace efd {

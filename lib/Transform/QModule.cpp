@@ -173,6 +173,14 @@ efd::QModule::ConstIterator efd::QModule::stmt_end() const {
     return mStatements->end();
 }
 
+void efd::QModule::orderby(std::vector<unsigned> order) {
+    std::vector<Node::uRef> newstmts;
+    for (unsigned i : order)
+        newstmts.push_back(std::move(mStatements->mChild[i]));
+    mStatements->mChild.clear();
+    mStatements->mChild = std::move(newstmts);
+}
+
 void efd::QModule::print(std::ostream& O, bool pretty, bool printGates) const {
     O << toString(pretty, printGates);
 }

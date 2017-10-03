@@ -112,6 +112,9 @@ namespace efd {
             /// \brief ConstIterator to the end of the statement node vector.
             ConstIterator stmt_end() const;
 
+            /// \brief Order the statements according to \p order.
+            void orderby(std::vector<unsigned> order);
+
             /// \brief Prints the QModule to a std::ostream.
             void print(std::ostream& O = std::cout, bool pretty = false,
                     bool printGates = false) const;

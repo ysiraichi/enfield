@@ -6,8 +6,13 @@
 #include <algorithm>
 #include <cassert>
 
-efd::Node::Node(Kind k, unsigned size, bool empty) : mK(k), mIsEmpty(empty),
-    mChild(size), mWasGenerated(false), mInInclude(false) {
+efd::Node::Node(Kind k, bool empty) : mK(k), mIsEmpty(empty), mWasGenerated(false),
+    mInInclude(false) {
+}
+
+void efd::Node::innerAddChild(uRef ref) {
+    ref->setParent(this);
+    mChild.push_back(std::move(ref));
 }
 
 efd::Node::~Node() {
@@ -90,10 +95,6 @@ std::string efd::Node::getOperation() const {
     return "";
 }
 
-unsigned efd::Node::getChildNumber() const {
-    return 0;
-}
-
 void efd::Node::apply(NodeVisitor::Ref visitor) {
     apply(visitor);
     for (auto& child : mChild)
@@ -103,8 +104,7 @@ void efd::Node::apply(NodeVisitor::Ref visitor) {
 // -------------- Value Specializations -----------------
 // -------------- Value<efd::IntVal> -----------------
 template <> 
-efd::NDValue<efd::IntVal>::NDValue(efd::IntVal val) 
-    : Node(K_LIT_INT, getChildNumber()), mVal(val) {
+efd::NDValue<efd::IntVal>::NDValue(efd::IntVal val) : Node(K_LIT_INT), mVal(val) {
 }
 
 template <> 
@@ -119,8 +119,7 @@ void efd::NDValue<efd::IntVal>::apply(NodeVisitor::Ref visitor) {
 
 // -------------- Value<efd::RealVal> -----------------
 template <> 
-efd::NDValue<efd::RealVal>::NDValue(efd::RealVal val) : 
-    Node(K_LIT_REAL), mVal(val) {
+efd::NDValue<efd::RealVal>::NDValue(efd::RealVal val) : Node(K_LIT_REAL), mVal(val) {
 }
 
 template <> 
@@ -135,8 +134,7 @@ void efd::NDValue<efd::RealVal>::apply(NodeVisitor::Ref visitor) {
 
 // -------------- Value<std::string> -----------------
 template <> 
-efd::NDValue<std::string>::NDValue(std::string val) 
-    : Node(K_LIT_STRING, getChildNumber()), mVal(val) {
+efd::NDValue<std::string>::NDValue(std::string val) : Node(K_LIT_STRING), mVal(val) {
 }
 
 template <> 
@@ -160,8 +158,8 @@ std::string efd::NDValue<std::string>::toString(bool pretty) const {
 }
 
 // -------------- Decl -----------------
-efd::NDDecl::NDDecl(Kind k, unsigned childNumber, NDId::uRef idNode) : Node(k, childNumber) {
-    setId(std::move(idNode));
+efd::NDDecl::NDDecl(Kind k, NDId::uRef idNode) : Node(k) {
+    innerAddChild(std::move(idNode));
 }
 
 efd::NDId::Ref efd::NDDecl::getId() const {
@@ -186,9 +184,9 @@ bool efd::NDDecl::ClassOf(const Node* node) {
 }
 
 // -------------- RegDecl -----------------
-efd::NDRegDecl::NDRegDecl(Type t, NDId::uRef idNode, NDInt::uRef sizeNode) :
-    NDDecl(K_REG_DECL, getChildNumber(), std::move(idNode)), mT(t) {
-    setSize(std::move(sizeNode));
+efd::NDRegDecl::NDRegDecl(Type t, NDId::uRef idNode, NDInt::uRef sizeNode)
+                        : NDDecl(K_REG_DECL, std::move(idNode)), mT(t) {
+    innerAddChild(std::move(sizeNode));
 }
 
 efd::Node::uRef efd::NDRegDecl::clone() const {
@@ -257,9 +255,9 @@ efd::NDRegDecl::uRef efd::NDRegDecl::CreateC(NDId::uRef idNode, NDInt::uRef size
 }
 
 // -------------- ID reference Operation -----------------
-efd::NDIdRef::NDIdRef(NDId::uRef idNode, NDInt::uRef nNode) : Node(K_ID_REF, getChildNumber()) {
-    setId(std::move(idNode));
-    setN(std::move(nNode));
+efd::NDIdRef::NDIdRef(NDId::uRef idNode, NDInt::uRef nNode) : Node(K_ID_REF) {
+    innerAddChild(std::move(idNode));
+    innerAddChild(std::move(nNode));
 }
 
 efd::Node::uRef efd::NDIdRef::clone() const {
@@ -310,7 +308,7 @@ efd::NDIdRef::uRef efd::NDIdRef::Create(NDId::uRef idNode, NDInt::uRef nNode) {
 }
 
 // -------------- Node List -----------------
-efd::NDList::NDList(Kind k) : Node(k, 0, true) {
+efd::NDList::NDList(Kind k) : Node(k, true) {
 }
 
 efd::NDList::~NDList() {
@@ -481,11 +479,11 @@ efd::NDGOpList::uRef efd::NDGOpList::Create() {
 }
 
 // -------------- If Statement -----------------
-efd::NDIfStmt::NDIfStmt(NDId::uRef cidNode, NDInt::uRef nNode, NDQOp::uRef qopNode) :
-    Node(K_IF_STMT, getChildNumber()) {
-    setCondId(std::move(cidNode));
-    setCondN(std::move(nNode));
-    setQOp(std::move(qopNode));
+efd::NDIfStmt::NDIfStmt(NDId::uRef cidNode, NDInt::uRef nNode, NDQOp::uRef qopNode)
+                      : Node(K_IF_STMT) {
+    innerAddChild(std::move(cidNode));
+    innerAddChild(std::move(nNode));
+    innerAddChild(std::move(qopNode));
 }
 
 efd::Node::uRef efd::NDIfStmt::clone() const {
@@ -559,9 +557,9 @@ efd::NDIfStmt::uRef efd::NDIfStmt::Create(NDId::uRef cidNode, NDInt::uRef nNode,
 
 // -------------- QasmVersion -----------------
 efd::NDQasmVersion::NDQasmVersion(NDReal::uRef vNode, NDStmtList::uRef stmtsNode) :
-    Node(K_QASM_VERSION, getChildNumber()) {
-    setVersion(std::move(vNode));
-    setStatements(std::move(stmtsNode));
+    Node(K_QASM_VERSION) {
+    innerAddChild(std::move(vNode));
+    innerAddChild(std::move(stmtsNode));
 }
 
 efd::Node::uRef efd::NDQasmVersion::clone() const {
@@ -621,9 +619,9 @@ efd::NDQasmVersion::uRef efd::NDQasmVersion::Create(NDReal::uRef vNode, NDStmtLi
 
 // -------------- Include -----------------
 efd::NDInclude::NDInclude(NDId::uRef fNode, Node::uRef astNode) :
-    Node(K_INCLUDE, getChildNumber()) {
-    setFilename(std::move(fNode));
-    setInnerAST(std::move(astNode));
+    Node(K_INCLUDE) {
+        innerAddChild(std::move(fNode));
+        innerAddChild(std::move(astNode));
 }
 
 efd::Node::uRef efd::NDInclude::clone() const {
@@ -679,17 +677,16 @@ efd::NDInclude::uRef efd::NDInclude::Create(NDId::uRef fNode, Node::uRef astNode
 }
 
 // -------------- Opaque -----------------
-efd::NDGateSign::NDGateSign(Kind k, unsigned childNumber,
-        NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode) :
-    NDDecl(k, childNumber, std::move(idNode)) {
-    setArgs(std::move(aNode));
-    setQArgs(std::move(qaNode));
+efd::NDGateSign::NDGateSign(Kind k, NDId::uRef idNode, NDList::uRef aNode, 
+                            NDList::uRef qaNode) : NDDecl(k, std::move(idNode)) {
+    innerAddChild(std::move(aNode));
+    innerAddChild(std::move(qaNode));
 }
 
 efd::NDGateSign::NDGateSign(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode) :
-    NDDecl(K_GATE_OPAQUE, getChildNumber(), std::move(idNode)) {
-    setArgs(std::move(aNode));
-    setQArgs(std::move(qaNode));
+    NDDecl(K_GATE_OPAQUE, std::move(idNode)) {
+    innerAddChild(std::move(aNode));
+    innerAddChild(std::move(qaNode));
 }
 
 bool efd::NDGateSign::isOpaque() const {
@@ -759,9 +756,9 @@ efd::NDGateSign::uRef efd::NDGateSign::Create(NDId::uRef idNode, NDList::uRef aN
 
 // -------------- GateDecl -----------------
 efd::NDGateDecl::NDGateDecl(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode,
-        NDGOpList::uRef gopNode) : NDGateSign(K_GATE_DECL, getChildNumber(),
-            std::move(idNode), std::move(aNode), std::move(qaNode)) {
-    setGOpList(std::move(gopNode));
+        NDGOpList::uRef gopNode) : NDGateSign(K_GATE_DECL, std::move(idNode), 
+            std::move(aNode), std::move(qaNode)) {
+    innerAddChild(std::move(gopNode));
 }
 
 efd::Node::uRef efd::NDGateDecl::clone() const {
@@ -829,10 +826,10 @@ efd::NDGateDecl::uRef efd::NDGateDecl::Create(NDId::uRef idNode, NDList::uRef aN
 
 // -------------- Qubit Operation -----------------
 efd::NDQOp::NDQOp(Kind k, NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode)
-    : Node(k, getChildNumber()) {
-    setId(std::move(idNode));
-    setArgs(std::move(aNode));
-    setQArgs(std::move(qaNode));
+                : Node(k) {
+    innerAddChild(std::move(idNode));
+    innerAddChild(std::move(aNode));
+    innerAddChild(std::move(qaNode));
 }
 
 efd::NDQOp::~NDQOp() {
@@ -977,9 +974,7 @@ efd::NDQOpReset::uRef efd::NDQOpReset::Create(Node::uRef qaNode) {
 
 // -------------- Qubit Operation: Barrier -----------------
 efd::NDQOpBarrier::NDQOpBarrier(NDList::uRef qaNode) : NDQOp(K_QOP_BARRIER,
-        NDId::Create("barrier"),
-        NDList::Create(),
-        std::move(qaNode)) {
+        NDId::Create("barrier"), NDList::Create(), std::move(qaNode)) {
 }
 
 void efd::NDQOpBarrier::apply(NodeVisitor::Ref visitor) {
@@ -1001,10 +996,9 @@ efd::NDQOpBarrier::uRef efd::NDQOpBarrier::Create(NDList::uRef qaNode) {
 
 // -------------- Measure -----------------
 efd::NDQOpMeasure::NDQOpMeasure(Node::uRef qNode, Node::uRef cNode) :
-    NDQOp(K_QOP_MEASURE,
-            NDId::Create("measure"), NDList::Create(), NDList::Create()) {
+    NDQOp(K_QOP_MEASURE, NDId::Create("measure"), NDList::Create(), NDList::Create()) {
+    innerAddChild(std::move(cNode));
     getQArgs()->addChild(std::move(qNode));
-    getQArgs()->addChild(std::move(cNode));
 }
 
 efd::Node::uRef efd::NDQOpMeasure::clone() const {
@@ -1020,15 +1014,19 @@ void efd::NDQOpMeasure::setQBit(Node::uRef ref) {
 }
 
 efd::Node::Ref efd::NDQOpMeasure::getCBit() const {
-    return mChild[I_QARGS]->getChild(I_CBIT);
+    return mChild[I_CBIT].get();
 }
 
 void efd::NDQOpMeasure::setCBit(Node::uRef ref) {
-    mChild[I_QARGS]->setChild(I_CBIT, std::move(ref));
+    setChild(I_CBIT, std::move(ref));
 }
 
 void efd::NDQOpMeasure::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
+}
+
+unsigned efd::NDQOpMeasure::getChildNumber() const {
+    return 4;
 }
 
 std::string efd::NDQOpMeasure::toString(bool pretty) const {
@@ -1056,9 +1054,7 @@ efd::NDQOpMeasure::uRef efd::NDQOpMeasure::Create(Node::uRef qNode, Node::uRef c
 
 // -------------- Qubit Operation: U -----------------
 efd::NDQOpU::NDQOpU(NDList::uRef aNode, Node::uRef qaNode) : NDQOp(K_QOP_U,
-        NDId::Create("U"),
-        std::move(aNode),
-        NDList::Create()) {
+        NDId::Create("U"), std::move(aNode), NDList::Create()) {
     getQArgs()->addChild(std::move(qaNode));
 }
 
@@ -1128,9 +1124,9 @@ efd::NDQOpCX::uRef efd::NDQOpCX::Create(Node::uRef lhsNode, Node::uRef rhsNode) 
 
 // -------------- Binary Operation -----------------
 efd::NDBinOp::NDBinOp(OpType t, Node::uRef lhsNode, Node::uRef rhsNode) :
-    Node(K_BINOP, getChildNumber()), mT(t) {
-    setLhs(std::move(lhsNode));
-    setRhs(std::move(rhsNode));
+    Node(K_BINOP), mT(t) {
+    innerAddChild(std::move(lhsNode));
+    innerAddChild(std::move(rhsNode));
 }
 
 efd::Node::uRef efd::NDBinOp::clone() const {
@@ -1236,8 +1232,8 @@ efd::NDBinOp::uRef efd::NDBinOp::CreatePow(Node::uRef lhsNode, Node::uRef rhsNod
 }
 
 // -------------- Unary Operation -----------------
-efd::NDUnaryOp::NDUnaryOp(UOpType t, Node::uRef oNode) : Node(K_UNARYOP, getChildNumber()), mT(t) {
-    setOperand(std::move(oNode));
+efd::NDUnaryOp::NDUnaryOp(UOpType t, Node::uRef oNode) : Node(K_UNARYOP), mT(t) {
+    innerAddChild(std::move(oNode));
 }
 
 efd::Node::uRef efd::NDUnaryOp::clone() const {

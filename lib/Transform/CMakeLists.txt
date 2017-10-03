@@ -1,13 +1,16 @@
 add_library (EfdTransform
     Pass.cpp
     QModule.cpp
-    QbitToNumberPass.cpp
+    XbitToNumberPass.cpp
     DependencyBuilderPass.cpp
     FlattenPass.cpp
     Utils.cpp
     InlineAllPass.cpp
     RenameQbitsPass.cpp
-    ReverseEdgesPass.cpp)
+    ReverseEdgesPass.cpp
+    CircuitGraphBuilderPass.cpp
+    LayerBasedOrderingWrapperPass.cpp
+    CNOTLBOWrapperPass.cpp)
 
 add_library(EfdAllocator
     Allocators.cpp

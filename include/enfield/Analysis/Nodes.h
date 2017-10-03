@@ -81,7 +81,11 @@ namespace efd {
             Ref mParent;
 
             /// \brief Constructs the node, initially empty (with no information).
-            Node(Kind k, unsigned size = 0, bool empty = false);
+            Node(Kind k, bool empty = false);
+
+            /// \brief Adds a child to this node. It should be used only for
+            /// construction of each derived class.
+            void innerAddChild(uRef ref);
 
         public:
             virtual ~Node();
@@ -128,7 +132,7 @@ namespace efd {
             /// \brief Returns a std::string representation of the operation.
             virtual std::string getOperation() const;
             /// \brief Returns the number of childrem of this node. 
-            virtual unsigned getChildNumber() const;
+            virtual unsigned getChildNumber() const = 0;
             /// \brief Returns a std::string representation of this Node and its childrem.
             virtual std::string toString(bool pretty = false) const = 0;
             /// \brief Used by visitor classes.
@@ -136,6 +140,8 @@ namespace efd {
 
             /// \brief Clones the current node (deep copy).
             virtual Node::uRef clone() const = 0;
+
+            friend class QModule;
     };
 
     /// \brief Node for literal types.
@@ -202,7 +208,7 @@ namespace efd {
                 I_ID = 0
             };
 
-            NDDecl(Kind k, unsigned childNumber, NDId::uRef idNode);
+            NDDecl(Kind k, NDId::uRef idNode);
 
         public:
             /// \brief Gets the id node.
@@ -475,8 +481,8 @@ namespace efd {
 
         protected:
             NDGateSign(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
-            NDGateSign(Kind k, unsigned childNumber,
-                    NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
+            NDGateSign(Kind k, NDId::uRef idNode, NDList::uRef aNode,
+                    NDList::uRef qaNode);
 
         public:
             typedef NDGateSign* Ref;
@@ -585,8 +591,8 @@ namespace efd {
             bool isGeneric() const;
 
             std::string getOperation() const override;
-            unsigned getChildNumber() const override;
 
+            virtual unsigned getChildNumber() const override;
             virtual std::string toString(bool pretty = false) const override;
             virtual void apply(NodeVisitor* visitor) override;
             virtual Node::uRef clone() const override;
@@ -652,7 +658,7 @@ namespace efd {
         protected:
             enum ChildType {
                 I_QBIT = 0,
-                I_CBIT
+                I_CBIT = 3
             };
 
             NDQOpMeasure(Node::uRef qNode, Node::uRef cNode);
@@ -670,6 +676,7 @@ namespace efd {
             /// \brief Sets the cbit node.
             void setCBit(Node::uRef ref);
 
+            unsigned getChildNumber() const override;
             std::string toString(bool pretty = false) const override;
             void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
