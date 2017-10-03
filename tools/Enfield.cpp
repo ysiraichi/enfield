@@ -6,6 +6,7 @@
 #include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Transform/DynProgQbitAllocator.h"
 #include "enfield/Transform/ReverseEdgesPass.h"
+#include "enfield/Transform/CNOTLBOWrapperPass.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/Stats.h"
 #include "enfield/Support/uRefCast.h"
@@ -24,6 +25,8 @@ static Opt<bool> Pretty
 ("pretty", "Print in a pretty format.", true, false);
 static Opt<bool> ShowStats
 ("stats", "Print statistical data collected.", false, false);
+static Opt<bool> Reorder
+("ord", "Order the program input.", true, false);
 
 // TODO: This should be change to a nicer interface.
 static Opt<std::string> Allocator
@@ -53,6 +56,12 @@ int main(int argc, char** argv) {
         auto xbitUidPass = XbitToNumberWrapperPass::Create();
 
         flattenPass->run(qmod.get());
+
+        if (Reorder.getVal()) {
+            auto cnotlbo = CNOTLBOWrapperPass::Create();
+            cnotlbo->run(qmod.get());
+        }
+
         xbitUidPass->run(qmod.get());
 
         auto xbitToNumber = xbitUidPass->getData(); 
