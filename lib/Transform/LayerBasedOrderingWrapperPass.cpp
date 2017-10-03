@@ -17,4 +17,5 @@ void efd::LayerBasedOrderingWrapperPass::run(QModule* qmod) {
     cgbp->run(qmod);
 
     mData.ordering = generate(cgbp->getData());
+    qmod->orderby(mData.ordering);
 }
