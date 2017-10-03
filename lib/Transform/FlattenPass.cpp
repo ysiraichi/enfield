@@ -25,9 +25,10 @@ namespace efd {
 
             /// \brief Returns the size of the declaration of this Id node.
             unsigned getSize(Node::Ref ref);
-            /// \brief Returns a list with all IdRef's possible of all QArgs.
+            /// \brief Returns a list with all IdRef's possible of all quantum and
+            /// concrete arguments.
             std::vector<std::vector<NDIdRef::uRef>>
-                getFlattenedOpsArgs(NDList::Ref ref);
+                getFlattenedOpsArgs(std::vector<Node::Ref> qcargs);
             /// \brief Returns true if all the childrem are IdRef node.
             bool isChildremIdRef(Node::Ref ref);
 
@@ -93,19 +94,18 @@ unsigned efd::FlattenVisitor::getSize(Node::Ref ref) {
 }
 
 std::vector<std::vector<efd::NDIdRef::uRef>>
-efd::FlattenVisitor::getFlattenedOpsArgs(NDList::Ref ref) {
+efd::FlattenVisitor::getFlattenedOpsArgs(std::vector<Node::Ref> qcargs) {
     std::vector<std::vector<NDIdRef::uRef>> newNodesArgs;
 
     unsigned min = std::numeric_limits<unsigned>::max();
-    for (auto& childRef : *ref) {
-        auto child = childRef.get();
+    for (auto child : qcargs) {
         if (isId(child) && getSize(child) < min)
             min = getSize(child);
     }
 
     if (min != std::numeric_limits<unsigned>::max()) {
-        for (auto& child : *ref) {
-            newNodesArgs.push_back(toIdRef(child.get(), min));
+        for (auto child : qcargs) {
+            newNodesArgs.push_back(toIdRef(child, min));
         }
     }
 
@@ -142,8 +142,7 @@ void efd::FlattenVisitor::visit(NDQOpMeasure::Ref ref) {
     Node::Ref key = (mIf == nullptr) ? (Node::Ref) ref : (Node::Ref) mIf;
 
     std::vector<Node::uRef> newNodes;
-    auto flatArgs = getFlattenedOpsArgs(ref->getQArgs());
-
+    auto flatArgs = getFlattenedOpsArgs({ ref->getQBit(), ref->getCBit() });
     if (!flatArgs.empty()) {
         for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i)
             newNodes.push_back(wrapWithIfStmt
@@ -168,7 +167,11 @@ void efd::FlattenVisitor::visit(NDQOp::Ref ref) {
     Node::Ref key = (mIf == nullptr) ? (Node::Ref) ref : (Node::Ref) mIf;
 
     std::vector<Node::uRef> newNodes;
-    auto flatArgs = getFlattenedOpsArgs(ref->getQArgs());
+
+    std::vector<Node::Ref> qcargs;
+    for (auto& qarg : *ref->getQArgs())
+        qcargs.push_back(qarg.get());
+    auto flatArgs = getFlattenedOpsArgs(qcargs);
 
     if (!flatArgs.empty()) {
         for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i) {
