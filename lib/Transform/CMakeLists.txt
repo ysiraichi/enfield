@@ -1,5 +1,6 @@
 add_library (EfdTransform
     Pass.cpp
+    PassCache.cpp
     QModule.cpp
     XbitToNumberPass.cpp
     DependencyBuilderPass.cpp
