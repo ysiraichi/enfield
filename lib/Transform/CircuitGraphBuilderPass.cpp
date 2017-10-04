@@ -2,7 +2,7 @@
 #include "enfield/Transform/XbitToNumberPass.h"
 #include "enfield/Support/RTTI.h"
 
-void efd::CircuitGraphBuilderPass::run(QModule* qmod) {
+bool efd::CircuitGraphBuilderPass::run(QModule* qmod) {
     auto& graph = mData;
     CircuitGraph last;
 
@@ -74,6 +74,8 @@ void efd::CircuitGraphBuilderPass::run(QModule* qmod) {
             last[qargid] = newnode;
         }
     }
+
+    return false;
 }
 
 efd::CircuitGraphBuilderPass::uRef efd::CircuitGraphBuilderPass::Create() {

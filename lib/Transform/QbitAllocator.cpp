@@ -37,7 +37,7 @@ namespace efd {
 
             void setXbitToNumberPass(XbitToNumberWrapperPass::sRef pass);
 
-            void run(QModule::Ref qmod) override;
+            bool run(QModule::Ref qmod) override;
             void visit(NDQOpMeasure::Ref ref) override;
             void visit(NDQOpReset::Ref ref) override;
             void visit(NDQOpU::Ref ref) override;
@@ -132,7 +132,7 @@ void efd::SolutionImplPass::setXbitToNumberPass(XbitToNumberWrapperPass::sRef pa
     mXbitToNumberPass = pass;
 }
 
-void efd::SolutionImplPass::run(QModule::Ref qmod) {
+bool efd::SolutionImplPass::run(QModule::Ref qmod) {
     if (mXbitToNumberPass.get() == nullptr) {
         mXbitToNumberPass = XbitToNumberWrapperPass::Create();
         mXbitToNumberPass->run(qmod);
@@ -153,6 +153,8 @@ void efd::SolutionImplPass::run(QModule::Ref qmod) {
         if (!pair.second.empty())
             qmod->replaceStatement(pair.first, std::move(pair.second));
     }
+
+    return true;
 }
 
 void efd::SolutionImplPass::visit(NDQOpMeasure::Ref ref) {
@@ -299,7 +301,7 @@ void efd::QbitAllocator::renameQbits() {
     renamePass->run(mMod);
 }
 
-void efd::QbitAllocator::run(QModule::Ref qmod) {
+bool efd::QbitAllocator::run(QModule::Ref qmod) {
     Timer timer;
 
     // Setting the class QModule.
@@ -367,6 +369,8 @@ void efd::QbitAllocator::run(QModule::Ref qmod) {
     timer.stop();
     RenameTime = ((double) timer.getMicroseconds() / 1000000.0);
     // -----------------------------------------------------
+
+    return true;
 }
 
 unsigned efd::QbitAllocator::getNumQbits() {

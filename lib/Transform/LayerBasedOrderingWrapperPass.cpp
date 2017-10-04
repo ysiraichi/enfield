@@ -6,7 +6,7 @@ unsigned efd::LayerBasedOrderingWrapperPass::getNodeId(Node::Ref ref) {
     return mStmtId[ref];
 }
 
-void efd::LayerBasedOrderingWrapperPass::run(QModule* qmod) {
+bool efd::LayerBasedOrderingWrapperPass::run(QModule* qmod) {
     mStmtId.clear();
 
     for (auto it = qmod->stmt_begin(), end = qmod->stmt_end(); it != end; ++it) {
@@ -18,4 +18,6 @@ void efd::LayerBasedOrderingWrapperPass::run(QModule* qmod) {
 
     mData.ordering = generate(cgbp->getData());
     qmod->orderby(mData.ordering);
+
+    return true;
 }

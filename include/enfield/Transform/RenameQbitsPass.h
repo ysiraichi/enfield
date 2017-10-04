@@ -23,7 +23,7 @@ namespace efd {
             RenameQbitPass(ArchMap map);
 
         public:
-            void run(QModule::Ref qmod) override;
+            bool run(QModule::Ref qmod) override;
 
             /// \brief Creates a new instance of this pass.
             static RenameQbitPass::uRef Create(ArchMap map);

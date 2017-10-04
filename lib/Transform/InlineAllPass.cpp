@@ -32,8 +32,10 @@ efd::InlineAllPass::InlineAllPass(std::vector<std::string> basis) {
     mBasis = std::set<std::string>(basis.begin(), basis.end());
 }
 
-void efd::InlineAllPass::run(QModule::Ref qmod) {
+bool efd::InlineAllPass::run(QModule::Ref qmod) {
     InlineAllVisitor visitor(*qmod, mBasis);
+
+    bool changed = false;
 
     do {
         visitor.mInlineVector.clear();
@@ -50,7 +52,11 @@ void efd::InlineAllPass::run(QModule::Ref qmod) {
                 qmod->inlineCall(call);
             }
         }
+
+        if (!visitor.mInlineVector.empty()) changed = true;
     } while (!visitor.mInlineVector.empty());
+
+    return changed;
 }
 
 efd::InlineAllPass::uRef efd::InlineAllPass::Create(std::vector<std::string> basis) {

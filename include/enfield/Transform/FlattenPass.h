@@ -18,7 +18,7 @@ namespace efd {
             FlattenPass();
 
         public:
-            void run(QModule::Ref qmod) override;
+            bool run(QModule::Ref qmod) override;
 
             static uRef Create();
     };

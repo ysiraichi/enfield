@@ -124,7 +124,7 @@ void efd::XbitToNumberVisitor::visit(NDGateDecl::Ref ref) {
     }
 }
 
-void efd::XbitToNumberWrapperPass::run(QModule::Ref qmod) {
+bool efd::XbitToNumberWrapperPass::run(QModule::Ref qmod) {
     mData.gidCMap.clear();
     mData.gidQMap.clear();
     mData.lidQMap.clear();
@@ -138,6 +138,8 @@ void efd::XbitToNumberWrapperPass::run(QModule::Ref qmod) {
     for (auto it = qmod->gates_begin(), e = qmod->gates_end(); it != e; ++it) {
         (*it)->apply(&visitor);
     }
+
+    return false;
 }
 
 efd::XbitToNumberWrapperPass::uRef efd::XbitToNumberWrapperPass::Create() {

@@ -184,7 +184,7 @@ void efd::DependencyBuilderVisitor::visit(NDGOpList::Ref ref) {
     visitChildren(ref);
 }
 
-void efd::DependencyBuilderWrapperPass::run(QModule::Ref qmod) {
+bool efd::DependencyBuilderWrapperPass::run(QModule::Ref qmod) {
     mData.mLDeps.clear();
     mData.mGDeps.clear();
 
@@ -202,6 +202,8 @@ void efd::DependencyBuilderWrapperPass::run(QModule::Ref qmod) {
     for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it) {
         (*it)->apply(&visitor);
     }
+
+    return false;
 }
 
 efd::DependencyBuilderWrapperPass::uRef efd::DependencyBuilderWrapperPass::Create() {

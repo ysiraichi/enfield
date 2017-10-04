@@ -1,6 +1,8 @@
 #ifndef __EFD_PASS_H__
 #define __EFD_PASS_H__
 
+#include <memory>
+
 namespace efd {
     class QModule;
 
@@ -10,6 +12,7 @@ namespace efd {
     class Pass {
         public:
             typedef Pass* Ref;
+            typedef std::shared_ptr<Pass> sRef;
 
             enum Kind {
                 K_VOID,
@@ -23,8 +26,9 @@ namespace efd {
             Pass(Kind k);
 
         public:
-            /// \brief Runs the pass in the given QModule.
-            virtual void run(QModule* qmod) = 0;
+            /// \brief Runs the pass in the given QModule and returns true if it has
+            /// modified \p qmod.
+            virtual bool run(QModule* qmod) = 0;
 
             /// \brief Gets the kind of this pass.
             Kind getKind() const;

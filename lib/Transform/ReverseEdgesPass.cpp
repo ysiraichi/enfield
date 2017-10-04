@@ -72,7 +72,7 @@ void efd::ReverseEdgesVisitor::visit(NDIfStmt::Ref ref) {
 efd::ReverseEdgesPass::ReverseEdgesPass(ArchGraph::sRef graph) : mG(graph) {
 }
 
-void efd::ReverseEdgesPass::run(QModule::Ref qmod) {
+bool efd::ReverseEdgesPass::run(QModule::Ref qmod) {
     ReverseEdgesVisitor visitor(mG);
 
     for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it) {
@@ -84,6 +84,9 @@ void efd::ReverseEdgesPass::run(QModule::Ref qmod) {
         repl.push_back(std::move(pair.second));
         qmod->replaceStatement(pair.first, std::move(repl));
     }
+
+    if (visitor.mRevVector.empty()) return false;
+    else return true;
 }
 
 efd::ReverseEdgesPass::uRef efd::ReverseEdgesPass::Create(ArchGraph::sRef graph) {

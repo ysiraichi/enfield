@@ -20,7 +20,7 @@ namespace efd {
         public:
             InlineAllPass(std::vector<std::string> basis = std::vector<std::string>());
 
-            void run(QModule::Ref qmod) override;
+            bool run(QModule::Ref qmod) override;
 
             /// \brief Creates an instance of this pass.
             static uRef Create(std::vector<std::string> basis = 

@@ -72,7 +72,7 @@ namespace efd {
             typedef std::unique_ptr<XbitToNumberWrapperPass> uRef;
             typedef std::shared_ptr<XbitToNumberWrapperPass> sRef;
 
-            void run(QModule::Ref qmod) override;
+            bool run(QModule::Ref qmod) override;
 
             /// \brief Returns a new instance of this class.
             static uRef Create();

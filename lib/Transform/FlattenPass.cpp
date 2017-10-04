@@ -198,7 +198,7 @@ void efd::FlattenVisitor::visit(NDIfStmt::Ref ref) {
 efd::FlattenPass::FlattenPass() {
 }
 
-void efd::FlattenPass::run(QModule::Ref qmod) {
+bool efd::FlattenPass::run(QModule::Ref qmod) {
     FlattenVisitor visitor(*qmod);
 
     for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it) {
@@ -208,6 +208,8 @@ void efd::FlattenPass::run(QModule::Ref qmod) {
     for (auto& pair : visitor.mRepMap) {
         qmod->replaceStatement(pair.first, std::move(pair.second));
     }
+
+    return true;
 }
 
 efd::FlattenPass::uRef efd::FlattenPass::Create() {
