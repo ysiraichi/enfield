@@ -14,11 +14,13 @@ namespace efd {
             typedef FlattenPass* Ref;
             typedef std::unique_ptr<FlattenPass> uRef;
 
+            static unsigned ID;
+
         private:
             FlattenPass();
 
         public:
-            void run(QModule::Ref qmod) override;
+            bool run(QModule::Ref qmod) override;
 
             static uRef Create();
     };

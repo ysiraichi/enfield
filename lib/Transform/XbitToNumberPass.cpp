@@ -9,6 +9,10 @@
 // --------------------- XbitToNumber ------------------------
 const efd::XbitToNumber::XbitMap&
 efd::XbitToNumber::getQbitMap(NDGateDecl::Ref gate) const {
+    // if (gate) gate->print(std::cout, true);
+    // else std::cout << "nullptr" << std::endl;
+    // std::cout << "gate: " << gate << std::endl;
+    // if (gate) std::cout << gate->getId()->getVal() << std::endl;
     assert(gate == nullptr || lidQMap.find(gate) != lidQMap.end() &&
             "Trying to get an unknown gate information.");
     return (gate == nullptr) ? gidQMap : lidQMap.at(gate);
@@ -72,6 +76,8 @@ efd::Node::Ref efd::XbitToNumber::getCNode(unsigned id) const {
 }
 
 // --------------------- XbitToNumberWrapperPass ------------------------
+unsigned efd::XbitToNumberWrapperPass::ID = 0;
+
 namespace efd {
     class XbitToNumberVisitor : public efd::NodeVisitor {
         private:
@@ -124,7 +130,7 @@ void efd::XbitToNumberVisitor::visit(NDGateDecl::Ref ref) {
     }
 }
 
-void efd::XbitToNumberWrapperPass::run(QModule::Ref qmod) {
+bool efd::XbitToNumberWrapperPass::run(QModule::Ref qmod) {
     mData.gidCMap.clear();
     mData.gidQMap.clear();
     mData.lidQMap.clear();
@@ -138,6 +144,8 @@ void efd::XbitToNumberWrapperPass::run(QModule::Ref qmod) {
     for (auto it = qmod->gates_begin(), e = qmod->gates_end(); it != e; ++it) {
         (*it)->apply(&visitor);
     }
+
+    return false;
 }
 
 efd::XbitToNumberWrapperPass::uRef efd::XbitToNumberWrapperPass::Create() {

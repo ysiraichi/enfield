@@ -32,7 +32,7 @@ namespace efd {
             virtual Ordering generate(CircuitGraph& graph) = 0;
 
         public:
-            void run(QModule* qmod) override;
+            bool run(QModule* qmod) override;
     };
 }
 

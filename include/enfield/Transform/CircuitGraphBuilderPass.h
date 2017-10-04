@@ -30,7 +30,9 @@ namespace efd {
             typedef CircuitGraphBuilderPass* Ref;
             typedef std::unique_ptr<CircuitGraphBuilderPass> uRef;
 
-            void run(QModule* qmod) override;
+            static unsigned ID;
+
+            bool run(QModule* qmod) override;
             static uRef Create();
     };
 }

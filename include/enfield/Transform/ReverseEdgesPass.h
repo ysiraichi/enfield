@@ -12,13 +12,15 @@ namespace efd {
             typedef ReverseEdgesPass* Ref;
             typedef std::unique_ptr<ReverseEdgesPass> uRef;
 
+            static unsigned ID;
+
         private:
             ArchGraph::sRef mG;
 
             ReverseEdgesPass(ArchGraph::sRef graph);
 
         public:
-            void run(QModule::Ref qmod) override;
+            bool run(QModule::Ref qmod) override;
 
             /// \brief Create an instance of this class.
             static uRef Create(ArchGraph::sRef graph);

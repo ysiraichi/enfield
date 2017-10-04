@@ -44,7 +44,7 @@ namespace {
             void visit(NDValue<IntVal>::Ref ref) override { visitNode(ref); }
             void visit(NDValue<RealVal>::Ref ref) override { visitNode(ref); }
 
-            void run(QModule::Ref qmod) override {
+            bool run(QModule::Ref qmod) override {
                 mV.clear();
 
                 auto version = qmod->getVersion();
@@ -62,6 +62,8 @@ namespace {
                 for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it) {
                     (*it)->apply(this);
                 }
+
+                return false;
             }
     };
 }

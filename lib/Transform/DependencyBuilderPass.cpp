@@ -1,4 +1,5 @@
 #include "enfield/Transform/DependencyBuilderPass.h"
+#include "enfield/Transform/PassCache.h"
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
 
@@ -86,6 +87,8 @@ efd::DependencyBuilder::DepsSet& efd::DependencyBuilder::getDependencies
 }
 
 // --------------------- DependencyBuilderWrapperPass ------------------------
+unsigned efd::DependencyBuilderWrapperPass::ID = 0;
+
 namespace efd {
     class DependencyBuilderVisitor : public NodeVisitor {
         private:
@@ -184,13 +187,11 @@ void efd::DependencyBuilderVisitor::visit(NDGOpList::Ref ref) {
     visitChildren(ref);
 }
 
-void efd::DependencyBuilderWrapperPass::run(QModule::Ref qmod) {
+bool efd::DependencyBuilderWrapperPass::run(QModule::Ref qmod) {
     mData.mLDeps.clear();
     mData.mGDeps.clear();
 
-    auto xtn = XbitToNumberWrapperPass::Create();
-    xtn->run(qmod);
-
+    auto xtn = PassCache::Get<XbitToNumberWrapperPass>(qmod);
     auto data = xtn->getData();
     mData.setXbitToNumber(data);
 
@@ -202,6 +203,8 @@ void efd::DependencyBuilderWrapperPass::run(QModule::Ref qmod) {
     for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it) {
         (*it)->apply(&visitor);
     }
+
+    return false;
 }
 
 efd::DependencyBuilderWrapperPass::uRef efd::DependencyBuilderWrapperPass::Create() {

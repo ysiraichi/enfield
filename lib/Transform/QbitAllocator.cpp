@@ -1,6 +1,7 @@
 #include "enfield/Transform/QbitAllocator.h"
 #include "enfield/Transform/RenameQbitsPass.h"
 #include "enfield/Transform/InlineAllPass.h"
+#include "enfield/Transform/PassCache.h"
 #include "enfield/Transform/Utils.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Analysis/NodeVisitor.h"
@@ -16,7 +17,6 @@ namespace efd {
     class SolutionImplPass : public PassT<void>, public NodeVisitor {
         private:
             Solution& mSol;
-            XbitToNumberWrapperPass::sRef mXbitToNumberPass;
 
             XbitToNumber mXbitToNumber;
             std::vector<Node::Ref> mMap;
@@ -33,11 +33,9 @@ namespace efd {
             void applyOperations(Node::Ref ref);
 
         public:
-            SolutionImplPass(Solution& sol) : mSol(sol), mXbitToNumberPass(nullptr) {}
+            SolutionImplPass(Solution& sol) : mSol(sol) {}
 
-            void setXbitToNumberPass(XbitToNumberWrapperPass::sRef pass);
-
-            void run(QModule::Ref qmod) override;
+            bool run(QModule::Ref qmod) override;
             void visit(NDQOpMeasure::Ref ref) override;
             void visit(NDQOpReset::Ref ref) override;
             void visit(NDQOpU::Ref ref) override;
@@ -128,17 +126,10 @@ void efd::SolutionImplPass::applyOperations(Node::Ref ref) {
     }
 }
 
-void efd::SolutionImplPass::setXbitToNumberPass(XbitToNumberWrapperPass::sRef pass) {
-    mXbitToNumberPass = pass;
-}
+bool efd::SolutionImplPass::run(QModule::Ref qmod) {
+    auto xtonpass = PassCache::Get<XbitToNumberWrapperPass>(qmod);
 
-void efd::SolutionImplPass::run(QModule::Ref qmod) {
-    if (mXbitToNumberPass.get() == nullptr) {
-        mXbitToNumberPass = XbitToNumberWrapperPass::Create();
-        mXbitToNumberPass->run(qmod);
-    }
-
-    mXbitToNumber = mXbitToNumberPass->getData();
+    mXbitToNumber = xtonpass->getData();
     mMap.assign(mXbitToNumber.getQSize(), nullptr);
 
     for (unsigned i = 0, e = mXbitToNumber.getQSize(); i < e; ++i)
@@ -153,6 +144,8 @@ void efd::SolutionImplPass::run(QModule::Ref qmod) {
         if (!pair.second.empty())
             qmod->replaceStatement(pair.first, std::move(pair.second));
     }
+
+    return true;
 }
 
 void efd::SolutionImplPass::visit(NDQOpMeasure::Ref ref) {
@@ -226,9 +219,7 @@ efd::QbitAllocator::QbitAllocator(ArchGraph::sRef archGraph)
 }
 
 void efd::QbitAllocator::updateDependencies() {
-    auto depPass = DependencyBuilderWrapperPass::Create();
-    depPass->run(mMod);
-
+    auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(mMod);
     mDepBuilder = depPass->getData();
     mXbitToNumber = mDepBuilder.getXbitToNumber();
 }
@@ -249,23 +240,22 @@ efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(QbitAllocator::Iterat
 
 void efd::QbitAllocator::inlineAllGates() {
     auto inlinePass = InlineAllPass::Create(mBasis);
-    inlinePass->run(mMod);
+    PassCache::Run(mMod, inlinePass.get());
 }
 
 void efd::QbitAllocator::replaceWithArchSpecs() {
     // Renaming program qbits to architecture qbits.
     RenameQbitPass::ArchMap toArchMap;
 
-    auto xtn = XbitToNumberWrapperPass::Create();
-    xtn->run(mMod);
-
+    auto xtn = PassCache::Get<XbitToNumberWrapperPass>(mMod);
     auto xbitToNumber = xtn->getData();
+
     for (unsigned i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
         toArchMap[xbitToNumber.getQStrId(i)] = mArchGraph->getNode(i);
     }
 
     auto renamePass = RenameQbitPass::Create(toArchMap);
-    renamePass->run(mMod);
+    PassCache::Run(mMod, renamePass.get());
 
     // Replacing the old qbit declarations with the architecture's qbit
     // declaration.
@@ -276,10 +266,8 @@ void efd::QbitAllocator::replaceWithArchSpecs() {
 }
 
 void efd::QbitAllocator::renameQbits() {
-    auto xtn = XbitToNumberWrapperPass::Create();
-    xtn->run(mMod);
-
-    auto xbitToNumber = xtn->getData();
+    auto xtonpass = PassCache::Get<XbitToNumberWrapperPass>(mMod);
+    auto xbitToNumber = xtonpass->getData();
     // Renaming the qbits with the mapping that this algorithm got from solving
     // the dependencies.
     RenameQbitPass::ArchMap archConstMap;
@@ -296,10 +284,10 @@ void efd::QbitAllocator::renameQbits() {
     }
 
     auto renamePass = RenameQbitPass::Create(archConstMap);
-    renamePass->run(mMod);
+    PassCache::Run(mMod, renamePass.get());
 }
 
-void efd::QbitAllocator::run(QModule::Ref qmod) {
+bool efd::QbitAllocator::run(QModule::Ref qmod) {
     Timer timer;
 
     // Setting the class QModule.
@@ -360,13 +348,15 @@ void efd::QbitAllocator::run(QModule::Ref qmod) {
     // ---------------------------------
 
     SolutionImplPass pass(mSol);
-    pass.run(mMod);
+    PassCache::Run(mMod, &pass);
     // renameQbits();
 
     // Stopping timer and setting the stat -----------------
     timer.stop();
     RenameTime = ((double) timer.getMicroseconds() / 1000000.0);
     // -----------------------------------------------------
+
+    return true;
 }
 
 unsigned efd::QbitAllocator::getNumQbits() {

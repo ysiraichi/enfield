@@ -3,6 +3,8 @@
 
 #include <cassert>
 
+unsigned efd::RenameQbitPass::ID = 0;
+
 namespace efd {
     class RenameQbitVisitor : public NodeVisitor {
         private:
@@ -67,12 +69,14 @@ void efd::RenameQbitVisitor::visit(NDList::Ref ref) {
 efd::RenameQbitPass::RenameQbitPass(ArchMap map) : mAMap(map) {
 }
 
-void efd::RenameQbitPass::run(QModule::Ref qmod) {
+bool efd::RenameQbitPass::run(QModule::Ref qmod) {
     RenameQbitVisitor visitor(mAMap);
 
     for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it) {
         (*it)->apply(&visitor);
     }
+
+    return true;
 }
 
 efd::RenameQbitPass::uRef efd::RenameQbitPass::Create(ArchMap map) {

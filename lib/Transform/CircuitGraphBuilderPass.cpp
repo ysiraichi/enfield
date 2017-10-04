@@ -1,13 +1,15 @@
 #include "enfield/Transform/CircuitGraphBuilderPass.h"
 #include "enfield/Transform/XbitToNumberPass.h"
+#include "enfield/Transform/PassCache.h"
 #include "enfield/Support/RTTI.h"
 
-void efd::CircuitGraphBuilderPass::run(QModule* qmod) {
+unsigned efd::CircuitGraphBuilderPass::ID = 0;
+
+bool efd::CircuitGraphBuilderPass::run(QModule* qmod) {
     auto& graph = mData;
     CircuitGraph last;
 
-    auto xtonpass = XbitToNumberWrapperPass::Create();
-    xtonpass->run(qmod);
+    auto xtonpass = PassCache::Get<XbitToNumberWrapperPass>(qmod);
     auto xton = xtonpass->getData();
 
     auto qubits = xton.getQSize();
@@ -74,6 +76,8 @@ void efd::CircuitGraphBuilderPass::run(QModule* qmod) {
             last[qargid] = newnode;
         }
     }
+
+    return false;
 }
 
 efd::CircuitGraphBuilderPass::uRef efd::CircuitGraphBuilderPass::Create() {

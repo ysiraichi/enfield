@@ -2,6 +2,8 @@
 #include "enfield/Transform/QModule.h"
 #include "enfield/Support/RTTI.h"
 
+unsigned efd::CNOTLBOWrapperPass::ID = 0;
+
 efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
     auto& layers = mData.layers;
     auto xbits = graph.size();

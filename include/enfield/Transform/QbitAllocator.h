@@ -89,7 +89,7 @@ namespace efd {
             virtual Solution solve(DepsSet& deps) = 0;
 
         public:
-            void run(QModule::Ref qmod) override;
+            bool run(QModule::Ref qmod) override;
 
             /// \brief Returns the number of qbits in the program.
             unsigned getNumQbits();
