@@ -36,9 +36,9 @@ efd::Solution efd::PathGuidedSolBuilder::build
         ++freq[d];
     }
 
-    bool firstMapping = false;
     std::vector<bool> frozen(g->size(), false);
     for (unsigned i = 0, e = deps.size(); i < e; ++i) {
+        bool changeInitialMapping = true;
         Dep d = deps[i][0];
 
         auto& ops = solution.mOpSeqs[i];
@@ -54,27 +54,22 @@ efd::Solution efd::PathGuidedSolBuilder::build
         auto path = mPathFinder->find(g, u, v);
     
         // It should stop before swapping the 'source' qubit.
-        if (path.size() == 3 && freq[d] <= 1 && g->isReverseEdge(path[0], path[1])) {
+        if (path.size() == 3 && freq[d] <= 1 && g->hasEdge(path[0], path[1]) && g->hasEdge(path[1], path[0])) {
             // Insert bridge, if we use it only one time.
-            firstMapping = false;
-            solution.mCost += LCXCost.getVal();
+            solution.mCost += LCXCost.getVal() - 6;
             ops.second.push_back({ Operation::K_OP_LCNOT, path[0], path[1], path[2] });
 
+            for (auto u : path)
+                frozen[u] = true;
+
+            --freq[d];
+            continue;
+        }
+
+        if (path.size() > 2) {
             for (auto u : path) {
-                unsigned a = assign[u];
-                frozen[a] = true;
-            }
-
-        } else if (path.size() > 2) {
-            firstMapping = true;
-
-            if (frozen[a] || frozen[b])
-                firstMapping = false;
-
-            for (auto u : path) {
-                auto a = assign[u];
-                if (frozen[a]) firstMapping = false;
-                else frozen[a] = true;
+                if (frozen[u]) changeInitialMapping = false;
+                frozen[u] = true;
             }
 
             for (auto i = path.size() - 2; i >= 1; --i) {
@@ -89,22 +84,22 @@ efd::Solution efd::PathGuidedSolBuilder::build
                 std::swap(match[a], match[b]);
                 std::swap(assign[u], assign[v]);
             }
-        }
 
-        // If this is the first mapping
-        if (firstMapping) {
-            solution.mInitial = match;
-            ops.second.clear();
-        } else {
-            // ------ Stats
-            SerialSwapsCount += 1;
-            MeanSwapsSize += ops.second.size();
-            TotalSwapCost += SwapCost.getVal() * ops.second.size();
-            // --------------------
-            solution.mCost += (SwapCost.getVal() * ops.second.size());
-        }
+            // If this is the first mapping
+            if (changeInitialMapping) {
+                solution.mInitial = match;
+                ops.second.clear();
+            } else {
+                // ------ Stats
+                SerialSwapsCount += 1;
+                MeanSwapsSize += ops.second.size();
+                TotalSwapCost += SwapCost.getVal() * ops.second.size();
+                // --------------------
+                solution.mCost += (SwapCost.getVal() * ops.second.size());
+            }
 
-        u = match[a], v = match[b];
+            u = match[a], v = match[b];
+        }
 
         if (g->hasEdge(u, v)) {
             ops.second.push_back({ Operation::K_OP_CNOT, a, b });
@@ -113,14 +108,15 @@ efd::Solution efd::PathGuidedSolBuilder::build
             ops.second.push_back({ Operation::K_OP_REV, a, b });
         } else if (freq[d] > 1 && g->isReverseEdge(u, v)) {
 
-            if (frozen[a] || frozen[b]) {
+            if (!frozen[u] && !frozen[v]) {
+                // Swap if there is more than one dependency (a, b)
+                std::swap(solution.mInitial[a], solution.mInitial[b]);
+            } else {
                 // ------ Stats
                 TotalSwapCost += SwapCost.getVal();
                 // --------------------
 
-                // Swap if there is more than one dependency (a, b)
                 solution.mCost += SwapCost.getVal();
-                std::swap(solution.mInitial[a], solution.mInitial[b]);
                 ops.second.push_back({ Operation::K_OP_SWAP, a, b });
             }
 
@@ -131,10 +127,13 @@ efd::Solution efd::PathGuidedSolBuilder::build
             ops.second.push_back({ Operation::K_OP_CNOT, a, b });
         }
 
+        frozen[u] = true;
+        frozen[v] = true;
+
         --freq[d];
     }
 
-    MeanSwapsSize /= ((double) SerialSwapsCount.getVal());
+    if (SerialSwapsCount.getVal()) MeanSwapsSize /= ((double) SerialSwapsCount.getVal());
 
     return solution;
 }
