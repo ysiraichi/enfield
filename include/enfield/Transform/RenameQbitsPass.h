@@ -17,6 +17,8 @@ namespace efd {
 
             typedef std::unordered_map<std::string, Node::Ref> ArchMap;
 
+            static unsigned ID;
+
         private:
             ArchMap mAMap;
 

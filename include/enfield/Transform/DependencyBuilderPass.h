@@ -89,6 +89,8 @@ namespace efd {
             typedef std::unique_ptr<DependencyBuilderWrapperPass> uRef;
             typedef std::shared_ptr<DependencyBuilderWrapperPass> sRef;
 
+            static unsigned ID;
+
             bool run(QModule::Ref qmod) override;
 
             /// \brief Returns a new instance of this class.

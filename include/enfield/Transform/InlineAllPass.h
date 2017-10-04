@@ -12,6 +12,8 @@ namespace efd {
             typedef InlineAllPass* Ref;
             typedef std::unique_ptr<InlineAllPass> uRef;
 
+            static unsigned ID;
+
         private:
             QModule::sRef mMod;
             std::set<std::string> mBasis;

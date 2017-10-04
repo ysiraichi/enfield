@@ -1,4 +1,5 @@
 #include "enfield/Transform/LayerBasedOrderingWrapperPass.h"
+#include "enfield/Transform/PassCache.h"
 #include <cassert>
 
 unsigned efd::LayerBasedOrderingWrapperPass::getNodeId(Node::Ref ref) {
@@ -13,10 +14,8 @@ bool efd::LayerBasedOrderingWrapperPass::run(QModule* qmod) {
         mStmtId.insert(std::make_pair(it->get(), mStmtId.size()));
     }
 
-    auto cgbp = CircuitGraphBuilderPass::Create();
-    cgbp->run(qmod);
-
-    mData.ordering = generate(cgbp->getData());
+    auto cgbpass = PassCache::Get<CircuitGraphBuilderPass>(qmod);
+    mData.ordering = generate(cgbpass->getData());
     qmod->orderby(mData.ordering);
 
     return true;

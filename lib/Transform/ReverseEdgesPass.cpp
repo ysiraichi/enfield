@@ -6,6 +6,8 @@
 
 #include <cassert>
 
+unsigned efd::ReverseEdgesPass::ID = 0;
+
 namespace efd {
     class ReverseEdgesVisitor : public NodeVisitor {
         private:

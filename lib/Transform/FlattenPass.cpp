@@ -6,6 +6,8 @@
 #include <cassert>
 #include <limits>
 
+unsigned efd::FlattenPass::ID = 0;
+
 namespace efd {
     class FlattenVisitor : public NodeVisitor {
         private:
