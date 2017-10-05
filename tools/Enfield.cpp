@@ -26,7 +26,7 @@ static Opt<bool> Pretty
 static Opt<bool> ShowStats
 ("stats", "Print statistical data collected.", false, false);
 static Opt<bool> Reorder
-("ord", "Order the program input.", true, false);
+("ord", "Order the program input.", false, false);
 
 // TODO: This should be change to a nicer interface.
 static Opt<std::string> Allocator
