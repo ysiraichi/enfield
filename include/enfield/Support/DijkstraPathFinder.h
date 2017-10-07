@@ -23,13 +23,13 @@ namespace efd {
             inline bool equal(T l, T r);
 
         public:
-            std::vector<unsigned> find(Graph::Ref g, unsigned u, unsigned v) override;
+            std::vector<uint32_t> find(Graph::Ref g, uint32_t u, uint32_t v) override;
 
             /// \brief Create an instance of this class.
             static uRef Create();
     };
 
-    template <> bool DijkstraPathFinder<unsigned>::equal(unsigned l, unsigned r);
+    template <> bool DijkstraPathFinder<uint32_t>::equal(uint32_t l, uint32_t r);
     template <> bool DijkstraPathFinder<double>::equal(double l, double r);
 }
 
@@ -37,28 +37,28 @@ template <typename T>
 efd::DijkstraPathFinder<T>::DijkstraPathFinder() {}
 
 template <typename T>
-std::vector<unsigned>
-efd::DijkstraPathFinder<T>::find(Graph::Ref g, unsigned u, unsigned v) {
+std::vector<uint32_t>
+efd::DijkstraPathFinder<T>::find(Graph::Ref g, uint32_t u, uint32_t v) {
     auto wg = dynCast<WeightedGraph<T>>(g);
     assert(wg != nullptr && "Invalid weighted graph for this Dijkstra implementation.");
 
-    unsigned size = wg->size();
-    unsigned from = u;
-    unsigned to = v;
+    uint32_t size = wg->size();
+    uint32_t from = u;
+    uint32_t to = v;
 
-    unsigned inf = std::numeric_limits<unsigned>::max();
-    unsigned infw = std::numeric_limits<T>::max();
+    uint32_t inf = std::numeric_limits<uint32_t>::max();
+    uint32_t infw = std::numeric_limits<T>::max();
 
     std::vector<T> dist(inf, size);
-    std::vector<unsigned> parent(inf, size);
+    std::vector<uint32_t> parent(inf, size);
     std::vector<bool> visited(inf, false);
-    std::priority_queue<std::pair<T, unsigned>> q;
+    std::priority_queue<std::pair<T, uint32_t>> q;
 
     // Dijkstra Algorithm
     dist[from] = 0;
     q.push(std::make_pair(0, from));
     while (!q.empty()) {
-        unsigned u = q.front().second;
+        uint32_t u = q.front().second;
         q.pop();
 
         if (visited[u]) continue;
@@ -76,7 +76,7 @@ efd::DijkstraPathFinder<T>::find(Graph::Ref g, unsigned u, unsigned v) {
     // Reconstructing the path
     assert(!equal(dist[to], infw) && "No existing path in this graph.");
 
-    std::vector<unsigned> path;
+    std::vector<uint32_t> path;
 
     // If the path is "from -> x -> y -> to", the swap vector will contain
     // "(y, to), (x, y)" in this order. In other words, "to" will go to "x".
@@ -89,7 +89,7 @@ efd::DijkstraPathFinder<T>::find(Graph::Ref g, unsigned u, unsigned v) {
     return path;
 }
 
-template <> bool efd::DijkstraPathFinder<unsigned>::equal(unsigned l, unsigned r) {
+template <> bool efd::DijkstraPathFinder<uint32_t>::equal(uint32_t l, uint32_t r) {
     return l == r;
 }
 

@@ -8,9 +8,9 @@
 
 using namespace efd;
 
-void PathEqual(const std::vector<unsigned>& lhs, const std::vector<unsigned>& rhs) {
+void PathEqual(const std::vector<uint32_t>& lhs, const std::vector<uint32_t>& rhs) {
     ASSERT_EQ(lhs.size(), rhs.size());
-    for (unsigned i = 0, e = lhs.size(); i < e; ++i)
+    for (uint32_t i = 0, e = lhs.size(); i < e; ++i)
         ASSERT_EQ(lhs[i], rhs[i]);
 }
 

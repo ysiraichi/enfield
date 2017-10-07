@@ -435,7 +435,7 @@ efd::Node::uRef efd::ParseFile(std::string filename, std::string path, bool forc
 }
 
 efd::Node::uRef efd::ParseString(std::string program, bool forceStdLib) {
-    std::string filename = "qasm-" + std::to_string((unsigned long long) &program) + ".qasm";
+    std::string filename = "qasm-" + std::to_string((uint32_t long long) &program) + ".qasm";
     std::string path =  "./";
 
     std::ofstream ofs((path + filename).c_str());

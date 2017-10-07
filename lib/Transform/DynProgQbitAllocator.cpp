@@ -9,20 +9,20 @@
 #include <iostream>
 #include <algorithm>
 
-const unsigned UNREACH = std::numeric_limits<unsigned>::max();
+const uint32_t UNREACH = std::numeric_limits<uint32_t>::max();
 
 struct Val {
-    unsigned pId;
+    uint32_t pId;
     Val* parent;
-    unsigned cost;
+    uint32_t cost;
 };
 
 struct PermVal {
-    unsigned idx;
-    std::vector<unsigned> perm;
+    uint32_t idx;
+    std::vector<uint32_t> perm;
 };
 
-static inline unsigned min(unsigned a, unsigned b) {
+static inline uint32_t min(uint32_t a, uint32_t b) {
     if (a == UNREACH && b == UNREACH)
         return UNREACH;
 
@@ -38,7 +38,7 @@ static inline Val minVal(Val& a, Val& b) {
     else return b;
 }
 
-unsigned efd::DynProgQbitAllocator::getIntermediateV(unsigned u, unsigned v) {
+uint32_t efd::DynProgQbitAllocator::getIntermediateV(uint32_t u, uint32_t v) {
     auto& succ = mArchGraph->succ(u);
 
     for (auto& w : succ) {
@@ -55,40 +55,40 @@ efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
     ExpTSFinder tsp(mArchGraph);
     auto permutations = tsp.mAssigns;
 
-    unsigned archQ = mArchGraph->size();
-    const unsigned SWAP_COST = SwapCost.getVal();
-    const unsigned REV_COST = RevCost.getVal();
-    const unsigned LCX_COST = LCXCost.getVal();
+    uint32_t archQ = mArchGraph->size();
+    const uint32_t SWAP_COST = SwapCost.getVal();
+    const uint32_t REV_COST = RevCost.getVal();
+    const uint32_t LCX_COST = LCXCost.getVal();
 
     int permN = permutations.size();
     int depN = deps.size();
 
     auto finder = BFSPathFinder::Create();
 
-    // std::vector<std::vector<unsigned>*> permIdMap(permN, nullptr);
+    // std::vector<std::vector<uint32_t>*> permIdMap(permN, nullptr);
     // for (auto &pair : PermMap)
     //     permIdMap[pair.second.idx] = &pair.second.perm;
 
     // Map with the minimum number of vals at time 'i'.
     Val vals[permN][depN + 1];
 
-    for (unsigned i = 0; i < permN; ++i)
+    for (uint32_t i = 0; i < permN; ++i)
         vals[i][0] = { i, nullptr, 0 };
 
-    for (unsigned i = 0; i < permN; ++i)
-        for (unsigned j = 1; j <= depN; ++j)
+    for (uint32_t i = 0; i < permN; ++i)
+        for (uint32_t j = 1; j <= depN; ++j)
             vals[i][j] = { i, nullptr, UNREACH };
 
-    for (unsigned i = 1; i <= depN; ++i) {
+    for (uint32_t i = 1; i <= depN; ++i) {
         assert(deps[i-1].getSize() == 1 &&
                 "Trying to allocate qbits to a gate with more than one dependency.");
         efd::Dep dep = deps[i-1].mDeps[0];
 
-        for (unsigned tgt = 0; tgt < permN; ++tgt) {
+        for (uint32_t tgt = 0; tgt < permN; ++tgt) {
             // Check if target tgtPermutation has the dependency required.
             auto& tgtPerm = permutations[tgt];
             // Arch qubit interaction (u, v)
-            unsigned u = tgtPerm[dep.mFrom], v = tgtPerm[dep.mTo];
+            uint32_t u = tgtPerm[dep.mFrom], v = tgtPerm[dep.mTo];
 
             // We don't use this configuration if (u, v) is neither a norma edge
             // nor a reverse edge of the physical graph nor is at a 2-edge distance
@@ -106,7 +106,7 @@ efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
                 if (srcVal.cost == UNREACH)
                     continue;
 
-                unsigned finalCost = srcVal.cost;
+                uint32_t finalCost = srcVal.cost;
 
                 if (tgt != src) {
                     auto srcAssign = GenAssignment(archQ, permutations[src]);
@@ -143,7 +143,7 @@ efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
     solution.mOpSeqs.assign(depN, std::pair<Node::Ref, Solution::OpVector>());
 
     // Get the target mappings for each dependency (with its id).
-    std::vector<std::pair<unsigned, Mapping>> mappings(depN);
+    std::vector<std::pair<uint32_t, Mapping>> mappings(depN);
 
     for (int i = depN-1; i >= 0; --i) {
         assert(val->parent != nullptr && "Nullptr reached too soon.");
@@ -159,7 +159,7 @@ efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
         solution.mInitial = mappings[0].second;
         solution.mOpSeqs[0].first = deps[0].mCallPoint;
         for (int i = 1; i < depN; ++i) {
-            unsigned srcId = mappings[i-1].first, tgtId = mappings[i].first;
+            uint32_t srcId = mappings[i-1].first, tgtId = mappings[i].first;
 
             auto& ops = solution.mOpSeqs[i];
             auto& src = mappings[i-1].second;
@@ -171,7 +171,7 @@ efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
 
                 auto swaps = tsp.find(srcAssign, tgtAssign);
                 for (auto swp : swaps) {
-                    unsigned u = swp.u, v = swp.v;
+                    uint32_t u = swp.u, v = swp.v;
 
                     if (mArchGraph->isReverseEdge(u, v))
                         std::swap(u, v);
@@ -182,8 +182,8 @@ efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
             }
 
             auto dep = deps[i][0];
-            unsigned a = dep.mFrom, b = dep.mTo;
-            unsigned u = tgt[a], v = tgt[b];
+            uint32_t a = dep.mFrom, b = dep.mTo;
+            uint32_t u = tgt[a], v = tgt[b];
             auto assign = GenAssignment(mArchGraph->size(), tgt);
 
             Operation operation;

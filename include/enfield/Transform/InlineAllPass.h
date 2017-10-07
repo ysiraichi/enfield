@@ -12,7 +12,7 @@ namespace efd {
             typedef InlineAllPass* Ref;
             typedef std::unique_ptr<InlineAllPass> uRef;
 
-            static unsigned ID;
+            static uint8_t ID;
 
         private:
             QModule::sRef mMod;

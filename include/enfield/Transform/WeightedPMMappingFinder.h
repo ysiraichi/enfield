@@ -10,7 +10,7 @@ namespace efd {
     /// isomorphism).
     class WeightedPMMappingFinder : public MappingFinder {
         public:
-            typedef unsigned WeightTy;
+            typedef uint32_t WeightTy;
 
             typedef WeightedPMMappingFinder* Ref;
             typedef std::unique_ptr<WeightedPMMappingFinder> uRef;

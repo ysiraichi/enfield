@@ -5,11 +5,11 @@
 
 #include <map>
 
-static efd::Stat<unsigned> TotalSwapCost
+static efd::Stat<uint32_t> TotalSwapCost
 ("TotalSwapCost", "The total cost yielded by swaps.");
 static efd::Stat<double> MeanSwapsSize
 ("MeanSwapsSize", "The mean of swap sequence size.");
-static efd::Stat<unsigned> SerialSwapsCount
+static efd::Stat<uint32_t> SerialSwapsCount
 ("SerialSwapsCount", "The mean of swap sequence size.");
 
 struct DepComp {
@@ -28,8 +28,8 @@ efd::Solution efd::PathGuidedSolBuilder::build
     Mapping match = initial;
     Solution solution { initial, Solution::OpSequences(deps.size()), 0 };
 
-    std::map<Dep, unsigned, DepComp> freq;
-    for (unsigned i = 0, e = deps.size(); i < e; ++i) {
+    std::map<Dep, uint32_t, DepComp> freq;
+    for (uint32_t i = 0, e = deps.size(); i < e; ++i) {
         Dep d = deps[i][0];
         if (freq.find(d) == freq.end())
             freq[d] = 0;
@@ -37,7 +37,7 @@ efd::Solution efd::PathGuidedSolBuilder::build
     }
 
     std::vector<bool> frozen(g->size(), false);
-    for (unsigned i = 0, e = deps.size(); i < e; ++i) {
+    for (uint32_t i = 0, e = deps.size(); i < e; ++i) {
         bool changeInitialMapping = true;
         Dep d = deps[i][0];
 
@@ -45,10 +45,10 @@ efd::Solution efd::PathGuidedSolBuilder::build
         ops.first = deps[i].mCallPoint;
 
         // Program qubits (a, b)
-        unsigned a = d.mFrom, b = d.mTo;
+        uint32_t a = d.mFrom, b = d.mTo;
 
         // Physical qubits (u, v)
-        unsigned u = match[a], v = match[b];
+        uint32_t u = match[a], v = match[b];
 
         auto assign = GenAssignment(g->size(), match);
         auto path = mPathFinder->find(g, u, v);
@@ -73,12 +73,12 @@ efd::Solution efd::PathGuidedSolBuilder::build
             }
 
             for (auto i = path.size() - 2; i >= 1; --i) {
-                unsigned u = path[i], v = path[i+1];
+                uint32_t u = path[i], v = path[i+1];
 
                 if (g->isReverseEdge(u, v))
                     std::swap(u, v);
     
-                unsigned a = assign[u], b = assign[v];
+                uint32_t a = assign[u], b = assign[v];
                 ops.second.push_back({ Operation::K_OP_SWAP, a, b });
     
                 std::swap(match[a], match[b]);

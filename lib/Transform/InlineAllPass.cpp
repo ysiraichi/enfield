@@ -1,7 +1,7 @@
 #include "enfield/Transform/InlineAllPass.h"
 #include "enfield/Analysis/NodeVisitor.h"
 
-unsigned efd::InlineAllPass::ID = 0;
+uint8_t efd::InlineAllPass::ID = 0;
 
 namespace efd {
     class InlineAllVisitor : public NodeVisitor {

@@ -10,7 +10,7 @@ namespace efd {
             typedef std::unique_ptr<CNOTLBOWrapperPass> uRef;
             typedef CNOTLBOWrapperPass* Ref;
 
-            static unsigned ID;
+            static uint8_t ID;
 
         protected:
             Ordering generate(CircuitGraph& graph) override;

@@ -2,10 +2,10 @@
 
 efd::QbitAllocator::Mapping
 efd::IdentityMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
-    unsigned qbits = g->size();
+    uint32_t qbits = g->size();
     Mapping mapping(qbits, 0);
 
-    for (unsigned i = 0; i < qbits; ++i)
+    for (uint32_t i = 0; i < qbits; ++i)
         mapping[i] = i;
 
     return mapping;

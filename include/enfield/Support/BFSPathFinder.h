@@ -15,7 +15,7 @@ namespace efd {
             BFSPathFinder();
 
         public:
-            std::vector<unsigned> find(Graph::Ref g, unsigned u, unsigned v) override;
+            std::vector<uint32_t> find(Graph::Ref g, uint32_t u, uint32_t v) override;
 
             /// \brief Creates one instance of this finder.
             static uRef Create();

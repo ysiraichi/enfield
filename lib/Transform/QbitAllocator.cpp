@@ -23,7 +23,7 @@ namespace efd {
 
             std::unordered_map<Node::Ref, std::vector<Node::uRef>> mReplVector;
 
-            unsigned mDepIdx;
+            uint32_t mDepIdx;
 
             /// \brief Gets the node mapped to the string version of \p ref.
             Node::uRef getMappedNode(Node::Ref ref);
@@ -48,7 +48,7 @@ namespace efd {
 }
 
 efd::Node::uRef efd::SolutionImplPass::getMappedNode(Node::Ref ref) {
-    unsigned id = mXbitToNumber.getQUId(ref->toString());
+    uint32_t id = mXbitToNumber.getQUId(ref->toString());
     return mMap[id]->clone();
 }
 
@@ -132,7 +132,7 @@ bool efd::SolutionImplPass::run(QModule::Ref qmod) {
     mXbitToNumber = xtonpass->getData();
     mMap.assign(mXbitToNumber.getQSize(), nullptr);
 
-    for (unsigned i = 0, e = mXbitToNumber.getQSize(); i < e; ++i)
+    for (uint32_t i = 0, e = mXbitToNumber.getQSize(); i < e; ++i)
         mMap[i] = mXbitToNumber.getQNode(mSol.mInitial[i]);
 
     mDepIdx = 0;
@@ -169,7 +169,7 @@ void efd::SolutionImplPass::visit(NDIfStmt::Ref ref) {
 }
 
 void efd::SolutionImplPass::visit(NDList::Ref ref) {
-    for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
+    for (uint32_t i = 0, e = ref->getChildNumber(); i < e; ++i) {
         ref->setChild(i, getMappedNode(ref->getChild(i)));
     }
 }
@@ -194,7 +194,7 @@ void efd::SolutionImplPass::visit(NDQOp::Ref ref) {
 
 
 // ------------------ QbitAllocator ----------------------
-static efd::Stat<unsigned> DepStat
+static efd::Stat<uint32_t> DepStat
 ("Dependencies", "The number of dependencies of this program.");
 static efd::Stat<double> AllocTime
 ("AllocTime", "Time to allocate all qubits.");
@@ -205,13 +205,13 @@ static efd::Stat<double> ReplaceTime
 static efd::Stat<double> RenameTime
 ("RenameTime", "Time to rename all qubits to the mapped qubits.");
 
-efd::Stat<unsigned> TotalCost
+efd::Stat<uint32_t> TotalCost
 ("TotalCost", "Total cost after allocating the qubits.");
-efd::Opt<unsigned> SwapCost
+efd::Opt<uint32_t> SwapCost
 ("-swap-cost", "Cost of using a swap function.", 7, false);
-efd::Opt<unsigned> RevCost
+efd::Opt<uint32_t> RevCost
 ("-rev-cost", "Cost of using a reverse edge.", 4, false);
-efd::Opt<unsigned> LCXCost
+efd::Opt<uint32_t> LCXCost
 ("-lcx-cost", "Cost of using long cnot gate.", 10, false);
 
 efd::QbitAllocator::QbitAllocator(ArchGraph::sRef archGraph) 
@@ -229,7 +229,7 @@ efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(QbitAllocator::Iterat
 
     if (NDQOp::Ref refCall = dynCast<NDQOp>(it->mCallPoint)) {
         auto& deps = mDepBuilder.getDependencies();
-        unsigned dist = std::distance(deps.begin(), it);
+        uint32_t dist = std::distance(deps.begin(), it);
 
         mMod->inlineCall(refCall);
         newIt = deps.begin() + dist;
@@ -250,7 +250,7 @@ void efd::QbitAllocator::replaceWithArchSpecs() {
     auto xtn = PassCache::Get<XbitToNumberWrapperPass>(mMod);
     auto xbitToNumber = xtn->getData();
 
-    for (unsigned i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
+    for (uint32_t i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
         toArchMap[xbitToNumber.getQStrId(i)] = mArchGraph->getNode(i);
     }
 
@@ -272,12 +272,12 @@ void efd::QbitAllocator::renameQbits() {
     // the dependencies.
     RenameQbitPass::ArchMap archConstMap;
     if (!mArchGraph->isGeneric()) {
-        for (unsigned i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
+        for (uint32_t i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
             std::string id = xbitToNumber.getQStrId(i);
             archConstMap[id] = mArchGraph->getNode(mSol.mInitial[i]);
         }
     } else {
-        for (unsigned i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
+        for (uint32_t i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
             std::string id = xbitToNumber.getQStrId(i);
             archConstMap[id] = xbitToNumber.getQNode(mSol.mInitial[i]);
         }
@@ -325,7 +325,7 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
     auto& deps = mDepBuilder.getDependencies();
 
     // Counting total dependencies.
-    unsigned totalDeps = 0;
+    uint32_t totalDeps = 0;
     for (auto& d : deps)
         totalDeps += d.mDeps.size();
     DepStat = totalDeps;
@@ -359,7 +359,7 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
     return true;
 }
 
-unsigned efd::QbitAllocator::getNumQbits() {
+uint32_t efd::QbitAllocator::getNumQbits() {
     return mXbitToNumber.getQSize();
 }
 
@@ -373,18 +373,18 @@ void efd::QbitAllocator::setDontInline() {
 }
 
 efd::QbitAllocator::Mapping efd::GenAssignment
-(unsigned archQ, QbitAllocator::Mapping mapping) {
+(uint32_t archQ, QbitAllocator::Mapping mapping) {
     // 'archQ' is the number of qubits from the architecture.
-    std::vector<unsigned> assign(archQ, archQ);
+    std::vector<uint32_t> assign(archQ, archQ);
 
     // for 'u' in arch; and 'a' in prog:
     // if 'a' -> 'u', then 'u' -> 'a'
-    for (unsigned i = 0, e = mapping.size(); i < e; ++i)
+    for (uint32_t i = 0, e = mapping.size(); i < e; ++i)
         assign[mapping[i]] = i;
 
     // Fill the qubits in the architecture that were not mapped.
-    unsigned id = mapping.size();
-    for (unsigned i = 0; i < archQ; ++i)
+    uint32_t id = mapping.size();
+    for (uint32_t i = 0; i < archQ; ++i)
         assign[i] = (assign[i] == archQ) ? id++ : assign[i];
 
     return assign;

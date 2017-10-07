@@ -14,8 +14,8 @@ namespace efd {
 
     /// \brief Structure for abstracting dependencies.
     struct Dep {
-        unsigned mFrom;
-        unsigned mTo;
+        uint32_t mFrom;
+        uint32_t mTo;
     };
 
     /// \brief Represents a sequence of dependencies (should be treated as
@@ -28,15 +28,15 @@ namespace efd {
         Node::Ref mCallPoint;
 
         /// \brief Forwards to the \em mDeps attribute.
-        const Dep& operator[](unsigned i) const;
+        const Dep& operator[](uint32_t i) const;
         /// \brief Forwards to the \em mDeps attribute.
-        Dep& operator[](unsigned i);
+        Dep& operator[](uint32_t i);
 
         /// \brief Forwards to the \em mDeps attribute.
         bool isEmpty() const;
 
         /// \brief Forwards to the \em mDeps attribute.
-        unsigned getSize() const;
+        uint32_t getSize() const;
 
         /// \brief Forwards to the \em mDeps attribute.
         Iterator begin();
@@ -65,7 +65,7 @@ namespace efd {
         DependencyBuilder();
 
         /// \brief Gets an unsingned id for \p ref.
-        unsigned getUId(Node::Ref ref, NDGateDecl::Ref gate);
+        uint32_t getUId(Node::Ref ref, NDGateDecl::Ref gate);
         /// \brief Gets the DepsSet corresponding to the current quantum gate,
         /// or the global (if current gate is null).
         const DepsSet* getDepsSet(NDGateDecl::Ref gate = nullptr) const;
@@ -89,7 +89,7 @@ namespace efd {
             typedef std::unique_ptr<DependencyBuilderWrapperPass> uRef;
             typedef std::shared_ptr<DependencyBuilderWrapperPass> sRef;
 
-            static unsigned ID;
+            static uint8_t ID;
 
             bool run(QModule::Ref qmod) override;
 

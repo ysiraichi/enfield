@@ -4,7 +4,7 @@
 
 using namespace efd;
 
-static void CheckOrdering(std::string program, std::vector<unsigned> order) {
+static void CheckOrdering(std::string program, std::vector<uint32_t> order) {
     auto qmod = QModule::ParseString(program);
     auto cnotLBOpass = CNOTLBOWrapperPass::Create();
     cnotLBOpass->run(qmod.get());

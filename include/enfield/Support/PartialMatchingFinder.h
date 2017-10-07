@@ -20,7 +20,7 @@ namespace efd {
             /// Note that this is not necessairly an exact match (exact 
             /// subgraph isomorphism). That is because this is a NP-Complete
             /// problem.
-            virtual std::vector<unsigned> find(Graph::Ref g, Graph::Ref h) = 0;
+            virtual std::vector<uint32_t> find(Graph::Ref g, Graph::Ref h) = 0;
     };
 }
 

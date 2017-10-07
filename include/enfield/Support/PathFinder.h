@@ -14,7 +14,7 @@ namespace efd {
             ///
             /// This function is to be implemented by the concrete classes. It should
             /// return the path from \p u to \p v (including them both).
-            virtual std::vector<unsigned> find(Graph::Ref g, unsigned u, unsigned v) = 0;
+            virtual std::vector<uint32_t> find(Graph::Ref g, uint32_t u, uint32_t v) = 0;
     };
 }
 

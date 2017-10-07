@@ -18,32 +18,32 @@ efd::XbitToNumber::getQbitMap(NDGateDecl::Ref gate) const {
     return (gate == nullptr) ? gidQMap : lidQMap.at(gate);
 }
 
-std::vector<unsigned> efd::XbitToNumber::getRegUIds(std::string id) const {
+std::vector<uint32_t> efd::XbitToNumber::getRegUIds(std::string id) const {
     assert(gidRegMap.find(id) != gidRegMap.end() && "Register not found.");
     return gidRegMap.at(id);
 }
 
-unsigned efd::XbitToNumber::getQUId(std::string id, NDGateDecl::Ref gate) const {
+uint32_t efd::XbitToNumber::getQUId(std::string id, NDGateDecl::Ref gate) const {
     auto& map = getQbitMap(gate);
     assert(map.find(id) != map.end() && "Qubit id not found.");
     return map.at(id).key;
 }
 
-unsigned efd::XbitToNumber::getCUId(std::string id) const {
+uint32_t efd::XbitToNumber::getCUId(std::string id) const {
     assert(gidCMap.find(id) != gidCMap.end() && "Classical bit id not found.");
     return gidCMap.at(id).key;
 }
 
-unsigned efd::XbitToNumber::getQSize(NDGateDecl::Ref gate) const {
+uint32_t efd::XbitToNumber::getQSize(NDGateDecl::Ref gate) const {
     auto& map = getQbitMap(gate);
     return map.size();
 }
 
-unsigned efd::XbitToNumber::getCSize() const {
+uint32_t efd::XbitToNumber::getCSize() const {
     return gidCMap.size();
 }
 
-std::string efd::XbitToNumber::getQStrId(unsigned id, NDGateDecl::Ref gate) const {
+std::string efd::XbitToNumber::getQStrId(uint32_t id, NDGateDecl::Ref gate) const {
     auto& map = getQbitMap(gate);
     assert(id < map.size() && "Id trying to access out of bounds value.");
 
@@ -54,7 +54,7 @@ std::string efd::XbitToNumber::getQStrId(unsigned id, NDGateDecl::Ref gate) cons
     assert(false && "UId not found.");
 }
 
-std::string efd::XbitToNumber::getCStrId(unsigned id) const {
+std::string efd::XbitToNumber::getCStrId(uint32_t id) const {
     assert(id < gidCMap.size() && "Id trying to access out of bounds value.");
 
     for (auto it = gidCMap.begin(), end = gidCMap.end(); it != end; ++it) {
@@ -64,19 +64,19 @@ std::string efd::XbitToNumber::getCStrId(unsigned id) const {
     assert(false && "UId not found.");
 }
 
-efd::Node::Ref efd::XbitToNumber::getQNode(unsigned id, NDGateDecl::Ref gate) const {
+efd::Node::Ref efd::XbitToNumber::getQNode(uint32_t id, NDGateDecl::Ref gate) const {
     auto str = getQStrId(id, gate);
     auto map = getQbitMap(gate);
     return map.at(str).node.get();
 }
 
-efd::Node::Ref efd::XbitToNumber::getCNode(unsigned id) const {
+efd::Node::Ref efd::XbitToNumber::getCNode(uint32_t id) const {
     auto str = getCStrId(id);
     return gidCMap.at(str).node.get();
 }
 
 // --------------------- XbitToNumberWrapperPass ------------------------
-unsigned efd::XbitToNumberWrapperPass::ID = 0;
+uint8_t efd::XbitToNumberWrapperPass::ID = 0;
 
 namespace efd {
     class XbitToNumberVisitor : public efd::NodeVisitor {
@@ -95,13 +95,13 @@ void efd::XbitToNumberVisitor::visit(NDRegDecl::Ref ref) {
     std::string id = ref->getId()->getVal();
     IntVal size = ref->getSize()->getVal();
 
-    mXbitToNumber.gidRegMap[id] = std::vector<unsigned>();
+    mXbitToNumber.gidRegMap[id] = std::vector<uint32_t>();
 
     auto mapref = &mXbitToNumber.gidQMap;
     if (ref->isCReg()) mapref = &mXbitToNumber.gidCMap;
 
     auto& map = *mapref;
-    unsigned basen = map.size();
+    uint32_t basen = map.size();
 
     // For each register declaration, we associate a
     // number to each possible xbit.
@@ -124,7 +124,7 @@ void efd::XbitToNumberVisitor::visit(NDGateDecl::Ref ref) {
         for (auto& childRef : *ref->getQArgs()) {
             NDId::Ref idref = dynCast<NDId>(childRef.get());
             mXbitToNumber.lidQMap[ref][idref->getVal()] = (XbitToNumber::XbitInfo {
-                    (unsigned) mXbitToNumber.lidQMap[ref].size(),
+                    (uint32_t) mXbitToNumber.lidQMap[ref].size(),
                     toShared(idref->clone()) });
         }
     }

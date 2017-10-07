@@ -16,18 +16,18 @@ namespace efd {
     /// a vector.
     ///
     /// It also keeps track of the qubits inside every gate declaration. Inside every
-    /// scope, it maps the qubits existing inside them to an unsigned number.
+    /// scope, it maps the qubits existing inside them to an uint32_t number.
     /// 
     /// Note that if "qreg r[10];" declaration exists, then "r" is not a qbit, but
     /// "r[n]" is (where "n" is in "{0 .. 9}").
     struct XbitToNumber {
         struct XbitInfo {
-            unsigned key;
+            uint32_t key;
             Node::sRef node;
         };
 
         typedef std::map<std::string, XbitInfo> XbitMap;
-        typedef std::map<std::string, std::vector<unsigned>> XRegMap;
+        typedef std::map<std::string, std::vector<uint32_t>> XRegMap;
 
         std::unordered_map<NDGateDecl*, XbitMap> lidQMap;
         XbitMap gidQMap;
@@ -38,31 +38,31 @@ namespace efd {
         const XbitMap& getQbitMap(NDGateDecl::Ref gate = nullptr) const;
 
         /// \brief Returns a list of uids that relate to a given register.
-        std::vector<unsigned> getRegUIds(std::string id) const;
+        std::vector<uint32_t> getRegUIds(std::string id) const;
 
-        /// \brief Returns an unsigned number representing the qubit
+        /// \brief Returns an uint32_t number representing the qubit
         /// in this specific gate (if any).
-        unsigned getQUId(std::string id, NDGateDecl::Ref gate = nullptr) const;
-        /// \brief Returns an unsigned number representing the classic bit;
-        unsigned getCUId(std::string id) const;
+        uint32_t getQUId(std::string id, NDGateDecl::Ref gate = nullptr) const;
+        /// \brief Returns an uint32_t number representing the classic bit;
+        uint32_t getCUId(std::string id) const;
 
         /// \brief Returns the number of qbits in a given gate (if any).
-        unsigned getQSize(NDGateDecl::Ref gate = nullptr) const;
+        uint32_t getQSize(NDGateDecl::Ref gate = nullptr) const;
         /// \brief Returns the number of cbits in a given gate (if any).
-        unsigned getCSize() const;
+        uint32_t getCSize() const;
 
         /// \brief Returns the std::string id representation of the
-        /// corresponding qubit, represented by unsigned id in the
+        /// corresponding qubit, represented by uint32_t id in the
         /// specific gate (if any).
-        std::string getQStrId(unsigned id, NDGateDecl::Ref gate = nullptr) const;
+        std::string getQStrId(uint32_t id, NDGateDecl::Ref gate = nullptr) const;
         /// \brief Returns the std::string id representation of the
         /// corresponding classic bit, represented by id.
-        std::string getCStrId(unsigned id) const;
+        std::string getCStrId(uint32_t id) const;
 
         /// \brief Get a Node::Ref, representing that qbit.
-        Node::Ref getQNode(unsigned id, NDGateDecl::Ref gate = nullptr) const;
+        Node::Ref getQNode(uint32_t id, NDGateDecl::Ref gate = nullptr) const;
         /// \brief Get a Node::Ref, representing that cbit.
-        Node::Ref getCNode(unsigned id) const;
+        Node::Ref getCNode(uint32_t id) const;
     };
 
     /// \brief WrapperPass that yields a \em XbitToNumber structure.
@@ -72,7 +72,7 @@ namespace efd {
             typedef std::unique_ptr<XbitToNumberWrapperPass> uRef;
             typedef std::shared_ptr<XbitToNumberWrapperPass> sRef;
 
-            static unsigned ID;
+            static uint8_t ID;
 
             bool run(QModule::Ref qmod) override;
 

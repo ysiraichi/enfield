@@ -6,7 +6,7 @@
 #include <cassert>
 #include <limits>
 
-unsigned efd::FlattenPass::ID = 0;
+uint8_t efd::FlattenPass::ID = 0;
 
 namespace efd {
     class FlattenVisitor : public NodeVisitor {
@@ -23,10 +23,10 @@ namespace efd {
             NDRegDecl::Ref getDeclFromId(Node::Ref ref);
             /// \brief Creates \p max NDIdRef's related to that Id. If \p max
             /// is 0, then create all of them.
-            std::vector<NDIdRef::uRef> toIdRef(Node::Ref ref, unsigned max = 0);
+            std::vector<NDIdRef::uRef> toIdRef(Node::Ref ref, uint32_t max = 0);
 
             /// \brief Returns the size of the declaration of this Id node.
-            unsigned getSize(Node::Ref ref);
+            uint32_t getSize(Node::Ref ref);
             /// \brief Returns a list with all IdRef's possible of all quantum and
             /// concrete arguments.
             std::vector<std::vector<NDIdRef::uRef>>
@@ -69,17 +69,17 @@ efd::NDRegDecl::Ref efd::FlattenVisitor::getDeclFromId(Node::Ref ref) {
     return refDecl;
 }
 
-std::vector<efd::NDIdRef::uRef> efd::FlattenVisitor::toIdRef(Node::Ref ref, unsigned max) {
+std::vector<efd::NDIdRef::uRef> efd::FlattenVisitor::toIdRef(Node::Ref ref, uint32_t max) {
     std::vector<NDIdRef::uRef> idRefV;
 
     if (isIdRef(ref)) {
-        for (unsigned i = 0; i < max; ++i)
+        for (uint32_t i = 0; i < max; ++i)
             idRefV.push_back(uniqueCastForward<NDIdRef>(ref->clone()));
         return idRefV;
     }
 
     NDRegDecl::Ref refDecl = getDeclFromId(ref);
-    unsigned i = 0, e = refDecl->getSize()->getVal().mV;
+    uint32_t i = 0, e = refDecl->getSize()->getVal().mV;
 
     if (max != 0) e = std::max(max, e);
     for (; i < e; ++i) {
@@ -91,7 +91,7 @@ std::vector<efd::NDIdRef::uRef> efd::FlattenVisitor::toIdRef(Node::Ref ref, unsi
     return idRefV;
 }
 
-unsigned efd::FlattenVisitor::getSize(Node::Ref ref) {
+uint32_t efd::FlattenVisitor::getSize(Node::Ref ref) {
     return getDeclFromId(ref)->getSize()->getVal().mV;
 }
 
@@ -99,13 +99,13 @@ std::vector<std::vector<efd::NDIdRef::uRef>>
 efd::FlattenVisitor::getFlattenedOpsArgs(std::vector<Node::Ref> qcargs) {
     std::vector<std::vector<NDIdRef::uRef>> newNodesArgs;
 
-    unsigned min = std::numeric_limits<unsigned>::max();
+    uint32_t min = std::numeric_limits<uint32_t>::max();
     for (auto child : qcargs) {
         if (isId(child) && getSize(child) < min)
             min = getSize(child);
     }
 
-    if (min != std::numeric_limits<unsigned>::max()) {
+    if (min != std::numeric_limits<uint32_t>::max()) {
         for (auto child : qcargs) {
             newNodesArgs.push_back(toIdRef(child, min));
         }
@@ -146,7 +146,7 @@ void efd::FlattenVisitor::visit(NDQOpMeasure::Ref ref) {
     std::vector<Node::uRef> newNodes;
     auto flatArgs = getFlattenedOpsArgs({ ref->getQBit(), ref->getCBit() });
     if (!flatArgs.empty()) {
-        for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i)
+        for (uint32_t i = 0, e = flatArgs[0].size(); i < e; ++i)
             newNodes.push_back(wrapWithIfStmt
                     (NDQOpMeasure::Create(std::move(flatArgs[0][i]),
                                           std::move(flatArgs[1][i]))));
@@ -176,7 +176,7 @@ void efd::FlattenVisitor::visit(NDQOp::Ref ref) {
     auto flatArgs = getFlattenedOpsArgs(qcargs);
 
     if (!flatArgs.empty()) {
-        for (unsigned i = 0, e = flatArgs[0].size(); i < e; ++i) {
+        for (uint32_t i = 0, e = flatArgs[0].size(); i < e; ++i) {
             auto qaList = NDList::Create();
 
             for (auto& qarg : flatArgs)

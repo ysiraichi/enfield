@@ -3,19 +3,19 @@
 #include <ctime>
 #include <algorithm>
 
-efd::Opt<unsigned> Seed
+efd::Opt<uint32_t> Seed
 ("seed", "Seed to be used in the RandomQbitAllocator.", std::time(0), false);
-efd::Stat<unsigned> SeedStat
+efd::Stat<uint32_t> SeedStat
 ("seed", "Seed used in the random allocator.");
 
 int rnd(int i) { int r = std::rand() % i; return r; }
 
 efd::MappingFinder::Mapping
 efd::RandomMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
-    unsigned qbits = g->size();
+    uint32_t qbits = g->size();
     Mapping mapping(qbits);
 
-    for (unsigned i = 0; i < qbits; ++i) {
+    for (uint32_t i = 0; i < qbits; ++i) {
         mapping[i] = i;
     }
 

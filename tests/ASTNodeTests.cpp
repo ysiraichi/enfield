@@ -48,7 +48,7 @@ static void TestPrinting(Node::Ref node, std::string rhs) {
 }
 
 static void TestFind(Node::Ref ref) {
-    for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
+    for (uint32_t i = 0, e = ref->getChildNumber(); i < e; ++i) {
         Node::Ref child = ref->getChild(i);
 
         ASSERT_TRUE(child->getParent() == ref);

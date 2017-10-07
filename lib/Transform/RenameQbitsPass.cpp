@@ -3,7 +3,7 @@
 
 #include <cassert>
 
-unsigned efd::RenameQbitPass::ID = 0;
+uint8_t efd::RenameQbitPass::ID = 0;
 
 namespace efd {
     class RenameQbitVisitor : public NodeVisitor {
@@ -61,7 +61,7 @@ void efd::RenameQbitVisitor::visit(NDQOp::Ref ref) {
 }
 
 void efd::RenameQbitVisitor::visit(NDList::Ref ref) {
-    for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
+    for (uint32_t i = 0, e = ref->getChildNumber(); i < e; ++i) {
         ref->setChild(i, getNodeFromOld(ref->getChild(i)));
     }
 }

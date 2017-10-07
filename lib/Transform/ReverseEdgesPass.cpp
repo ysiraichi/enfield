@@ -6,7 +6,7 @@
 
 #include <cassert>
 
-unsigned efd::ReverseEdgesPass::ID = 0;
+uint8_t efd::ReverseEdgesPass::ID = 0;
 
 namespace efd {
     class ReverseEdgesVisitor : public NodeVisitor {
@@ -45,8 +45,8 @@ void efd::ReverseEdgesVisitor::insertIntoRevVector
 }
 
 void efd::ReverseEdgesVisitor::visit(NDQOpCX::Ref ref) {
-    unsigned uidLhs = mG->getUId(ref->getLhs()->toString());
-    unsigned uidRhs = mG->getUId(ref->getRhs()->toString());
+    uint32_t uidLhs = mG->getUId(ref->getLhs()->toString());
+    uint32_t uidRhs = mG->getUId(ref->getRhs()->toString());
 
     if (mG->isReverseEdge(uidLhs, uidRhs)) {
         insertIntoRevVector(ref, ref->getLhs(), ref->getRhs());
@@ -58,8 +58,8 @@ void efd::ReverseEdgesVisitor::visit(NDQOp::Ref ref) {
         // Have to come up a way to overcome this.
         assert(ref->getQArgs()->getChildNumber() == 2 && "CNot gate malformed.");
         NDList* qargs = ref->getQArgs();
-        unsigned uidLhs = mG->getUId(qargs->getChild(0)->toString());
-        unsigned uidRhs = mG->getUId(qargs->getChild(1)->toString());
+        uint32_t uidLhs = mG->getUId(qargs->getChild(0)->toString());
+        uint32_t uidRhs = mG->getUId(qargs->getChild(1)->toString());
 
         if (mG->isReverseEdge(uidLhs, uidRhs)) {
             insertIntoRevVector(ref, qargs->getChild(0), qargs->getChild(1));

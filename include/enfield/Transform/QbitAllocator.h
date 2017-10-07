@@ -22,9 +22,9 @@ namespace efd {
         };
 
         Kind mK;
-        unsigned mU, mV;
+        uint32_t mU, mV;
         /// \brief The intermediate vertex for using the long cnot.
-        unsigned mW;
+        uint32_t mW;
     };
 
     /// \brief The solution for the allocation problem.
@@ -34,11 +34,11 @@ namespace efd {
     struct Solution {
         typedef std::vector<Operation> OpVector;
         typedef std::vector<std::pair<Node::Ref, OpVector>> OpSequences;
-        typedef std::vector<unsigned> Mapping;
+        typedef std::vector<uint32_t> Mapping;
 
         Mapping mInitial;
         OpSequences mOpSeqs;
-        unsigned mCost;
+        uint32_t mCost;
     };
 
     /// \brief Base abstract class that allocates the qbits used in the program to
@@ -92,7 +92,7 @@ namespace efd {
             bool run(QModule::Ref qmod) override;
 
             /// \brief Returns the number of qbits in the program.
-            unsigned getNumQbits();
+            uint32_t getNumQbits();
 
             /// \brief Flags the QbitAllocator to inline all gates, but those inside the
             /// \p basis vector, before mapping.
@@ -103,12 +103,12 @@ namespace efd {
 
     /// \brief Generates an assignment mapping (maps the architecture's qubits
     /// to the logical ones) of size \p archQ.
-    QbitAllocator::Mapping GenAssignment(unsigned archQ, QbitAllocator::Mapping mapping);
+    QbitAllocator::Mapping GenAssignment(uint32_t archQ, QbitAllocator::Mapping mapping);
 }
 
-extern efd::Stat<unsigned> TotalCost;
-extern efd::Opt<unsigned> SwapCost;
-extern efd::Opt<unsigned> RevCost;
-extern efd::Opt<unsigned> LCXCost;
+extern efd::Stat<uint32_t> TotalCost;
+extern efd::Opt<uint32_t> SwapCost;
+extern efd::Opt<uint32_t> RevCost;
+extern efd::Opt<uint32_t> LCXCost;
 
 #endif

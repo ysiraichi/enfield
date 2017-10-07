@@ -9,15 +9,15 @@ efd::Solution efd::QbitterSolBuilder::build
 
     Solution solution { initial, Solution::OpSequences(deps.size()), 0 };
 
-    for (unsigned i = 0, e = deps.size(); i < e; ++i) {
+    for (uint32_t i = 0, e = deps.size(); i < e; ++i) {
         auto dep = deps[i][0];
 
         auto& ops = solution.mOpSeqs[i];
         ops.first = deps[i].mCallPoint;
 
         // (u, v) edge in Arch
-        unsigned a = dep.mFrom, b = dep.mTo;
-        unsigned u = mapping[a], v = mapping[b];
+        uint32_t a = dep.mFrom, b = dep.mTo;
+        uint32_t u = mapping[a], v = mapping[b];
 
         Operation operation;
         if (g->hasEdge(u, v)) {
