@@ -31,9 +31,9 @@ void efd::QModule::insertReg(NDRegDecl::uRef reg) {
 }
 
 void efd::QModule::removeAllQRegs() {
-    std::vector<unsigned> ridx;
+    std::vector<uint32_t> ridx;
 
-    for (unsigned i = 0, e = mRegs.size(); i < e; ++i) {
+    for (uint32_t i = 0, e = mRegs.size(); i < e; ++i) {
         if (mRegs[i]->isQReg())
             ridx.push_back(i);
     }
@@ -60,7 +60,7 @@ efd::QModule::Iterator efd::QModule::inlineCall(NDQOp::Ref call) {
 
     Node::Ref parent = call->getParent();
     Iterator it = parent->findChild(call);
-    unsigned dist = std::distance(parent->begin(), it);
+    uint32_t dist = std::distance(parent->begin(), it);
 
     InlineGate(this, call);
     return parent->begin() + dist;
@@ -93,7 +93,7 @@ efd::QModule::Iterator efd::QModule::replaceStatement
     assert(it != mStatements->end() &&
             "Trying to replace a non-existing statement.");
 
-    unsigned stmtsSize = stmts.size();
+    uint32_t stmtsSize = stmts.size();
     if (!stmts.empty()) {
         it = mStatements->addChildren(it, std::move(stmts));
     }
@@ -173,9 +173,9 @@ efd::QModule::ConstIterator efd::QModule::stmt_end() const {
     return mStatements->end();
 }
 
-void efd::QModule::orderby(std::vector<unsigned> order) {
+void efd::QModule::orderby(std::vector<uint32_t> order) {
     std::vector<Node::uRef> newstmts;
-    for (unsigned i : order)
+    for (uint32_t i : order)
         newstmts.push_back(std::move(mStatements->mChild[i]));
     mStatements->mChild.clear();
     mStatements->mChild = std::move(newstmts);

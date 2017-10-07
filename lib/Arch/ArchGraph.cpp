@@ -5,32 +5,32 @@
 #include <fstream>
 #include <sstream>
 
-efd::ArchGraph::ArchGraph(unsigned n, bool isGeneric) : Graph(K_ARCH, n), mNodes(n),
+efd::ArchGraph::ArchGraph(uint32_t n, bool isGeneric) : Graph(K_ARCH, n), mNodes(n),
     mVID(0), mGeneric(isGeneric), mId(n, "") {
 }
 
-efd::Node::Ref efd::ArchGraph::getNode(unsigned i) const {
+efd::Node::Ref efd::ArchGraph::getNode(uint32_t i) const {
     assert(mNodes.size() > i && "Node index out of bounds.");
     return mNodes[i].get();
 }
 
-unsigned efd::ArchGraph::putVertex(std::string s) {
+uint32_t efd::ArchGraph::putVertex(std::string s) {
     if (mStrToId.find(s) != mStrToId.end())
         return mStrToId[s];
 
-    unsigned id = mVID++;
+    uint32_t id = mVID++;
     mId[id] = s;
     mStrToId[s] = id;
     return id;
 }
 
-unsigned efd::ArchGraph::putVertex(Node::uRef node) {
+uint32_t efd::ArchGraph::putVertex(Node::uRef node) {
     std::string s = node->toString();
 
     if (mStrToId.find(s) != mStrToId.end())
         return mStrToId[s];
 
-    unsigned id = putVertex(s);
+    uint32_t id = putVertex(s);
     mNodes[id] = std::move(node);
     return id;
 }
@@ -39,18 +39,18 @@ void efd::ArchGraph::putReg(std::string id, std::string size) {
     mRegs[id] = std::stoul(size);
 }
 
-unsigned efd::ArchGraph::getUId(std::string s) {
+uint32_t efd::ArchGraph::getUId(std::string s) {
     assert(mStrToId.find(s) != mStrToId.end() &&
             "No such vertex with this string id.");
     return mStrToId[s];
 }
 
-std::string efd::ArchGraph::getSId(unsigned i) {
+std::string efd::ArchGraph::getSId(uint32_t i) {
     assert(mId.size() > i && "Vertex index out of bounds.");
     return mId[i];
 }
 
-bool efd::ArchGraph::isReverseEdge(unsigned i, unsigned j) {
+bool efd::ArchGraph::isReverseEdge(uint32_t i, uint32_t j) {
     auto& succ = mSuccessors[i];
     auto& pred = mPredecessors[i];
     return succ.find(j) == succ.end() && pred.find(j) != pred.end();
@@ -72,18 +72,18 @@ bool efd::ArchGraph::ClassOf(const Graph* g) {
     return g->isArch();
 }
 
-std::unique_ptr<efd::ArchGraph> efd::ArchGraph::Create(unsigned n) {
+std::unique_ptr<efd::ArchGraph> efd::ArchGraph::Create(uint32_t n) {
     return std::unique_ptr<ArchGraph>(new ArchGraph(n));
 }
 
 static std::unique_ptr<efd::ArchGraph> ReadFromIn(std::istream& in) {
-    unsigned n;
+    uint32_t n;
     in >> n;
 
     std::unique_ptr<efd::ArchGraph> graph(efd::ArchGraph::Create(n));
     for (std::string uS, vS; in >> uS >> vS;) {
-        unsigned u = graph->putVertex(uS);
-        unsigned v = graph->putVertex(vS);
+        uint32_t u = graph->putVertex(uS);
+        uint32_t v = graph->putVertex(vS);
         graph->putEdge(u, v);
     }
 

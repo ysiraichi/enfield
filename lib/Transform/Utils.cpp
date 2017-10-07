@@ -241,7 +241,7 @@ efd::Node::uRef efd::QArgsReplaceVisitor::replaceChild(efd::Node::Ref child) {
 }
 
 void efd::QArgsReplaceVisitor::substituteChildrem(efd::Node::Ref ref) {
-    for (unsigned i = 0, e = ref->getChildNumber(); i < e; ++i) {
+    for (uint32_t i = 0, e = ref->getChildNumber(); i < e; ++i) {
         auto newChild = replaceChild(ref->getChild(i));
         if (newChild.get() != nullptr) {
             ref->setChild(i, std::move(newChild));
@@ -300,12 +300,12 @@ void efd::InlineGate(QModule::Ref qmod, NDQOp::Ref qop) {
 
     Node::Ref gateQArgs = gateDecl->getQArgs();
     Node::Ref qopQArgs = qop->getQArgs();
-    for (unsigned i = 0, e = gateQArgs->getChildNumber(); i < e; ++i)
+    for (uint32_t i = 0, e = gateQArgs->getChildNumber(); i < e; ++i)
         varMap[gateQArgs->getChild(i)->toString()] = qopQArgs->getChild(i);
     
     Node::Ref gateArgs = gateDecl->getArgs();
     Node::Ref qopArgs = qop->getArgs();
-    for (unsigned i = 0, e = gateArgs->getChildNumber(); i < e; ++i)
+    for (uint32_t i = 0, e = gateArgs->getChildNumber(); i < e; ++i)
         varMap[gateArgs->getChild(i)->toString()] = qopArgs->getChild(i);
 
     // ------ Replacing

@@ -91,9 +91,9 @@ namespace efd {
             virtual ~Node();
 
             /// \brief Gets the i-th child.
-            Ref getChild(unsigned i) const;
+            Ref getChild(uint32_t i) const;
             /// \brief Sets the i-th child.
-            void setChild(unsigned i, uRef ref);
+            void setChild(uint32_t i, uRef ref);
             /// \brief Returns a iterator pointing to the given child.
             Iterator findChild(Node::Ref ref);
 
@@ -132,7 +132,7 @@ namespace efd {
             /// \brief Returns a std::string representation of the operation.
             virtual std::string getOperation() const;
             /// \brief Returns the number of childrem of this node. 
-            virtual unsigned getChildNumber() const = 0;
+            virtual uint32_t getChildNumber() const = 0;
             /// \brief Returns a std::string representation of this Node and its childrem.
             virtual std::string toString(bool pretty = false) const = 0;
             /// \brief Used by visitor classes.
@@ -164,7 +164,7 @@ namespace efd {
                 std::string getOperation() const override;
                 std::string toString(bool pretty = false) const override;
 
-                unsigned getChildNumber() const override;
+                uint32_t getChildNumber() const override;
 
                 void apply(NodeVisitor* visitor) override;
                 Node::uRef clone() const override;
@@ -256,7 +256,7 @@ namespace efd {
             /// \brief Returns true if it is a quantum register declaration.
             bool isQReg() const;
 
-            unsigned getChildNumber() const override;
+            uint32_t getChildNumber() const override;
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
             void apply(NodeVisitor* visitor) override;
@@ -298,7 +298,7 @@ namespace efd {
 
             std::string toString(bool pretty = false) const override;
 
-            unsigned getChildNumber() const override;
+            uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
@@ -340,7 +340,7 @@ namespace efd {
             /// \brief Removes the \p child (must exist).
             void removeChild(Node::Ref child);
 
-            unsigned getChildNumber() const override;
+            uint32_t getChildNumber() const override;
 
             std::string toString(bool pretty = false) const override;
             void apply(NodeVisitor* visitor) override;
@@ -421,7 +421,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            unsigned getChildNumber() const override;
+            uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
@@ -460,7 +460,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            unsigned getChildNumber() const override;
+            uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
@@ -503,7 +503,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            unsigned getChildNumber() const override;
+            uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
@@ -535,7 +535,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            unsigned getChildNumber() const override;
+            uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
@@ -592,7 +592,7 @@ namespace efd {
 
             std::string getOperation() const override;
 
-            virtual unsigned getChildNumber() const override;
+            virtual uint32_t getChildNumber() const override;
             virtual std::string toString(bool pretty = false) const override;
             virtual void apply(NodeVisitor* visitor) override;
             virtual Node::uRef clone() const override;
@@ -676,7 +676,7 @@ namespace efd {
             /// \brief Sets the cbit node.
             void setCBit(Node::uRef ref);
 
-            unsigned getChildNumber() const override;
+            uint32_t getChildNumber() const override;
             std::string toString(bool pretty = false) const override;
             void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
@@ -799,7 +799,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            unsigned getChildNumber() const override;
+            uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
@@ -874,7 +874,7 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
 
-            unsigned getChildNumber() const override;
+            uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
@@ -931,7 +931,7 @@ namespace efd {
             std::string toString(bool pretty = false) const override;
             std::string getOperation() const override;
 
-            unsigned getChildNumber() const override;
+            uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
             Node::uRef clone() const override;
@@ -961,7 +961,7 @@ std::string efd::NDValue<T>::toString(bool pretty) const {
 }
 
 template <typename T>
-unsigned efd::NDValue<T>::getChildNumber() const {
+uint32_t efd::NDValue<T>::getChildNumber() const {
     return 0;
 }
 

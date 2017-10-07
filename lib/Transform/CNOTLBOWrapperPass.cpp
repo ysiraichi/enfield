@@ -2,7 +2,7 @@
 #include "enfield/Transform/QModule.h"
 #include "enfield/Support/RTTI.h"
 
-unsigned efd::CNOTLBOWrapperPass::ID = 0;
+uint8_t efd::CNOTLBOWrapperPass::ID = 0;
 
 efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
     auto& layers = mData.layers;
@@ -11,7 +11,7 @@ efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
     bool stop, ugate;
     auto ref = graph;
     auto marked = std::vector<bool>(xbits, false);
-    auto reached = std::unordered_map<Node::Ref, unsigned>();
+    auto reached = std::unordered_map<Node::Ref, uint32_t>();
     auto order = Ordering();
 
     do {
@@ -24,7 +24,7 @@ efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
             Layer layer;
             ugate = false;
 
-            for (unsigned i = 0; i < xbits; ++i) {
+            for (uint32_t i = 0; i < xbits; ++i) {
                 if (ref[i] && ref[i]->qargsid.size() + ref[i]->cargsid.size() == 1) {
                     layer.insert(ref[i]->node);
                     ref[i] = ref[i]->child[i];
@@ -41,7 +41,7 @@ efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
 
         Layer layer;
         // Reach gates with non-marked xbits and mark them.
-        for (unsigned i = 0; i < xbits; ++i) {
+        for (uint32_t i = 0; i < xbits; ++i) {
             if (ref[i] && !marked[i]) {
                 marked[i] = true;
 
@@ -53,7 +53,7 @@ efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
         }
 
         // Advance the xbits' ref and unmark them.
-        for (unsigned i = 0; i < xbits; ++i) {
+        for (uint32_t i = 0; i < xbits; ++i) {
             if (ref[i] && !reached[ref[i]->node]) {
                 layer.insert(ref[i]->node);
                 marked[i] = false;

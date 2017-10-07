@@ -11,9 +11,9 @@ namespace efd {
     /// \brief Circuit operation node.
     struct CircuitNode {
         Node::Ref node;
-        std::set<unsigned> qargsid;
-        std::set<unsigned> cargsid;
-        std::map<unsigned, CircuitNode*> child;
+        std::set<uint32_t> qargsid;
+        std::set<uint32_t> cargsid;
+        std::map<uint32_t, CircuitNode*> child;
     };
 
     typedef std::vector<CircuitNode*> CircuitGraph;
@@ -30,7 +30,7 @@ namespace efd {
             typedef CircuitGraphBuilderPass* Ref;
             typedef std::unique_ptr<CircuitGraphBuilderPass> uRef;
 
-            static unsigned ID;
+            static uint8_t ID;
 
             bool run(QModule* qmod) override;
             static uRef Create();

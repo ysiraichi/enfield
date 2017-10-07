@@ -3,7 +3,7 @@
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Support/RTTI.h"
 
-unsigned efd::CircuitGraphBuilderPass::ID = 0;
+uint8_t efd::CircuitGraphBuilderPass::ID = 0;
 
 bool efd::CircuitGraphBuilderPass::run(QModule* qmod) {
     auto& graph = mData;
@@ -61,7 +61,7 @@ bool efd::CircuitGraphBuilderPass::run(QModule* qmod) {
         }
 
         auto qargs = qopnode->getQArgs();
-        for (unsigned i = 0, e = qargs->getChildNumber(); i < e; ++i) {
+        for (uint32_t i = 0, e = qargs->getChildNumber(); i < e; ++i) {
             auto qarg = qargs->getChild(i);
             auto qargid = xton.getQUId(qarg->toString());
 

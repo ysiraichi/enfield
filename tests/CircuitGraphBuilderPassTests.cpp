@@ -8,8 +8,8 @@ using namespace efd;
 
 struct Checker {
     std::vector<bool> gused;
-    std::vector<std::set<unsigned>> lqused;
-    std::vector<std::set<unsigned>> lcused;
+    std::vector<std::set<uint32_t>> lqused;
+    std::vector<std::set<uint32_t>> lcused;
 };
 
 static void CheckCircuitGraph(std::string prog, Checker checker) {
@@ -21,19 +21,19 @@ static void CheckCircuitGraph(std::string prog, Checker checker) {
     auto cgraph = cgbp->getData();
     auto xbits = cgraph.size();
 
-    for (unsigned i = 0; i < xbits; ++i)
+    for (uint32_t i = 0; i < xbits; ++i)
         if (checker.gused[i]) ASSERT_FALSE(cgraph[i] == nullptr);
         else ASSERT_TRUE(cgraph[i] == nullptr);
 
     bool stop, ugate;
     auto marked = std::vector<bool>(xbits, false);
-    auto reached = std::unordered_map<Node::Ref, unsigned>();
+    auto reached = std::unordered_map<Node::Ref, uint32_t>();
 
     do {
         stop = true;
         std::set<CircuitNode*> completed;
 
-        for (unsigned i = 0; i < xbits; ++i) {
+        for (uint32_t i = 0; i < xbits; ++i) {
             if (cgraph[i] && !marked[i]) {
                 marked[i] = true;
                 if (reached.find(cgraph[i]->node) == reached.end())
@@ -43,7 +43,7 @@ static void CheckCircuitGraph(std::string prog, Checker checker) {
             }
         }
 
-        for (unsigned i = 0; i < xbits; ++i) {
+        for (uint32_t i = 0; i < xbits; ++i) {
             if (cgraph[i] && !reached[cgraph[i]->node]) {
                 completed.insert(cgraph[i]);
                 marked[i] = false;
@@ -56,8 +56,8 @@ static void CheckCircuitGraph(std::string prog, Checker checker) {
         for (auto cnode : completed) {
             bool found = false;
 
-            unsigned i = 0;
-            for (unsigned e = checker.lqused.size(); i < e; ++i) {
+            uint32_t i = 0;
+            for (uint32_t e = checker.lqused.size(); i < e; ++i) {
                 if (cnode->qargsid == checker.lqused[i] && cnode->cargsid == checker.lcused[i]) {
                     found = true;
                     checker.lqused.erase(checker.lqused.begin() + i);

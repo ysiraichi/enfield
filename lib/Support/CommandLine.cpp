@@ -57,9 +57,10 @@ void efd::ArgsParser::delOpt(OptBase* opt) {
     }
 }
 
-static std::shared_ptr<ArgsParser> Parser(nullptr);
-static efd::Opt<bool> PrintHelp("help", "Prints a list with the available commands.", false, false);
+static efd::Opt<bool> PrintHelp
+("help", "Prints a list with the available commands.", false, false);
 
+static std::shared_ptr<ArgsParser> Parser(nullptr);
 static std::shared_ptr<ArgsParser> GetParser() {
     if (Parser.get() == nullptr)
         Parser.reset(new ArgsParser());
@@ -67,10 +68,9 @@ static std::shared_ptr<ArgsParser> GetParser() {
     return Parser;
 }
 
-
 template <>
 void efd::Opt<bool>::parseImpl(const int argc, const char **argv) {
-    mVal = true;
+    mVal = !mVal;
 }
 
 template <>
@@ -83,7 +83,7 @@ void efd::Opt<int>::parseImpl(const int argc, const char **argv) {
 }
 
 template <>
-void efd::Opt<unsigned>::parseImpl(const int argc, const char **argv) {
+void efd::Opt<uint32_t>::parseImpl(const int argc, const char **argv) {
     assert(argc >= 2 && "Not enough command line arguments.");
     mVal = std::stoul(std::string(argv[1]));
 }

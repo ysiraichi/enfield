@@ -79,7 +79,7 @@ void compareClonedPrograms(const std::string program) {
     ASSERT_EQ(qmod->toString(), clone->toString());
     ASSERT_EQ(vQMod.mV.size(), vClone.mV.size());
 
-    for (unsigned i = 0, e = vQMod.mV.size(); i < e; ++i)
+    for (uint32_t i = 0, e = vQMod.mV.size(); i < e; ++i)
         ASSERT_FALSE(vQMod.mV[i] == vClone.mV[i]);
 }
 

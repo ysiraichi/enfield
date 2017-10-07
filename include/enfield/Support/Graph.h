@@ -22,31 +22,31 @@ namespace efd {
 
         protected:
             Kind mK;
-            unsigned mN;
+            uint32_t mN;
 
-            std::vector<std::set<unsigned>> mSuccessors;
-            std::vector<std::set<unsigned>> mPredecessors;
+            std::vector<std::set<uint32_t>> mSuccessors;
+            std::vector<std::set<uint32_t>> mPredecessors;
 
-            Graph(Kind k, unsigned n);
+            Graph(Kind k, uint32_t n);
 
         public:
             /// \brief Return the degree entering the vertex \p i.
-            unsigned inDegree(unsigned i) const;
+            uint32_t inDegree(uint32_t i) const;
             /// \brief Return the degree leaving the vertex \p i.
-            unsigned outDegree(unsigned i) const; 
+            uint32_t outDegree(uint32_t i) const; 
             /// \brief Return the number of vertices.
-            unsigned size() const;
+            uint32_t size() const;
     
             /// \brief Return the set of succesors of some vertex \p i.
-            std::set<unsigned>& succ(unsigned i);
+            std::set<uint32_t>& succ(uint32_t i);
             /// \brief Return the set of predecessors of some vertex \p i.
-            std::set<unsigned>& pred(unsigned i); 
+            std::set<uint32_t>& pred(uint32_t i); 
     
             /// \brief Inserts an edge (i, j) in the successor's list and
             /// an edge (j, i) in the predecessor's list.
-            void putEdge(unsigned i, unsigned j);
+            void putEdge(uint32_t i, uint32_t j);
             /// \brief Returns true whether it has an edge (i, j).
-            bool hasEdge(unsigned i, unsigned j); 
+            bool hasEdge(uint32_t i, uint32_t j); 
 
             /// \brief Returns true if this is a weighted graph.
             bool isWeighted() const;
@@ -57,7 +57,7 @@ namespace efd {
             static bool ClassOf(const Graph* g);
     
             /// \brief Encapsulates the creation of a new Graph.
-            static uRef Create(unsigned n);
+            static uRef Create(uint32_t n);
             /// \brief Parses the file \p filename into a Graph representation.
             static uRef Read(std::string filepath);
             /// \brief Parses the string \p graphStr into a Graph representation.

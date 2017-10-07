@@ -4,14 +4,14 @@
 
 efd::WeightedPMMappingFinder::Mapping
 efd::WeightedPMMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
-    unsigned qbits = g->size();
+    uint32_t qbits = g->size();
 
     if (mPMFinder.get() == nullptr)
         mPMFinder = WeightedPMFinder<WeightTy>::Create();
 
     auto wg = toShared(WeightedGraph<WeightTy>::Create(qbits));
 
-    std::map<std::pair<unsigned, unsigned>, WeightTy> wMap;
+    std::map<std::pair<uint32_t, uint32_t>, WeightTy> wMap;
     for (auto& dep : deps) {
         Dep d = dep.mDeps[0];
 

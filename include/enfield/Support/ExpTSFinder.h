@@ -10,12 +10,12 @@ namespace efd {
             typedef std::unique_ptr<ExpTSFinder> uRef;
 
         private:
-            std::map<Assign, unsigned> mMapId;
+            std::map<Assign, uint32_t> mMapId;
             std::vector<std::vector<Swap>> mSwaps;
 
-            void genAllAssigns(unsigned n);
+            void genAllAssigns(uint32_t n);
             void preprocess(Graph::Ref graph);
-            unsigned getTargetId(Assign source, Assign target);
+            uint32_t getTargetId(Assign source, Assign target);
 
         public:
             std::vector<Assign> mAssigns;

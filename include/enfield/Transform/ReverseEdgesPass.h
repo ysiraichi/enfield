@@ -12,7 +12,7 @@ namespace efd {
             typedef ReverseEdgesPass* Ref;
             typedef std::unique_ptr<ReverseEdgesPass> uRef;
 
-            static unsigned ID;
+            static uint8_t ID;
 
         private:
             ArchGraph::sRef mG;

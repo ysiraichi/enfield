@@ -30,15 +30,15 @@ namespace efd {
             typename WeightedGraph<T>::Ref mH;
 
             std::vector<bool> matched;
-            std::vector<unsigned> matching;
-            std::vector<unsigned> gOutDegree;
+            std::vector<uint32_t> matching;
+            std::vector<uint32_t> gOutDegree;
 
             WeightedPMFinder();
-            unsigned findBestVertex(unsigned a, unsigned b);
-            unsigned getFirstFree();
+            uint32_t findBestVertex(uint32_t a, uint32_t b);
+            uint32_t getFirstFree();
 
         public:
-            virtual std::vector<unsigned> find(Graph::Ref g, Graph::Ref h) override;
+            virtual std::vector<uint32_t> find(Graph::Ref g, Graph::Ref h) override;
 
             /// \brief Creates an instance of this class.
             static uRef Create();
@@ -49,7 +49,7 @@ namespace efd {
     struct IndexOrder {
         std::vector<T>& mRef;
         IndexOrder(std::vector<T>& ref) : mRef(ref) {}
-        bool operator()(const unsigned& l, const unsigned& r) { return mRef[l] < mRef[r]; }
+        bool operator()(const uint32_t& l, const uint32_t& r) { return mRef[l] < mRef[r]; }
     };
 }
 
@@ -57,27 +57,27 @@ template <typename T>
 efd::WeightedPMFinder<T>::WeightedPMFinder() {}
 
 template <typename T>
-unsigned efd::WeightedPMFinder<T>::findBestVertex(unsigned a, unsigned b) {
-    unsigned gSize = mG->size();
-    unsigned hSize = mH->size();
-    unsigned bOutDegree = mH->outDegree(b);
+uint32_t efd::WeightedPMFinder<T>::findBestVertex(uint32_t a, uint32_t b) {
+    uint32_t gSize = mG->size();
+    uint32_t hSize = mH->size();
+    uint32_t bOutDegree = mH->outDegree(b);
 
-    std::vector<unsigned> gCandidates;
+    std::vector<uint32_t> gCandidates;
     if (a == hSize) {
-        for (unsigned u = 0; u < gSize; ++u) {
+        for (uint32_t u = 0; u < gSize; ++u) {
             gCandidates.push_back(u);
         }
     } else {
         auto& succ = mG->succ(matching[a]);
-        gCandidates = std::vector<unsigned>(succ.begin(), succ.end());
+        gCandidates = std::vector<uint32_t>(succ.begin(), succ.end());
     }
 
     int tightestDiff = gSize;
-    unsigned tightestDiffId = gSize;
-    unsigned tightestPosId = gSize;
+    uint32_t tightestDiffId = gSize;
+    uint32_t tightestPosId = gSize;
 
-    for (unsigned i = 0, e = gCandidates.size(); i < e; ++i) {
-        unsigned v = gCandidates[i];
+    for (uint32_t i = 0, e = gCandidates.size(); i < e; ++i) {
+        uint32_t v = gCandidates[i];
 
         if (!matched[v]) {
             int ltight = gOutDegree[v] - bOutDegree;
@@ -90,7 +90,7 @@ unsigned efd::WeightedPMFinder<T>::findBestVertex(unsigned a, unsigned b) {
         }
     }
 
-    unsigned u;
+    uint32_t u;
     if (tightestPosId != gSize) u = tightestPosId;
     else u = tightestDiffId;
 
@@ -105,10 +105,10 @@ unsigned efd::WeightedPMFinder<T>::findBestVertex(unsigned a, unsigned b) {
 }
 
 template <typename T>
-unsigned efd::WeightedPMFinder<T>::getFirstFree() {
-    unsigned gSize = mG->size();
+uint32_t efd::WeightedPMFinder<T>::getFirstFree() {
+    uint32_t gSize = mG->size();
 
-    for (unsigned u = 0; u < gSize; ++u) {
+    for (uint32_t u = 0; u < gSize; ++u) {
         if (!matched[u]) return u;
     }
 
@@ -116,19 +116,19 @@ unsigned efd::WeightedPMFinder<T>::getFirstFree() {
 }
 
 template <typename T>
-std::vector<unsigned> efd::WeightedPMFinder<T>::find(Graph::Ref g, Graph::Ref h) {
+std::vector<uint32_t> efd::WeightedPMFinder<T>::find(Graph::Ref g, Graph::Ref h) {
     assert(h->isWeighted() && "Trying to use weighted partial matching on unweighted graph.");
 
     mG = g;
     mH = dynCast<WeightedGraph<T>>(h);
     assert(mH != nullptr && "Graph 'h' is not of the specified type.");
 
-    unsigned hSize = mH->size();
-    unsigned gSize = mG->size();
+    uint32_t hSize = mH->size();
+    uint32_t gSize = mG->size();
 
     // Copying the out-degree of each vertex of \p mG->
     gOutDegree.assign(gSize, 0);
-    for (unsigned u = 0; u < gSize; ++u) {
+    for (uint32_t u = 0; u < gSize; ++u) {
         gOutDegree[u] = mG->outDegree(u);
     }
 
@@ -136,29 +136,29 @@ std::vector<unsigned> efd::WeightedPMFinder<T>::find(Graph::Ref g, Graph::Ref h)
     // It is computed by summing all edges that have the vertex as its source.
     // After that, we sort the indexes of the vertices by their weight.
     std::vector<T> w(hSize, 0);
-    for (unsigned a = 0; a < hSize; ++a) {
+    for (uint32_t a = 0; a < hSize; ++a) {
         for (auto b : mH->succ(a))
             w[a] += mH->getW(a, b);
     }
 
-    std::vector<unsigned> wOrdIdx(hSize, 0);
-    for (unsigned i = 0; i < hSize; ++i) wOrdIdx[i] = i;
+    std::vector<uint32_t> wOrdIdx(hSize, 0);
+    for (uint32_t i = 0; i < hSize; ++i) wOrdIdx[i] = i;
 
     IndexOrder<T> order(w);
     std::sort(wOrdIdx.begin(), wOrdIdx.end(), order);
 
     // Start assigning (mapping) the vertices
-    std::vector<unsigned> notMatched;
+    std::vector<uint32_t> notMatched;
     matching.assign(hSize, hSize);
     matched.assign(gSize, false);
     for (int i = hSize-1; i >= 0; --i) {
-        unsigned a = wOrdIdx[i];
+        uint32_t a = wOrdIdx[i];
 
         // Vertex a from mH->has not been matched yet.
         if (matching[a] == hSize) {
-            std::vector<unsigned> parent(hSize, hSize);
+            std::vector<uint32_t> parent(hSize, hSize);
             std::vector<bool> inQueue(hSize, false);
-            std::queue<unsigned> q;
+            std::queue<uint32_t> q;
             q.push(a);
             inQueue[a] = true;
 
@@ -167,7 +167,7 @@ std::vector<unsigned> efd::WeightedPMFinder<T>::find(Graph::Ref g, Graph::Ref h)
                 a = q.front();
                 q.pop();
 
-                unsigned u = findBestVertex(parent[a], a);
+                uint32_t u = findBestVertex(parent[a], a);
 
                 if (u == gSize) {
                     notMatched.push_back(u);
@@ -189,7 +189,7 @@ std::vector<unsigned> efd::WeightedPMFinder<T>::find(Graph::Ref g, Graph::Ref h)
 
     for (auto a : notMatched) {
         if (matching[a] == hSize) {
-            unsigned u = getFirstFree();
+            uint32_t u = getFirstFree();
             matching[a] = u;
         }
     }

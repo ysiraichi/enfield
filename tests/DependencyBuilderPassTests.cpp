@@ -133,8 +133,8 @@ gate cnot x, y {\
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 
-        unsigned x = 0;
-        unsigned y = 1;
+        uint32_t x = 0;
+        uint32_t y = 1;
 
         auto sign = qmod->getQGate("cnot");
         ASSERT_FALSE(sign == nullptr);
@@ -169,8 +169,8 @@ gate cnot x, y {\
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 
-        unsigned x = 0;
-        unsigned y = 1;
+        uint32_t x = 0;
+        uint32_t y = 1;
 
         auto cxSign = qmod->getQGate("cx");
         ASSERT_FALSE(cxSign == nullptr);
@@ -220,8 +220,8 @@ CX q[0], q[1];\
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 
-        unsigned q0 = 0;
-        unsigned q1 = 1;
+        uint32_t q0 = 0;
+        uint32_t q1 = 1;
 
         auto data = pass->getData();
         auto deps = data.getDependencies();
@@ -293,7 +293,7 @@ measure carry[0] -> carryout[0];\
         auto pass = DependencyBuilderWrapperPass::Create();
         pass->run(qmod.get());
 
-        std::unordered_map<std::string, std::pair<unsigned, unsigned>> gatesInfo = {
+        std::unordered_map<std::string, std::pair<uint32_t, uint32_t>> gatesInfo = {
             { "ccx", { 6, 6 } }, { "cx", { 1, 1 } }, { "x", { 0, 0 } }, { "majority", { 3, 8 } }, { "add4", { 9, 65 } }, { "unmaj", { 3, 8 } }
         };
 
@@ -307,7 +307,7 @@ measure carry[0] -> carryout[0];\
             auto deps = data.getDependencies(gate);
             ASSERT_EQ(deps.size(), pair.second.first);
 
-            unsigned sum = 0;
+            uint32_t sum = 0;
             for (auto v : deps) sum += v.getSize();
             ASSERT_EQ(sum, pair.second.second);
         }

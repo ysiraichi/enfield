@@ -9,7 +9,7 @@ namespace efd {
     /// \brief Static class that caches passes that were run by this compiler.
     class PassCache {
         public:
-            typedef std::unordered_map<unsigned*, Pass::sRef> PassMap;
+            typedef std::unordered_map<uint8_t*, Pass::sRef> PassMap;
             typedef std::unordered_map<QModule::Ref, PassMap> QModPassesMap;
 
         private:

@@ -18,11 +18,11 @@ void efd::Node::innerAddChild(uRef ref) {
 efd::Node::~Node() {
 }
 
-efd::Node::Ref efd::Node::getChild(unsigned i) const {
+efd::Node::Ref efd::Node::getChild(uint32_t i) const {
     return mChild[i].get();
 }
 
-void efd::Node::setChild(unsigned i, uRef ref) {
+void efd::Node::setChild(uint32_t i, uRef ref) {
     ref->setParent(this);
     mChild[i] = std::move(ref);
 }
@@ -218,7 +218,7 @@ std::string efd::NDRegDecl::getOperation() const {
     }
 }
 
-unsigned efd::NDRegDecl::getChildNumber() const {
+uint32_t efd::NDRegDecl::getChildNumber() const {
     return 2;
 }
 
@@ -282,7 +282,7 @@ void efd::NDIdRef::setN(NDInt::uRef ref) {
     setChild(I_N, std::move(ref));
 }
 
-unsigned efd::NDIdRef::getChildNumber() const {
+uint32_t efd::NDIdRef::getChildNumber() const {
     return 2;
 }
 
@@ -375,7 +375,7 @@ void efd::NDList::removeChild(Node::Ref ref) {
         Node::mIsEmpty = true;
 }
 
-unsigned efd::NDList::getChildNumber() const {
+uint32_t efd::NDList::getChildNumber() const {
     return mChild.size();
 }
 
@@ -517,7 +517,7 @@ void efd::NDIfStmt::setQOp(NDQOp::uRef ref) {
     setChild(I_QOP, std::move(ref));
 }
 
-unsigned efd::NDIfStmt::getChildNumber() const {
+uint32_t efd::NDIfStmt::getChildNumber() const {
     return 3;
 }
 
@@ -572,7 +572,7 @@ std::string efd::NDQasmVersion::getOperation() const {
     return "OPENQASM";
 }
 
-unsigned efd::NDQasmVersion::getChildNumber() const {
+uint32_t efd::NDQasmVersion::getChildNumber() const {
     return 2;
 }
 
@@ -633,7 +633,7 @@ std::string efd::NDInclude::getOperation() const {
     return "include";
 }
 
-unsigned efd::NDInclude::getChildNumber() const {
+uint32_t efd::NDInclude::getChildNumber() const {
     return 2;
 }
 
@@ -720,7 +720,7 @@ std::string efd::NDGateSign::getOperation() const {
     return "opaque";
 }
 
-unsigned efd::NDGateSign::getChildNumber() const {
+uint32_t efd::NDGateSign::getChildNumber() const {
     return 3;
 }
 
@@ -782,7 +782,7 @@ std::string efd::NDGateDecl::getOperation() const {
     return "gate";
 }
 
-unsigned efd::NDGateDecl::getChildNumber() const {
+uint32_t efd::NDGateDecl::getChildNumber() const {
     return 4;
 }
 
@@ -894,7 +894,7 @@ std::string efd::NDQOp::getOperation() const {
     return getId()->toString();
 }
 
-unsigned efd::NDQOp::getChildNumber() const {
+uint32_t efd::NDQOp::getChildNumber() const {
     return 3;
 }
 
@@ -1025,7 +1025,7 @@ void efd::NDQOpMeasure::apply(NodeVisitor::Ref visitor) {
     visitor->visit(this);
 }
 
-unsigned efd::NDQOpMeasure::getChildNumber() const {
+uint32_t efd::NDQOpMeasure::getChildNumber() const {
     return 4;
 }
 
@@ -1183,7 +1183,7 @@ std::string efd::NDBinOp::getOperation() const {
     }
 }
 
-unsigned efd::NDBinOp::getChildNumber() const {
+uint32_t efd::NDBinOp::getChildNumber() const {
     return 2;
 }
 
@@ -1292,7 +1292,7 @@ std::string efd::NDUnaryOp::getOperation() const {
     }
 }
 
-unsigned efd::NDUnaryOp::getChildNumber() const {
+uint32_t efd::NDUnaryOp::getChildNumber() const {
     return 1;
 }
 

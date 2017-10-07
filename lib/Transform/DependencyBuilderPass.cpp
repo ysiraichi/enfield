@@ -11,15 +11,15 @@ bool efd::Dependencies::isEmpty() const {
     return mDeps.empty();
 }
 
-unsigned efd::Dependencies::getSize() const {
+uint32_t efd::Dependencies::getSize() const {
     return mDeps.size();
 }
 
-const efd::Dep& efd::Dependencies::operator[](unsigned i) const {
+const efd::Dep& efd::Dependencies::operator[](uint32_t i) const {
     return mDeps[i];
 }
 
-efd::Dep& efd::Dependencies::operator[](unsigned i) {
+efd::Dep& efd::Dependencies::operator[](uint32_t i) {
     return mDeps[i];
 }
 
@@ -43,7 +43,7 @@ efd::Dependencies::ConstIterator efd::Dependencies::end() const {
 efd::DependencyBuilder::DependencyBuilder() {
 }
 
-unsigned efd::DependencyBuilder::getUId(Node::Ref ref, NDGateDecl::Ref gate) {
+uint32_t efd::DependencyBuilder::getUId(Node::Ref ref, NDGateDecl::Ref gate) {
     std::string _id = ref->toString();
     return mXbitToNumber.getQUId(_id, gate);
 }
@@ -87,7 +87,7 @@ efd::DependencyBuilder::DepsSet& efd::DependencyBuilder::getDependencies
 }
 
 // --------------------- DependencyBuilderWrapperPass ------------------------
-unsigned efd::DependencyBuilderWrapperPass::ID = 0;
+uint8_t efd::DependencyBuilderWrapperPass::ID = 0;
 
 namespace efd {
     class DependencyBuilderVisitor : public NodeVisitor {
@@ -139,8 +139,8 @@ void efd::DependencyBuilderVisitor::visit(NDQOpCX::Ref ref) {
     auto deps = mDepBuilder.getDepsSet(gate);
 
     // CX controlQ, invertQ;
-    unsigned controlQ = mDepBuilder.getUId(ref->getLhs(), gate);
-    unsigned invertQ = mDepBuilder.getUId(ref->getRhs(), gate);
+    uint32_t controlQ = mDepBuilder.getUId(ref->getLhs(), gate);
+    uint32_t invertQ = mDepBuilder.getUId(ref->getRhs(), gate);
 
     Dependencies depV { { Dep { controlQ, invertQ } }, ref };
     deps->push_back(depV);
@@ -153,8 +153,8 @@ void efd::DependencyBuilderVisitor::visit(NDQOp::Ref ref) {
     auto gate = getParentGate(ref);
     auto deps = mDepBuilder.getDepsSet(gate);
 
-    // Getting the qargs unsigned representations.
-    std::vector<unsigned> uidVector;
+    // Getting the qargs uint32_t representations.
+    std::vector<uint32_t> uidVector;
     for (auto& childRef : *ref->getQArgs())
         uidVector.push_back(mDepBuilder.getUId(childRef.get(), gate));
 
@@ -165,12 +165,12 @@ void efd::DependencyBuilderVisitor::visit(NDQOp::Ref ref) {
 
     auto& gDeps = mDepBuilder.mLDeps[gRef];
     Dependencies thisDeps { {}, ref };
-    // For every qarg unsigned representation
+    // For every qarg uint32_t representation
     for (auto parallelDeps : gDeps) {
         for (auto dep : parallelDeps) {
             // Getting the uid's of the qubit interaction (u, v)
-            unsigned u = uidVector[dep.mFrom];
-            unsigned v = uidVector[dep.mTo];
+            uint32_t u = uidVector[dep.mFrom];
+            uint32_t v = uidVector[dep.mTo];
             thisDeps.mDeps.push_back(Dep { u, v });
         }
     }

@@ -13,7 +13,7 @@ namespace efd {
             typedef std::unique_ptr<ArchGraph> uRef;
             typedef std::shared_ptr<ArchGraph> sRef;
 
-            typedef std::unordered_map<std::string, unsigned> RegsVector;
+            typedef std::unordered_map<std::string, uint32_t> RegsVector;
             typedef RegsVector::iterator RegsIterator;
 
         protected:
@@ -21,33 +21,33 @@ namespace efd {
             std::vector<Node::uRef> mNodes;
 
             std::vector<std::string> mId; 
-            std::unordered_map<std::string, unsigned> mStrToId;
+            std::unordered_map<std::string, uint32_t> mStrToId;
 
             bool mGeneric;
-            unsigned mVID;
+            uint32_t mVID;
 
-            ArchGraph(unsigned n, bool isGeneric = true);
+            ArchGraph(uint32_t n, bool isGeneric = true);
 
         public:
             /// \brief Gets the node corresponding to the uid.
-            Node::Ref getNode(unsigned i) const;
+            Node::Ref getNode(uint32_t i) const;
 
             /// \brief Creates a string vertex and puts it in the vector.
-            unsigned putVertex(std::string s);
+            uint32_t putVertex(std::string s);
             /// \brief Creates a node vertex and puts it in the vector.
-            unsigned putVertex(Node::uRef node);
+            uint32_t putVertex(Node::uRef node);
 
             /// \brief Register the register.
             void putReg(std::string id, std::string size);
 
-            /// \brief Returns the unsigned id of the vertex \p s;
-            unsigned getUId(std::string s);
+            /// \brief Returns the uint32_t id of the vertex \p s;
+            uint32_t getUId(std::string s);
             /// \brief Returns the std::string id of the vertex whose uid is \p i;
-            std::string getSId(unsigned i);
+            std::string getSId(uint32_t i);
 
             /// \brief Returns true if the edge (i, j) is a reverse edge.
             /// i.e.: if (i, j) is not in the graph, but (j, i) is.
-            bool isReverseEdge(unsigned i, unsigned j); 
+            bool isReverseEdge(uint32_t i, uint32_t j); 
             /// \brief Returns true if this is a generic architechture graph,
             /// i.e.: it was not created by any of the architechtures compiled within
             /// the program.
@@ -62,7 +62,7 @@ namespace efd {
             static bool ClassOf(const Graph* g);
 
             /// \brief Encapsulates the creation of a new ArchGraph.
-            static uRef Create(unsigned n);
+            static uRef Create(uint32_t n);
             /// \brief Parses the file \p filename into a ArchGraph representation.
             static uRef Read(std::string filepath);
             /// \brief Parses the string \p graphStr into a ArchGraph representation.

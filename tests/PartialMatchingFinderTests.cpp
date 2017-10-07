@@ -12,12 +12,12 @@ static void check(const std::string gS, const std::string wGS) {
     auto wGraph = WeightedGraph<int>::ReadString(wGS);
     auto matcher = WeightedPMFinder<int>::Create();
     
-    unsigned gSize = graph->size();
+    uint32_t gSize = graph->size();
     std::vector<bool> matched(gSize, false);
 
     // For all 'a' in 'graph'; and 'u' in 'wGraph'
     auto match = matcher->find(graph.get(), wGraph.get());
-    for (unsigned a = 0; a < match.size(); ++a) {
+    for (uint32_t a = 0; a < match.size(); ++a) {
         // 'a' must be assigned to a 'u' >= 0
         ASSERT_TRUE(match[a] >= 0);
         // 'a' can't be assigned to a 'u' >= gSize.

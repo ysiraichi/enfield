@@ -2,7 +2,7 @@
 #include "enfield/Transform/PassCache.h"
 #include <cassert>
 
-unsigned efd::LayerBasedOrderingWrapperPass::getNodeId(Node::Ref ref) {
+uint32_t efd::LayerBasedOrderingWrapperPass::getNodeId(Node::Ref ref) {
     assert(mStmtId.find(ref) != mStmtId.end() && "Unknown node.");
     return mStmtId[ref];
 }

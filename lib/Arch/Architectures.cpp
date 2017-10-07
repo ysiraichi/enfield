@@ -13,12 +13,12 @@ namespace efd {
             }\
         private:\
             Arch##_Name_() : ArchGraph(_QbitNum_, false) {\
-                unsigned u, v;
+                uint32_t u, v;
 
 #define EFD_REG(_QReg_, _Size_) \
                 this->putReg(#_QReg_, #_Size_);\
                 auto ndID = NDId::Create(#_QReg_);\
-                for (unsigned i = 0; i < _Size_; ++i) {\
+                for (uint32_t i = 0; i < _Size_; ++i) {\
                     auto ndN = NDInt::Create(std::to_string(i));\
                     auto ndIDCpy = dynCast<NDId>(ndID->clone().release());\
                     this->putVertex(NDIdRef::Create\

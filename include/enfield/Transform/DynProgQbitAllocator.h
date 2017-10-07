@@ -21,7 +21,7 @@ namespace efd {
 
             /// \brief Gets the intermediate vertex between 'u' and 'v', if
             /// there exists one.
-            unsigned getIntermediateV(unsigned u, unsigned v);
+            uint32_t getIntermediateV(uint32_t u, uint32_t v);
 
             Solution solve(DepsSet& deps) override;
 

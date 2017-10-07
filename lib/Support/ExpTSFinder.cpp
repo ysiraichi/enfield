@@ -4,7 +4,7 @@
 #include <queue>
 #include <cassert>
 
-void efd::ExpTSFinder::genAllAssigns(unsigned n) {
+void efd::ExpTSFinder::genAllAssigns(uint32_t n) {
     efd::Assign assign(n, 0);
     for (int i = 0; i < n; ++i) assign[i] = i;
 
@@ -15,7 +15,7 @@ void efd::ExpTSFinder::genAllAssigns(unsigned n) {
     } while (std::next_permutation(assign.begin(), assign.end()));
 }
 
-unsigned efd::ExpTSFinder::getTargetId(Assign source, Assign target) {
+uint32_t efd::ExpTSFinder::getTargetId(Assign source, Assign target) {
     assert(source.size() == target.size() && "The assignment map must be of same size.");
 
     int size = source.size();
@@ -41,15 +41,15 @@ void efd::ExpTSFinder::preprocess(Graph::Ref graph) {
     genAllAssigns(size);
 
     mMapId.clear();
-    for (unsigned i = 0, e = mAssigns.size(); i < e; ++i) {
+    for (uint32_t i = 0, e = mAssigns.size(); i < e; ++i) {
         mMapId.insert(std::make_pair(mAssigns[i], i));
     }
 
     std::vector<bool> inserted(mAssigns.size(), false);
     mSwaps.assign(mAssigns.size(), std::vector<Swap>());
 
-    std::vector<unsigned> cur;
-    std::queue<unsigned> q;
+    std::vector<uint32_t> cur;
+    std::queue<uint32_t> q;
 
     // Initial permutation [0, 1, 2, 3, 4]
     q.push(0);
@@ -60,8 +60,8 @@ void efd::ExpTSFinder::preprocess(Graph::Ref graph) {
 
         auto cur = mAssigns[aId];
 
-        for (unsigned u = 0; u < size; ++u) {
-            for (unsigned v : graph->succ(u)) {
+        for (uint32_t u = 0; u < size; ++u) {
+            for (uint32_t v : graph->succ(u)) {
                 auto copy = cur;
                 std::swap(copy[u], copy[v]);
 
@@ -74,7 +74,7 @@ void efd::ExpTSFinder::preprocess(Graph::Ref graph) {
                 }
             }
 
-            for (unsigned v : graph->pred(u)) {
+            for (uint32_t v : graph->pred(u)) {
                 auto copy = cur;
                 std::swap(copy[u], copy[v]);
 

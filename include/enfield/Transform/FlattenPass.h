@@ -14,7 +14,7 @@ namespace efd {
             typedef FlattenPass* Ref;
             typedef std::unique_ptr<FlattenPass> uRef;
 
-            static unsigned ID;
+            static uint8_t ID;
 
         private:
             FlattenPass();

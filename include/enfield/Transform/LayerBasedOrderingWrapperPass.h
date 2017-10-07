@@ -8,7 +8,7 @@
 namespace efd {
     typedef std::set<Node::Ref> Layer;
     typedef std::vector<Layer> Layers;
-    typedef std::vector<unsigned> Ordering;
+    typedef std::vector<uint32_t> Ordering;
 
     struct LayerBasedOrdering {
         Ordering ordering;
@@ -26,9 +26,9 @@ namespace efd {
             typedef LayerBasedOrderingWrapperPass* Ref;
 
         protected:
-            std::unordered_map<Node::Ref, unsigned> mStmtId;
+            std::unordered_map<Node::Ref, uint32_t> mStmtId;
 
-            unsigned getNodeId(Node::Ref ref);
+            uint32_t getNodeId(Node::Ref ref);
             virtual Ordering generate(CircuitGraph& graph) = 0;
 
         public:
