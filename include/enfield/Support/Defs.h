@@ -2,6 +2,7 @@
 #define __EFD_DEFS_H__
 
 #include <vector>
+#include <cstdint>
 
 namespace efd {
     /// \brief Defines the type used for mapping the qubits.
@@ -13,6 +14,8 @@ namespace efd {
         uint32_t u;
         uint32_t v;
     };
+
+    typedef std::vector<Swap> SwapSeq;
 }
 
 #endif

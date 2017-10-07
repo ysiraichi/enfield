@@ -12,9 +12,9 @@ namespace efd {
 
         public:
             /// \brief Finds a swap sequence to reach \p to from \p from.
-            virtual std::vector<Swap> find(Mapping from, Mapping to) = 0;
+            virtual SwapSeq find(Assign from, Assign to) = 0;
             /// \brief Finds a swap sequence to reach \p to from \p from in \p graph.
-            virtual std::vector<Swap> find(Graph::Ref graph, Mapping from, Mapping to) = 0;
+            virtual SwapSeq find(Graph::Ref graph, Assign from, Assign to) = 0;
     };
 }
 
