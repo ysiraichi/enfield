@@ -5,4 +5,5 @@ add_library (EfdSupport
     BFSPathFinder.cpp
     Timer.cpp
     Stats.cpp
-    ExpTSFinder.cpp)
+    ExpTSFinder.cpp
+    ApproxTSFinder.cpp)
