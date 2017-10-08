@@ -1,9 +1,11 @@
 #include "gtest/gtest.h"
 #include "enfield/Support/ApproxTSFinder.h"
 #include "enfield/Support/ExpTSFinder.h"
+#include "enfield/Support/Timer.h"
 
 using namespace efd;
 
+static ExpTSFinder::uRef expfinder;
 static Graph::sRef graph;
 static const std::string graphstr =
 "\
@@ -19,18 +21,19 @@ static const std::string graphstr =
 static Graph::sRef GetGraph() {
     if (graph.get() == nullptr) {
         graph = Graph::ReadString(graphstr);
+        expfinder = ExpTSFinder::Create(graph);
     }
 
     return graph;
 }
 
 static void CheckSwapSeq(Assign from, Assign to) {
+    Timer::Start();
     auto graph = GetGraph();
     ApproxTSFinder approxfinder(graph);
-    ExpTSFinder expfinder(graph);
 
     auto approxseq = approxfinder.find(from, to);
-    auto expseq = expfinder.find(from, to);
+    auto expseq = expfinder->find(from, to);
 
     ASSERT_TRUE(approxseq.size() <= 4 * expseq.size());
 
@@ -45,6 +48,7 @@ static void CheckSwapSeq(Assign from, Assign to) {
     }
 
     ASSERT_EQ(from, to);
+    std::cerr << "time: " << Timer::Stop<std::chrono::microseconds>() << std::endl;
 }
 
 TEST(ApproxTSFinderTests, NoSwapTest) {
@@ -123,7 +127,8 @@ TEST(ApproxTSFinderTests, AllPermutationsTest) {
 
     ASSERT_EQ(assigns.size(), 120);
 
+    uint32_t x = 0;
     for (uint32_t i = 0, e = assigns.size(); i < e; ++i)
-        for (uint32_t j = 0; j < e; ++j)
+        for (uint32_t j = 0; j < e; ++j, ++x)
             CheckSwapSeq(assigns[i], assigns[j]);
 }
