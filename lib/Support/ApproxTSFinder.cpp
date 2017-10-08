@@ -49,6 +49,7 @@ findGoodVerticesBFS(efd::Graph::Ref graph, uint32_t src, uint32_t tgt) {
     std::vector<std::vector<bool>> goodvlist(size, std::vector<bool>(size, false));
     // Distance from the source.
     std::vector<uint32_t> d(size, inf);
+    d[src] = 0;
     
     std::queue<uint32_t> q;
     q.push(src);
@@ -74,6 +75,7 @@ findGoodVerticesBFS(efd::Graph::Ref graph, uint32_t src, uint32_t tgt) {
 
             // Every good vertex of 'u' is also a good vertex of 'v'.
             goodvlist[v] = goodvlist[u];
+            goodvlist[v][v] = true;
             goodvlist[v][u] = true;
         }
 
@@ -87,6 +89,7 @@ findGoodVerticesBFS(efd::Graph::Ref graph, uint32_t src, uint32_t tgt) {
             }
 
             goodvlist[v] = goodvlist[u];
+            goodvlist[v][v] = true;
             goodvlist[v][u] = true;
         }
     }
@@ -106,11 +109,9 @@ efd::SwapSeq efd::ApproxTSFinder::find(Graph::Ref graph, Assign from, Assign to)
     uint32_t size = graph->size();
     std::vector<std::vector<uint32_t>> gprime(size, std::vector<uint32_t>());
 
-    std::set<uint32_t> inplace;
-    std::set<uint32_t> notinplace;
-    for (uint32_t i = 0; i < size; ++i)
-        if (from[i] == to[i]) inplace.insert(i);
-        else notinplace.insert(i);
+    std::vector<bool> inplace(size, false);
+    // std::set<uint32_t> inplace;
+    // std::set<uint32_t> notinplace;
 
     // Constructing the inverse for 'to' -----------------------
     Mapping toinv(size, 0);
@@ -121,39 +122,49 @@ efd::SwapSeq efd::ApproxTSFinder::find(Graph::Ref graph, Assign from, Assign to)
     SwapSeq swapseq;
 
     do {
+        for (uint32_t i = 0; i < size; ++i)
+            if (from[i] == to[i]) inplace[i] = true;
+            else inplace[i] = false;
+
         // Constructing gprime -----------------------
-        for (auto i : notinplace)
-            // For each vertex 'i' in 'graph', we want to find good vertices
-            // from 'i' to the vertex that should hold the label that is
-            // currently in 'i' ('from[i]').
-            gprime[i] = findGoodVerticesBFS(graph, i, toinv[from[i]]);
+        for (uint32_t i = 0; i < size; ++i)
+            if (!inplace[i])
+                // For each vertex 'i' in 'graph', we want to find good vertices
+                // from 'i' to the vertex that should hold the label that is
+                // currently in 'i' ('from[i]').
+                gprime[i] = findGoodVerticesBFS(graph, i, toinv[from[i]]);
+            else
+                gprime[i].clear();
         // -------------------------------------------
 
         std::vector<uint32_t> swappath;
 
         // Trying to find a 'happy chain' ------------
-        for (auto i : notinplace) {
-            bool keepadding = false;
-            std::vector<uint32_t> color(size, WHITE);
-            if (findCycleDFS(i, keepadding, gprime, color, swappath)) break;
-        }
+        for (uint32_t i = 0; i < size; ++i)
+            if (!inplace[i]) {
+                bool keepadding = false;
+                std::vector<uint32_t> color(size, WHITE);
+                if (findCycleDFS(i, keepadding, gprime, color, swappath)) break;
+            }
         // -------------------------------------------
 
         // If we failed, we want a unhappy swap ------
         if (swappath.empty()) {
             // We search for an edge (u, v), such that 'u' has a label that
             // is out of place, and 'v' has a label in place.
-            for (auto u : notinplace) {
-                bool found = false;
+            for (uint32_t u = 0; u < size; ++u) {
+                if (!inplace[u]) {
+                    bool found = false;
 
-                for (auto v : gprime[u])
-                    if (inplace.find(v) != inplace.end()) {
-                        found = true;
-                        swappath = { u, v };
-                        break;
-                    }
+                    for (auto v : gprime[u])
+                        if (inplace[v]) {
+                            found = true;
+                            swappath = { u, v };
+                            break;
+                        }
 
-                if (found) break;
+                    if (found) break;
+                }
             }
         }
         // -------------------------------------------
