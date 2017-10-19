@@ -81,13 +81,16 @@ efd::Solution efd::PathGuidedSolBuilder::build
                 uint32_t a = assign[u], b = assign[v];
                 ops.second.push_back({ Operation::K_OP_SWAP, a, b });
     
+                if (changeInitialMapping) {
+                    std::swap(solution.mInitial[a], solution.mInitial[b]);
+                }
+
                 std::swap(match[a], match[b]);
                 std::swap(assign[u], assign[v]);
             }
 
             // If this is the first mapping
             if (changeInitialMapping) {
-                solution.mInitial = match;
                 ops.second.clear();
             } else {
                 // ------ Stats
