@@ -1,42 +1,65 @@
 #include "enfield/Support/ApproxTSFinder.h"
+#include "enfield/Support/BFSPathFinder.h"
+#include "enfield/Support/Defs.h"
+
 #include <limits>
 #include <queue>
+#include <stack>
 #include <set>
+#include <cassert>
 
-const uint32_t WHITE = 0;
-const uint32_t GRAY  = 1;
-const uint32_t BLACK = 2;
+// White, gray and black are the usual dfs guys.
+// Silver is for marking when it is already in the stack
+// (for iterative versions).
+static const uint32_t _white  = 0;
+static const uint32_t _silver = 1;
+static const uint32_t _gray   = 2;
+static const uint32_t _black  = 3;
 
-static bool findCycleDFS(uint32_t u,
-                         bool keepadding,
-                         std::vector<std::vector<uint32_t>>& adj,
-                         std::vector<uint32_t>& color,
-                         std::vector<uint32_t>& cycle) {
-    color[u] = GRAY;
+static std::vector<uint32_t> findCycleDFS(uint32_t src,
+                                          std::vector<std::vector<uint32_t>>& adj) {
+    std::vector<uint32_t> color(adj.size(), _white);
+    std::vector<uint32_t> pi(adj.size(), efd::_undef);
+    std::stack<uint32_t> stack;
 
-    for (auto v : adj[u]) {
-        if (color[v] == GRAY) {
-            // Cycle found!
-            keepadding = true;
+    stack.push(src);
+    color[src] = _silver;
 
-            // First element is the gray node found.
-            cycle.push_back(v);
-            cycle.push_back(u);
-            return true;
+    uint32_t from, to;
+    bool cyclefound = false;
+
+    // The color "hierarchy" goes:
+    // white -> silver -> gray -> black
+    while (!cyclefound && !stack.empty()) {
+        uint32_t u = stack.top();
+        if (color[u] == _gray) { color[u] = _black; stack.pop(); continue; }
+        color[u] = _gray;
+
+        for (auto v : adj[u]) {
+            if (color[v] == _white) {
+                pi[v] = u;
+                color[v] = _silver;
+                stack.push(v);
+            } else if (color[v] == _gray) {
+                from = u; to = v;
+                cyclefound = true;
+                break;
+            }
         }
     }
 
-    for (auto v : adj[u]) {
-        if (color[v] == WHITE && findCycleDFS(v, keepadding, adj, color, cycle)) {
-            // If 'u' is the gray node, we stop adding nodes to the cycle.
-            if (cycle[0] == u) keepadding = false;
-            // Else, if we should keep adding, we add.
-            else if (keepadding) cycle.push_back(u);
-            return true;
-        }
+    std::vector<uint32_t> cycle;
+
+    if (cyclefound) {
+        cycle.push_back(from);
+
+        do {
+            from = pi[from];
+            cycle.push_back(from);
+        } while (from != to);
     }
 
-    return false;
+    return cycle;
 }
 
 static std::vector<uint32_t>
@@ -49,9 +72,9 @@ findGoodVerticesBFS(efd::Graph::Ref graph, uint32_t src, uint32_t tgt) {
     std::vector<std::vector<bool>> goodvlist(size, std::vector<bool>(size, false));
     // Distance from the source.
     std::vector<uint32_t> d(size, inf);
-    d[src] = 0;
-    
     std::queue<uint32_t> q;
+
+    d[src] = 0;
     q.push(src);
     while (!q.empty()) {
         uint32_t u = q.front();
@@ -60,7 +83,7 @@ findGoodVerticesBFS(efd::Graph::Ref graph, uint32_t src, uint32_t tgt) {
         // Stop when we get to 'tgt', or we reach the distance of 'tgt'.
         if (u == tgt || d[u] >= d[tgt]) continue;
 
-        for (auto v : graph->succ(u)) {
+        for (auto v : graph->adj(u)) {
             // If we find a vertex 'v' already visited, but our distance is worse,
             // then 'u' is not a good vertex of 'v'.
             if (d[v] != inf && d[v] < d[u] + 1)
@@ -78,40 +101,22 @@ findGoodVerticesBFS(efd::Graph::Ref graph, uint32_t src, uint32_t tgt) {
             goodvlist[v][v] = true;
             goodvlist[v][u] = true;
         }
-
-        // As it is supposed to be an undirected graph...
-        for (auto v : graph->pred(u)) {
-            if (d[v] != inf && d[v] < d[u] + 1)
-                continue;
-            else if (d[v] == inf) {
-                q.push(v);
-                d[v] = d[u] + 1;
-            }
-
-            goodvlist[v] = goodvlist[u];
-            goodvlist[v][v] = true;
-            goodvlist[v][u] = true;
-        }
     }
 
     std::vector<uint32_t> goodv;
-    for (auto v : graph->succ(src))
+
+    for (auto v : graph->adj(src))
         if (goodvlist[tgt][v])
             goodv.push_back(v);
-    for (auto v : graph->pred(src))
-        if (goodvlist[tgt][v])
-            goodv.push_back(v);
-    
+
     return goodv;
 }
 
 efd::SwapSeq efd::ApproxTSFinder::find(Graph::Ref graph, Assign from, Assign to) {
     uint32_t size = graph->size();
     std::vector<std::vector<uint32_t>> gprime(size, std::vector<uint32_t>());
-
     std::vector<bool> inplace(size, false);
-    // std::set<uint32_t> inplace;
-    // std::set<uint32_t> notinplace;
+    SwapSeq swapseq;
 
     // Constructing the inverse for 'to' -----------------------
     Mapping toinv(size, 0);
@@ -119,36 +124,35 @@ efd::SwapSeq efd::ApproxTSFinder::find(Graph::Ref graph, Assign from, Assign to)
         toinv[to[i]] = i;
     // ---------------------------------------------------------
 
-    SwapSeq swapseq;
+    // Initializing data ---------------------------------------
+    // 1. Checking which vertices are inplace.
+    for (uint32_t i = 0; i < size; ++i)
+        if (from[i] == to[i]) inplace[i] = true;
+        else inplace[i] = false;
 
+    // 2. Constructing the graph with the good neighbors.
+    for (uint32_t i = 0; i < size; ++i)
+        if (!inplace[i])
+            // For each vertex 'i' in 'graph', we want to find good vertices
+            // from 'i' to the vertex that should hold the label that is
+            // currently in 'i' ('from[i]').
+            gprime[i] = findGoodVerticesBFS(graph, i, toinv[from[i]]);
+        else
+            gprime[i].clear();
+    // ---------------------------------------------------------
+
+    // Main Loop -----------------------------------------------
     do {
-        for (uint32_t i = 0; i < size; ++i)
-            if (from[i] == to[i]) inplace[i] = true;
-            else inplace[i] = false;
-
-        // Constructing gprime -----------------------
-        for (uint32_t i = 0; i < size; ++i)
-            if (!inplace[i])
-                // For each vertex 'i' in 'graph', we want to find good vertices
-                // from 'i' to the vertex that should hold the label that is
-                // currently in 'i' ('from[i]').
-                gprime[i] = findGoodVerticesBFS(graph, i, toinv[from[i]]);
-            else
-                gprime[i].clear();
-        // -------------------------------------------
-
         std::vector<uint32_t> swappath;
 
-        // Trying to find a 'happy chain' ------------
+        // 1. Trying to find a 'happy chain'
         for (uint32_t i = 0; i < size; ++i)
             if (!inplace[i]) {
-                bool keepadding = false;
-                std::vector<uint32_t> color(size, WHITE);
-                if (findCycleDFS(i, keepadding, gprime, color, swappath)) break;
+                swappath = findCycleDFS(i, gprime);
+                if (!swappath.empty()) break;
             }
-        // -------------------------------------------
 
-        // If we failed, we want a unhappy swap ------
+        // 2. If we failed, we want a unhappy swap
         if (swappath.empty()) {
             // We search for an edge (u, v), such that 'u' has a label that
             // is out of place, and 'v' has a label in place.
@@ -167,20 +171,33 @@ efd::SwapSeq efd::ApproxTSFinder::find(Graph::Ref graph, Assign from, Assign to)
                 }
             }
         }
-        // -------------------------------------------
 
-        // Swap what we found ------------------------
+        // 3. Swap what we found
         if (!swappath.empty()) {
             for (uint32_t i = 1, e = swappath.size(); i < e; ++i) {
                 auto u = swappath[i-1], v = swappath[i];
                 swapseq.push_back({ u, v });
                 std::swap(from[u], from[v]);
             }
+
+            // Updating those vertices that were swapped.
+            // The others neither were magically put into place nor changed 'their mind'
+            // about where to go (which are good neighbors).
+            for (uint32_t i = 0, e = swappath.size(); i < e; ++i) {
+                // Updating vertex u.
+                auto u = swappath[i];
+
+                if (from[u] == to[u]) inplace[u] = true;
+                else inplace[u] = false;
+
+                if (!inplace[u]) gprime[u] = findGoodVerticesBFS(graph, u, toinv[from[u]]);
+                else gprime[u].clear();
+            }
         } else {
             break;
         }
-        // -------------------------------------------
     } while (true);
+    // ---------------------------------------------------------
 
     return swapseq;
 }
