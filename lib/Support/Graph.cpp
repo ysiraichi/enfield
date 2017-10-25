@@ -31,6 +31,17 @@ std::set<uint32_t>& efd::Graph::pred(uint32_t i) {
     return mPredecessors[i];
 }
 
+std::set<uint32_t> efd::Graph::adj(uint32_t i) {
+    std::set<uint32_t> adj;
+
+    auto& succ = mSuccessors[i];
+    auto& pred = mPredecessors[i];
+
+    adj.insert(pred.begin(), pred.end());
+    adj.insert(succ.begin(), succ.end());
+    return adj;
+}
+
 bool efd::Graph::hasEdge(uint32_t i, uint32_t j) {
     std::set<uint32_t>& succ = this->succ(i);
     return succ.find(j) != succ.end();
