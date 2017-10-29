@@ -11,6 +11,11 @@ efd::Graph::Graph(Kind k, uint32_t n) : mK(k), mN(n) {
     mPredecessors.assign(n, std::set<uint32_t>());
 }
 
+efd::Graph::Graph(uint32_t n) : mK(K_GRAPH), mN(n) {
+    mSuccessors.assign(n, std::set<uint32_t>());
+    mPredecessors.assign(n, std::set<uint32_t>());
+}
+
 uint32_t efd::Graph::inDegree(uint32_t i) const {
     return mPredecessors[i].size();
 }

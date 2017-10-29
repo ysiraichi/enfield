@@ -30,6 +30,8 @@ namespace efd {
             Graph(Kind k, uint32_t n);
 
         public:
+            Graph(uint32_t n);
+
             /// \brief Return the degree entering the vertex \p i.
             uint32_t inDegree(uint32_t i) const;
             /// \brief Return the degree leaving the vertex \p i.
