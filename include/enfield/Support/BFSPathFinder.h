@@ -11,10 +11,8 @@ namespace efd {
             typedef std::unique_ptr<BFSPathFinder> uRef;
             typedef std::shared_ptr<BFSPathFinder> sRef;
 
-        protected:
             BFSPathFinder();
 
-        public:
             std::vector<uint32_t> find(Graph::Ref g, uint32_t u, uint32_t v) override;
 
             /// \brief Creates one instance of this finder.

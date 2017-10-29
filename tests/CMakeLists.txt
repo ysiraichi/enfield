@@ -22,6 +22,9 @@ efd_test (PartialMatchingFinderTests
 efd_test (BFSPathFinderTests
     EfdSupport)
 
+efd_test (ApproxTSFinderTests
+    EfdSupport)
+
 # ==-------- Analysis ----------==
 efd_test (ASTNodeTests
     EfdAnalysis EfdSupport)

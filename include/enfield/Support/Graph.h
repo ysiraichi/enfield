@@ -30,6 +30,8 @@ namespace efd {
             Graph(Kind k, uint32_t n);
 
         public:
+            Graph(uint32_t n);
+
             /// \brief Return the degree entering the vertex \p i.
             uint32_t inDegree(uint32_t i) const;
             /// \brief Return the degree leaving the vertex \p i.
@@ -41,6 +43,8 @@ namespace efd {
             std::set<uint32_t>& succ(uint32_t i);
             /// \brief Return the set of predecessors of some vertex \p i.
             std::set<uint32_t>& pred(uint32_t i); 
+            /// \brief Return the set of adjacent vertices of some vertex \p i.
+            std::set<uint32_t> adj(uint32_t i); 
     
             /// \brief Inserts an edge (i, j) in the successor's list and
             /// an edge (j, i) in the predecessor's list.

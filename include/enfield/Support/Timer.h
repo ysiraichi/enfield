@@ -51,7 +51,7 @@ namespace efd {
 template <typename T>
 uint64_t efd::Timer::Stop() {
     _Timer.stop();
-    return std::chrono::duration_cast<T>(_Timer).count();
+    return std::chrono::duration_cast<T>(_Timer.mDuration).count();
 }
 
 #endif

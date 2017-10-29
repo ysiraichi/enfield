@@ -11,7 +11,7 @@ namespace efd {
 
         private:
             std::map<Assign, uint32_t> mMapId;
-            std::vector<std::vector<Swap>> mSwaps;
+            std::vector<SwapSeq> mSwaps;
 
             void genAllAssigns(uint32_t n);
             void preprocess(Graph::Ref graph);
@@ -22,11 +22,11 @@ namespace efd {
 
             ExpTSFinder(Graph::sRef graph);
 
-            std::vector<Swap> find(Assign from, Assign to) override;
-            std::vector<Swap> find(Graph::Ref graph, Assign from, Assign to) override;
+            SwapSeq find(Assign from, Assign to) override;
+            SwapSeq find(Graph::Ref graph, Assign from, Assign to) override;
 
             /// \brief Creates an instance of this class.
-            uRef Create(Graph::sRef graph = nullptr);
+            static uRef Create(Graph::sRef graph = nullptr);
     };
 }
 

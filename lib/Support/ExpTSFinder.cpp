@@ -46,7 +46,7 @@ void efd::ExpTSFinder::preprocess(Graph::Ref graph) {
     }
 
     std::vector<bool> inserted(mAssigns.size(), false);
-    mSwaps.assign(mAssigns.size(), std::vector<Swap>());
+    mSwaps.assign(mAssigns.size(), SwapSeq());
 
     std::vector<uint32_t> cur;
     std::queue<uint32_t> q;
@@ -94,12 +94,12 @@ efd::ExpTSFinder::ExpTSFinder(Graph::sRef graph) : TokenSwapFinder(graph) {
     preprocess(graph.get());
 }
 
-std::vector<efd::Swap> efd::ExpTSFinder::find(Assign from, Assign to) {
+efd::SwapSeq efd::ExpTSFinder::find(Assign from, Assign to) {
     assert(mG.get() != nullptr && "Trying to find a swap seq. but no graph given.");
     return mSwaps[getTargetId(from, to)];
 }
 
-std::vector<efd::Swap> efd::ExpTSFinder::find(Graph::Ref graph, Assign from, Assign to) {
+efd::SwapSeq efd::ExpTSFinder::find(Graph::Ref graph, Assign from, Assign to) {
     if (mG.get()) mG.reset();
     preprocess(graph);
     return mSwaps[getTargetId(from, to)];

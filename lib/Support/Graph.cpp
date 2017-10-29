@@ -11,6 +11,11 @@ efd::Graph::Graph(Kind k, uint32_t n) : mK(k), mN(n) {
     mPredecessors.assign(n, std::set<uint32_t>());
 }
 
+efd::Graph::Graph(uint32_t n) : mK(K_GRAPH), mN(n) {
+    mSuccessors.assign(n, std::set<uint32_t>());
+    mPredecessors.assign(n, std::set<uint32_t>());
+}
+
 uint32_t efd::Graph::inDegree(uint32_t i) const {
     return mPredecessors[i].size();
 }
@@ -29,6 +34,17 @@ std::set<uint32_t>& efd::Graph::succ(uint32_t i) {
 
 std::set<uint32_t>& efd::Graph::pred(uint32_t i) {
     return mPredecessors[i];
+}
+
+std::set<uint32_t> efd::Graph::adj(uint32_t i) {
+    std::set<uint32_t> adj;
+
+    auto& succ = mSuccessors[i];
+    auto& pred = mPredecessors[i];
+
+    adj.insert(pred.begin(), pred.end());
+    adj.insert(succ.begin(), succ.end());
+    return adj;
 }
 
 bool efd::Graph::hasEdge(uint32_t i, uint32_t j) {
