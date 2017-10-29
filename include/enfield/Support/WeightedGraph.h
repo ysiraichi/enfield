@@ -5,6 +5,7 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <cassert>
 
 namespace efd {
 
@@ -17,14 +18,16 @@ namespace efd {
 
         private:
             std::map<std::pair<uint32_t, uint32_t>, T> mW;
-
-            WeightedGraph(uint32_t n);
             static std::unique_ptr<WeightedGraph<T>> ReadFromIn(std::istream& in);
 
         public:
+            WeightedGraph(uint32_t n);
+
             /// \brief Insert the edge (i, j) with weight w(i, j) = \p w.
             void putEdge(uint32_t i, uint32_t j, T w);
 
+            /// \brief Sets the weight of an edge (i, j).
+            void setW(uint32_t i, uint32_t j, T w);
             /// \brief Gets the weight of an edge (i, j).
             T getW(uint32_t i, uint32_t j);
     
@@ -47,6 +50,13 @@ template <typename T>
 void efd::WeightedGraph<T>::putEdge(uint32_t i, uint32_t j, T w) {
     Graph::putEdge(i, j);
     mW[std::make_pair(i, j)] = w;
+}
+
+template <typename T>
+void efd::WeightedGraph<T>::setW(uint32_t i, uint32_t j, T w) {
+    auto pair = std::make_pair(i, j);
+    assert(mW.find(pair) != mW.end() && "Edge weight not found.");
+    mW[pair] = w;
 }
 
 template <typename T>
