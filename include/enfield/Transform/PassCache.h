@@ -18,6 +18,15 @@ namespace efd {
         public:
             PassCache() = delete;
 
+            /// \brief Clears the cache for a certain \p qmod, or simply clears all cache.
+            static bool Clear(QModule::Ref qmod = nullptr) {
+                if (qmod != nullptr) {
+                    mPasses.erase(qmod);
+                } else {
+                    mPasses.clear();
+                }
+            }
+
             /// \brief Returns true if this pass was already run for this module.
             template <typename T>
             static bool Has(QModule::Ref qmod) {

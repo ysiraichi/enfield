@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "enfield/Transform/CNOTLBOWrapperPass.h"
+#include "enfield/Transform/PassCache.h"
 #include "enfield/Support/uRefCast.h"
 
 using namespace efd;
@@ -10,6 +11,8 @@ static void CheckOrdering(std::string program, std::vector<uint32_t> order) {
     cnotLBOpass->run(qmod.get());
     auto passdata = cnotLBOpass->getData();
     ASSERT_EQ(passdata.ordering, order);
+
+    PassCache::Clear(qmod.get());
 }
 
 TEST(CNOTLBOWrapperPassTests, IdentitySimpleProgram) {
