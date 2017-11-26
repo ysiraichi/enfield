@@ -299,4 +299,20 @@ TEST(ApproxTSFinderTests, Undef16QComplexSwapTest) {
         };
         CheckSwapSeq(graph, from, to, true);
     }
+
+    {
+        Assign from {
+            0, 1, 2, 3,
+            4, 5, 6, 7,
+            _undef, _undef, _undef, _undef,
+            _undef, _undef, _undef, _undef
+        };
+        Assign to {
+            _undef, _undef, _undef, _undef,
+            _undef, _undef, _undef, _undef,
+            7, 5, 4, 6,
+            1, 3, 2, 0
+        };
+        CheckSwapSeq(graph, from, to, true);
+    }
 }

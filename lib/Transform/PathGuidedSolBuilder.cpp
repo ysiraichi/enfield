@@ -52,19 +52,6 @@ efd::Solution efd::PathGuidedSolBuilder::build
 
         auto assign = GenAssignment(g->size(), match);
         auto path = mPathFinder->find(g, u, v);
-    
-        // It should stop before swapping the 'source' qubit.
-        if (path.size() == 3 && freq[d] <= 1 && g->hasEdge(path[0], path[1]) && g->hasEdge(path[1], path[0])) {
-            // Insert bridge, if we use it only one time.
-            solution.mCost += LCXCost.getVal() - 6;
-            ops.second.push_back({ Operation::K_OP_LCNOT, path[0], path[1], path[2] });
-
-            for (auto u : path)
-                frozen[u] = true;
-
-            --freq[d];
-            continue;
-        }
 
         if (path.size() > 2) {
             for (auto u : path) {
@@ -106,28 +93,9 @@ efd::Solution efd::PathGuidedSolBuilder::build
 
         if (g->hasEdge(u, v)) {
             ops.second.push_back({ Operation::K_OP_CNOT, a, b });
-        } else if (freq[d] <= 1 && g->isReverseEdge(u, v)) {
+        } else {
             solution.mCost += RevCost.getVal();
             ops.second.push_back({ Operation::K_OP_REV, a, b });
-        } else if (freq[d] > 1 && g->isReverseEdge(u, v)) {
-
-            if (!frozen[u] && !frozen[v]) {
-                // Swap if there is more than one dependency (a, b)
-                std::swap(solution.mInitial[a], solution.mInitial[b]);
-            } else {
-                // ------ Stats
-                TotalSwapCost += SwapCost.getVal();
-                // --------------------
-
-                solution.mCost += SwapCost.getVal();
-                ops.second.push_back({ Operation::K_OP_SWAP, a, b });
-            }
-
-            std::swap(match[a], match[b]);
-            std::swap(assign[u], assign[v]);
-
-            // (a, b) is now a valid edge.
-            ops.second.push_back({ Operation::K_OP_CNOT, a, b });
         }
 
         frozen[u] = true;
