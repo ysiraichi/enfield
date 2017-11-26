@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
         qargs->addChild(lhs->clone());
         qargs->addChild(rhs->clone());
 
-        auto cx = efd::NDQOp::Create(
+        auto cx = efd::NDQOpGen::Create(
                 efd::NDId::Create("cx"),
                 efd::NDList::Create(),
                 std::move(qargs));
