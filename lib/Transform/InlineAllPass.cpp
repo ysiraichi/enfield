@@ -15,12 +15,12 @@ namespace efd {
             InlineAllVisitor(QModule& qmod, std::set<std::string> basis)
                 : mMod(qmod), mBasis(basis) {}
 
-            void visit(NDQOp::Ref ref) override;
+            void visit(NDQOpGen::Ref ref) override;
             void visit(NDIfStmt::Ref ref) override;
     };
 }
 
-void efd::InlineAllVisitor::visit(NDQOp::Ref ref) {
+void efd::InlineAllVisitor::visit(NDQOpGen::Ref ref) {
     if (mBasis.find(ref->getId()->getVal()) == mBasis.end()) {
         mInlineVector.push_back(ref);
     }

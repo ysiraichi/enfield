@@ -43,7 +43,7 @@ namespace efd {
             void visit(NDIfStmt::Ref ref) override;
             void visit(NDList::Ref ref) override;
             void visit(NDQOpCX::Ref ref) override;
-            void visit(NDQOp::Ref ref) override;
+            void visit(NDQOpGen::Ref ref) override;
     };
 }
 
@@ -184,7 +184,7 @@ void efd::SolutionImplPass::visit(NDQOpCX::Ref ref) {
     applyOperations(ref);
 }
 
-void efd::SolutionImplPass::visit(NDQOp::Ref ref) {
+void efd::SolutionImplPass::visit(NDQOpGen::Ref ref) {
     ref->getQArgs()->apply(this);
 
     if (!mSol.mOpSeqs.empty() && ref == mSol.mOpSeqs[mDepIdx].first) {

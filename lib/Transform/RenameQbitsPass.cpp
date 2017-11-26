@@ -22,7 +22,7 @@ namespace efd {
             void visit(NDQOpU::Ref ref) override;
             void visit(NDQOpCX::Ref ref) override;
             void visit(NDQOpBarrier::Ref ref) override;
-            void visit(NDQOp::Ref ref) override;
+            void visit(NDQOpGen::Ref ref) override;
             void visit(NDList::Ref ref) override;
     };
 }
@@ -54,7 +54,7 @@ void efd::RenameQbitVisitor::visit(NDQOpBarrier::Ref ref) {
     ref->getQArgs()->apply(this);
 }
 
-void efd::RenameQbitVisitor::visit(NDQOp::Ref ref) {
+void efd::RenameQbitVisitor::visit(NDQOpGen::Ref ref) {
     // Rename the quantum arguments before swapping in order to preserve
     // the order.
     ref->getQArgs()->apply(this);
