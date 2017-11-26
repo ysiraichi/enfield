@@ -48,7 +48,17 @@ int main(int argc, char** argv) {
     InitializeAllArchitectures();
     ParseArguments(argc, argv);
 
-    QModule::sRef qmod = toShared(QModule::Parse(InFilepath.getVal()));
+    std::string path = "./";
+    std::string filename = InFilepath.getVal();
+
+    auto lastslash = filename.find_last_of('/');
+
+    if (lastslash != std::string::npos) {
+        path = filename.substr(0, lastslash + 1);
+        filename = filename.substr(lastslash + 1, std::string::npos);
+    }
+
+    QModule::sRef qmod = toShared(QModule::Parse(filename, path));
 
     if (qmod.get() != nullptr) {
         // Creating default passes.
