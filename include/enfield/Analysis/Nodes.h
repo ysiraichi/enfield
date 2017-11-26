@@ -25,6 +25,7 @@ namespace efd {
     class NDQOpU;
     class NDBinOp;
     class NDUnaryOp;
+    class NDQOpGen;
     class NDIdRef;
     class NDList;
     class NDStmtList;
@@ -55,6 +56,7 @@ namespace efd {
                 K_QOP_BARRIER,
                 K_QOP_CX,
                 K_QOP_U,
+                K_QOP_GEN,
                 K_BINOP,
                 K_UNARYOP,
                 K_ID_REF,
@@ -594,14 +596,9 @@ namespace efd {
 
             virtual uint32_t getChildNumber() const override;
             virtual std::string toString(bool pretty = false) const override;
-            virtual void apply(NodeVisitor* visitor) override;
-            virtual Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
-            /// \brief Creates a new instance of this node.
-            static uRef Create(NDId::uRef idNode, NDList::uRef aNode,
-                    NDList::uRef qaNode);
     };
 
     /// \brief NDQOp specialized for reset operation.
@@ -897,6 +894,24 @@ namespace efd {
             static uRef CreateLn(Node::uRef oNode);
             /// \brief Creates a sqrt unary operand node.
             static uRef CreateSqrt(Node::uRef oNode);
+    };
+
+    /// \brief NDQOp specialized for generic gates.
+    class NDQOpGen : public NDQOp {
+        protected:
+            NDQOpGen(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
+
+        public:
+            typedef NDQOpGen* Ref;
+            typedef std::unique_ptr<NDQOpGen> uRef;
+
+            void apply(NodeVisitor* visitor) override;
+            virtual Node::uRef clone() const override;
+
+            /// \brief Returns whether the \p node is an instance of this class.
+            static bool ClassOf(const Node* node);
+            /// \brief Creates a new instance of this node.
+            static uRef Create(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
     };
 
     /// \brief Node for conditional statement.

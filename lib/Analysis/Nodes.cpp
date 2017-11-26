@@ -856,14 +856,7 @@ bool efd::NDQOp::isCX() const {
 }
 
 bool efd::NDQOp::isGeneric() const {
-    return getKind() == K_QOP;
-}
-
-efd::Node::uRef efd::NDQOp::clone() const {
-    auto id = uniqueCastForward<NDId>(getId()->clone());
-    auto args = uniqueCastForward<NDList>(getArgs()->clone());
-    auto qargs = uniqueCastForward<NDList>(getQArgs()->clone());
-    return NDQOp::Create(std::move(id), std::move(args), std::move(qargs));
+    return getKind() == K_QOP_GEN;
 }
 
 efd::NDId::Ref efd::NDQOp::getId() const {
@@ -898,10 +891,6 @@ uint32_t efd::NDQOp::getChildNumber() const {
     return 3;
 }
 
-void efd::NDQOp::apply(NodeVisitor::Ref visitor) {
-    visitor->visit(this);
-}
-
 std::string efd::NDQOp::toString(bool pretty) const {
     std::string str;
     std::string endl = (pretty) ? "\n" : "";
@@ -921,23 +910,12 @@ std::string efd::NDQOp::toString(bool pretty) const {
 bool efd::NDQOp::ClassOf(const Node* node) {
     auto kind = node->getKind();
     return
-        kind == K_QOP         ||
+        kind == K_QOP_GEN     ||
         kind == K_QOP_U       ||
         kind == K_QOP_CX      ||
         kind == K_QOP_RESET   ||
         kind == K_QOP_BARRIER ||
         kind == K_QOP_MEASURE;
-}
-
-efd::NDQOp::uRef efd::NDQOp::Create
-(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode) {
-    auto qop = uRef(new NDQOp(
-                K_QOP, 
-                std::move(idNode),
-                std::move(aNode),
-                std::move(qaNode)));
-    assert(instanceOf<NDQOp>(qop.get()) && "Invalid NDQOp kind.");
-    return qop;
 }
 
 // -------------- Qubit Operation: Reset -----------------
@@ -994,7 +972,7 @@ efd::NDQOpBarrier::uRef efd::NDQOpBarrier::Create(NDList::uRef qaNode) {
     return uRef(new NDQOpBarrier(std::move(qaNode)));
 }
 
-// -------------- Measure -----------------
+// -------------- Qubit Operation: Measure -----------------
 efd::NDQOpMeasure::NDQOpMeasure(Node::uRef qNode, Node::uRef cNode) :
     NDQOp(K_QOP_MEASURE, NDId::Create("measure"), NDList::Create(), NDList::Create()) {
     innerAddChild(std::move(cNode));
@@ -1120,6 +1098,30 @@ bool efd::NDQOpCX::ClassOf(const Node* node) {
 
 efd::NDQOpCX::uRef efd::NDQOpCX::Create(Node::uRef lhsNode, Node::uRef rhsNode) {
     return uRef(new NDQOpCX(std::move(lhsNode), std::move(rhsNode)));
+}
+
+// -------------- Qubit Operation: Generic -----------------
+efd::NDQOpGen::NDQOpGen(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode) : NDQOp(K_QOP_GEN,
+        std::move(idNode), std::move(aNode), std::move(qaNode)) {
+}
+
+void efd::NDQOpGen::apply(NodeVisitor::Ref visitor) {
+    visitor->visit(this);
+}
+
+efd::Node::uRef efd::NDQOpGen::clone() const {
+    auto id = uniqueCastForward<NDId>(getId()->clone());
+    auto args = uniqueCastForward<NDList>(getArgs()->clone());
+    auto qargs = uniqueCastForward<NDList>(getQArgs()->clone());
+    return NDQOpGen::Create(std::move(id), std::move(args), std::move(qargs));
+}
+
+bool efd::NDQOpGen::ClassOf(const Node* node) {
+    return node->getKind() == K_QOP_GEN;
+}
+
+efd::NDQOpGen::uRef efd::NDQOpGen::Create(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode) {
+    return uRef(new NDQOpGen(std::move(idNode), std::move(aNode), std::move(qaNode)));
 }
 
 // -------------- Binary Operation -----------------
