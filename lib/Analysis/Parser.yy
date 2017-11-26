@@ -280,7 +280,7 @@ qop: uop        { $$ = $1; }
    ;
 
 uop: id args anylist ";"    {
-                                $$ = efd::NDQOp::Create
+                                $$ = efd::NDQOpGen::Create
                                 (efd::NDId::uRef($1), efd::NDList::uRef($2), efd::NDList::uRef($3))
                                 .release();
                             }

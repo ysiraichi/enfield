@@ -20,7 +20,7 @@ namespace efd {
             virtual void visit(NDQOpU::Ref ref);
             virtual void visit(NDQOpCX::Ref ref);
             virtual void visit(NDQOpBarrier::Ref ref);
-            virtual void visit(NDQOp::Ref ref);
+            virtual void visit(NDQOpGen::Ref ref);
             virtual void visit(NDBinOp::Ref ref);
             virtual void visit(NDUnaryOp::Ref ref);
             virtual void visit(NDIdRef::Ref ref);
