@@ -23,7 +23,7 @@ namespace efd {
             ReverseEdgesVisitor(ArchGraph::sRef g) : mG(g) {}
 
             void visit(NDQOpCX::Ref ref) override;
-            void visit(NDQOp::Ref ref) override;
+            void visit(NDQOpGen::Ref ref) override;
             void visit(NDIfStmt::Ref ref) override;
     };
 }
@@ -53,7 +53,7 @@ void efd::ReverseEdgesVisitor::visit(NDQOpCX::Ref ref) {
     }
 }
 
-void efd::ReverseEdgesVisitor::visit(NDQOp::Ref ref) {
+void efd::ReverseEdgesVisitor::visit(NDQOpGen::Ref ref) {
     if (ref->getId()->getVal() == "cx") {
         // Have to come up a way to overcome this.
         assert(ref->getQArgs()->getChildNumber() == 2 && "CNot gate malformed.");

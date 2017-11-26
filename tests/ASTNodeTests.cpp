@@ -10,7 +10,7 @@ using namespace efd;
 
 static NDId::uRef Id(std::string s);
 static NDIdRef::uRef IdRef(std::string id, std::string sz);
-static NDQOp::uRef IdGate(std::string id);
+static NDQOpGen::uRef IdGate(std::string id);
 static NDInt::uRef Int(std::string s);
 static NDReal::uRef Real(std::string s);
 
@@ -22,12 +22,12 @@ static NDIdRef::uRef IdRef(std::string id, std::string sz) {
     return NDIdRef::Create(Id(id), Int(sz));
 }
 
-static NDQOp::uRef IdGate(std::string id, std::string par) {
+static NDQOpGen::uRef IdGate(std::string id, std::string par) {
     auto refQAL = NDList::Create();
     auto refAL = NDList::Create();
     refQAL->addChild(Id(id));
     refAL->addChild(Int(par));
-    return NDQOp::Create(Id("id"), std::move(refAL), std::move(refQAL));
+    return NDQOpGen::Create(Id("id"), std::move(refAL), std::move(refQAL));
 }
 
 static NDInt::uRef Int(std::string s) {
@@ -201,12 +201,12 @@ TEST(ASTNodeTests, QOpCreationTest) {
     TestFind(refBarrier.get());
 
     std::string genStr = "id r0, r5;";
-    NDQOp::uRef refGeneric;
+    NDQOpGen::uRef refGeneric;
     {
         auto refArgList = NDList::Create();
         refArgList->addChild(Id("r0"));
         refArgList->addChild(Id("r5"));
-        refGeneric = NDQOp::Create(Id("id"), NDList::Create(), std::move(refArgList));
+        refGeneric = NDQOpGen::Create(Id("id"), NDList::Create(), std::move(refArgList));
     }
     TestPrinting(refGeneric.get(), genStr);
     TestFind(refGeneric.get());

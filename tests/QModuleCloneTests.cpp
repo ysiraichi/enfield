@@ -32,7 +32,7 @@ namespace {
             void visit(NDQOpU::Ref ref) override { visitNode(ref); }
             void visit(NDQOpCX::Ref ref) override { visitNode(ref); }
             void visit(NDQOpBarrier::Ref ref) override { visitNode(ref); }
-            void visit(NDQOp::Ref ref) override { visitNode(ref); }
+            void visit(NDQOpGen::Ref ref) override { visitNode(ref); }
             void visit(NDBinOp::Ref ref) override { visitNode(ref); }
             void visit(NDUnaryOp::Ref ref) override { visitNode(ref); }
             void visit(NDIdRef::Ref ref) override { visitNode(ref); }
