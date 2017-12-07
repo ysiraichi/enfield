@@ -19,7 +19,7 @@ namespace efd {
             PassCache() = delete;
 
             /// \brief Clears the cache for a certain \p qmod, or simply clears all cache.
-            static bool Clear(QModule::Ref qmod = nullptr) {
+            static void Clear(QModule::Ref qmod = nullptr) {
                 if (qmod != nullptr) {
                     mPasses.erase(qmod);
                 } else {

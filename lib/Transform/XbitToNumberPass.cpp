@@ -9,10 +9,6 @@
 // --------------------- XbitToNumber ------------------------
 const efd::XbitToNumber::XbitMap&
 efd::XbitToNumber::getQbitMap(NDGateDecl::Ref gate) const {
-    // if (gate) gate->print(std::cout, true);
-    // else std::cout << "nullptr" << std::endl;
-    // std::cout << "gate: " << gate << std::endl;
-    // if (gate) std::cout << gate->getId()->getVal() << std::endl;
     assert(gate == nullptr || lidQMap.find(gate) != lidQMap.end() &&
             "Trying to get an unknown gate information.");
     return (gate == nullptr) ? gidQMap : lidQMap.at(gate);
@@ -123,9 +119,12 @@ void efd::XbitToNumberVisitor::visit(NDGateDecl::Ref ref) {
         // will be mapped to a number.
         for (auto& childRef : *ref->getQArgs()) {
             NDId::Ref idref = dynCast<NDId>(childRef.get());
-            mXbitToNumber.lidQMap[ref][idref->getVal()] = (XbitToNumber::XbitInfo {
-                    (uint32_t) mXbitToNumber.lidQMap[ref].size(),
-                    toShared(idref->clone()) });
+
+            XbitToNumber::XbitInfo info {
+                (uint32_t) mXbitToNumber.lidQMap[ref].size(), toShared(idref->clone())
+            };
+
+            mXbitToNumber.lidQMap[ref][idref->getVal()] = info;
         }
     }
 }
