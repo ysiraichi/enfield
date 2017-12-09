@@ -60,11 +60,8 @@ void efd::ArgsParser::delOpt(OptBase* opt) {
 static efd::Opt<bool> PrintHelp
 ("help", "Prints a list with the available commands.", false, false);
 
-static std::shared_ptr<ArgsParser> Parser(nullptr);
 static std::shared_ptr<ArgsParser> GetParser() {
-    if (Parser.get() == nullptr)
-        Parser.reset(new ArgsParser());
-
+    static std::shared_ptr<ArgsParser> Parser(new ArgsParser());
     return Parser;
 }
 
