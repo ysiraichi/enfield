@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.5.1)
 project (enfield)
 
 set (DEFAULT_BUILD_TYPE "Debug")
-set (CMAKE_CXX_FLAGS    "-std=c++11 -Wall -Werror")
+set (CMAKE_CXX_FLAGS    "-std=c++11 -Wall")
 set (CMAKE_MODULE_PATH  "${CMAKE_SOURCE_DIR}/cmake")
 
 option (ENABLE_TESTS "Enables the tests."       off)
