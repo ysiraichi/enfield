@@ -95,12 +95,6 @@ std::string efd::Node::getOperation() const {
     return "";
 }
 
-void efd::Node::apply(NodeVisitor::Ref visitor) {
-    apply(visitor);
-    for (auto& child : mChild)
-        child->apply(visitor);
-}
-
 // -------------- Value Specializations -----------------
 // -------------- Value<efd::IntVal> -----------------
 template <> 
@@ -215,6 +209,7 @@ std::string efd::NDRegDecl::getOperation() const {
     switch (mT) {
         case CONCRETE: return "creg";
         case QUANTUM:  return "qreg";
+        default: assert(false && "Unknown register type.");
     }
 }
 
@@ -1182,6 +1177,7 @@ std::string efd::NDBinOp::getOperation() const {
         case OP_MUL: return "*";
         case OP_DIV: return "/";
         case OP_POW: return "^";
+        default: assert(false && "Unknown binary operation.");
     }
 }
 
@@ -1291,6 +1287,7 @@ std::string efd::NDUnaryOp::getOperation() const {
         case UOP_LN:    return "ln";
         case UOP_SQRT:  return "sqrt";
         case UOP_NEG:   return "-";
+        default: assert(false && "Unknown unary operation.");
     }
 }
 

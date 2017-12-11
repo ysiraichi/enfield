@@ -22,7 +22,7 @@ include \"qelib1.inc\";\
 qreg q[5];\
 CX q[0], q[1];\
 ";
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = InlineAllPass::Create();
         pass->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
@@ -48,7 +48,7 @@ CX q[1], q[0];\
 U(10, 20, 10) q[0];\
 U(10, 20, 10) q[1];\
 ";
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = InlineAllPass::Create();
         pass->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
@@ -68,7 +68,7 @@ include \"qelib1.inc\";\
 qreg q[5];\
 cx q[0], q[1];\
 ";
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = InlineAllPass::Create({ "cx" });
         pass->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
@@ -97,7 +97,7 @@ U(a, b, 10) y;\
 qreg q[5];\
 somegate(10, 20) q[0], q[1];\
 ";
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto pass = InlineAllPass::Create({ "somegate" });
         pass->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);

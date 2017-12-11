@@ -1,4 +1,3 @@
-
 #include "gtest/gtest.h"
 
 #include "enfield/Arch/ArchGraph.h"
@@ -19,7 +18,7 @@ q[1] q[4]\n\
     std::unique_ptr<ArchGraph> graph = efd::ArchGraph::ReadString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
-    ASSERT_EQ(graph->size(), 5);
+    ASSERT_EQ(graph->size(), (uint32_t) 5);
     ASSERT_TRUE(graph->hasEdge(0, 1));
     ASSERT_TRUE(graph->hasEdge(0, 2));
     ASSERT_TRUE(graph->hasEdge(1, 3));
@@ -46,7 +45,7 @@ q[4] q[1]\n\
     std::unique_ptr<ArchGraph> graph = efd::ArchGraph::ReadString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
-    ASSERT_EQ(graph->size(), 5);
+    ASSERT_EQ(graph->size(), (uint32_t) 5);
     ASSERT_TRUE(graph->hasEdge(0, 1));
     ASSERT_TRUE(graph->hasEdge(1, 0));
     ASSERT_TRUE(graph->hasEdge(0, 2));

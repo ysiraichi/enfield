@@ -6,7 +6,7 @@
 
 void efd::ExpTSFinder::genAllAssigns(uint32_t n) {
     efd::Assign assign(n, 0);
-    for (int i = 0; i < n; ++i) assign[i] = i;
+    for (uint32_t i = 0; i < n; ++i) assign[i] = i;
 
     mAssigns.clear();
 
@@ -37,7 +37,7 @@ uint32_t efd::ExpTSFinder::getTargetId(Assign source, Assign target) {
 // Pre-process the architechture graph, calculating the optimal swaps from every
 // permutation.
 void efd::ExpTSFinder::preprocess(Graph::Ref graph) {
-    int size = graph->size();
+    uint32_t size = graph->size();
     genAllAssigns(size);
 
     mMapId.clear();

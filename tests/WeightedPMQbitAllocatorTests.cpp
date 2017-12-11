@@ -47,7 +47,7 @@ CX q[1], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
@@ -83,7 +83,7 @@ CX q[1], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
@@ -113,7 +113,7 @@ CX q[1], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
@@ -145,7 +145,7 @@ CX q[1], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
@@ -184,7 +184,7 @@ intrinsic_rev_cx__ q[2], q[1];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());

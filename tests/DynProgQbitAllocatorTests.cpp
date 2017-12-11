@@ -45,7 +45,7 @@ CX q[0], q[1];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         DynProgQbitAllocator::uRef allocator = DynProgQbitAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
@@ -79,7 +79,7 @@ CX q[4], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         DynProgQbitAllocator::uRef allocator = DynProgQbitAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
@@ -107,7 +107,7 @@ CX q[1], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         DynProgQbitAllocator::uRef allocator = DynProgQbitAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
@@ -137,7 +137,7 @@ CX q[4], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         DynProgQbitAllocator::uRef allocator = DynProgQbitAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
@@ -173,7 +173,7 @@ CX q[0], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         DynProgQbitAllocator::uRef allocator = DynProgQbitAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });

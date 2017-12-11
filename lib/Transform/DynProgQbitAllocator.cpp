@@ -33,7 +33,7 @@ static inline uint32_t min(uint32_t a, uint32_t b) {
 }
 
 static inline Val minVal(Val& a, Val& b) {
-    int cost = min(a.cost, b.cost);
+    uint32_t cost = min(a.cost, b.cost);
     if (cost == a.cost) return a;
     else return b;
 }
@@ -60,8 +60,8 @@ efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
     const uint32_t REV_COST = RevCost.getVal();
     const uint32_t LCX_COST = LCXCost.getVal();
 
-    int permN = permutations.size();
-    int depN = deps.size();
+    uint32_t permN = permutations.size();
+    uint32_t depN = deps.size();
 
     auto finder = BFSPathFinder::Create();
 
@@ -101,7 +101,7 @@ efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
 
             Val minimum { tgt, nullptr, UNREACH };
 
-            for (int src = 0; src < permN; ++src) {
+            for (uint32_t src = 0; src < permN; ++src) {
                 Val& srcVal = vals[src][i-1];
                 if (srcVal.cost == UNREACH)
                     continue;
@@ -133,8 +133,8 @@ efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
 
     // Get the minimum cost setup.
     Val* val = &vals[0][depN];
-    for (int i = 1; i < permN; ++i) {
-        int minCost = min(val->cost, vals[i][depN].cost);
+    for (uint32_t i = 1; i < permN; ++i) {
+        uint32_t minCost = min(val->cost, vals[i][depN].cost);
         val = (minCost == val->cost) ? val : &vals[i][depN];
     }
 
@@ -152,13 +152,13 @@ efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
     }
 
     if (depN == 0) {
-        for (int i = 0; i < archQ; ++i)
+        for (uint32_t i = 0; i < archQ; ++i)
             solution.mInitial.push_back(i);
         solution.mCost = 0;
     } else {
         solution.mInitial = mappings[0].second;
         solution.mOpSeqs[0].first = deps[0].mCallPoint;
-        for (int i = 1; i < depN; ++i) {
+        for (uint32_t i = 1; i < depN; ++i) {
             uint32_t srcId = mappings[i-1].first, tgtId = mappings[i].first;
 
             auto& ops = solution.mOpSeqs[i];

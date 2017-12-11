@@ -28,7 +28,7 @@ TEST(BFSPathFinderTests, NoSwapPathTest) {
 
     auto finder = BFSPathFinder::Create();
     auto path = finder->find(graph.get(), 0, 1);;
-    ASSERT_EQ(path.size(), 2);
+    ASSERT_EQ(path.size(), (uint32_t) 2);
 }
 
 TEST(BFSPathFinderTests, ReverseEdgeNoSwapPathTest) {
@@ -45,7 +45,7 @@ TEST(BFSPathFinderTests, ReverseEdgeNoSwapPathTest) {
 
     auto finder = BFSPathFinder::Create();
     auto path = finder->find(graph.get(), 3, 1);
-    ASSERT_EQ(path.size(), 2);
+    ASSERT_EQ(path.size(), (uint32_t) 2);
 }
 
 TEST(BFSPathFinderTests, SwapTests) {
@@ -63,7 +63,7 @@ TEST(BFSPathFinderTests, SwapTests) {
 
         auto finder = BFSPathFinder::Create();
         auto path = finder->find(graph.get(), 0, 4);;
-        ASSERT_EQ(path.size(), 3);
+        ASSERT_EQ(path.size(), (uint32_t) 3);
         PathEqual(path, { 0, 1, 4 });
     }
 
@@ -81,7 +81,7 @@ TEST(BFSPathFinderTests, SwapTests) {
 
         auto finder = BFSPathFinder::Create();
         auto path = finder->find(graph.get(), 4, 0);
-        ASSERT_EQ(path.size(), 5);
+        ASSERT_EQ(path.size(), (uint32_t) 5);
         PathEqual(path, { 4, 3, 2, 1, 0 });
     }
 }

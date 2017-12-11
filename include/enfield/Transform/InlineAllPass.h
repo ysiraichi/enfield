@@ -15,9 +15,7 @@ namespace efd {
             static uint8_t ID;
 
         private:
-            QModule::sRef mMod;
             std::set<std::string> mBasis;
-            bool mInlined;
             
         public:
             InlineAllPass(std::vector<std::string> basis = std::vector<std::string>());

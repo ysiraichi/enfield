@@ -47,7 +47,7 @@ CX q[0], q[1];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
@@ -85,7 +85,7 @@ intrinsic_lcx__ q[3], q[2], q[0];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
@@ -115,7 +115,7 @@ CX q[1], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
@@ -147,7 +147,7 @@ CX q[4], q[2];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
@@ -184,7 +184,7 @@ intrinsic_rev_cx__ q[1], q[0];\
 
         ArchGraph::sRef graph = getGraph();
 
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleQbitAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());

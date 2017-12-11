@@ -9,7 +9,7 @@
 // --------------------- XbitToNumber ------------------------
 const efd::XbitToNumber::XbitMap&
 efd::XbitToNumber::getQbitMap(NDGateDecl::Ref gate) const {
-    assert(gate == nullptr || lidQMap.find(gate) != lidQMap.end() &&
+    assert((gate == nullptr || lidQMap.find(gate) != lidQMap.end()) &&
             "Trying to get an unknown gate information.");
     return (gate == nullptr) ? gidQMap : lidQMap.at(gate);
 }

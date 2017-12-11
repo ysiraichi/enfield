@@ -151,9 +151,9 @@ gate cnot x, y {\
         auto data = pass->getData();
         auto deps = data.getDependencies(gate);
         // Has only one parallel dependency.
-        ASSERT_EQ(deps.size(), 1);
+        ASSERT_EQ(deps.size(), (uint32_t) 1);
         // The only paralel dependency has only one parallel dependency.
-        ASSERT_EQ(deps[0].getSize(), 1);
+        ASSERT_EQ(deps[0].getSize(), (uint32_t) 1);
         ASSERT_EQ(deps[0][0].mFrom, x);
         ASSERT_EQ(deps[0][0].mTo, y);
 
@@ -196,9 +196,9 @@ gate cnot x, y {\
         auto cnotDeps = data.getDependencies(cnotGate);
 
         // Has only one parallel dependency.
-        ASSERT_EQ(cxDeps.size(), 1);
+        ASSERT_EQ(cxDeps.size(), (uint32_t) 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ(cxDeps[0].getSize(), 1);
+        ASSERT_EQ(cxDeps[0].getSize(), (uint32_t) 1);
         ASSERT_EQ(cxDeps[0][0].mFrom, x);
         ASSERT_EQ(cxDeps[0][0].mTo, y);
 
@@ -206,9 +206,9 @@ gate cnot x, y {\
         ASSERT_TRUE(efd::instanceOf<NDQOpCX>(cxDeps[0].mCallPoint));
 
         // Has only one parallel dependency.
-        ASSERT_EQ(cnotDeps.size(), 1);
+        ASSERT_EQ(cnotDeps.size(), (uint32_t) 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ(cnotDeps[0].getSize(), 1);
+        ASSERT_EQ(cnotDeps[0].getSize(), (uint32_t) 1);
         ASSERT_EQ(cnotDeps[0][0].mFrom, x);
         ASSERT_EQ(cnotDeps[0][0].mTo, y);
 
@@ -238,9 +238,9 @@ CX q[0], q[1];\
         auto deps = data.getDependencies();
 
         // Has only one parallel dependency.
-        ASSERT_EQ(deps.size(), 1);
+        ASSERT_EQ(deps.size(), (uint32_t) 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ(deps[0].getSize(), 1);
+        ASSERT_EQ(deps[0].getSize(), (uint32_t) 1);
         ASSERT_EQ(deps[0][0].mFrom, q0);
         ASSERT_EQ(deps[0][0].mTo, q1);
 
