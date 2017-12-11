@@ -3,15 +3,15 @@ cmake_minimum_required (VERSION 3.5.1)
 project (enfield)
 
 set (DEFAULT_BUILD_TYPE "Debug")
-set (CMAKE_CXX_FLAGS    "-std=c++11")
+set (CMAKE_CXX_FLAGS    "-std=c++11 -Wall -Werror")
 set (CMAKE_MODULE_PATH  "${CMAKE_SOURCE_DIR}/cmake")
 
 option (ENABLE_TESTS "Enables the tests."       off)
 option (ENABLE_COV   "Enable coverage data."    off)
 
 if (ENABLE_COV)
-    set (COV_FLAGS "-fprofile-arcs -ftest-coverage")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COV_FLAGS}")
+    set (COV_FLAGS          "-fprofile-arcs -ftest-coverage")
+    set (CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} ${COV_FLAGS}")
 endif()
 
 if (NOT CMAKE_BUILD_TYPE)

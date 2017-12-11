@@ -6,7 +6,7 @@
 #include <sstream>
 
 efd::ArchGraph::ArchGraph(uint32_t n, bool isGeneric) : Graph(K_ARCH, n), mNodes(n),
-    mVID(0), mGeneric(isGeneric), mId(n, "") {
+    mId(n, ""), mGeneric(isGeneric), mVID(0) {
 }
 
 efd::Node::Ref efd::ArchGraph::getNode(uint32_t i) const {

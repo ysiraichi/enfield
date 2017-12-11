@@ -95,12 +95,6 @@ std::string efd::Node::getOperation() const {
     return "";
 }
 
-void efd::Node::apply(NodeVisitor::Ref visitor) {
-    apply(visitor);
-    for (auto& child : mChild)
-        child->apply(visitor);
-}
-
 // -------------- Value Specializations -----------------
 // -------------- Value<efd::IntVal> -----------------
 template <> 

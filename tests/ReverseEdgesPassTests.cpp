@@ -30,7 +30,7 @@ qreg q[5];\
 cx q[0], q[1];\
 intrinsic_rev_cx__ q[1], q[0];\
 ";
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         ArchGraph::sRef graph = efd::CreateArchitecture("ibmqx2");
 
         auto revPass = ReverseEdgesPass::Create(graph);
@@ -69,7 +69,7 @@ intrinsic_rev_cx__ q[2], q[3];\
 cx q[3], q[4];\
 intrinsic_rev_cx__ q[4], q[3];\
 ";
-        auto qmod = toShared(std::move(QModule::ParseString(program)));
+        auto qmod = toShared(QModule::ParseString(program));
         ArchGraph::sRef graph = efd::CreateArchitecture("ibmqx2");
 
         auto revPass = ReverseEdgesPass::Create(graph);

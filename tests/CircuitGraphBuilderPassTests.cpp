@@ -25,7 +25,7 @@ static void CheckCircuitGraph(std::string prog, Checker checker) {
         if (checker.gused[i]) ASSERT_FALSE(cgraph[i] == nullptr);
         else ASSERT_TRUE(cgraph[i] == nullptr);
 
-    bool stop, ugate;
+    bool stop;
     auto marked = std::vector<bool>(xbits, false);
     auto reached = std::unordered_map<Node::Ref, uint32_t>();
 

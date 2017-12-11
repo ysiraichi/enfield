@@ -10,7 +10,7 @@ using namespace efd;
 
 static NDId::uRef Id(std::string s);
 static NDIdRef::uRef IdRef(std::string id, std::string sz);
-static NDQOpGen::uRef IdGate(std::string id);
+static NDQOpGen::uRef IdGate(std::string id, std::string par);
 static NDInt::uRef Int(std::string s);
 static NDReal::uRef Real(std::string s);
 

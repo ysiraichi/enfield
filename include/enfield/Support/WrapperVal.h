@@ -21,9 +21,6 @@ namespace efd {
         WrapperVal(std::string str);
     };
 
-    template class WrapperVal<long long>;
-    template class WrapperVal<double>;
-
     template <> WrapperVal<long long>::WrapperVal(std::string str);
     template <> WrapperVal<double>::WrapperVal(std::string str);
 

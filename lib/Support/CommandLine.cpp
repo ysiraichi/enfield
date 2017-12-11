@@ -122,7 +122,7 @@ void efd::Opt<std::vector<std::string>>::parseImpl(const int argc, const char **
 }
 
 efd::OptBase::OptBase(std::string name, std::string description, bool isRequired) : 
-    mName(name), mDescription(description), mIsRequired(isRequired), mIsParsed(false) {
+    mIsRequired(isRequired), mIsParsed(false), mName(name), mDescription(description) {
 
     mParser = GetParser();
     mParser->addOpt(this);

@@ -215,7 +215,7 @@ efd::Opt<uint32_t> LCXCost
 ("-lcx-cost", "Cost of using long cnot gate.", 10, false);
 
 efd::QbitAllocator::QbitAllocator(ArchGraph::sRef archGraph) 
-    : mArchGraph(archGraph), mInlineAll(false) {
+    : mInlineAll(false), mArchGraph(archGraph) {
 }
 
 void efd::QbitAllocator::updateDependencies() {
