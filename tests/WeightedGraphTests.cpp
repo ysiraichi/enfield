@@ -19,7 +19,7 @@ TEST(GraphTests, SameIntWeightTest) {
     auto graph = efd::WeightedGraph<int>::ReadString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
-    ASSERT_EQ(graph->size(), 5);
+    ASSERT_EQ(graph->size(), (uint32_t) 5);
     ASSERT_TRUE(graph->hasEdge(0, 1));
     ASSERT_TRUE(graph->hasEdge(0, 2));
     ASSERT_TRUE(graph->hasEdge(1, 3));
@@ -46,7 +46,7 @@ TEST(GraphTests, DifferentWeightIntTest) {
     auto graph = efd::WeightedGraph<int>::ReadString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
-    ASSERT_EQ(graph->size(), 5);
+    ASSERT_EQ(graph->size(), (uint32_t) 5);
     ASSERT_TRUE(graph->hasEdge(0, 1));
     ASSERT_TRUE(graph->hasEdge(1, 0));
     ASSERT_TRUE(graph->hasEdge(0, 2));
@@ -81,7 +81,7 @@ TEST(GraphTests, DoubleWeightTest) {
     auto graph = efd::WeightedGraph<double>::ReadString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
-    ASSERT_EQ(graph->size(), 5);
+    ASSERT_EQ(graph->size(), (uint32_t) 5);
     ASSERT_TRUE(graph->hasEdge(0, 1));
     ASSERT_TRUE(graph->hasEdge(1, 0));
     ASSERT_TRUE(graph->hasEdge(0, 2));

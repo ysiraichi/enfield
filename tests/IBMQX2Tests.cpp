@@ -14,7 +14,7 @@ TEST(IBMQX2Tests, IntantiationTest) {
 
     ASSERT_FALSE(graph == nullptr);
 
-    ASSERT_EQ(graph->size(), 5);
+    ASSERT_EQ(graph->size(), (uint32_t) 5);
 
     ASSERT_TRUE(graph->hasEdge(0, 1));
     ASSERT_TRUE(graph->hasEdge(0, 2));

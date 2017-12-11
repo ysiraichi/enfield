@@ -133,7 +133,7 @@ TEST(ApproxTSFinderTests, AllPermutationsTest) {
         assigns.push_back(perm);
     } while (std::next_permutation(perm.begin(), perm.end()));
 
-    ASSERT_EQ(assigns.size(), 120);
+    ASSERT_EQ(assigns.size(), (uint32_t) 120);
 
     uint32_t x = 0;
     for (uint32_t i = 0, e = assigns.size(); i < e; ++i)
