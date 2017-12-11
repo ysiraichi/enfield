@@ -5,6 +5,7 @@
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/DependencyBuilderPass.h"
 #include "enfield/Transform/XbitToNumberPass.h"
+#include "enfield/Transform/PassCache.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
 
@@ -31,6 +32,8 @@ qreg q[5];\
         ASSERT_TRUE(data.getQUId("q[2]") == 2);
         ASSERT_TRUE(data.getQUId("q[3]") == 3);
         ASSERT_TRUE(data.getQUId("q[4]") == 4);
+
+        PassCache::Clear();
     }
 
     {
@@ -59,6 +62,8 @@ gate mygate(a, b, c) x, y, z {\
         ASSERT_TRUE(data.getQUId("x", gate) == 0);
         ASSERT_TRUE(data.getQUId("y", gate) == 1);
         ASSERT_TRUE(data.getQUId("z", gate) == 2);
+
+        PassCache::Clear();
     }
 
     {
@@ -117,6 +122,8 @@ measure q[4] -> c[4];\
         ASSERT_TRUE(data.getQUId("q[2]") == 2);
         ASSERT_TRUE(data.getQUId("q[3]") == 3);
         ASSERT_TRUE(data.getQUId("q[4]") == 4);
+
+        PassCache::Clear();
     }
 }
 
@@ -152,6 +159,8 @@ gate cnot x, y {\
 
         ASSERT_FALSE(deps[0].mCallPoint == nullptr);
         ASSERT_TRUE(efd::instanceOf<NDQOpCX>(deps[0].mCallPoint));
+
+        PassCache::Clear();
     }
 
     {
@@ -205,6 +214,8 @@ gate cnot x, y {\
 
         ASSERT_FALSE(cnotDeps[0].mCallPoint == nullptr);
         ASSERT_TRUE(efd::instanceOf<NDQOp>(cnotDeps[0].mCallPoint));
+
+        PassCache::Clear();
     }
 }
 
@@ -235,6 +246,8 @@ CX q[0], q[1];\
 
         ASSERT_FALSE(deps[0].mCallPoint == nullptr);
         ASSERT_TRUE(efd::instanceOf<NDQOpCX>(deps[0].mCallPoint));
+
+        PassCache::Clear();
     }
 
     {
@@ -311,6 +324,7 @@ measure carry[0] -> carryout[0];\
             for (auto v : deps) sum += v.getSize();
             ASSERT_EQ(sum, pair.second.second);
         }
-    }
 
+        PassCache::Clear();
+    }
 }

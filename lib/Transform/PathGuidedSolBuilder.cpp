@@ -13,7 +13,7 @@ static efd::Stat<uint32_t> SerialSwapsCount
 ("SerialSwapsCount", "The mean of swap sequence size.");
 
 struct DepComp {
-    bool operator()(const efd::Dep& lhs, const efd::Dep& rhs) {
+    bool operator()(const efd::Dep& lhs, const efd::Dep& rhs) const {
         if (lhs.mFrom != rhs.mFrom)
             return lhs.mFrom < rhs.mFrom;
         return lhs.mTo < rhs.mTo;

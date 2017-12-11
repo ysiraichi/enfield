@@ -35,11 +35,8 @@ void efd::StatsPool::print(std::ostream& out) {
     }
 }
 
-static std::shared_ptr<efd::StatsPool> Pool(nullptr);
-
 static std::shared_ptr<efd::StatsPool> getPool() {
-    if (Pool.get() == nullptr)
-        Pool.reset(new efd::StatsPool());
+    static std::shared_ptr<efd::StatsPool> Pool(new efd::StatsPool());
     return Pool;
 }
 

@@ -27,7 +27,9 @@
 
     #define YYDEBUG 1
 
-    #include <stdio.h>
+    #include <cstdio>
+    #include <cstring>
+    #include <cerrno>
 
     /* Size of default input buffer. */
     #ifndef YY_BUF_SIZE
@@ -213,6 +215,7 @@ include: INCLUDE string ";"     {
 
                                     if (istr == nullptr) {
                                         error(@$, "Could not open file: " + _ast.mPath + _ast.mFile);
+                                        error(@$, "Error: " + std::string(strerror(errno)));
                                         return 1;
                                     }
 
@@ -389,18 +392,11 @@ real: REAL { $$ = efd::NDReal::Create($1).release(); }
 
 %%
 
-static int Parse(efd::ASTWrapper& ast, bool forceStdLib) {
-    std::ifstream ifs((ast.mPath + ast.mFile).c_str());
-    if (ifs.fail()) {
-        std::cerr << "Could not open file: " << ast.mPath + ast.mFile << std::endl;
-        return 1;
-    }
-
-    efd::EfdScanner scanner(&ifs, nullptr);
+static int Parse(std::istream& istr, efd::ASTWrapper& ast, bool forceStdLib) {
+    efd::EfdScanner scanner(&istr, nullptr);
     efd::yy::EfdParser parser(ast, scanner);
 
     int ret = parser.parse();
-    ifs.close();
 
     if (!ret && forceStdLib && !ast.mStdLibParsed) {
         efd::NDStmtList* stmts = nullptr;
@@ -430,22 +426,27 @@ static int Parse(efd::ASTWrapper& ast, bool forceStdLib) {
 
 efd::Node::uRef efd::ParseFile(std::string filename, std::string path, bool forceStdLib) {
     ASTWrapper ast { filename, path, nullptr, false };
-    if (Parse(ast, forceStdLib)) return efd::Node::uRef(nullptr);
+
+    std::ifstream ifs((ast.mPath + ast.mFile).c_str());
+    if (ifs.fail()) {
+        std::cerr << "Could not open file: " << ast.mPath + ast.mFile << std::endl;
+        std::cerr << "Error: " << strerror(errno) << std::endl;
+        return nullptr;
+    }
+
+    if (Parse(ifs, ast, forceStdLib)) return efd::Node::uRef(nullptr);
+
+    ifs.close();
     return efd::Node::uRef(ast.mAST);
 }
 
 efd::Node::uRef efd::ParseString(std::string program, bool forceStdLib) {
-    std::string filename = "qasm-" + std::to_string((uint32_t long long) &program) + ".qasm";
+    std::string filename = "qasm-" + std::to_string((uint64_t) &program) + ".qasm";
     std::string path =  "./";
-
-    std::ofstream ofs((path + filename).c_str());
-    ofs << program;
-    ofs.flush();
-    ofs.close();
+    std::stringstream ss(program);
 
     ASTWrapper ast { filename, path, nullptr, false };
-    int ret = Parse(ast, forceStdLib);
-    remove((path + filename).c_str());
+    int ret = Parse(ss, ast, forceStdLib);
 
     if (ret) return efd::Node::uRef(nullptr);
     return efd::Node::uRef(ast.mAST);

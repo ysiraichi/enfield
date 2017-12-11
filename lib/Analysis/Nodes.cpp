@@ -322,7 +322,7 @@ void efd::NDList::cloneChildrem(const NDList* list) {
 efd::Node::uRef efd::NDList::clone() const {
     auto list = NDList::Create(mK);
     list->cloneChildrem(this);
-    return list;
+    return Node::uRef(list.release());
 }
 
 efd::Node::Iterator efd::NDList::addChild(Node::uRef child) {
@@ -419,7 +419,7 @@ efd::NDStmtList::NDStmtList() : NDList(K_STMT_LIST) {
 efd::Node::uRef efd::NDStmtList::clone() const {
     auto list = NDStmtList::Create();
     list->cloneChildrem(this);
-    return list;
+    return Node::uRef(list.release());
 }
 
 void efd::NDStmtList::apply(NodeVisitor::Ref visitor) {
@@ -450,7 +450,7 @@ efd::NDGOpList::NDGOpList() : NDList(K_GOP_LIST) {
 efd::Node::uRef efd::NDGOpList::clone() const {
     auto list = NDGOpList::Create();
     list->cloneChildrem(this);
-    return list;
+    return Node::uRef(list.release());
 }
 
 void efd::NDGOpList::apply(NodeVisitor::Ref visitor) {

@@ -55,10 +55,8 @@ namespace efd {
 #undef EFD_ARCH
 }
 
-static efd::ArchRegistryPtr Registry(nullptr);
 static efd::ArchRegistryPtr GetRegistry() {
-    if (Registry.get() == nullptr)
-        Registry.reset(new efd::ArchRegistry());
+    static efd::ArchRegistryPtr Registry(new efd::ArchRegistry());
     return Registry;
 }
 
