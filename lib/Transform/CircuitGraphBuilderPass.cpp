@@ -3,9 +3,14 @@
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Support/RTTI.h"
 
-uint8_t efd::CircuitGraphBuilderPass::ID = 0;
+using namespace efd;
 
-bool efd::CircuitGraphBuilderPass::run(QModule* qmod) {
+static void processCBit(uint32_t, CircuitNode*, CircuitGraph&, CircuitGraph&);
+static void processQuBit(uint32_t, CircuitNode*, CircuitGraph&, CircuitGraph&);
+
+uint8_t CircuitGraphBuilderPass::ID = 0;
+
+bool CircuitGraphBuilderPass::run(QModule* qmod) {
     auto& graph = mData;
     CircuitGraph last;
 
@@ -28,58 +33,62 @@ bool efd::CircuitGraphBuilderPass::run(QModule* qmod) {
         auto newnode = new CircuitNode();
         newnode->node = parent;
 
+        // Processing the cbits, if necessary.
         if (auto ifstmt = dynCast<NDIfStmt>(node)) {
             qopnode = ifstmt->getQOp();
-
             auto cbitstr = ifstmt->getCondId()->getVal();
+
             for (auto cbit : xton.getRegUIds(cbitstr)) {
-                auto cbitid = qubits + cbit;
-
-                newnode->cargsid.insert(cbitid);
-
-                if (last[cbitid] == nullptr) {
-                    graph[cbitid] = newnode;
-                } else {
-                    last[cbitid]->child[cbitid] = newnode;
-                }
-
-                last[cbitid] = newnode;
+                processCBit(qubits + cbit, newnode, last, graph);
             }
+
         } else if (auto measure = dynCast<NDQOpMeasure>(node)) {
             auto cbitstr = measure->getCBit()->toString();
-            auto cbitid = qubits + xton.getCUId(cbitstr);
-
-            newnode->cargsid.insert(cbitid);
-
-            if (last[cbitid] == nullptr) {
-                graph[cbitid] = newnode;
-            } else {
-                last[cbitid]->child[cbitid] = newnode;
-            }
-
-            last[cbitid] = newnode;
+            processCBit(qubits + xton.getCUId(cbitstr), newnode, last, graph);
         }
 
+        // Process the qubits.
         auto qargs = qopnode->getQArgs();
+
         for (uint32_t i = 0, e = qargs->getChildNumber(); i < e; ++i) {
             auto qarg = qargs->getChild(i);
-            auto qargid = xton.getQUId(qarg->toString());
-
-            newnode->qargsid.insert(qargid);
-
-            if (last[qargid] == nullptr) {
-                graph[qargid] = newnode;
-            } else {
-                last[qargid]->child[qargid] = newnode;
-            }
-
-            last[qargid] = newnode;
+            processQuBit(xton.getQUId(qarg->toString()), newnode, last, graph);
         }
     }
 
     return false;
 }
 
-efd::CircuitGraphBuilderPass::uRef efd::CircuitGraphBuilderPass::Create() {
+CircuitGraphBuilderPass::uRef CircuitGraphBuilderPass::Create() {
     return uRef(new CircuitGraphBuilderPass());
+}
+
+// ----------------------------------------------------------------
+// --------------------- Static Functions -------------------------
+// ----------------------------------------------------------------
+
+static void processCBit(uint32_t cbitid, CircuitNode* newnode,
+                        CircuitGraph& last, CircuitGraph& graph) {
+    newnode->cargsid.insert(cbitid);
+    
+    if (last[cbitid] == nullptr) {
+        graph[cbitid] = newnode;
+    } else {
+        last[cbitid]->child[cbitid] = newnode;
+    }
+    
+    last[cbitid] = newnode;
+}
+
+static void processQuBit(uint32_t qubitid, CircuitNode* newnode,
+                        CircuitGraph& last, CircuitGraph& graph) {
+    newnode->qargsid.insert(qubitid);
+    
+    if (last[qubitid] == nullptr) {
+        graph[qubitid] = newnode;
+    } else {
+        last[qubitid]->child[qubitid] = newnode;
+    }
+    
+    last[qubitid] = newnode;
 }
