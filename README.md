@@ -40,22 +40,3 @@ that are important to be aware of.
 * ```efd::QbitAllocator```: This is the base class for implementing allocators. In order to implement your own, you should extend this class and implement the method ```solveDependencies```. This method is responsible for inserting swaps based on the dependencies (that are given by parameter).
 
 * ```IBMQX2.def```: This is not a class per se. Take a look in this file in order to create the specification of other architectures. You should use macros like ```EFD_ARCHITECTURE```, and inserting the line: ```#include "enfield/Arch/YourArch.def"``` in the files ```enfield/Arch/Architecture.h``` and ```lib/Arch/Architecture.cpp``` right bellow the ```IBMQX2.def```.
-
-### Prototype
-
-For compiling, use the ```make``` command.
-
-It will generate an executable called ```enfield```. This executable needs two parameters for correct execution:
-
-* The physical architecture connectivity graph;
-* The programs dependency graph in chronological order. 
-
-Enfield has two modes of execution: ```dyn``` and ```iso```. Both are used to find the best initial mapping.
-
-
-| Method | Description |
-| ------ | ------ |
-| ```-iso``` | Tries to find an isomorphism of the whole program, where the best initial configuration is set to the subgraph isomorphism with the least errors. |
-| ```-dyn``` | This is a dynamic programming approach that tests all possibilities. |
-
-Note that both uses a BFS algorithm in order to find a path between two vertices.
