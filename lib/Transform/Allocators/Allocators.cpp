@@ -1,11 +1,11 @@
-#include "enfield/Transform/Allocators.h"
-#include "enfield/Transform/DynProgQbitAllocator.h"
-#include "enfield/Transform/SimpleQbitAllocator.h"
-#include "enfield/Transform/WeightedPMMappingFinder.h"
-#include "enfield/Transform/RandomMappingFinder.h"
-#include "enfield/Transform/IdentityMappingFinder.h"
-#include "enfield/Transform/PathGuidedSolBuilder.h"
-#include "enfield/Transform/QbitterSolBuilder.h"
+#include "enfield/Transform/Allocators/Allocators.h"
+#include "enfield/Transform/Allocators/DynprogDepSolver.h"
+#include "enfield/Transform/Allocators/SimpleDepSolver.h"
+#include "enfield/Transform/Allocators/WeightedPMMappingFinder.h"
+#include "enfield/Transform/Allocators/RandomMappingFinder.h"
+#include "enfield/Transform/Allocators/IdentityMappingFinder.h"
+#include "enfield/Transform/Allocators/PathGuidedSolBuilder.h"
+#include "enfield/Transform/Allocators/QbitterSolBuilder.h"
 
 #include <unordered_map>
 #include <functional>
@@ -29,7 +29,7 @@ void efd::InitializeAllQbitAllocators() {
     RegisterQbitAllocator(#_Name_, Create##_Class_);
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
     RegisterQbitAllocator(#_Name_, Create##_Finder_##With##_Builder_);
-#include "enfield/Transform/Allocators.def"
+#include "enfield/Transform/Allocators/Allocators.def"
 #undef EFD_ALLOCATOR
 #undef EFD_ALLOCATOR_SIMPLE
 }
@@ -55,12 +55,12 @@ efd::CreateQbitAllocator(std::string key, AllocatorRegistry::ArgTy arg) {
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
     efd::AllocatorRegistry::RetTy\
     efd::Create##_Finder_##With##_Builder_(AllocatorRegistry::ArgTy arg) {\
-        auto allocator = SimpleQbitAllocator::Create(arg);\
+        auto allocator = SimpleDepSolver::Create(arg);\
         allocator->setMapFinder(_Finder_::Create());\
         allocator->setSolBuilder(_Builder_::Create());\
         return std::move(allocator);\
     }
-#include "enfield/Transform/Allocators.def"
+#include "enfield/Transform/Allocators/Allocators.def"
 #undef EFD_ALLOCATOR
 #undef EFD_ALLOCATOR_SIMPLE
 

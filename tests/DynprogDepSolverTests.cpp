@@ -1,7 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include "enfield/Transform/DynProgQbitAllocator.h"
+#include "enfield/Transform/Allocators/DynprogDepSolver.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
@@ -46,7 +46,7 @@ CX q[0], q[1];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        DynProgQbitAllocator::uRef allocator = DynProgQbitAllocator::Create(graph);
+        DynprogDepSolver::uRef allocator = DynprogDepSolver::Create(graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -80,7 +80,7 @@ CX q[4], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        DynProgQbitAllocator::uRef allocator = DynProgQbitAllocator::Create(graph);
+        DynprogDepSolver::uRef allocator = DynprogDepSolver::Create(graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -108,7 +108,7 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        DynProgQbitAllocator::uRef allocator = DynProgQbitAllocator::Create(graph);
+        DynprogDepSolver::uRef allocator = DynprogDepSolver::Create(graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -138,7 +138,7 @@ CX q[4], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        DynProgQbitAllocator::uRef allocator = DynProgQbitAllocator::Create(graph);
+        DynprogDepSolver::uRef allocator = DynprogDepSolver::Create(graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -174,7 +174,7 @@ CX q[0], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        DynProgQbitAllocator::uRef allocator = DynProgQbitAllocator::Create(graph);
+        DynprogDepSolver::uRef allocator = DynprogDepSolver::Create(graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());

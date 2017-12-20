@@ -1,7 +1,7 @@
 #ifndef __EFD_MAPPING_FINDER_H__
 #define __EFD_MAPPING_FINDER_H__
 
-#include "enfield/Transform/QbitAllocator.h"
+#include "enfield/Transform/Allocators/QbitAllocator.h"
 
 namespace efd {
     /// \brief Interface for finding a mapping from some set of dependencies.

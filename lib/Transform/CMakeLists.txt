@@ -1,3 +1,5 @@
+add_subdirectory (Allocators)
+
 add_library (EfdTransform
     Pass.cpp
     PassCache.cpp
@@ -12,14 +14,3 @@ add_library (EfdTransform
     CircuitGraphBuilderPass.cpp
     LayerBasedOrderingWrapperPass.cpp
     CNOTLBOWrapperPass.cpp)
-
-add_library(EfdAllocator
-    Allocators.cpp
-    QbitAllocator.cpp
-    DynProgQbitAllocator.cpp
-    SimpleQbitAllocator.cpp
-    WeightedPMMappingFinder.cpp
-    IdentityMappingFinder.cpp
-    RandomMappingFinder.cpp
-    PathGuidedSolBuilder.cpp
-    QbitterSolBuilder.cpp)

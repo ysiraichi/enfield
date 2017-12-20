@@ -1,7 +1,7 @@
 #ifndef __EFD_QBITTER_SOL_BUILDER_H__
 #define __EFD_QBITTER_SOL_BUILDER_H__
 
-#include "enfield/Transform/SolutionBuilder.h"
+#include "enfield/Transform/Allocators/SolutionBuilder.h"
 
 namespace efd {
     /// \brief Solves the dependencies using the 'long-cnot' gates.

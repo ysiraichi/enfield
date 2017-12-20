@@ -1,9 +1,9 @@
 
 #include "gtest/gtest.h"
 
-#include "enfield/Transform/SimpleQbitAllocator.h"
-#include "enfield/Transform/WeightedPMMappingFinder.h"
-#include "enfield/Transform/PathGuidedSolBuilder.h"
+#include "enfield/Transform/Allocators/SimpleDepSolver.h"
+#include "enfield/Transform/Allocators/WeightedPMMappingFinder.h"
+#include "enfield/Transform/Allocators/PathGuidedSolBuilder.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
@@ -48,7 +48,7 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleQbitAllocator::Create(graph);
+        auto allocator = SimpleDepSolver::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
@@ -84,7 +84,7 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleQbitAllocator::Create(graph);
+        auto allocator = SimpleDepSolver::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
@@ -114,7 +114,7 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleQbitAllocator::Create(graph);
+        auto allocator = SimpleDepSolver::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
@@ -146,7 +146,7 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleQbitAllocator::Create(graph);
+        auto allocator = SimpleDepSolver::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
@@ -185,7 +185,7 @@ intrinsic_rev_cx__ q[2], q[1];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleQbitAllocator::Create(graph);
+        auto allocator = SimpleDepSolver::Create(graph);
         allocator->setMapFinder(WeightedPMMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 

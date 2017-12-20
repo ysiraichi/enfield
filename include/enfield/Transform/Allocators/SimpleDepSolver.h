@@ -1,22 +1,22 @@
 #ifndef __EFD_SIMPLE_QBIT_ALLOCATOR_H__
 #define __EFD_SIMPLE_QBIT_ALLOCATOR_H__
 
-#include "enfield/Transform/QbitAllocator.h"
-#include "enfield/Transform/MappingFinder.h"
-#include "enfield/Transform/SolutionBuilder.h"
+#include "enfield/Transform/Allocators/DepSolverQAllocator.h"
+#include "enfield/Transform/Allocators/MappingFinder.h"
+#include "enfield/Transform/Allocators/SolutionBuilder.h"
 
 namespace efd {
-    /// \brief QbitAllocator that allocates the logical qubits from an initial mapping.
-    class SimpleQbitAllocator : public QbitAllocator {
+    /// \brief DependencySolver that allocates the logical qubits from an initial mapping.
+    class SimpleDepSolver : public DepSolverQAllocator {
         public:
-            typedef SimpleQbitAllocator* Ref;
-            typedef std::unique_ptr<SimpleQbitAllocator> uRef;
+            typedef SimpleDepSolver* Ref;
+            typedef std::unique_ptr<SimpleDepSolver> uRef;
 
         protected:
             MappingFinder::sRef mMapFinder;
             SolutionBuilder::sRef mSolBuilder;
 
-            SimpleQbitAllocator(ArchGraph::sRef agraph);
+            SimpleDepSolver(ArchGraph::sRef agraph);
 
             Solution solve(DepsSet& deps) override;
 
