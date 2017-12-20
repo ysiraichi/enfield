@@ -1,4 +1,4 @@
-#include "enfield/Transform/QbitAllocator.h"
+#include "enfield/Transform/Allocators/QbitAllocator.h"
 #include "enfield/Transform/RenameQbitsPass.h"
 #include "enfield/Transform/InlineAllPass.h"
 #include "enfield/Transform/PassCache.h"
@@ -218,26 +218,6 @@ efd::QbitAllocator::QbitAllocator(ArchGraph::sRef archGraph)
     : mInlineAll(false), mArchGraph(archGraph) {
 }
 
-void efd::QbitAllocator::updateDependencies() {
-    auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(mMod);
-    mDepBuilder = depPass->getData();
-    mXbitToNumber = mDepBuilder.getXbitToNumber();
-}
-
-efd::QbitAllocator::Iterator efd::QbitAllocator::inlineDep(QbitAllocator::Iterator it) {
-    Iterator newIt = it;
-
-    if (NDQOp::Ref refCall = dynCast<NDQOp>(it->mCallPoint)) {
-        auto& deps = mDepBuilder.getDependencies();
-        uint32_t dist = std::distance(deps.begin(), it);
-
-        mMod->inlineCall(refCall);
-        newIt = deps.begin() + dist;
-    }
-
-    return newIt;
-}
-
 void efd::QbitAllocator::inlineAllGates() {
     auto inlinePass = InlineAllPass::Create(mBasis);
     PassCache::Run(mMod, inlinePass.get());
@@ -263,28 +243,6 @@ void efd::QbitAllocator::replaceWithArchSpecs() {
     for (auto it = mArchGraph->reg_begin(), e = mArchGraph->reg_end(); it != e; ++it)
         mMod->insertReg(NDRegDecl::CreateQ
                 (NDId::Create(it->first), NDInt::Create(std::to_string(it->second))));
-}
-
-void efd::QbitAllocator::renameQbits() {
-    auto xtonpass = PassCache::Get<XbitToNumberWrapperPass>(mMod);
-    auto xbitToNumber = xtonpass->getData();
-    // Renaming the qbits with the mapping that this algorithm got from solving
-    // the dependencies.
-    RenameQbitPass::ArchMap archConstMap;
-    if (!mArchGraph->isGeneric()) {
-        for (uint32_t i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
-            std::string id = xbitToNumber.getQStrId(i);
-            archConstMap[id] = mArchGraph->getNode(mSol.mInitial[i]);
-        }
-    } else {
-        for (uint32_t i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
-            std::string id = xbitToNumber.getQStrId(i);
-            archConstMap[id] = xbitToNumber.getQNode(mSol.mInitial[i]);
-        }
-    }
-
-    auto renamePass = RenameQbitPass::Create(archConstMap);
-    PassCache::Run(mMod, renamePass.get());
 }
 
 bool efd::QbitAllocator::run(QModule::Ref qmod) {
@@ -321,8 +279,9 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
 
     // Getting the new information, since it can be the case that the qmodule
     // was modified.
-    updateDependencies();
-    auto& deps = mDepBuilder.getDependencies();
+    auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(mMod);
+    auto depBuilder = depPass->getData();
+    auto& deps = depBuilder.getDependencies();
 
     // Counting total dependencies.
     uint32_t totalDeps = 0;
@@ -334,7 +293,7 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
     timer.start();
     // ---------------------------------
 
-    mSol = solve(deps);
+    mSol = executeAllocation(mMod);
 
     // Stopping timer and setting the stat -----------------
     timer.stop();
@@ -349,7 +308,6 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
 
     SolutionImplPass pass(mSol);
     PassCache::Run(mMod, &pass);
-    // renameQbits();
 
     // Stopping timer and setting the stat -----------------
     timer.stop();
@@ -357,10 +315,6 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
     // -----------------------------------------------------
 
     return true;
-}
-
-uint32_t efd::QbitAllocator::getNumQbits() {
-    return mXbitToNumber.getQSize();
 }
 
 void efd::QbitAllocator::setInlineAll(BasisVector basis) {

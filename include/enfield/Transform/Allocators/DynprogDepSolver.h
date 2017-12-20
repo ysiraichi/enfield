@@ -1,7 +1,7 @@
-#ifndef __EFD_DYN_PROG_QBIT_ALLOCATOR_H__
-#define __EFD_DYN_PROG_QBIT_ALLOCATOR_H__
+#ifndef __EFD_DYNPROG_DEP_SOLVER_H__
+#define __EFD_DYNPROG_DEP_SOLVER_H__
 
-#include "enfield/Transform/QbitAllocator.h"
+#include "enfield/Transform/Allocators/DepSolverQAllocator.h"
 
 #include <unordered_map>
 #include <string>
@@ -9,15 +9,15 @@
 struct MapResult;
 
 namespace efd {
-    /// \brief Implementation of QbitAllocator that uses dynamic programming to
+    /// \brief Implementation of DepSolverQAllocator that uses dynamic programming to
     /// obtain an optimal solution.
-    class DynProgQbitAllocator : public QbitAllocator {
+    class DynprogDepSolver : public DepSolverQAllocator {
         public:
-            typedef DynProgQbitAllocator* Ref;
-            typedef std::unique_ptr<DynProgQbitAllocator> uRef;
+            typedef DynprogDepSolver* Ref;
+            typedef std::unique_ptr<DynprogDepSolver> uRef;
 
         protected:
-            DynProgQbitAllocator(ArchGraph::sRef archGraph);
+            DynprogDepSolver(ArchGraph::sRef archGraph);
 
             /// \brief Gets the intermediate vertex between 'u' and 'v', if
             /// there exists one.

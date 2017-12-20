@@ -1,7 +1,7 @@
 #ifndef __EFD_SOLUTION_BUILDER_H__
 #define __EFD_SOLUTION_BUILDER_H__
 
-#include "enfield/Transform/QbitAllocator.h"
+#include "enfield/Transform/Allocators/QbitAllocator.h"
 
 namespace efd {
     /// \brief Interface for building the solution from an initial mapping.

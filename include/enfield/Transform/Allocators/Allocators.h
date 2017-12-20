@@ -2,7 +2,7 @@
 #define __EFD_ALLOCATORS_H__
 
 #include "enfield/Arch/ArchGraph.h"
-#include "enfield/Transform/QbitAllocator.h"
+#include "enfield/Transform/Allocators/QbitAllocator.h"
 #include "enfield/Support/Registry.h"
 
 namespace efd {
@@ -23,7 +23,7 @@ namespace efd {
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
     AllocatorRegistry::RetTy Create##_Finder_##With##_Builder_\
     (AllocatorRegistry::ArgTy arg);
-#include "enfield/Transform/Allocators.def"
+#include "enfield/Transform/Allocators/Allocators.def"
 #undef EFD_ALLOCATOR
 #undef EFD_ALLOCATOR_SIMPLE
 }

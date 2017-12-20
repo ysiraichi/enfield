@@ -1,4 +1,4 @@
-#include "enfield/Transform/IdentityMappingFinder.h"
+#include "enfield/Transform/Allocators/IdentityMappingFinder.h"
 
 efd::QbitAllocator::Mapping
 efd::IdentityMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {

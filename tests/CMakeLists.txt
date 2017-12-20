@@ -74,7 +74,7 @@ efd_test (ReverseEdgesPassTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 # ==-------- Allocator ----------==
-efd_test (DynProgQbitAllocatorTests
+efd_test (DynprogDepSolverTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 efd_test (WeightedPMQbitAllocatorTests

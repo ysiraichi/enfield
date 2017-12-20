@@ -1,4 +1,4 @@
-#include "enfield/Transform/DynProgQbitAllocator.h"
+#include "enfield/Transform/Allocators/DynprogDepSolver.h"
 #include "enfield/Support/BFSPathFinder.h"
 #include "enfield/Support/CommandLine.h"
 #include "enfield/Support/ExpTSFinder.h"
@@ -38,7 +38,7 @@ static inline Val minVal(Val& a, Val& b) {
     else return b;
 }
 
-uint32_t efd::DynProgQbitAllocator::getIntermediateV(uint32_t u, uint32_t v) {
+uint32_t efd::DynprogDepSolver::getIntermediateV(uint32_t u, uint32_t v) {
     auto& succ = mArchGraph->succ(u);
 
     for (auto& w : succ) {
@@ -51,7 +51,7 @@ uint32_t efd::DynProgQbitAllocator::getIntermediateV(uint32_t u, uint32_t v) {
     return UNREACH;
 }
 
-efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
+efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
     ExpTSFinder tsp(mArchGraph);
     auto permutations = tsp.mAssigns;
 
@@ -207,11 +207,11 @@ efd::Solution efd::DynProgQbitAllocator::solve(DepsSet& deps) {
     return solution;
 }
 
-efd::DynProgQbitAllocator::DynProgQbitAllocator(ArchGraph::sRef pGraph) 
-    : QbitAllocator(pGraph) {
+efd::DynprogDepSolver::DynprogDepSolver(ArchGraph::sRef pGraph) 
+    : DepSolverQAllocator(pGraph) {
 }
 
-efd::DynProgQbitAllocator::uRef efd::DynProgQbitAllocator::Create
+efd::DynprogDepSolver::uRef efd::DynprogDepSolver::Create
 (ArchGraph::sRef archGraph) {
-    return uRef(new DynProgQbitAllocator(archGraph));
+    return uRef(new DynprogDepSolver(archGraph));
 }

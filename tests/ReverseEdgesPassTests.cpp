@@ -2,7 +2,6 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Transform/ReverseEdgesPass.h"
-#include "enfield/Transform/DynProgQbitAllocator.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
