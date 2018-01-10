@@ -85,6 +85,16 @@ namespace efd {
             /// \brief Inserts a gate to the QModule.
             void insertGate(NDGateSign::uRef gate);
 
+            /// \brief Returns the \p i-th statement.
+            Node::Ref getStatement(uint32_t i);
+
+            /// \brief Return the number of registers.
+            uint32_t getNumberOfRegs() const;
+            /// \brief Return the number of gates.
+            uint32_t getNumberOfGates() const;
+            /// \brief Return the number of statements.
+            uint32_t getNumberOfStmts() const;
+
             /// \brief Iterator to the beginning of the register node vector.
             RegIterator reg_begin();
             /// \brief ConstIterator to the beginning of the register node vector.
