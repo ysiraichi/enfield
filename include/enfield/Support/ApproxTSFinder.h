@@ -15,7 +15,7 @@ namespace efd {
             SwapSeq find(Graph::Ref graph, Assign from, Assign to) override;
 
             /// \brief Creates an instance of this class.
-            uRef Create(Graph::sRef graph = nullptr);
+            static uRef Create(Graph::sRef graph = nullptr);
     };
 }
 
