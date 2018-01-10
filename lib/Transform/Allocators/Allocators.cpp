@@ -1,7 +1,7 @@
 #include "enfield/Transform/Allocators/Allocators.h"
 #include "enfield/Transform/Allocators/DynprogDepSolver.h"
 #include "enfield/Transform/Allocators/SimpleDepSolver.h"
-#include "enfield/Transform/Allocators/WeightedPMMappingFinder.h"
+#include "enfield/Transform/Allocators/WeightedSIMappingFinder.h"
 #include "enfield/Transform/Allocators/RandomMappingFinder.h"
 #include "enfield/Transform/Allocators/IdentityMappingFinder.h"
 #include "enfield/Transform/Allocators/PathGuidedSolBuilder.h"
