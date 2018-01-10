@@ -86,6 +86,17 @@ efd::DependencyBuilder::DepsSet& efd::DependencyBuilder::getDependencies
     return *getDepsSet(ref);
 }
 
+const efd::Dependencies efd::DependencyBuilder::getDeps(Node* ref) const {
+    assert(mIDeps.find(ref) != mIDeps.end() && "Instruction never seen before.");
+    return mIDeps.at(ref);
+}
+
+efd::Dependencies efd::DependencyBuilder::getDeps(Node* ref) {
+    if (mIDeps.find(ref) == mIDeps.end())
+        mIDeps[ref] = { {}, ref };
+    return mIDeps.at(ref);
+}
+
 // --------------------- DependencyBuilderWrapperPass ------------------------
 uint8_t efd::DependencyBuilderWrapperPass::ID = 0;
 
@@ -143,7 +154,9 @@ void efd::DependencyBuilderVisitor::visit(NDQOpCX::Ref ref) {
     uint32_t invertQ = mDepBuilder.getUId(ref->getRhs(), gate);
 
     Dependencies depV { { Dep { controlQ, invertQ } }, ref };
+
     deps->push_back(depV);
+    mDepBuilder.mIDeps[ref] = depV;
 }
 
 void efd::DependencyBuilderVisitor::visit(NDQOpGen::Ref ref) {
@@ -177,9 +190,11 @@ void efd::DependencyBuilderVisitor::visit(NDQOpGen::Ref ref) {
 
     if (!thisDeps.isEmpty())
         deps->push_back(thisDeps);
+    mDepBuilder.mIDeps[ref] = thisDeps;
 }
 
 void efd::DependencyBuilderVisitor::visit(NDIfStmt::Ref ref) {
+    mDepBuilder.mIDeps[ref] = Dependencies();
     visitChildren(ref);
 }
 
@@ -190,6 +205,7 @@ void efd::DependencyBuilderVisitor::visit(NDGOpList::Ref ref) {
 bool efd::DependencyBuilderWrapperPass::run(QModule::Ref qmod) {
     mData.mLDeps.clear();
     mData.mGDeps.clear();
+    mData.mIDeps.clear();
 
     auto xtn = PassCache::Get<XbitToNumberWrapperPass>(qmod);
     auto data = xtn->getData();
