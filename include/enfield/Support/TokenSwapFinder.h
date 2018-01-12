@@ -6,6 +6,10 @@
 
 namespace efd {
     class TokenSwapFinder {
+        public:
+            typedef TokenSwapFinder* Ref;
+            typedef std::unique_ptr<TokenSwapFinder> uRef;
+
         protected:
             Graph::sRef mG;
             TokenSwapFinder(Graph::sRef graph) : mG(graph) {}

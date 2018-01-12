@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Transform/Allocators/SimpleDepSolver.h"
-#include "enfield/Transform/Allocators/WeightedPMMappingFinder.h"
+#include "enfield/Transform/Allocators/WeightedSIMappingFinder.h"
 #include "enfield/Transform/Allocators/PathGuidedSolBuilder.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
@@ -31,7 +31,7 @@ q[3] q[4]\n\
     return g;
 }
 
-TEST(WeightedPMQbitAllocatorTests, SimpleNoSwapProgram) {
+TEST(WeightedSIMappingFinderTests, SimpleNoSwapProgram) {
     {
         const std::string program =
 "\
@@ -49,7 +49,7 @@ CX q[1], q[2];\
 
         auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleDepSolver::Create(graph);
-        allocator->setMapFinder(WeightedPMMappingFinder::Create());
+        allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
@@ -85,7 +85,7 @@ CX q[1], q[2];\
 
         auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleDepSolver::Create(graph);
-        allocator->setMapFinder(WeightedPMMappingFinder::Create());
+        allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
@@ -94,7 +94,7 @@ CX q[1], q[2];\
     }
 }
 
-TEST(WeightedPMQbitAllocatorTests, GatesTest) {
+TEST(WeightedSIMappingFinderTests, GatesTest) {
     {
         const std::string program =
 "\
@@ -115,7 +115,7 @@ CX q[1], q[2];\
 
         auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleDepSolver::Create(graph);
-        allocator->setMapFinder(WeightedPMMappingFinder::Create());
+        allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
@@ -147,7 +147,7 @@ CX q[1], q[2];\
 
         auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleDepSolver::Create(graph);
-        allocator->setMapFinder(WeightedPMMappingFinder::Create());
+        allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });
@@ -156,7 +156,7 @@ CX q[1], q[2];\
     }
 }
 
-TEST(WeightedPMQbitAllocatorTests, GatesSwapTest) {
+TEST(WeightedSIMappingFinderTests, GatesSwapTest) {
     {
         const std::string program =
 "\
@@ -186,7 +186,7 @@ intrinsic_rev_cx__ q[2], q[1];\
 
         auto qmod = toShared(QModule::ParseString(program));
         auto allocator = SimpleDepSolver::Create(graph);
-        allocator->setMapFinder(WeightedPMMappingFinder::Create());
+        allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
         allocator->setInlineAll({ "cx" });

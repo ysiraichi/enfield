@@ -71,6 +71,7 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
 
         q.push(src);
         d[src] = 0;
+        visited[src] = true;
 
         while (!q.empty()) {
             uint32_t u = q.front();

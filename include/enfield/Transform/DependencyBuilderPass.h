@@ -7,6 +7,7 @@
 #include "enfield/Transform/XbitToNumberPass.h"
 
 #include <unordered_map>
+#include <map>
 #include <vector>
 #include <set>
 
@@ -55,11 +56,13 @@ namespace efd {
     /// to store a sequence of parallel dependencies. Here, parallel dependency is a
     /// dependency that can't be broken down (unless the gate is inlined).
     struct DependencyBuilder {
+        typedef DependencyBuilder* Ref;
         typedef std::vector<Dependencies> DepsSet;
 
         XbitToNumber mXbitToNumber;
 
         std::unordered_map<NDGateDecl*, DepsSet> mLDeps;
+        std::map<Node*, Dependencies> mIDeps;
         DepsSet mGDeps;
 
         DependencyBuilder();
@@ -80,6 +83,10 @@ namespace efd {
         /// nullptr, then it is returned the dependencies for the whole program.
         const DepsSet& getDependencies(NDGateDecl::Ref ref = nullptr) const;
         DepsSet& getDependencies(NDGateDecl::Ref ref = nullptr);
+
+        /// \brief Gets the dependencies for a specific instruction.
+        const Dependencies getDeps(Node* ref) const;
+        Dependencies getDeps(Node* ref);
     };
 
     /// \brief WrapperPass that yields a \em DependencyBuilder structure.

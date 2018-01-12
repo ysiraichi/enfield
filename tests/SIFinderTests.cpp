@@ -1,7 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include "enfield/Support/WeightedPMFinder.h"
+#include "enfield/Support/WeightedSIFinder.h"
 
 #include <string>
 
@@ -10,13 +10,13 @@ using namespace efd;
 static void check(const std::string gS, const std::string wGS) {
     Graph::sRef graph = Graph::ReadString(gS);
     auto wGraph = WeightedGraph<int>::ReadString(wGS);
-    auto matcher = WeightedPMFinder<int>::Create();
+    auto matcher = WeightedSIFinder<int>::Create();
     
     uint32_t gSize = graph->size();
     std::vector<bool> matched(gSize, false);
 
     // For all 'a' in 'graph'; and 'u' in 'wGraph'
-    auto match = matcher->find(graph.get(), wGraph.get());
+    auto match = matcher->find(graph.get(), wGraph.get()).m;
     for (uint32_t a = 0; a < match.size(); ++a) {
         // 'a' must be assigned to a 'u' >= 0
         ASSERT_TRUE(match[a] >= 0);
@@ -32,7 +32,7 @@ static void check(const std::string gS, const std::string wGS) {
     }
 }
 
-TEST(PartialMatchingFinderTests, NoSegFaultTests) {
+TEST(SIFinderTests, NoSegFaultTests) {
     const std::string graphStr = 
 "\
 5\n\
@@ -58,7 +58,7 @@ TEST(PartialMatchingFinderTests, NoSegFaultTests) {
     check(graphStr, wGraphStr);
 }
 
-TEST(PartialMatchingFinderTests, VaryingWeightsTest) {
+TEST(SIFinderTests, VaryingWeightsTest) {
     const std::string graphStr = 
 "\
 5\n\

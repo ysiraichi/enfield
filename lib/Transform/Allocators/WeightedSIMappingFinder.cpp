@@ -1,13 +1,13 @@
-#include "enfield/Transform/Allocators/WeightedPMMappingFinder.h"
-#include "enfield/Support/WeightedPMFinder.h"
+#include "enfield/Transform/Allocators/WeightedSIMappingFinder.h"
+#include "enfield/Support/WeightedSIFinder.h"
 #include "enfield/Support/uRefCast.h"
 
-efd::WeightedPMMappingFinder::Mapping
-efd::WeightedPMMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
+efd::WeightedSIMappingFinder::Mapping
+efd::WeightedSIMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
     uint32_t qbits = g->size();
 
-    if (mPMFinder.get() == nullptr)
-        mPMFinder = WeightedPMFinder<WeightTy>::Create();
+    if (mSIFinder.get() == nullptr)
+        mSIFinder = WeightedSIFinder<WeightTy>::Create();
 
     auto wg = toShared(WeightedGraph<WeightTy>::Create(qbits));
 
@@ -24,9 +24,9 @@ efd::WeightedPMMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
         wg->putEdge(pair.first.first, pair.first.second, pair.second);
     }
 
-    return mPMFinder->find(g, wg.get());
+    return mSIFinder->find(g, wg.get()).m;
 }
 
-efd::WeightedPMMappingFinder::uRef efd::WeightedPMMappingFinder::Create() {
-    return uRef(new WeightedPMMappingFinder());
+efd::WeightedSIMappingFinder::uRef efd::WeightedSIMappingFinder::Create() {
+    return uRef(new WeightedSIMappingFinder());
 }

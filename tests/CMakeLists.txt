@@ -16,7 +16,7 @@ efd_test (GraphTests
 efd_test (WeightedGraphTests
     EfdSupport)
 
-efd_test (PartialMatchingFinderTests
+efd_test (SIFinderTests
     EfdSupport)
 
 efd_test (BFSPathFinderTests
@@ -77,7 +77,7 @@ efd_test (ReverseEdgesPassTests
 efd_test (DynprogDepSolverTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
-efd_test (WeightedPMQbitAllocatorTests
+efd_test (WeightedSIMappingFinderTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 efd_test (QbitterQbitAllocatorTests

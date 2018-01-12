@@ -102,6 +102,11 @@ efd::QModule::Iterator efd::QModule::replaceStatement
     return it - stmtsSize;
 }
 
+efd::Node::Ref efd::QModule::getStatement(uint32_t i) {
+    assert(i < mStatements->getChildNumber() && "Out of bounds access.");
+    return mStatements->getChild(i);
+}
+
 void efd::QModule::insertGate(NDGateSign::uRef gate) {
     assert(gate.get() != nullptr && "Trying to insert a 'nullptr' gate.");
     assert(gate->getId() != nullptr && "Trying to insert a gate with 'nullptr' id.");
@@ -123,6 +128,18 @@ void efd::QModule::insertGate(NDGateSign::uRef gate) {
 
     mGatesMap[id] = std::move(gate);
     mGates.push_back(mGatesMap[id].get());
+}
+
+uint32_t efd::QModule::getNumberOfRegs() const {
+    return mRegs.size();
+}
+
+uint32_t efd::QModule::getNumberOfGates() const {
+    return mGates.size();
+}
+
+uint32_t efd::QModule::getNumberOfStmts() const {
+    return mStatements->getChildNumber();
 }
 
 efd::QModule::RegIterator efd::QModule::reg_begin() {

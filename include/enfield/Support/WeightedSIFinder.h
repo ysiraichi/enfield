@@ -1,8 +1,8 @@
-#ifndef __EFD_WEIGHTED_PM_FINDER_H__
-#define __EFD_WEIGHTED_PM_FINDER_H__
+#ifndef __EFD_WEIGHTED_SI_FINDER_H__
+#define __EFD_WEIGHTED_SI_FINDER_H__
 
 #include "enfield/Support/WeightedGraph.h"
-#include "enfield/Support/PartialMatchingFinder.h"
+#include "enfield/Support/SIFinder.h"
 #include "enfield/Support/RTTI.h"
 
 #include <algorithm>
@@ -12,18 +12,18 @@
 #include <iostream>
 
 namespace efd {
-    /// \brief Extends the \em PartialMatchingFinder class for weighted graphs.
+    /// \brief Extends the \em SIFinder class for weighted graphs.
     ///
     /// This class finds a graph matching M=(Vm, Em) of G=(Vg, Eg) and H=(Vh, Eh)
     /// such that Eh is weighted.
     ///
     /// So, the idea is to try to maximize the value of the edges matched.
     template <typename T>
-    class WeightedPMFinder : public PartialMatchingFinder {
+    class WeightedSIFinder : public SIFinder {
         public:
-            typedef WeightedPMFinder<T>* Ref;
-            typedef std::unique_ptr<WeightedPMFinder<T>> uRef;
-            typedef std::shared_ptr<WeightedPMFinder<T>> sRef;
+            typedef WeightedSIFinder<T>* Ref;
+            typedef std::unique_ptr<WeightedSIFinder<T>> uRef;
+            typedef std::shared_ptr<WeightedSIFinder<T>> sRef;
 
         protected:
             Graph::Ref mG;
@@ -33,12 +33,12 @@ namespace efd {
             std::vector<uint32_t> matching;
             std::vector<uint32_t> gOutDegree;
 
-            WeightedPMFinder();
+            WeightedSIFinder();
             uint32_t findBestVertex(uint32_t a, uint32_t b);
             uint32_t getFirstFree();
 
         public:
-            virtual std::vector<uint32_t> find(Graph::Ref g, Graph::Ref h) override;
+            virtual Result find(Graph::Ref g, Graph::Ref h) override;
 
             /// \brief Creates an instance of this class.
             static uRef Create();
@@ -54,10 +54,10 @@ namespace efd {
 }
 
 template <typename T>
-efd::WeightedPMFinder<T>::WeightedPMFinder() {}
+efd::WeightedSIFinder<T>::WeightedSIFinder() {}
 
 template <typename T>
-uint32_t efd::WeightedPMFinder<T>::findBestVertex(uint32_t a, uint32_t b) {
+uint32_t efd::WeightedSIFinder<T>::findBestVertex(uint32_t a, uint32_t b) {
     uint32_t gSize = mG->size();
     uint32_t hSize = mH->size();
     uint32_t bOutDegree = mH->outDegree(b);
@@ -105,7 +105,7 @@ uint32_t efd::WeightedPMFinder<T>::findBestVertex(uint32_t a, uint32_t b) {
 }
 
 template <typename T>
-uint32_t efd::WeightedPMFinder<T>::getFirstFree() {
+uint32_t efd::WeightedSIFinder<T>::getFirstFree() {
     uint32_t gSize = mG->size();
 
     for (uint32_t u = 0; u < gSize; ++u) {
@@ -116,7 +116,7 @@ uint32_t efd::WeightedPMFinder<T>::getFirstFree() {
 }
 
 template <typename T>
-std::vector<uint32_t> efd::WeightedPMFinder<T>::find(Graph::Ref g, Graph::Ref h) {
+efd::SIFinder::Result efd::WeightedSIFinder<T>::find(Graph::Ref g, Graph::Ref h) {
     assert(h->isWeighted() && "Trying to use weighted partial matching on unweighted graph.");
 
     mG = g;
@@ -194,13 +194,13 @@ std::vector<uint32_t> efd::WeightedPMFinder<T>::find(Graph::Ref g, Graph::Ref h)
         }
     }
 
-    return matching;
+    return { true, matching };
 }
 
 template <typename T>
-typename efd::WeightedPMFinder<T>::uRef
-efd::WeightedPMFinder<T>::Create() {
-    return uRef(new WeightedPMFinder<T>());
+typename efd::WeightedSIFinder<T>::uRef
+efd::WeightedSIFinder<T>::Create() {
+    return uRef(new WeightedSIFinder<T>());
 }
 
 #endif
