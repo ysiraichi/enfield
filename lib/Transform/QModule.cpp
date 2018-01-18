@@ -114,6 +114,10 @@ efd::QModule::Iterator efd::QModule::replaceStatement
     return it - stmtsSize;
 }
 
+void efd::QModule::clearStatements() {
+    mStatements->clear();
+}
+
 efd::Node::Ref efd::QModule::getStatement(uint32_t i) {
     assert(i < mStatements->getChildNumber() && "Out of bounds access.");
     return mStatements->getChild(i);
