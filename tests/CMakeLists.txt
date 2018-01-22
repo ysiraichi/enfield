@@ -73,6 +73,9 @@ efd_test (CNOTLBOWrapperPassTests
 efd_test (ReverseEdgesPassTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
+efd_test (SemanticVerifierPassTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
 # ==-------- Allocator ----------==
 efd_test (DynprogDepSolverTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
