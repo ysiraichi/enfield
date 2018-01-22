@@ -13,4 +13,5 @@ add_library (EfdTransform
     ReverseEdgesPass.cpp
     CircuitGraphBuilderPass.cpp
     LayerBasedOrderingWrapperPass.cpp
-    CNOTLBOWrapperPass.cpp)
+    CNOTLBOWrapperPass.cpp
+    SemanticVerifierPass.cpp)
