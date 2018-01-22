@@ -44,12 +44,14 @@ std::vector<NDGateSign::uRef> efd::GetIntrinsicGates() {
 }
 
 namespace efd {
+    extern const std::string StdLibCX;
+
     /// \brief Special node for swap calls.
     struct NDQOpSwap : public NDQOpGen {
         static const std::string IdStr;
 
         NDQOpSwap(Node::uRef lhs, Node::uRef rhs) :
-            NDQOpGen(NDId::Create(IdStr), NDList::Create(), NDList::Create()) {
+            NDQOpGen(NDId::Create(IdStr), NDList::Create(), NDList::Create(), K_INTRINSIC_SWAP) {
                 auto qargs = getQArgs();
                 qargs->addChild(std::move(lhs));
                 qargs->addChild(std::move(rhs));
@@ -61,7 +63,7 @@ namespace efd {
         static const std::string IdStr;
 
         NDQOpLongCX(Node::uRef lhs, Node::uRef middle, Node::uRef rhs) :
-            NDQOpGen(NDId::Create(IdStr), NDList::Create(), NDList::Create()) {
+            NDQOpGen(NDId::Create(IdStr), NDList::Create(), NDList::Create(), K_INTRINSIC_LCX) {
                 auto qargs = getQArgs();
                 qargs->addChild(std::move(lhs));
                 qargs->addChild(std::move(middle));
@@ -74,7 +76,7 @@ namespace efd {
         static const std::string IdStr;
 
         NDQOpRevCX(Node::uRef lhs, Node::uRef rhs) :
-            NDQOpGen(NDId::Create(IdStr), NDList::Create(), NDList::Create()) {
+            NDQOpGen(NDId::Create(IdStr), NDList::Create(), NDList::Create(), K_INTRINSIC_REV_CX) {
                 auto qargs = getQArgs();
                 qargs->addChild(std::move(lhs));
                 qargs->addChild(std::move(rhs));
@@ -85,6 +87,68 @@ namespace efd {
 const std::string efd::NDQOpSwap::IdStr = "intrinsic_swap__";
 const std::string efd::NDQOpLongCX::IdStr = "intrinsic_lcx__";
 const std::string efd::NDQOpRevCX::IdStr = "intrinsic_rev_cx__";
+const std::string efd::StdLibCX = "cx";
+
+bool efd::IsCNOTGateCall(Node::Ref ref) {
+    switch (ref->getKind()) {
+        case Node::K_QOP_CX:
+            return true;
+
+        case Node::K_QOP_GEN:
+            return ref->getOperation() == StdLibCX;
+
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool efd::IsIntrinsicGateCall(Node::Ref ref) {
+    if (auto qopgen = dynCast<NDQOpGen>(ref)) {
+        std::string gateid = qopgen->getOperation();
+
+        return gateid == NDQOpSwap::IdStr ||
+            gateid == NDQOpLongCX::IdStr ||
+            gateid == NDQOpRevCX::IdStr;
+    }
+
+    return false;
+}
+
+NDQOpGen::IntrinsicKind efd::GetIntrinsicKind(Node::Ref ref) {
+    assert(IsIntrinsicGateCall(ref) && "Node must be an intrinsic gate call.");
+
+    std::string gateid = ref->getOperation();
+
+    NDQOpGen::IntrinsicKind kind;
+    if (gateid == efd::NDQOpSwap::IdStr)          kind = NDQOpGen::K_INTRINSIC_SWAP;
+    else if (gateid == efd::NDQOpLongCX::IdStr)   kind = NDQOpGen::K_INTRINSIC_LCX;
+    else if (gateid == efd::NDQOpRevCX::IdStr)    kind = NDQOpGen::K_INTRINSIC_REV_CX;
+    else assert(false && "Unreachable.");
+
+    return kind;
+}
+
+NDQOp::uRef efd::CreateIntrinsicGate(NDQOpGen::IntrinsicKind kind,
+                                     std::vector<Node::uRef> qargs) {
+    switch (kind) {
+        case NDQOpGen::K_INTRINSIC_SWAP:
+            assert(qargs.size() == 2 && "Intrinsic swap instructions must have 2 qargs.");
+            return CreateISwap(std::move(qargs[0]), std::move(qargs[1]));
+
+        case NDQOpGen::K_INTRINSIC_REV_CX:
+            assert(qargs.size() == 2 && "Intrinsic reverse-cnot instructions must 2 qargs.");
+            return CreateIRevCX(std::move(qargs[0]), std::move(qargs[1]));
+
+        case NDQOpGen::K_INTRINSIC_LCX:
+            assert(qargs.size() == 3 && "Intrinsic long-cnot instructions must have 3 qargs.");
+            return CreateILongCX(std::move(qargs[0]), std::move(qargs[1]), std::move(qargs[2]));
+
+        default:
+            assert(false && "Unreachable.");
+    }
+}
 
 NDQOp::uRef efd::CreateISwap(Node::uRef lhs, Node::uRef rhs) {
     auto node = new NDQOpSwap(std::move(lhs), std::move(rhs));
@@ -105,6 +169,9 @@ NDQOp::uRef efd::CreateIRevCX(Node::uRef lhs, Node::uRef rhs) {
 // ==--------------- QModulefy ---------------==
 namespace efd {
     class QModulefyVisitor : public NodeVisitor {
+        private:
+            Node::uRef getClonedOrIntrinsic(Node::Ref ref);
+
         public:
             QModule& mMod;
 
@@ -128,6 +195,38 @@ namespace efd {
             void visit(NDIfStmt::Ref ref) override;
             void visit(NDStmtList::Ref ref) override;
     };
+}
+
+efd::Node::uRef efd::QModulefyVisitor::getClonedOrIntrinsic(Node::Ref ref) {
+    auto cloned = ref->clone();
+    auto ifstmt = dynCast<NDIfStmt>(cloned.get());
+    auto qop = dynCast<NDQOp>(cloned.get());
+
+    if (qop == nullptr && ifstmt) {
+        qop = ifstmt->getQOp();
+    }
+
+    assert(qop != nullptr && "Node is neither NDQOp nor NDIfStmt.");
+
+    NDQOp::uRef intrinsic(nullptr);
+    if (IsIntrinsicGateCall(qop)) {
+        auto kind = GetIntrinsicKind(qop);
+        auto qargs = qop->getQArgs();
+
+        std::vector<Node::uRef> qargsVector;
+        for (auto& qarg : *qargs) { qargsVector.push_back(qarg->clone()); }
+        intrinsic = CreateIntrinsicGate(kind, std::move(qargsVector));
+    }
+
+    if (intrinsic.get() != nullptr) {
+        if (ifstmt != nullptr) {
+            ifstmt->setQOp(std::move(intrinsic));
+        } else {
+            cloned = std::move(intrinsic);
+        }
+    }
+
+    return cloned;
 }
 
 void efd::QModulefyVisitor::visit(NDQasmVersion::Ref ref) {
@@ -191,12 +290,15 @@ void efd::QModulefyVisitor::visit(NDQOpBarrier::Ref ref) {
     mMod.insertStatementLast(ref->clone());
 }
 
+// Both NDQOpGen and NDQOpIfStmt can be (the first) or have (the latter) an intrinsic gate.
 void efd::QModulefyVisitor::visit(NDQOpGen::Ref ref) {
-    mMod.insertStatementLast(ref->clone());
+    auto cloned = getClonedOrIntrinsic(ref);
+    mMod.insertStatementLast(std::move(cloned));
 }
 
 void efd::QModulefyVisitor::visit(NDIfStmt::Ref ref) {
-    mMod.insertStatementLast(ref->clone());
+    auto cloned = getClonedOrIntrinsic(ref);
+    mMod.insertStatementLast(std::move(cloned));
 }
 
 void efd::QModulefyVisitor::visit(NDStmtList::Ref ref) {
