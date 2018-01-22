@@ -77,6 +77,7 @@ static void processCBit(uint32_t cbitid, CircuitNode* newnode,
         last[cbitid]->child[cbitid] = newnode;
     }
     
+    newnode->child[cbitid] = nullptr;
     last[cbitid] = newnode;
 }
 
@@ -90,5 +91,6 @@ static void processQuBit(uint32_t qubitid, CircuitNode* newnode,
         last[qubitid]->child[qubitid] = newnode;
     }
     
+    newnode->child[qubitid] = nullptr;
     last[qubitid] = newnode;
 }
