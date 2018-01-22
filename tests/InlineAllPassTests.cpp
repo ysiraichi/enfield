@@ -104,3 +104,28 @@ somegate(10, 20) q[0], q[1];\
     }
 }
 
+TEST(InlineAllPassTests, IfStmtInline) {
+    {
+        const std::string program =
+"\
+qreg q[5];\
+qreg c[5];\
+gate mycx a, b {cx a, b;}\
+measure q -> c;\
+if (c == 3) mycx q[0], q[1];\
+";
+        const std::string result =
+"\
+include \"qelib1.inc\";\
+qreg q[5];\
+qreg c[5];\
+measure q -> c;\
+if (c == 3) cx q[0], q[1];\
+";
+        auto qmod = toShared(QModule::ParseString(program));
+        auto pass = InlineAllPass::Create({ "cx" });
+        pass->run(qmod.get());
+        ASSERT_EQ(qmod->toString(), result);
+    }
+}
+

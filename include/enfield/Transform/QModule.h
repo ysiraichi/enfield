@@ -50,6 +50,8 @@ namespace efd {
             QModule();
 
         public:
+            ~QModule();
+
             /// \brief Gets the qasm version.
             NDQasmVersion::Ref getVersion();
             /// \brief Sets the qasm version.
