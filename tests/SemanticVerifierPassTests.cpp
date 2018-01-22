@@ -32,7 +32,19 @@ q[3] q[4]\n\
     return g;
 }
 
-TEST(WeightedSIMappingFinderTests, SimpleNoSwapProgram) {
+bool CheckSemanticVerifier(const std::string progBefore, const std::string progAfter, Mapping map) {
+    ArchGraph::sRef graph = getGraph();
+
+    auto qmodBefore = QModule::ParseString(progBefore);
+    auto qmodAfter = QModule::ParseString(progAfter);
+
+    SemanticVerifierPass verifier(std::move(qmodBefore), map);
+    verifier.run(qmodAfter.get());
+
+    return verifier.getData();
+}
+
+TEST(SemanticVerifierPassTests, SimpleProgram) {
     {
         const std::string progBefore =
 "\
@@ -46,15 +58,10 @@ qreg q[5];\
 CX q[1], q[2];\
 ";
 
-        ArchGraph::sRef graph = getGraph();
+        Mapping mapping { 1, 2, 0, 3, 4 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        auto qmodBefore = QModule::ParseString(progBefore);
-        auto qmodAfter = QModule::ParseString(progAfter);
-
-        SemanticVerifierPass verifier(std::move(qmodBefore), Mapping { 1, 2, 0, 3, 4 });
-        verifier.run(qmodAfter.get());
-
-        ASSERT_TRUE(verifier.getData());
+        ASSERT_TRUE(areSemanticalyEqual);
     }
 
     {
@@ -80,19 +87,14 @@ CX q[0], q[2];\
 CX q[1], q[2];\
 ";
 
-        ArchGraph::sRef graph = getGraph();
+        Mapping mapping { 2, 4, 3, 1, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        auto qmodBefore = QModule::ParseString(progBefore);
-        auto qmodAfter = QModule::ParseString(progAfter);
-
-        SemanticVerifierPass verifier(std::move(qmodBefore), Mapping { 2, 4, 3, 1, 0 });
-        verifier.run(qmodAfter.get());
-
-        ASSERT_TRUE(verifier.getData());
+        ASSERT_TRUE(areSemanticalyEqual);
     }
 }
 
-TEST(WeightedSIMappingFinderTests, GatesTest) {
+TEST(SemanticVerifierPassTests, ProgramWithGatesTest) {
     {
         const std::string progBefore =
 "\
@@ -109,15 +111,10 @@ CX q[0], q[2];\
 CX q[1], q[2];\
 ";
 
-        ArchGraph::sRef graph = getGraph();
+        Mapping mapping { 0, 1, 2, 3, 4 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        auto qmodBefore = QModule::ParseString(progBefore);
-        auto qmodAfter = QModule::ParseString(progAfter);
-
-        SemanticVerifierPass verifier(std::move(qmodBefore), Mapping { 0, 1, 2, 3, 4 });
-        verifier.run(qmodAfter.get());
-
-        ASSERT_TRUE(verifier.getData());
+        ASSERT_TRUE(areSemanticalyEqual);
     }
 
     {
@@ -140,19 +137,14 @@ CX q[0], q[2];\
 CX q[1], q[2];\
 ";
 
-        ArchGraph::sRef graph = getGraph();
+        Mapping mapping { 3, 4, 2, 0, 1 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        auto qmodBefore = QModule::ParseString(progBefore);
-        auto qmodAfter = QModule::ParseString(progAfter);
-
-        SemanticVerifierPass verifier(std::move(qmodBefore), Mapping { 3, 4, 2, 0, 1 });
-        verifier.run(qmodAfter.get());
-
-        ASSERT_TRUE(verifier.getData());
+        ASSERT_TRUE(areSemanticalyEqual);
     }
 }
 
-TEST(WeightedSIMappingFinderTests, GatesSwapTest) {
+TEST(SemanticVerifierPassTests, IntrinsicGatesTest) {
     {
         const std::string progBefore =
 "\
@@ -161,7 +153,6 @@ gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
 test q[0], q[1], q[2];\
 test q[4], q[1], q[0];\
 ";
-        // Expected mapping: [ 0 2 1 3 4 ]
         const std::string progAfter =
 "\
 include \"qelib1.inc\";\
@@ -178,14 +169,326 @@ CX q[0], q[1];\
 intrinsic_rev_cx__ q[2], q[1];\
 ";
 
-        ArchGraph::sRef graph = getGraph();
+        Mapping mapping { 1, 2, 3, 4, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        auto qmodBefore = QModule::ParseString(progBefore);
-        auto qmodAfter = QModule::ParseString(progAfter);
+        ASSERT_TRUE(areSemanticalyEqual);
+    }
+    {
+        const std::string progBefore =
+"\
+qreg q[5];\
+gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
+test q[0], q[1], q[2];\
+test q[4], q[1], q[0];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
+gate intrinsic_lcx__ a, c, b {cx c, b;cx a, c;cx c, b;cx a, c;}\
+qreg q[5];\
+CX q[1], q[2];\
+intrinsic_lcx__ q[1], q[2], q[3];\
+intrinsic_rev_cx__ q[2], q[3];\
+CX q[0], q[2];\
+CX q[0], q[1];\
+intrinsic_rev_cx__ q[2], q[1];\
+";
 
-        SemanticVerifierPass verifier(std::move(qmodBefore), Mapping { 1, 2, 3, 4, 0 });
-        verifier.run(qmodAfter.get());
+        Mapping mapping { 1, 2, 3, 4, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(verifier.getData());
+        ASSERT_TRUE(areSemanticalyEqual);
+    }
+}
+
+TEST(SemanticVerifierPassTests, IfStmtsTest) {
+    {
+        const std::string progBefore =
+"\
+qreg q[5];\
+creg c[5];\
+gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
+test q[0], q[1], q[2];\
+measure q -> c;\
+if (c == 4) test q[4], q[1], q[0];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+gate intrinsic_swap__ a, b {cx a, b;cx b, a;cx a, b;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
+qreg q[5];\
+creg c[5];\
+measure q[4] -> c[3];\
+measure q[0] -> c[4];\
+CX q[1], q[2];\
+intrinsic_swap__ q[3], q[2];\
+CX q[1], q[2];\
+measure q[1] -> c[0];\
+CX q[3], q[2];\
+measure q[3] -> c[1];\
+measure q[2] -> c[2];\
+intrinsic_swap__ q[3], q[2];\
+if (c == 4) CX q[0], q[2];\
+if (c == 4) CX q[0], q[1];\
+if (c == 4) intrinsic_rev_cx__ q[2], q[1];\
+";
+
+        Mapping mapping { 1, 2, 3, 4, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        ASSERT_TRUE(areSemanticalyEqual);
+    }
+}
+
+TEST(SemanticVerifierPassTests, BrokenDependencyTest) {
+    {
+        // Swap comes before expected.
+        const std::string progBefore =
+"\
+qreg q[5];\
+gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
+test q[0], q[1], q[2];\
+test q[4], q[1], q[0];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+gate intrinsic_swap__ a, b {cx a, b;cx b, a;cx a, b;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
+qreg q[5];\
+CX q[1], q[2];\
+CX q[1], q[2];\
+intrinsic_swap__ q[3], q[2];\
+CX q[3], q[2];\
+intrinsic_swap__ q[3], q[2];\
+CX q[0], q[2];\
+CX q[0], q[1];\
+intrinsic_rev_cx__ q[2], q[1];\
+";
+
+        Mapping mapping { 1, 2, 3, 4, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        ASSERT_FALSE(areSemanticalyEqual);
+    }
+    {
+        // Dependency comes after the dependent.
+        const std::string progBefore =
+"\
+qreg q[5];\
+gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
+test q[0], q[1], q[2];\
+test q[4], q[1], q[0];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+gate intrinsic_swap__ a, b {cx a, b;cx b, a;cx a, b;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
+qreg q[5];\
+CX q[1], q[2];\
+intrinsic_swap__ q[3], q[2];\
+CX q[3], q[2];\
+CX q[1], q[2];\
+intrinsic_swap__ q[3], q[2];\
+CX q[0], q[2];\
+CX q[0], q[1];\
+intrinsic_rev_cx__ q[2], q[1];\
+";
+
+        Mapping mapping { 1, 2, 3, 4, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        ASSERT_FALSE(areSemanticalyEqual);
+    }
+    {
+        // Intrinsics swapped.
+        const std::string progBefore =
+"\
+qreg q[5];\
+gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
+test q[0], q[1], q[2];\
+test q[4], q[1], q[0];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
+gate intrinsic_lcx__ a, c, b {cx c, b;cx a, c;cx c, b;cx a, c;}\
+qreg q[5];\
+CX q[1], q[2];\
+intrinsic_rev_cx__ q[2], q[3];\
+intrinsic_lcx__ q[1], q[2], q[3];\
+CX q[0], q[2];\
+CX q[0], q[1];\
+intrinsic_rev_cx__ q[2], q[1];\
+";
+
+        Mapping mapping { 1, 2, 3, 4, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        ASSERT_FALSE(areSemanticalyEqual);
+    }
+    {
+        // Intrinsics swapped.
+        const std::string progBefore =
+"\
+qreg q[5];\
+gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
+test q[0], q[1], q[2];\
+test q[4], q[1], q[0];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+qreg q[5];\
+cx q[0], q[1];\
+cx q[0], q[1];\
+cx q[1], q[2];\
+cx q[4], q[1];\
+cx q[4], q[0];\
+";
+
+        Mapping mapping { 1, 2, 3, 4, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        ASSERT_FALSE(areSemanticalyEqual);
+    }
+    {
+        // Intrinsics swapped.
+        const std::string progBefore =
+"\
+qreg q[5];\
+gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
+test q[0], q[1], q[2];\
+test q[4], q[1], q[0];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+qreg q[5];\
+";
+
+        Mapping mapping { 1, 2, 3, 4, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        ASSERT_FALSE(areSemanticalyEqual);
+    }
+}
+
+TEST(SemanticVerifierPassTests, BrokenIfStmtsTest) {
+    {
+        const std::string progBefore =
+"\
+qreg q[5];\
+creg c[5];\
+gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
+test q[0], q[1], q[2];\
+measure q -> c;\
+if (c == 4) test q[4], q[1], q[0];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+gate intrinsic_swap__ a, b {cx a, b;cx b, a;cx a, b;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
+qreg q[5];\
+creg c[5];\
+measure q[3] -> c[3];\
+measure q[4] -> c[4];\
+CX q[1], q[2];\
+intrinsic_swap__ q[3], q[2];\
+CX q[1], q[2];\
+measure q[0] -> c[0];\
+CX q[3], q[2];\
+measure q[1] -> c[1];\
+measure q[2] -> c[2];\
+intrinsic_swap__ q[3], q[2];\
+if (c == 4) CX q[0], q[2];\
+if (c == 4) CX q[0], q[1];\
+if (c == 4) intrinsic_rev_cx__ q[2], q[1];\
+";
+
+        Mapping mapping { 1, 2, 3, 4, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        ASSERT_FALSE(areSemanticalyEqual);
+    }
+    {
+        const std::string progBefore =
+"\
+qreg q[5];\
+creg c[5];\
+gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
+test q[0], q[1], q[2];\
+measure q -> c;\
+if (c == 4) test q[4], q[1], q[0];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+gate intrinsic_swap__ a, b {cx a, b;cx b, a;cx a, b;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
+qreg q[5];\
+creg c[5];\
+measure q[4] -> c[3];\
+measure q[0] -> c[4];\
+CX q[1], q[2];\
+intrinsic_swap__ q[3], q[2];\
+CX q[1], q[2];\
+measure q[1] -> c[0];\
+measure q[3] -> c[1];\
+CX q[3], q[2];\
+measure q[2] -> c[2];\
+intrinsic_swap__ q[3], q[2];\
+if (c == 4) CX q[0], q[2];\
+if (c == 4) CX q[0], q[1];\
+if (c == 4) intrinsic_rev_cx__ q[2], q[1];\
+";
+
+        Mapping mapping { 1, 2, 3, 4, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        ASSERT_FALSE(areSemanticalyEqual);
+    }
+    {
+        const std::string progBefore =
+"\
+qreg q[5];\
+creg c[5];\
+gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
+test q[0], q[1], q[2];\
+measure q -> c;\
+if (c == 4) test q[4], q[1], q[0];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+gate intrinsic_swap__ a, b {cx a, b;cx b, a;cx a, b;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
+qreg q[5];\
+creg c[5];\
+measure q[4] -> c[3];\
+measure q[0] -> c[4];\
+CX q[1], q[2];\
+intrinsic_swap__ q[3], q[2];\
+CX q[1], q[2];\
+measure q[1] -> c[0];\
+measure q[2] -> c[2];\
+CX q[3], q[2];\
+measure q[3] -> c[1];\
+intrinsic_swap__ q[3], q[2];\
+if (c == 4) CX q[0], q[2];\
+if (c == 4) CX q[0], q[1];\
+if (c == 4) intrinsic_rev_cx__ q[2], q[1];\
+";
+
+        Mapping mapping { 1, 2, 3, 4, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        ASSERT_FALSE(areSemanticalyEqual);
     }
 }

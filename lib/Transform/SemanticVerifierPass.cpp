@@ -42,7 +42,7 @@ namespace efd {
             std::map<CircuitNode*, uint32_t> mReached;
             std::vector<bool> mMarked;
 
-            uint32_t getDstUId(const uint32_t srcUId);
+            uint32_t getDstUId(const uint32_t srcUId, bool isQuantum = true);
             void updatedReachedCktNodes();
             bool advanceIntrinsicNodes();
             void advanceCktNodes(std::vector<uint32_t> xbitsToUpdate);
@@ -153,13 +153,9 @@ bool SemanticVerifierVisitor::advanceIntrinsicNodes() {
     return changed;
 }
 
-uint32_t SemanticVerifierVisitor::getDstUId(const uint32_t srcUId) {
-    const uint32_t qubits = mXtoNSrc.getQSize();
-    // If it is a concrete bit id.
-    // Only the qubit ids were transformed. Thus, there is no need for a mapping for the
-    // concrete bits.
-    if (srcUId >= qubits) return (mQubits - qubits) + srcUId;
-    return mMap[srcUId];
+uint32_t SemanticVerifierVisitor::getDstUId(const uint32_t srcUId, bool isQuantum) {
+    if (isQuantum) return mMap[srcUId];
+    return mQubits + srcUId;
 }
 
 void SemanticVerifierVisitor::postprocessing(std::vector<uint32_t> xbitsToUpdate) {
@@ -175,8 +171,15 @@ void SemanticVerifierVisitor::postprocessing(std::vector<uint32_t> xbitsToUpdate
 }
 
 void SemanticVerifierVisitor::visitQOp(NDQOp::Ref qop, NDIfStmt::Ref ifstmt) {
+    std::cerr << "Processing: ";
+    if (ifstmt) ifstmt->print(std::cerr);
+    else qop->print(std::cerr);
+    std::cerr << std::endl;
+
     // Checking all quantum arguments from the current node.
     std::vector<uint32_t> opQubits;
+    std::vector<uint32_t> opCbits;
+
     auto qargs = qop->getQArgs();
     uint32_t qargsChildrem = qargs->getChildNumber();
 
@@ -186,14 +189,31 @@ void SemanticVerifierVisitor::visitQOp(NDQOp::Ref qop, NDIfStmt::Ref ifstmt) {
         opQubits.push_back(getDstUId(srcQUId));
     }
 
+    if (ifstmt != nullptr) {
+        for (auto cbit : mXtoNSrc.getRegUIds(ifstmt->getCondId()->getVal()))
+            opCbits.push_back(getDstUId(cbit));
+    }
+
     assert(!opQubits.empty() && "QOp without qubits?");
 
     // Checking all quantum arguments from the circuit node.
-    auto cktNode = mCkt[opQubits[0]]->node;
+    std::vector<uint32_t> cktOpQubits;
+    std::vector<uint32_t> cktOpCbits;
+
+    auto cktCNode = mCkt[opQubits[0]];
+
+    if (cktCNode == nullptr) { mSuccess = false; return; }
+
+    auto cktNode = cktCNode->node;
     NDQOp::Ref cktQOp = nullptr;
 
     if (ifstmt != nullptr && ifstmt->getKind() == cktNode->getKind()) {
-        cktQOp = static_cast<NDIfStmt*>(cktNode)->getQOp();
+        auto ifstmt = static_cast<NDIfStmt*>(cktNode);
+        cktQOp = ifstmt->getQOp();
+
+        for (auto cbit : mXtoNDst.getRegUIds(ifstmt->getCondId()->getVal()))
+            cktOpCbits.push_back(mQubits + cbit);
+
     } else if (ifstmt == nullptr) {
         cktQOp = static_cast<NDQOp*>(cktNode);
     } else {
@@ -202,12 +222,12 @@ void SemanticVerifierVisitor::visitQOp(NDQOp::Ref qop, NDIfStmt::Ref ifstmt) {
         return;
     }
 
-    std::vector<uint32_t> cktOpQubits;
     auto cktQArgs = cktQOp->getQArgs();
     uint32_t cktQArgsChildrem = cktQArgs->getChildNumber();
 
     for (uint32_t i = 0; i < cktQArgsChildrem; ++i) {
-        cktOpQubits.push_back(mXtoNDst.getQUId(cktQArgs->getChild(i)->toString(false)));
+        uint32_t qubit = mXtoNDst.getQUId(cktQArgs->getChild(i)->toString(false));
+        cktOpQubits.push_back(qubit);
     }
 
     // All qubits involved in the current node must also be involved in the circuit node.
@@ -225,6 +245,11 @@ void SemanticVerifierVisitor::visitQOp(NDQOp::Ref qop, NDIfStmt::Ref ifstmt) {
     for (uint32_t i = 1; i < cktQArgsChildrem; ++i) {
         mSuccess = mSuccess && mCkt[cktOpQubits[i]] == mCkt[cktOpQubits[i - 1]];
     }
+
+    if (cktOpCbits.size() != opCbits.size())
+        mSuccess = false;
+
+    if (!mSuccess) return;
 
     // If this operation deals with more than one qubit, we assume it deals with exactly two
     // qubits, and that it is a CNOT gate.
@@ -262,7 +287,15 @@ void SemanticVerifierVisitor::visitQOp(NDQOp::Ref qop, NDIfStmt::Ref ifstmt) {
         mSuccess = mSuccess && refArgs->equals(cktArgs);
     }
 
-    postprocessing(opQubits);
+    if (mSuccess) {
+        std::vector<uint32_t> xbits = cktOpQubits;
+
+        if (!cktOpCbits.empty()) {
+            xbits.insert(xbits.begin(), cktOpCbits.begin(), cktOpCbits.end());
+        }
+
+        postprocessing(xbits);
+    }
 }
 
 void SemanticVerifierVisitor::visit(NDQOpMeasure::Ref ref) {
@@ -270,13 +303,13 @@ void SemanticVerifierVisitor::visit(NDQOpMeasure::Ref ref) {
     uint32_t srcCUId = mXtoNSrc.getCUId(ref->getCBit()->toString(false));
 
     uint32_t qubitId = getDstUId(srcQUId);
-    uint32_t cbitId = getDstUId(srcCUId);
+    uint32_t cbitId = getDstUId(srcCUId, false);
 
     auto cktNode = mCkt[qubitId];
     mSuccess = mSuccess && cktNode && mCkt[qubitId] == mCkt[cbitId] && !mReached[cktNode]
         && cktNode->node->getKind() == ref->getKind();
 
-    postprocessing({ qubitId, cbitId });
+    if (mSuccess) postprocessing({ qubitId, cbitId });
 }
 
 void SemanticVerifierVisitor::visit(NDQOpReset::Ref ref) {
