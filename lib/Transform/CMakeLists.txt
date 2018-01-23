@@ -15,4 +15,5 @@ add_library (EfdTransform
     LayerBasedOrderingWrapperPass.cpp
     CNOTLBOWrapperPass.cpp
     SemanticVerifierPass.cpp
-    ArchVerifierPass.cpp)
+    ArchVerifierPass.cpp
+    Driver.cpp)
