@@ -2,39 +2,12 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Transform/SemanticVerifierPass.h"
-#include "enfield/Transform/Allocators/SimpleDepSolver.h"
-#include "enfield/Transform/Allocators/WeightedSIMappingFinder.h"
-#include "enfield/Transform/Allocators/PathGuidedSolBuilder.h"
-#include "enfield/Arch/ArchGraph.h"
-#include "enfield/Support/RTTI.h"
-#include "enfield/Support/uRefCast.h"
 
 #include <string>
 
 using namespace efd;
 
-static ArchGraph::sRef g(nullptr);
-
-static ArchGraph::sRef getGraph() {
-    if (g.get() != nullptr) return g;
-    const std::string gStr =
-"\
-5\n\
-q[0] q[1]\n\
-q[1] q[2]\n\
-q[0] q[2]\n\
-q[3] q[2]\n\
-q[4] q[2]\n\
-q[3] q[4]\n\
-";
-
-    g = toShared(ArchGraph::ReadString(gStr));
-    return g;
-}
-
 bool CheckSemanticVerifier(const std::string progBefore, const std::string progAfter, Mapping map) {
-    ArchGraph::sRef graph = getGraph();
-
     auto qmodBefore = QModule::ParseString(progBefore);
     auto qmodAfter = QModule::ParseString(progAfter);
 
