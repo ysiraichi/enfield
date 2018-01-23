@@ -79,6 +79,9 @@ efd_test (ReverseEdgesPassTests
 efd_test (SemanticVerifierPassTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
+efd_test (ArchVerifierPassTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
 # ==-------- Allocator ----------==
 efd_test (DynprogDepSolverTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
