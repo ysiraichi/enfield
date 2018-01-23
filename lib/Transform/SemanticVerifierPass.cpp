@@ -326,7 +326,9 @@ SemanticVerifierPass::SemanticVerifierPass(QModule::uRef src, Mapping initial)
 
 bool SemanticVerifierPass::run(QModule* dst) {
     PassCache::Run<FlattenPass>(mSrc.get());
-    PassCache::Run<InlineAllPass>(mSrc.get());
+
+    auto inlinePass = InlineAllPass::Create(mBasis);
+    PassCache::Run(mSrc.get(), inlinePass.get());
 
     auto cktpass = PassCache::Get<CircuitGraphBuilderPass>(dst);
     auto& ckt = cktpass->getData();
@@ -343,6 +345,10 @@ bool SemanticVerifierPass::run(QModule* dst) {
     }
 
     return false;
+}
+
+void SemanticVerifierPass::setInlineAll(std::vector<std::string> basis) {
+    mBasis = basis;
 }
 
 SemanticVerifierPass::uRef SemanticVerifierPass::Create(QModule::uRef src, Mapping initial) {

@@ -21,11 +21,16 @@ namespace efd {
         private:
             QModule::uRef mSrc;
             Mapping mInitial;
+            std::vector<std::string> mBasis;
 
         public:
             /// \brief Constructs a verifier from a clone of the original semantics
             /// (the \p src QModule).
             SemanticVerifierPass(QModule::uRef src, Mapping initial);
+
+            /// \brief Flags the verifier to inline all gates, but those inside the
+            /// \p basis vector, before mapping.
+            void setInlineAll(std::vector<std::string> basis = {});
 
             bool run(QModule* dst) override;
 
