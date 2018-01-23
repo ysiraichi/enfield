@@ -16,7 +16,7 @@
 namespace efd {
     class SolutionImplPass : public PassT<void>, public NodeVisitor {
         private:
-            Solution& mSol;
+            Solution& mData;
 
             XbitToNumber mXbitToNumber;
             std::vector<Node::Ref> mMap;
@@ -33,7 +33,7 @@ namespace efd {
             void applyOperations(Node::Ref ref);
 
         public:
-            SolutionImplPass(Solution& sol) : mSol(sol) {}
+            SolutionImplPass(Solution& sol) : mData(sol) {}
 
             bool run(QModule::Ref qmod) override;
             void visit(NDQOpMeasure::Ref ref) override;
@@ -65,7 +65,7 @@ efd::Node::uRef efd::SolutionImplPass::wrapWithIfNode
 }
 
 void efd::SolutionImplPass::applyOperations(Node::Ref ref) {
-    auto& ops = mSol.mOpSeqs[mDepIdx].second;
+    auto& ops = mData.mOpSeqs[mDepIdx].second;
     ++mDepIdx;
 
     // If there is nothing to be done in this dep, simply return.
@@ -133,7 +133,7 @@ bool efd::SolutionImplPass::run(QModule::Ref qmod) {
     mMap.assign(mXbitToNumber.getQSize(), nullptr);
 
     for (uint32_t i = 0, e = mXbitToNumber.getQSize(); i < e; ++i)
-        mMap[i] = mXbitToNumber.getQNode(mSol.mInitial[i]);
+        mMap[i] = mXbitToNumber.getQNode(mData.mInitial[i]);
 
     mDepIdx = 0;
     for (auto it = qmod->stmt_begin(), end = qmod->stmt_end(); it != end; ++it) {
@@ -178,7 +178,7 @@ void efd::SolutionImplPass::visit(NDQOpCX::Ref ref) {
     ref->setLhs(getMappedNode(ref->getLhs()));
     ref->setRhs(getMappedNode(ref->getRhs()));
 
-    assert(ref == mSol.mOpSeqs[mDepIdx].first &&
+    assert(ref == mData.mOpSeqs[mDepIdx].first &&
             "Wrong cnot dependency.");
 
     applyOperations(ref);
@@ -187,7 +187,7 @@ void efd::SolutionImplPass::visit(NDQOpCX::Ref ref) {
 void efd::SolutionImplPass::visit(NDQOpGen::Ref ref) {
     ref->getQArgs()->apply(this);
 
-    if (!mSol.mOpSeqs.empty() && ref == mSol.mOpSeqs[mDepIdx].first) {
+    if (!mData.mOpSeqs.empty() && ref == mData.mOpSeqs[mDepIdx].first) {
         applyOperations(ref);
     }
 }
@@ -293,20 +293,20 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
     timer.start();
     // ---------------------------------
 
-    mSol = executeAllocation(mMod);
+    mData = executeAllocation(mMod);
 
     // Stopping timer and setting the stat -----------------
     timer.stop();
     AllocTime = ((double) timer.getMicroseconds() / 1000000.0);
     // -----------------------------------------------------
 
-    TotalCost = mSol.mCost;
+    TotalCost = mData.mCost;
 
     // Setting up timer ----------------
     timer.start();
     // ---------------------------------
 
-    SolutionImplPass pass(mSol);
+    SolutionImplPass pass(mData);
     PassCache::Run(mMod, &pass);
 
     // Stopping timer and setting the stat -----------------

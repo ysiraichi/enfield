@@ -19,6 +19,9 @@ namespace efd {
         WrapperVal();
         /// \brief Parses the string to a double value.
         WrapperVal(std::string str);
+
+        bool operator==(const WrapperVal<T>& rhs) const;
+        bool operator!=(const WrapperVal<T>& rhs) const;
     };
 
     template <> WrapperVal<long long>::WrapperVal(std::string str);
@@ -31,6 +34,16 @@ namespace efd {
 
 template <typename T>
 efd::WrapperVal<T>::WrapperVal() : mStr("") {}
+
+template <typename T>
+bool efd::WrapperVal<T>::operator==(const WrapperVal<T>& rhs) const{
+    return mStr == rhs.mStr;
+}
+
+template <typename T>
+bool efd::WrapperVal<T>::operator!=(const WrapperVal<T>& rhs) const{
+    return !(*this == rhs);
+}
 
 namespace std {
     /// \brief Overloading std::to_string to work with efd::WrapperVal.

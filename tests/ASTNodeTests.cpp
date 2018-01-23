@@ -57,6 +57,10 @@ static void TestFind(Node::Ref ref) {
     }
 }
 
+static void TestEqual(Node::Ref ref) {
+    ref->equals(ref);
+}
+
 TEST(ASTNodeTests, LiteralCreationTest) {
     std::string idStr = "r0";
     auto refId = NDId::Create(idStr);
@@ -267,7 +271,7 @@ TEST(ASTNodeTests, GateDeclCreationTest) {
     TestFind(refIdGate.get());
 }
 
-TEST(ASTNodeTests, IfStmtTest) {
+TEST(ASTNodeTests, IfStmtCreationTest) {
     std::string ifStr = "if (someid == 1) reset otherid[0];";
 
     auto refReset = NDQOpReset::Create(NDIdRef::Create(Id("otherid"), Int("0")));
@@ -276,10 +280,174 @@ TEST(ASTNodeTests, IfStmtTest) {
     TestFind(refIf.get());
 }
 
-TEST(ASTNodeTests, IncludeTest) {
+TEST(ASTNodeTests, IncludeCreationTest) {
     std::string includeStr = "include \"files/_qelib1.inc\";";
 
     auto refInclude = NDInclude::Create(Id("files/_qelib1.inc"), NDStmtList::Create());
     TestPrinting(refInclude.get(), includeStr);
     TestFind(refInclude.get());
+}
+
+// --------------------------------------
+// ------------ EqualTests --------------
+// --------------------------------------
+
+TEST(ASTNodeTests, LiteralEqualTest) {
+    auto refId = NDId::Create(std::string("r0"));
+    TestEqual(refId.get());
+
+    auto refInt = NDInt::Create(std::string("10"));
+    TestEqual(refInt.get());
+
+    auto refDv = NDReal::Create(std::string("3.14159"));
+    TestEqual(refDv.get());
+
+    auto refIdRef = NDIdRef::Create(Id("r0"), Int("3"));
+    TestEqual(refIdRef.get());
+}
+
+TEST(ASTNodeTests, BinOpEqualTest) {
+    auto refAdd = NDBinOp::Create(NDBinOp::OP_ADD, Id("pi"), Int("5"));
+    TestEqual(refAdd.get());
+
+    auto refSub = NDBinOp::Create(NDBinOp::OP_SUB, Id("pi"), Int("5"));
+    TestEqual(refSub.get());
+
+    auto refMul = NDBinOp::Create(NDBinOp::OP_MUL, Id("pi"), Int("5"));
+    TestEqual(refMul.get());
+
+    auto refDiv = NDBinOp::Create(NDBinOp::OP_DIV, Id("pi"), Int("5"));
+    TestEqual(refDiv.get());
+
+    auto refPow = NDBinOp::Create(NDBinOp::OP_POW, Id("pi"), Int("5"));
+    TestEqual(refPow.get());
+
+    auto refLhs = NDBinOp::CreatePow(Id("pi"), Int("5"));
+    auto refRhs = NDBinOp::CreateMul(Int("2"), Real("5.8"));
+    auto refMix = NDBinOp::CreateDiv(std::move(refLhs), std::move(refRhs));
+    TestEqual(refMix.get());
+}
+
+TEST(ASTNodeTests, UnaryOpEqualTest) {
+    auto refSin = NDUnaryOp::Create(NDUnaryOp::UOP_SIN, Id("pi"));
+    TestEqual(refSin.get());
+
+    auto refCos = NDUnaryOp::Create(NDUnaryOp::UOP_COS, Id("pi"));
+    TestEqual(refCos.get());
+
+    auto refTan = NDUnaryOp::Create(NDUnaryOp::UOP_TAN, Id("pi"));
+    TestEqual(refTan.get());
+
+    auto refLn = NDUnaryOp::Create(NDUnaryOp::UOP_LN, Id("pi"));
+    TestEqual(refLn.get());
+
+    auto refNeg = NDUnaryOp::Create(NDUnaryOp::UOP_NEG, Id("pi"));
+    TestEqual(refNeg.get());
+
+    auto refExp = NDUnaryOp::Create(NDUnaryOp::UOP_EXP, Id("pi"));
+    TestEqual(refExp.get());
+
+    auto refSqrt = NDUnaryOp::Create(NDUnaryOp::UOP_SQRT, Id("pi"));
+    TestEqual(refSqrt.get());
+}
+
+TEST(ASTNodeTests, DeclEqualTest) {
+    auto refC = NDRegDecl::CreateC(Id("r0"), Int("5"));
+    TestEqual(refC.get());
+
+    auto refQ = NDRegDecl::CreateQ(Id("r0"), Int("5"));
+    TestEqual(refQ.get());
+}
+
+TEST(ASTNodeTests, ListEqualTest) {
+    auto argList = NDList::Create();
+
+    argList->addChild(Id("r0"));
+    argList->addChild(Id("r1"));
+    argList->addChild(IdRef("r2", "0"));
+    argList->addChild(IdRef("r3", "4"));
+
+    TestEqual(argList.get());
+}
+
+TEST(ASTNodeTests, QOpEqualTest) {
+    auto refMeasure = NDQOpMeasure::Create(IdRef("r0", "2"), IdRef("c2", "5"));
+    TestEqual(refMeasure.get());
+
+    auto refReset = NDQOpReset::Create(IdRef("r0", "5"));
+    TestEqual(refReset.get());
+
+    NDQOpBarrier::uRef refBarrier;
+    {
+        auto refArgList = NDList::Create();
+        refArgList->addChild(IdRef("r0", "2"));
+        refArgList->addChild(IdRef("r1", "5"));
+        refArgList->addChild(Id("r3"));
+        refArgList->addChild(Id("r5"));
+        refBarrier = NDQOpBarrier::Create(std::move(refArgList));
+    }
+    TestEqual(refBarrier.get());
+
+    NDQOpGen::uRef refGeneric;
+    {
+        auto refArgList = NDList::Create();
+        refArgList->addChild(Id("r0"));
+        refArgList->addChild(Id("r5"));
+        refGeneric = NDQOpGen::Create(Id("id"), NDList::Create(), std::move(refArgList));
+    }
+    TestEqual(refGeneric.get());
+}
+
+TEST(ASTNodeTests, GOpListEqualTest) {
+    auto refGOp = NDGOpList::Create();
+
+    refGOp->addChild(IdGate("r0", "3"));
+    refGOp->addChild(IdGate("r5", "5"));
+    refGOp->addChild(IdGate("r3", "7"));
+
+    TestEqual(refGOp.get());
+}
+
+TEST(ASTNodeTests, StmtListEqualTest) {
+    auto refStmt = NDStmtList::Create();
+
+    refStmt->addChild(IdGate("r0", "3"));
+    refStmt->addChild(IdGate("r5", "5"));
+    refStmt->addChild(IdGate("r3", "7"));
+
+    TestEqual(refStmt.get());
+}
+
+TEST(ASTNodeTests, OpaqueGateDeclEqualTest) {
+    auto refQArgs = NDList::Create();
+    refQArgs->addChild(Id("r0"));
+    refQArgs->addChild(Id("r5"));
+
+    auto refArgs = NDList::Create();
+    refArgs->addChild(Int("10"));
+    refArgs->addChild(NDUnaryOp::Create(NDUnaryOp::UOP_SIN, Id("pi")));
+    refArgs->addChild(NDUnaryOp::Create(NDUnaryOp::UOP_NEG, Real("3.14159")));
+
+    auto refOpaque = NDOpaque::Create(Id("Ogate"), std::move(refArgs), std::move(refQArgs));
+    TestEqual(refOpaque.get());
+}
+
+TEST(ASTNodeTests, GateDeclEqualTest) {
+    auto refQArgs = NDList::Create();
+    refQArgs->addChild(Id("r0"));
+
+    auto refIdGate = NDGateDecl::Create(Id("id"), NDList::Create(),
+            std::move(refQArgs), NDGOpList::Create());
+    TestEqual(refIdGate.get());
+}
+
+TEST(ASTNodeTests, IfStmtEqualTest) {
+    auto refReset = NDQOpReset::Create(NDIdRef::Create(Id("otherid"), Int("0")));
+    auto refIf = NDIfStmt::Create(Id("someid"), Int("1"), std::move(refReset));
+    TestEqual(refIf.get());
+}
+
+TEST(ASTNodeTests, IncludeEqualTest) {
+    auto refInclude = NDInclude::Create(Id("files/_qelib1.inc"), NDStmtList::Create());
+    TestEqual(refInclude.get());
 }

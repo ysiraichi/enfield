@@ -20,6 +20,21 @@ namespace efd {
     NDQOp::uRef CreateILongCX(Node::uRef lhs, Node::uRef middle, Node::uRef rhs);
     /// \brief Creates a call to the intrinsic reversal cnot function.
     NDQOp::uRef CreateIRevCX(Node::uRef lhs, Node::uRef rhs);
+
+    /// \brief Returns whether \p ref is a CNOT gate.
+    ///
+    /// This is used because there may be gates like the standard library 'cx'.
+    bool IsCNOTGateCall(Node::Ref ref);
+    /// \brief Returns whether \p ref is (or should be) an intrinsic gate.
+    bool IsIntrinsicGateCall(Node::Ref ref);
+    /// \brief Gets the NDQOpGen::IntrinsicKind, given a Node \p ref.
+    ///
+    /// This function should be only called if \p ref is really an intrinsic function.
+    /// Otherwise, it will crash.
+    NDQOpGen::IntrinsicKind GetIntrinsicKind(Node::Ref ref);
+    /// \brief Creates an intrinsic gate of kind \p kind and arguments \p args.
+    NDQOp::uRef CreateIntrinsicGate(NDQOpGen::IntrinsicKind kind,
+                                    std::vector<Node::uRef> qargs);
 }
 
 #endif

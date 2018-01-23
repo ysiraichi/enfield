@@ -2,6 +2,7 @@
 #define __EFD_NODES_H__
 
 #include "enfield/Support/WrapperVal.h"
+#include "enfield/Support/RTTI.h"
 
 #include <initializer_list>
 #include <iostream>
@@ -89,6 +90,12 @@ namespace efd {
             /// construction of each derived class.
             void innerAddChild(uRef ref);
 
+            /// \brief Extend the 'equals' implementation by implementing this method.
+            virtual bool equalsImpl(Node::Ref ref) const;
+
+            /// \brief Clones the current node (deep copy).
+            virtual Node::uRef cloneImpl() const = 0;
+
         public:
             virtual ~Node();
 
@@ -131,6 +138,12 @@ namespace efd {
             /// \brief Sets the parent node of the current node.
             void setParent(Ref ref);
 
+            /// \brief Compares recursively the equality between two nodes.
+            ///
+            /// One \em Node is said to be equal to another one if, and only if, all its
+            /// operands and names are equal.
+            bool equals(Node::Ref ref) const;
+
             /// \brief Returns a std::string representation of the operation.
             virtual std::string getOperation() const;
             /// \brief Returns the number of childrem of this node. 
@@ -141,7 +154,7 @@ namespace efd {
             virtual void apply(NodeVisitor* visitor) = 0;
 
             /// \brief Clones the current node (deep copy).
-            virtual Node::uRef clone() const = 0;
+            Node::uRef clone() const;
 
             friend class QModule;
     };
@@ -149,15 +162,18 @@ namespace efd {
     /// \brief Node for literal types.
     template <typename T>
         class NDValue : public Node {
-            protected:
-                T mVal;
-
-                NDValue(T val);
-
             public:
                 typedef NDValue* Ref;
                 typedef std::unique_ptr<NDValue> uRef;
 
+            protected:
+                T mVal;
+
+                NDValue(T val);
+                bool equalsImpl(Node::Ref ref) const override;
+                Node::uRef cloneImpl() const override;
+
+            public:
                 typedef std::shared_ptr< NDValue<T> > NDRef;
 
                 /// \brief Returns a copy to the setted value.
@@ -169,7 +185,6 @@ namespace efd {
                 uint32_t getChildNumber() const override;
 
                 void apply(NodeVisitor* visitor) override;
-                Node::uRef clone() const override;
 
                 /// \brief Returns whether the \p node is an instance of this class.
                 static bool ClassOf(const Node* node);
@@ -246,6 +261,7 @@ namespace efd {
             Type mT;
 
             NDRegDecl(Type t, NDId::uRef idNode, NDInt::uRef sizeNode);
+            Node::uRef cloneImpl() const override;
 
         public:
             /// \brief Gets the size node.
@@ -262,7 +278,6 @@ namespace efd {
             std::string getOperation() const override;
             std::string toString(bool pretty = false) const override;
             void apply(NodeVisitor* visitor) override;
-            Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -277,6 +292,10 @@ namespace efd {
 
     /// \brief Node for id references (register specific positions).
     class NDIdRef : public Node {
+        public:
+            typedef NDIdRef* Ref;
+            typedef std::unique_ptr<NDIdRef> uRef;
+
         protected:
             enum ChildType {
                 I_ID = 0,
@@ -284,11 +303,9 @@ namespace efd {
             };
 
             NDIdRef(NDId::uRef idNode, NDInt::uRef nNode);
+            Node::uRef cloneImpl() const override;
 
         public:
-            typedef NDIdRef* Ref;
-            typedef std::unique_ptr<NDIdRef> uRef;
-
             /// \brief Gets the id.
             NDId::Ref getId() const;
             /// \brief Sets the id.
@@ -303,7 +320,6 @@ namespace efd {
             uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
-            Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -319,6 +335,7 @@ namespace efd {
 
         protected:
             NDList(Kind k);
+            Node::uRef cloneImpl() const override;
 
         public:
             virtual ~NDList();
@@ -346,7 +363,6 @@ namespace efd {
 
             std::string toString(bool pretty = false) const override;
             void apply(NodeVisitor* visitor) override;
-            Node::uRef clone() const override;
 
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -359,15 +375,16 @@ namespace efd {
 
     /// \brief Node for list of qubit operation sequences.
     class NDStmtList : public NDList {
-        protected:
-            NDStmtList();
-
         public:
             typedef NDStmtList* Ref;
             typedef std::unique_ptr<NDStmtList> uRef;
 
+        protected:
+            NDStmtList();
+            Node::uRef cloneImpl() const override;
+
+        public:
             std::string toString(bool pretty = false) const override;
-            Node::uRef clone() const override;
             void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -378,15 +395,16 @@ namespace efd {
 
     /// \brief Node for list of qubit operation sequences inside gate declarations.
     class NDGOpList : public NDList {
-        protected:
-            NDGOpList();
-
         public:
             typedef NDGOpList* Ref;
             typedef std::unique_ptr<NDGOpList> uRef;
 
+        protected:
+            NDGOpList();
+            Node::uRef cloneImpl() const override;
+
+        public:
             std::string toString(bool pretty = false) const override;
-            Node::uRef clone() const override;
             void apply(NodeVisitor* visitor) override;
 
             /// \brief Returns whether the \p node is an instance of this class.
@@ -398,6 +416,10 @@ namespace efd {
     /// \brief Node that holds the current Qasm version and the
     /// rest of the program.
     class NDQasmVersion : public Node {
+        public:
+            typedef NDQasmVersion* Ref;
+            typedef std::unique_ptr<NDQasmVersion> uRef;
+
         protected:
             enum ChildType {
                 I_VERSION = 0,
@@ -405,11 +427,9 @@ namespace efd {
             };
 
             NDQasmVersion(NDReal::uRef vNode, NDStmtList::uRef stmtsNode);
+            Node::uRef cloneImpl() const override;
 
         public:
-            typedef NDQasmVersion* Ref;
-            typedef std::unique_ptr<NDQasmVersion> uRef;
-
             /// \brief Gets the node that holds the version.
             NDReal::Ref getVersion() const;
             /// \brief Sets the node that holds the version.
@@ -426,7 +446,6 @@ namespace efd {
             uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
-            Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -438,6 +457,10 @@ namespace efd {
     /// 
     /// The AST from this other file is a child of this node.
     class NDInclude : public Node {
+        public:
+            typedef NDInclude* Ref;
+            typedef std::unique_ptr<NDInclude> uRef;
+
         protected:
             enum ChildType {
                 I_FILE = 0,
@@ -445,11 +468,9 @@ namespace efd {
             };
 
             NDInclude(NDId::uRef fNode, Node::uRef astNode);
+            Node::uRef cloneImpl() const override;
 
         public:
-            typedef NDInclude* Ref;
-            typedef std::unique_ptr<NDInclude> uRef;
-
             /// \brief Gets the node that holds the filename.
             NDString::Ref getFilename() const;
             /// \brief Sets the node that holds the filename.
@@ -465,7 +486,6 @@ namespace efd {
             uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
-            Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -475,21 +495,23 @@ namespace efd {
 
     /// \brief Node for declaration of opaque quantum gates.
     class NDGateSign : public NDDecl {
+        public:
+            typedef NDGateSign* Ref;
+            typedef std::unique_ptr<NDGateSign> uRef;
+
         protected:
             enum ChildType {
                 I_ARGS = 1,
                 I_QARGS
             };
 
-        protected:
             NDGateSign(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
             NDGateSign(Kind k, NDId::uRef idNode, NDList::uRef aNode,
                     NDList::uRef qaNode);
 
-        public:
-            typedef NDGateSign* Ref;
-            typedef std::unique_ptr<NDGateSign> uRef;
+            Node::uRef cloneImpl() const override;
 
+        public:
             /// \brief Returns true if this is an opaque gate.
             bool isOpaque() const;
 
@@ -508,7 +530,6 @@ namespace efd {
             uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
-            Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -518,17 +539,19 @@ namespace efd {
 
     /// \brief Node for declaration of quantum gates.
     class NDGateDecl : public NDGateSign {
+        public:
+            typedef NDGateDecl* Ref;
+            typedef std::unique_ptr<NDGateDecl> uRef;
+
         protected:
             enum ChildType {
                 I_GOPLIST = 3
             };
 
             NDGateDecl(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode, NDGOpList::uRef gopNode);
+            Node::uRef cloneImpl() const override;
 
         public:
-            typedef NDGateDecl* Ref;
-            typedef std::unique_ptr<NDGateDecl> uRef;
-
             /// \brief Gets the goplist node.
             NDGOpList::Ref getGOpList() const;
             /// \brief Sets the goplist node.
@@ -540,7 +563,6 @@ namespace efd {
             uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
-            Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -551,6 +573,10 @@ namespace efd {
     /// \brief Generic node for quantum operations.
     /// This is also the base node for the other quantum gates.
     class NDQOp : public Node {
+        public:
+            typedef NDQOp* Ref;
+            typedef std::unique_ptr<NDQOp> uRef;
+
         protected:
             enum ChildType {
                 I_ID = 0,
@@ -561,9 +587,6 @@ namespace efd {
             NDQOp(Kind k, NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
 
         public:
-            typedef NDQOp* Ref;
-            typedef std::unique_ptr<NDQOp> uRef;
-
             virtual ~NDQOp();
 
             /// \brief Gets the id.
@@ -603,24 +626,25 @@ namespace efd {
 
     /// \brief NDQOp specialized for reset operation.
     class NDQOpReset : public NDQOp {
+        public:
+            typedef NDQOpReset* Ref;
+            typedef std::unique_ptr<NDQOpReset> uRef;
+
         protected:
             enum ChildType {
                 I_ONLY = 0
             };
 
             NDQOpReset(Node::uRef qaNode);
+            Node::uRef cloneImpl() const override;
 
         public:
-            typedef NDQOpReset* Ref;
-            typedef std::unique_ptr<NDQOpReset> uRef;
-
             /// \brief Gets the quantum argument.
             Node::Ref getQArg() const;
             /// \brief Sets the quantum argument.
             void setQArg(Node::uRef ref);
 
             void apply(NodeVisitor* visitor) override;
-            virtual Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -630,19 +654,20 @@ namespace efd {
 
     /// \brief NDQOp specialized for barrier operation.
     class NDQOpBarrier : public NDQOp {
+        public:
+            typedef NDQOpBarrier* Ref;
+            typedef std::unique_ptr<NDQOpBarrier> uRef;
+
         protected:
             enum ChildType {
                 I_ONLY = 0
             };
 
             NDQOpBarrier(NDList::uRef qaNode);
+            Node::uRef cloneImpl() const override;
 
         public:
-            typedef NDQOpBarrier* Ref;
-            typedef std::unique_ptr<NDQOpBarrier> uRef;
-
             void apply(NodeVisitor* visitor) override;
-            virtual Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -652,6 +677,10 @@ namespace efd {
 
     /// \brief NDQOp specialized for measure operation.
     class NDQOpMeasure : public NDQOp {
+        public:
+            typedef NDQOpMeasure* Ref;
+            typedef std::unique_ptr<NDQOpMeasure> uRef;
+
         protected:
             enum ChildType {
                 I_QBIT = 0,
@@ -659,11 +688,9 @@ namespace efd {
             };
 
             NDQOpMeasure(Node::uRef qNode, Node::uRef cNode);
+            Node::uRef cloneImpl() const override;
 
         public:
-            typedef NDQOpMeasure* Ref;
-            typedef std::unique_ptr<NDQOpMeasure> uRef;
-
             /// \brief Gets the qbit node.
             Node::Ref getQBit() const;
             /// \brief Sets the qbit node.
@@ -676,7 +703,6 @@ namespace efd {
             uint32_t getChildNumber() const override;
             std::string toString(bool pretty = false) const override;
             void apply(NodeVisitor* visitor) override;
-            Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -686,24 +712,25 @@ namespace efd {
 
     /// \brief NDQOp specialized for barrier operation.
     class NDQOpU : public NDQOp {
+        public:
+            typedef NDQOpU* Ref;
+            typedef std::unique_ptr<NDQOpU> uRef;
+
         protected:
             enum ChildType {
                 I_ONLY = 0
             };
 
             NDQOpU(NDList::uRef aNode, Node::uRef qaNode);
+            Node::uRef cloneImpl() const override;
 
         public:
-            typedef NDQOpU* Ref;
-            typedef std::unique_ptr<NDQOpU> uRef;
-
             /// \brief Gets the quantum argument.
             Node::Ref getQArg() const;
             /// \brief Sets the quantum argument.
             void setQArg(Node::uRef ref);
 
             void apply(NodeVisitor* visitor) override;
-            virtual Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -713,6 +740,10 @@ namespace efd {
 
     /// \brief NDQOp specialized for barrier operation.
     class NDQOpCX : public NDQOp {
+        public:
+            typedef NDQOpCX* Ref;
+            typedef std::unique_ptr<NDQOpCX> uRef;
+
         protected:
             enum ChildType {
                 I_LHS = 0,
@@ -720,11 +751,9 @@ namespace efd {
             };
 
             NDQOpCX(Node::uRef lhsNode, Node::uRef rhsNode);
+            Node::uRef cloneImpl() const override;
 
         public:
-            typedef NDQOpCX* Ref;
-            typedef std::unique_ptr<NDQOpCX> uRef;
-
             /// \brief Gets the left hand side of the gate.
             Node::Ref getLhs() const;
             /// \brief Sets the left hand side of the gate.
@@ -735,7 +764,6 @@ namespace efd {
             void setRhs(Node::uRef ref);
 
             void apply(NodeVisitor* visitor) override;
-            virtual Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -768,6 +796,7 @@ namespace efd {
             OpType mT;
 
             NDBinOp(OpType t, Node::uRef lhsNode, Node::uRef rhsNode);
+            Node::uRef cloneImpl() const override;
 
         public:
             /// \brief Gets the left hand side argument.
@@ -799,7 +828,6 @@ namespace efd {
             uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
-            Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -843,6 +871,7 @@ namespace efd {
             UOpType mT;
 
             NDUnaryOp(UOpType t, Node::uRef oNode);
+            Node::uRef cloneImpl() const override;
 
         public:
             /// \brief Gets the only operand.
@@ -874,7 +903,6 @@ namespace efd {
             uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
-            Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -898,15 +926,35 @@ namespace efd {
 
     /// \brief NDQOp specialized for generic gates.
     class NDQOpGen : public NDQOp {
-        protected:
-            NDQOpGen(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
-
         public:
             typedef NDQOpGen* Ref;
             typedef std::unique_ptr<NDQOpGen> uRef;
 
+            enum IntrinsicKind {
+                K_INTRINSIC_SWAP,
+                K_INTRINSIC_REV_CX,
+                K_INTRINSIC_LCX
+            };
+
+        protected:
+            /// \brief The intrinsic kind of the node.
+            IntrinsicKind mIK;
+            /// \brief True if it is an intrinsic compiler function.
+            bool mIsIntrinsic;
+
+            NDQOpGen(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode);
+            NDQOpGen(NDId::uRef idNode, NDList::uRef aNode, NDList::uRef qaNode, IntrinsicKind ik);
+            Node::uRef cloneImpl() const override;
+
+        public:
             void apply(NodeVisitor* visitor) override;
-            virtual Node::uRef clone() const override;
+
+            /// \brief Returns the intrinsic kind of this node.
+            ///
+            /// Only to be used by intrinsic nodes.
+            IntrinsicKind getIntrinsicKind() const;
+            /// \brief Returns whether this node is in an intrinsic node.
+            bool isIntrinsic() const;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -928,6 +976,7 @@ namespace efd {
 
         protected:
             NDIfStmt(NDId::uRef cidNode, NDInt::uRef nNode, NDQOp::uRef qopNode);
+            Node::uRef cloneImpl() const override;
 
         public:
             /// \brief Gets the id inside the conditional.
@@ -949,7 +998,6 @@ namespace efd {
             uint32_t getChildNumber() const override;
 
             void apply(NodeVisitor* visitor) override;
-            Node::uRef clone() const override;
 
             /// \brief Returns whether the \p node is an instance of this class.
             static bool ClassOf(const Node* node);
@@ -960,6 +1008,15 @@ namespace efd {
 };
 
 // -------------- Literal -----------------
+template <typename T>
+bool efd::NDValue<T>::equalsImpl(Node::Ref ref) const {
+    if (auto refval = dynCast<NDValue<T>>(ref)) {
+        return mVal == refval->getVal();
+    }
+
+    return false;
+}
+
 template <typename T>
 T efd::NDValue<T>::getVal() const {
     return mVal;
@@ -981,8 +1038,15 @@ uint32_t efd::NDValue<T>::getChildNumber() const {
 }
 
 template <typename T>
-efd::Node::uRef efd::NDValue<T>::clone() const {
+efd::Node::uRef efd::NDValue<T>::cloneImpl() const {
     return Node::uRef(NDValue<T>::Create(getVal()).release());
+}
+
+template <typename T>
+bool efd::NDValue<T>::ClassOf(const Node* node) { 
+    return node->getKind() == K_LIT_INT ||
+        node->getKind() == K_LIT_REAL ||
+        node->getKind() == K_LIT_STRING; 
 }
 
 template <typename T>

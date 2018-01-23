@@ -1,6 +1,7 @@
 #include "enfield/Analysis/Driver.h"
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/Utils.h"
+#include "enfield/Transform/PassCache.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
 
@@ -10,6 +11,10 @@
 
 efd::QModule::QModule() : mVersion(nullptr) {
     mStatements = NDStmtList::Create();
+}
+
+efd::QModule::~QModule() {
+    PassCache::Clear(this);
 }
 
 efd::NDQasmVersion::Ref efd::QModule::getVersion() {
@@ -58,8 +63,15 @@ void efd::QModule::removeStatement(Iterator it) {
 efd::QModule::Iterator efd::QModule::inlineCall(NDQOp::Ref call) {
     assert(call->isGeneric() && "Trying to inline a non-generic call.");
 
-    Node::Ref parent = call->getParent();
-    Iterator it = parent->findChild(call);
+    Node::Ref stmt = call;
+    auto parent = call->getParent();
+
+    if (instanceOf<NDIfStmt>(parent)) {
+        stmt = parent;
+        parent = stmt->getParent();
+    }
+
+    Iterator it = parent->findChild(stmt);
     uint32_t dist = std::distance(parent->begin(), it);
 
     InlineGate(this, call);
