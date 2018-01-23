@@ -247,7 +247,7 @@ opaquedecl: OPAQUE id params idlist ";" {
                                         }
           ;
 
-barrier: BARRIER idlist ";" { $$ = efd::NDQOpBarrier::Create(efd::NDList::uRef($2)).release(); }
+barrier: BARRIER anylist ";" { $$ = efd::NDQOpBarrier::Create(efd::NDList::uRef($2)).release(); }
        ;
 
 reset: RESET arg ";"    { $$ = efd::NDQOpReset::Create(efd::Node::uRef($2)).release(); }
