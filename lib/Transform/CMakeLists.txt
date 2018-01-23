@@ -14,4 +14,5 @@ add_library (EfdTransform
     CircuitGraphBuilderPass.cpp
     LayerBasedOrderingWrapperPass.cpp
     CNOTLBOWrapperPass.cpp
-    SemanticVerifierPass.cpp)
+    SemanticVerifierPass.cpp
+    ArchVerifierPass.cpp)

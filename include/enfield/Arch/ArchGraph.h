@@ -40,9 +40,12 @@ namespace efd {
             /// \brief Register the register.
             void putReg(std::string id, std::string size);
 
-            /// \brief Returns the uint32_t id of the vertex \p s;
+            /// \brief Returns the uint32_t id of the vertex \p s.
             uint32_t getUId(std::string s);
-            /// \brief Returns the std::string id of the vertex whose uid is \p i;
+            /// \brief Returns true if this architecture has a vertex whose string
+            /// representation is \p s.
+            bool hasSId(std::string s) const;
+            /// \brief Returns the std::string id of the vertex whose uid is \p i.
             std::string getSId(uint32_t i);
 
             /// \brief Returns true if the edge (i, j) is a reverse edge.

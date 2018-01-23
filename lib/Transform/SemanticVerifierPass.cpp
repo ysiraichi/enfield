@@ -92,11 +92,6 @@ void SemanticVerifierVisitor::updatedReachedCktNodes() {
 
             if (mReached.find(cktNode) == mReached.end())
                 mReached[cktNode] = cktNode->qargsid.size() + cktNode->cargsid.size();
-
-            std::cerr << "Reached: ";
-            cktNode->node->print(std::cerr, false);
-            std::cerr << " with " << std::to_string(mReached[cktNode]) << std::endl;
-
             --mReached[cktNode];
         }
     }
@@ -104,9 +99,6 @@ void SemanticVerifierVisitor::updatedReachedCktNodes() {
 
 void SemanticVerifierVisitor::advanceCktNodes(std::vector<uint32_t> xbitsToUpdate) {
     for (uint32_t x : xbitsToUpdate) {
-        std::cerr << "Advancing: ";
-        mCkt[x]->node->print(std::cerr, true);
-
         mCkt[x] = mCkt[x]->child[x];
         mMarked[x] = false;
     }
@@ -123,9 +115,6 @@ bool SemanticVerifierVisitor::advanceIntrinsicNodes() {
 
             if (qopgen && qopgen->isIntrinsic() &&
                     qopgen->getIntrinsicKind() == NDQOpGen::K_INTRINSIC_SWAP) {
-                std::cerr << "Advancing Intrinsic: ";
-                qopgen->print(std::cerr, true);
-
                 auto qargs = qopgen->getQArgs();
                 assert(qargs->getChildNumber() == 2 && "Swaps only contains two nodes.");
 
@@ -159,7 +148,6 @@ uint32_t SemanticVerifierVisitor::getDstUId(const uint32_t srcUId, bool isQuantu
 }
 
 void SemanticVerifierVisitor::postprocessing(std::vector<uint32_t> xbitsToUpdate) {
-    std::cerr << "-----------------------= postprocessing =------------------------" << std::endl;
     advanceCktNodes(xbitsToUpdate);
 
     bool changed;
@@ -171,11 +159,6 @@ void SemanticVerifierVisitor::postprocessing(std::vector<uint32_t> xbitsToUpdate
 }
 
 void SemanticVerifierVisitor::visitQOp(NDQOp::Ref qop, NDIfStmt::Ref ifstmt) {
-    std::cerr << "Processing: ";
-    if (ifstmt) ifstmt->print(std::cerr);
-    else qop->print(std::cerr);
-    std::cerr << std::endl;
-
     // Checking all quantum arguments from the current node.
     std::vector<uint32_t> opQubits;
     std::vector<uint32_t> opCbits;

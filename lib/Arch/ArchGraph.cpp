@@ -40,9 +40,12 @@ void efd::ArchGraph::putReg(std::string id, std::string size) {
 }
 
 uint32_t efd::ArchGraph::getUId(std::string s) {
-    assert(mStrToId.find(s) != mStrToId.end() &&
-            "No such vertex with this string id.");
+    assert(hasSId(s) && "No such vertex with this string id.");
     return mStrToId[s];
+}
+
+bool efd::ArchGraph::hasSId(std::string s) const {
+    return mStrToId.find(s) != mStrToId.end();
 }
 
 std::string efd::ArchGraph::getSId(uint32_t i) {
