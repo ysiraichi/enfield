@@ -1154,7 +1154,7 @@ efd::Node::uRef efd::NDQOpGen::cloneImpl() const {
 
     cloned->mIsIntrinsic = mIsIntrinsic;
     cloned->mIK = mIK;
-    return cloned;
+    return Node::uRef(cloned.release());
 }
 
 bool efd::NDQOpGen::ClassOf(const Node* node) {
