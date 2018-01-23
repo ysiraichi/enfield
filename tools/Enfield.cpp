@@ -1,14 +1,9 @@
 #include "enfield/Support/CommandLine.h"
-#include "enfield/Transform/Allocators/Allocators.h"
 #include "enfield/Transform/QModule.h"
-#include "enfield/Transform/FlattenPass.h"
-#include "enfield/Transform/XbitToNumberPass.h"
-#include "enfield/Transform/DependencyBuilderPass.h"
-#include "enfield/Transform/ReverseEdgesPass.h"
-#include "enfield/Transform/CNOTLBOWrapperPass.h"
+#include "enfield/Transform/Driver.h"
+#include "enfield/Transform/Allocators/Allocators.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/Stats.h"
-#include "enfield/Support/uRefCast.h"
 
 #include <fstream>
 #include <cassert>
@@ -26,6 +21,8 @@ static Opt<bool> ShowStats
 ("stats", "Print statistical data collected.", false, false);
 static Opt<bool> Reorder
 ("ord", "Order the program input.", false, false);
+static Opt<bool> Verify
+("verify", "Verify the compiled code.", true, false);
 
 // TODO: This should be change to a nicer interface.
 static Opt<std::string> Allocator
@@ -38,63 +35,36 @@ with the connectivity graph.", "ibmqx2", false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
-    qmod->print(O, Pretty.getVal());
+    PrintToStream(qmod, O);
     O.close();
 }
 
 int main(int argc, char** argv) {
     InitializeAllQbitAllocators();
     InitializeAllArchitectures();
+
     ParseArguments(argc, argv);
-
-    std::string path = "./";
-    std::string filename = InFilepath.getVal();
-
-    auto lastslash = filename.find_last_of('/');
-
-    if (lastslash != std::string::npos) {
-        path = filename.substr(0, lastslash + 1);
-        filename = filename.substr(lastslash + 1, std::string::npos);
-    }
-
-    QModule::sRef qmod = toShared(QModule::Parse(filename, path));
+    QModule::uRef qmod = ParseFile(InFilepath.getVal());
 
     if (qmod.get() != nullptr) {
-        // Creating default passes.
-        auto flattenPass = FlattenPass::Create();
-        auto xbitUidPass = XbitToNumberWrapperPass::Create();
+        CompilationSettings settings {
+            Arch.getVal(),
+            Allocator.getVal(),
+            {
+                "intrinsic_swap__",
+                "intrinsic_rev_cx__",
+                "intrinsic_lcx__",
+                "cx",
+                "u1",
+                "u2",
+                "u3",
+                "h"
+            },
+            Reorder.getVal(),
+            Verify.getVal()
+        };
 
-        flattenPass->run(qmod.get());
-
-        if (Reorder.getVal()) {
-            auto cnotlbo = CNOTLBOWrapperPass::Create();
-            cnotlbo->run(qmod.get());
-        }
-
-        xbitUidPass->run(qmod.get());
-
-        auto xbitToNumber = xbitUidPass->getData(); 
-
-        // Architecture-dependent fragment.
-        std::shared_ptr<efd::ArchGraph> graph;
-        if (HasArchitecture(Arch.getVal())) {
-            graph = CreateArchitecture(Arch.getVal());
-        } else {
-            graph = efd::ArchGraph::Read(Arch.getVal());
-        }
-
-        assert(xbitToNumber.getQSize() <= graph->size() &&
-                "Using more qbits than the maximum.");
-
-        auto allocator = efd::CreateQbitAllocator(Allocator.getVal(), graph);
-        allocator->setInlineAll({ "cx", "u1", "u2", "u3", "intrinsic_rev_cx__",
-                "intrinsic_swap__", "intrinsic_lcx__" });
-        allocator->run(qmod.get());
-
-        // Reversing the edges.
-        auto revPass = ReverseEdgesPass::Create(graph);
-        revPass->run(qmod.get());
-
+        qmod.reset(Compile(std::move(qmod), settings).release());
         DumpToOutFile(qmod.get());
     }
 
