@@ -44,6 +44,7 @@ namespace efd {
             void visit(NDQOpMeasure::Ref ref) override;
             void visit(NDQOpReset::Ref ref) override;
             void visit(NDQOpCX::Ref ref) override;
+            void visit(NDQOpU::Ref ref) override;
             void visit(NDQOpGen::Ref ref) override;
             void visit(NDIfStmt::Ref ref) override;
     };
@@ -78,6 +79,10 @@ void efd::FlattenVisitor::visit(NDQOpMeasure::Ref ref) {
 }
 
 void efd::FlattenVisitor::visit(NDQOpReset::Ref ref) {
+    FlattenVisitQOperation(this, mIf, (NDQOp::Ref) ref);
+}
+
+void efd::FlattenVisitor::visit(NDQOpU::Ref ref) {
     FlattenVisitQOperation(this, mIf, (NDQOp::Ref) ref);
 }
 

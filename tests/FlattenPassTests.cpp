@@ -9,6 +9,58 @@
 
 using namespace efd;
 
+TEST(FlattenPassTests, UTest) {
+    {
+        const std::string program = 
+"\
+qreg q[5];\
+qreg r[5];\
+U(pi, (pi / 4), pi) q[0];\
+";
+
+        const std::string flattened = 
+"\
+include \"qelib1.inc\";\
+qreg q[5];\
+qreg r[5];\
+U(pi, (pi / 4), pi) q[0];\
+";
+        auto qmod = toShared(QModule::ParseString(program)); 
+        auto pass = FlattenPass::Create();
+        ASSERT_FALSE(pass == nullptr);
+
+        pass->run(qmod.get());
+        ASSERT_EQ(qmod->toString(), flattened);
+    }
+
+    {
+        const std::string program = 
+"\
+qreg q[5];\
+qreg r[5];\
+U(pi, (pi / 4), pi) q;\
+";
+
+        const std::string flattened = 
+"\
+include \"qelib1.inc\";\
+qreg q[5];\
+qreg r[5];\
+U(pi, (pi / 4), pi) q[0];\
+U(pi, (pi / 4), pi) q[1];\
+U(pi, (pi / 4), pi) q[2];\
+U(pi, (pi / 4), pi) q[3];\
+U(pi, (pi / 4), pi) q[4];\
+";
+        auto qmod = toShared(QModule::ParseString(program)); 
+        auto pass = FlattenPass::Create();
+        ASSERT_FALSE(pass == nullptr);
+
+        pass->run(qmod.get());
+        ASSERT_EQ(qmod->toString(), flattened);
+    }
+}
+
 TEST(FlattenPassTests, CXTest) {
     {
         const std::string program = 
@@ -244,6 +296,110 @@ somegate(pi, 2) q0[0], q2[4], q1[0], q3[4];\
 }
 
 TEST(FlattenPassTests, IfStmtTest) {
+    {
+        const std::string program = 
+"\
+qreg q0[2];\
+qreg q1[2];\
+qreg q2[5];\
+qreg q3[5];\
+creg c[5];\
+if (c == 5) U(pi, (pi / 4), pi) q0[0];\
+";
+
+        const std::string flattened = 
+"\
+include \"qelib1.inc\";\
+qreg q0[2];\
+qreg q1[2];\
+qreg q2[5];\
+qreg q3[5];\
+creg c[5];\
+if (c == 5) U(pi, (pi / 4), pi) q0[0];\
+";
+        auto qmod = toShared(QModule::ParseString(program)); 
+        auto pass = FlattenPass::Create();
+        ASSERT_FALSE(pass == nullptr);
+
+        pass->run(qmod.get());
+        ASSERT_EQ(qmod->toString(), flattened);
+    }
+
+    {
+        const std::string program = 
+"\
+qreg q0[2];\
+qreg q1[2];\
+qreg q2[5];\
+qreg q3[5];\
+creg c[5];\
+if (c == 5) U(pi, (pi / 4), pi) q0;\
+";
+
+        const std::string flattened = 
+"\
+include \"qelib1.inc\";\
+qreg q0[2];\
+qreg q1[2];\
+qreg q2[5];\
+qreg q3[5];\
+creg c[5];\
+if (c == 5) U(pi, (pi / 4), pi) q0[0];\
+if (c == 5) U(pi, (pi / 4), pi) q0[1];\
+";
+        auto qmod = toShared(QModule::ParseString(program)); 
+        auto pass = FlattenPass::Create();
+        ASSERT_FALSE(pass == nullptr);
+
+        pass->run(qmod.get());
+        ASSERT_EQ(qmod->toString(), flattened);
+    }
+
+    {
+        const std::string program = 
+"\
+qreg q0[2];\
+qreg q1[2];\
+qreg q2[5];\
+qreg q3[5];\
+creg c[5];\
+if (c == 5) U(pi, (pi / 4), pi) q0;\
+if (c == 5) U(pi, (pi / 4), pi) q1;\
+if (c == 5) U(pi, (pi / 4), pi) q2;\
+if (c == 5) U(pi, (pi / 4), pi) q3;\
+";
+
+        const std::string flattened = 
+"\
+include \"qelib1.inc\";\
+qreg q0[2];\
+qreg q1[2];\
+qreg q2[5];\
+qreg q3[5];\
+creg c[5];\
+if (c == 5) U(pi, (pi / 4), pi) q0[0];\
+if (c == 5) U(pi, (pi / 4), pi) q0[1];\
+if (c == 5) U(pi, (pi / 4), pi) q1[0];\
+if (c == 5) U(pi, (pi / 4), pi) q1[1];\
+if (c == 5) U(pi, (pi / 4), pi) q2[0];\
+if (c == 5) U(pi, (pi / 4), pi) q2[1];\
+if (c == 5) U(pi, (pi / 4), pi) q2[2];\
+if (c == 5) U(pi, (pi / 4), pi) q2[3];\
+if (c == 5) U(pi, (pi / 4), pi) q2[4];\
+if (c == 5) U(pi, (pi / 4), pi) q3[0];\
+if (c == 5) U(pi, (pi / 4), pi) q3[1];\
+if (c == 5) U(pi, (pi / 4), pi) q3[2];\
+if (c == 5) U(pi, (pi / 4), pi) q3[3];\
+if (c == 5) U(pi, (pi / 4), pi) q3[4];\
+";
+        auto qmod = toShared(QModule::ParseString(program)); 
+        auto pass = FlattenPass::Create();
+        ASSERT_FALSE(pass == nullptr);
+
+        pass->run(qmod.get());
+        ASSERT_EQ(qmod->toString(), flattened);
+    }
+
     {
         const std::string program = 
 "\
