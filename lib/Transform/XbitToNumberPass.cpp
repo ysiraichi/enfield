@@ -95,9 +95,7 @@ void efd::XbitToNumberVisitor::visit(NDRegDecl::Ref ref) {
 
     auto mapref = &mXbitToNumber.gidQMap;
     if (ref->isCReg()) mapref = &mXbitToNumber.gidCMap;
-
-    auto& map = *mapref;
-    uint32_t basen = map.size();
+    uint32_t basen = mapref->size();
 
     // For each register declaration, we associate a
     // number to each possible xbit.
@@ -106,7 +104,8 @@ void efd::XbitToNumberVisitor::visit(NDRegDecl::Ref ref) {
     for (int i = 0; i < size.mV; ++i) {
         std::string key = id + "[" + std::to_string(i) +"]";
         auto ref = NDIdRef::Create(NDId::Create(id), NDInt::Create(std::to_string(i)));
-        map[key] = (XbitToNumber::XbitInfo { basen + i, toShared(std::move(ref)) });
+        auto info = XbitToNumber::XbitInfo { basen + i, toShared(std::move(ref)) };
+        mapref->insert(std::make_pair(key, info));
         mXbitToNumber.gidRegMap[id].push_back(basen + i);
     }
 }

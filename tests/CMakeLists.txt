@@ -49,6 +49,9 @@ efd_test (QModuleTests
 efd_test (QModuleCloneTests
     EfdTransform EfdAnalysis EfdSupport)
 
+efd_test (XbitToNumberWrapperPassTests
+    EfdTransform EfdAnalysis EfdSupport)
+
 efd_test (DependencyBuilderPassTests
     EfdTransform EfdAnalysis EfdSupport)
 
