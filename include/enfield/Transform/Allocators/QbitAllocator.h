@@ -43,7 +43,7 @@ namespace efd {
 
     /// \brief Base abstract class that allocates the qbits used in the program to
     /// the qbits that are in the physical architecture.
-    class QbitAllocator : PassT<Solution> {
+    class QbitAllocator : public PassT<Solution> {
         public:
             typedef QbitAllocator* Ref;
             typedef std::unique_ptr<QbitAllocator> uRef;

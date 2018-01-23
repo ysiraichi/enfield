@@ -38,6 +38,11 @@ namespace efd {
     /// some data of type \em T.
     template <typename T>
         class PassT : public Pass {
+            public:
+                typedef PassT<T>* Ref;
+                typedef std::shared_ptr<PassT<T>> sRef;
+                typedef std::unique_ptr<PassT<T>> uRef;
+
             protected:
                 T mData;
 
