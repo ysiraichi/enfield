@@ -100,7 +100,7 @@ bool efd::Node::equals(Node::Ref ref) const {
 
     uint32_t childNumber = getChildNumber();
     for (uint32_t i = 0; i < childNumber; ++i) {
-        if (mChild[i]->equals(ref->getChild(i)))
+        if (!mChild[i]->equals(ref->getChild(i)))
             return false;
     }
 
