@@ -11,6 +11,7 @@ namespace efd {
         std::vector<std::string> basis;
         bool reorder;
         bool verify;
+        bool force;
     };
 
     /// \brief Compile \p qmod, and return the compiled version.

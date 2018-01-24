@@ -4,6 +4,7 @@
 #include "enfield/Transform/Allocators/Allocators.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/Stats.h"
+#include "enfield/Support/Defs.h"
 
 #include <fstream>
 #include <cassert>
@@ -23,6 +24,8 @@ static Opt<bool> Reorder
 ("ord", "Order the program input.", false, false);
 static Opt<bool> Verify
 ("verify", "Verify the compiled code.", true, false);
+static Opt<bool> Force
+("f", "Compile and print the module, even if verification fails.", false, false);
 
 // TODO: This should be change to a nicer interface.
 static Opt<std::string> Allocator
@@ -61,11 +64,14 @@ int main(int argc, char** argv) {
                 "h"
             },
             Reorder.getVal(),
-            Verify.getVal()
+            Verify.getVal(),
+            Force.getVal()
         };
 
         qmod.reset(Compile(std::move(qmod), settings).release());
-        DumpToOutFile(qmod.get());
+
+        if (qmod.get() != nullptr)
+            DumpToOutFile(qmod.get());
     }
 
     if (ShowStats.getVal())
