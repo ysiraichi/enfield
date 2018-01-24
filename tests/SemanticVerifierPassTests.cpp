@@ -34,7 +34,7 @@ CX q[1], q[2];\
         Mapping mapping { 1, 2, 0, 3, 4 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
 
     {
@@ -63,7 +63,7 @@ CX q[1], q[2];\
         Mapping mapping { 2, 4, 3, 1, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
 }
 
@@ -87,7 +87,7 @@ CX q[1], q[2];\
         Mapping mapping { 0, 1, 2, 3, 4 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
     {
         const std::string progBefore =
@@ -112,7 +112,7 @@ CX q[1], q[2];\
         Mapping mapping { 3, 4, 2, 0, 1 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
     {
         const std::string progBefore =
@@ -143,7 +143,7 @@ CX q[1], q[2];\
         Mapping mapping { 3, 4, 2, 0, 1 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
     {
         const std::string progBefore =
@@ -174,7 +174,7 @@ CX q[1], q[2];\
         Mapping mapping { 3, 4, 2, 0, 1 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
     {
         const std::string progBefore =
@@ -201,7 +201,7 @@ CX q[1], q[2];\
         Mapping mapping { 3, 4, 2, 0, 1 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
     {
         const std::string progBefore =
@@ -228,7 +228,7 @@ CX q[1], q[2];\
         Mapping mapping { 3, 4, 2, 0, 1 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
    {
         const std::string progBefore =
@@ -261,7 +261,7 @@ CX q[1], q[2];\
         Mapping mapping { 3, 4, 2, 0, 1 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
 }
 
@@ -293,7 +293,7 @@ intrinsic_rev_cx__ q[2], q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
     {
         const std::string progBefore =
@@ -320,7 +320,7 @@ intrinsic_rev_cx__ q[2], q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
 }
 
@@ -356,7 +356,7 @@ if (c == 4) U((pi / 2), (pi / 2), (pi / 2)) q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
     {
         const std::string progBefore =
@@ -393,7 +393,7 @@ if (c == 4) intrinsic_rev_cx__ q[2], q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_TRUE(areSemanticalyEqual);
+        EXPECT_TRUE(areSemanticalyEqual);
     }
 }
 
@@ -426,7 +426,7 @@ intrinsic_rev_cx__ q[2], q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_FALSE(areSemanticalyEqual);
+        EXPECT_FALSE(areSemanticalyEqual);
     }
     {
         // Dependency comes after the dependent.
@@ -456,7 +456,7 @@ intrinsic_rev_cx__ q[2], q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_FALSE(areSemanticalyEqual);
+        EXPECT_FALSE(areSemanticalyEqual);
     }
     {
         // Intrinsics swapped.
@@ -484,7 +484,7 @@ intrinsic_rev_cx__ q[2], q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_FALSE(areSemanticalyEqual);
+        EXPECT_FALSE(areSemanticalyEqual);
     }
     {
         // Intrinsics swapped.
@@ -509,7 +509,7 @@ cx q[4], q[0];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_FALSE(areSemanticalyEqual);
+        EXPECT_FALSE(areSemanticalyEqual);
     }
     {
         // Intrinsics swapped.
@@ -529,7 +529,7 @@ qreg q[5];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_FALSE(areSemanticalyEqual);
+        EXPECT_FALSE(areSemanticalyEqual);
     }
 }
 
@@ -565,7 +565,7 @@ if (c == 4) U((pi / 2), (pi / 2), (pi / 2)) q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_FALSE(areSemanticalyEqual);
+        EXPECT_FALSE(areSemanticalyEqual);
     }
     {
         const std::string progBefore =
@@ -602,7 +602,7 @@ if (c == 4) intrinsic_rev_cx__ q[2], q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_FALSE(areSemanticalyEqual);
+        EXPECT_FALSE(areSemanticalyEqual);
     }
     {
         const std::string progBefore =
@@ -639,7 +639,7 @@ if (c == 4) intrinsic_rev_cx__ q[2], q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_FALSE(areSemanticalyEqual);
+        EXPECT_FALSE(areSemanticalyEqual);
     }
     {
         const std::string progBefore =
@@ -676,7 +676,7 @@ if (c == 4) intrinsic_rev_cx__ q[2], q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_FALSE(areSemanticalyEqual);
+        EXPECT_FALSE(areSemanticalyEqual);
     }
     {
         const std::string progBefore =
@@ -713,7 +713,7 @@ intrinsic_rev_cx__ q[2], q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_FALSE(areSemanticalyEqual);
+        EXPECT_FALSE(areSemanticalyEqual);
     }
 }
 
@@ -751,6 +751,183 @@ if (c2 == 4) U((pi / 2), (pi / 2), (pi / 2)) q[1];\
         Mapping mapping { 1, 2, 3, 4, 0 };
         bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
 
-        ASSERT_FALSE(areSemanticalyEqual);
+        EXPECT_FALSE(areSemanticalyEqual);
+    }
+}
+
+TEST(SemanticVerifierPassTests, WPMOrd7x1mod15Test) {
+    {
+        const std::string progBefore =
+"\
+OPENQASM 2.0;\
+include \"qelib1.inc\";\
+qreg q[5];\
+creg c[5];\
+x q[4];\
+x q[1];\
+x q[2];\
+x q[3];\
+x q[4];\
+cx q[3],q[2];\
+cx q[2],q[3];\
+cx q[3],q[2];\
+cx q[2],q[1];\
+cx q[1],q[2];\
+cx q[2],q[1];\
+cx q[4],q[1];\
+cx q[1],q[4];\
+cx q[4],q[1];\
+measure q[1] -> c[1];\
+measure q[2] -> c[2];\
+measure q[3] -> c[3];\
+measure q[4] -> c[4];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+gate intrinsic_swap__ a, b {cx a, b; cx b, a;cx a, b;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
+creg c[5];\
+qreg q[5];\
+U(pi, 0, pi) q[3];\
+U(pi, 0, pi) q[1];\
+U(pi, 0, pi) q[0];\
+U(pi, 0, pi) q[2];\
+U(pi, 0, pi) q[3];\
+intrinsic_rev_cx__ q[2], q[0];\
+CX q[0], q[2];\
+intrinsic_rev_cx__ q[2], q[0];\
+CX q[0], q[1];\
+intrinsic_rev_cx__ q[1], q[0];\
+CX q[0], q[1];\
+intrinsic_swap__ q[1], q[2];\
+CX q[3], q[2];\
+intrinsic_rev_cx__ q[2], q[3];\
+CX q[3], q[2];\
+measure q[2] -> c[1];\
+measure q[0] -> c[2];\
+measure q[1] -> c[3];\
+measure q[3] -> c[4];\
+";
+
+        Mapping mapping { 4, 1, 0, 2, 3 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        EXPECT_TRUE(areSemanticalyEqual);
+    }
+    {
+        const std::string progBefore =
+"\
+OPENQASM 2.0;\
+include \"qelib1.inc\";\
+qreg q[5];\
+creg c[5];\
+x q[4];\
+x q[1];\
+x q[2];\
+x q[3];\
+x q[4];\
+cx q[3],q[2];\
+cx q[2],q[3];\
+cx q[3],q[2];\
+cx q[2],q[1];\
+cx q[1],q[2];\
+cx q[2],q[1];\
+cx q[4],q[1];\
+cx q[1],q[4];\
+cx q[4],q[1];\
+measure q[1] -> c[1];\
+measure q[2] -> c[2];\
+measure q[3] -> c[3];\
+measure q[4] -> c[4];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
+creg c[5];\
+qreg q[5];\
+U(pi, 0, pi) q[1];\
+U(pi, 0, pi) q[2];\
+U(pi, 0, pi) q[4];\
+U(pi, 0, pi) q[3];\
+U(pi, 0, pi) q[1];\
+cx q[3], q[4];\
+intrinsic_rev_cx__ q[4], q[3];\
+cx q[3], q[4];\
+cx q[4], q[2];\
+intrinsic_rev_cx__ q[2], q[4];\
+cx q[4], q[2];\
+cx q[1], q[2];\
+intrinsic_rev_cx__ q[2], q[1];\
+cx q[1], q[2];\
+measure q[2] -> c[1];\
+measure q[4] -> c[2];\
+measure q[3] -> c[3];\
+measure q[1] -> c[4];\
+";
+
+        Mapping mapping { 0, 2, 4, 3, 1 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        EXPECT_TRUE(areSemanticalyEqual);
+    }
+    {
+        const std::string progBefore =
+"\
+OPENQASM 2.0;\
+include \"qelib1.inc\";\
+qreg q[5];\
+creg c[5];\
+x q[4];\
+x q[1];\
+x q[2];\
+x q[3];\
+x q[4];\
+cx q[3],q[2];\
+cx q[2],q[3];\
+cx q[3],q[2];\
+cx q[2],q[1];\
+cx q[1],q[2];\
+cx q[2],q[1];\
+cx q[4],q[1];\
+cx q[1],q[4];\
+cx q[4],q[1];\
+measure q[1] -> c[1];\
+measure q[2] -> c[2];\
+measure q[3] -> c[3];\
+measure q[4] -> c[4];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+gate intrinsic_lcx__ a, c, b {cx c, b;cx a, c;cx c, b;cx a, c;}\
+gate intrinsic_rev_cx__ a, b {h a;h b;cx b, a;h b;h a;}\
+creg c[5];\
+qreg q[5];\
+U(pi, 0, pi) q[4];\
+U(pi, 0, pi) q[1];\
+U(pi, 0, pi) q[2];\
+U(pi, 0, pi) q[3];\
+U(pi, 0, pi) q[4];\
+cx q[3], q[2];\
+intrinsic_rev_cx__ q[2], q[3];\
+cx q[3], q[2];\
+intrinsic_rev_cx__ q[2], q[1];\
+cx q[1], q[2];\
+intrinsic_rev_cx__ q[2], q[1];\
+intrinsic_lcx__ q[4], q[2], q[1];\
+intrinsic_lcx__ q[1], q[2], q[4];\
+intrinsic_lcx__ q[4], q[2], q[1];\
+measure q[1] -> c[1];\
+measure q[2] -> c[2];\
+measure q[3] -> c[3];\
+measure q[4] -> c[4];\
+";
+
+        Mapping mapping { 0, 1, 2, 3, 4 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        EXPECT_TRUE(areSemanticalyEqual);
     }
 }
