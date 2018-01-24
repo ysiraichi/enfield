@@ -11,6 +11,7 @@ namespace efd {
         std::vector<std::string> basis;
         bool reorder;
         bool verify;
+        bool force;
     };
 
     /// \brief Compile \p qmod, and return the compiled version.
@@ -23,7 +24,7 @@ namespace efd {
     QModule::uRef ParseFile(std::string filepath);
 
     /// \brief Print \p qmod to an standard output stream \p o.
-    void PrintToStream(QModule::Ref qmod, std::ostream& o = std::cout);
+    void PrintToStream(QModule::Ref qmod, std::ostream& o = std::cout, bool pretty = true);
 }
 
 #endif

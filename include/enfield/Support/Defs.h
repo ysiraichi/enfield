@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include <limits>
+#include <ostream>
 
 namespace efd {
     /// \brief Defines the type used for mapping the qubits.
@@ -20,6 +21,20 @@ namespace efd {
     };
 
     typedef std::vector<Swap> SwapSeq;
+
+    /// \brief Returns a stream object for logging errors.
+    std::ostream& ErrorLog(std::string file = "", uint32_t line = 0);
+    /// \brief Returns a stream object for logging warnings.
+    std::ostream& WarningLog(std::string file = "", uint32_t line = 0);
+    /// \brief Returns a stream object for logging information.
+    std::ostream& InfoLog(std::string file = "", uint32_t line = 0);
 }
+
+#ifndef EFD_MESSAGE_LOG
+#define EFD_MESSAGE_LOG
+#define ERR efd::ErrorLog(__FILE__, __LINE__)
+#define WAR efd::WarningLog(__FILE__, __LINE__)
+#define INF efd::InfoLog(__FILE__, __LINE__)
+#endif
 
 #endif

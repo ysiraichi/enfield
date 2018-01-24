@@ -8,10 +8,12 @@
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Transform/Allocators/Allocators.h"
 #include "enfield/Arch/Architectures.h"
+#include "enfield/Support/Defs.h"
 
 using namespace efd;
 
 QModule::uRef efd::Compile(QModule::uRef qmod, CompilationSettings settings) {
+    bool success = true;
     QModule::uRef qmodCopy;
 
     if (settings.verify) {
@@ -52,14 +54,24 @@ QModule::uRef efd::Compile(QModule::uRef qmod, CompilationSettings settings) {
         sVerifierPass->setInlineAll(settings.basis);
 
         PassCache::Run(qmod.get(), aVerifierPass.get());
-        assert(aVerifierPass->getData() &&
-                "Architecture restrictions violated in compiled code.");
+        success = success && aVerifierPass->getData();
 
         PassCache::Run(qmod.get(), sVerifierPass.get());
-        assert(sVerifierPass->getData() &&
-                "Compiled code is semantically different from source code.");
+        success = success && sVerifierPass->getData();
+
+        if (!aVerifierPass->getData()) {
+            ERR << "Architecture restrictions violated in compiled code." << std::endl;
+        }
+
+        if (!sVerifierPass->getData()) {
+            ERR << "Compiled code is semantically different from source code." << std::endl;
+        }
+
+        if (!success) ERR << "Compilation failed." << std::endl;
     }
 
+    if (!success && !settings.force) qmod.reset(nullptr);
+    else if (!success && settings.force) WAR << "Printing incorrect QModule." << std::endl;
     return qmod;
 }
 
@@ -86,6 +98,6 @@ QModule::uRef efd::ParseFile(std::string filepath) {
     return qmod;
 }
 
-void efd::PrintToStream(QModule::Ref qmod, std::ostream& o) {
-    qmod->print(o, true);
+void efd::PrintToStream(QModule::Ref qmod, std::ostream& o, bool pretty) {
+    qmod->print(o, pretty);
 }
