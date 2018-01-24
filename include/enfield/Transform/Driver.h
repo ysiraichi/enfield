@@ -24,7 +24,7 @@ namespace efd {
     QModule::uRef ParseFile(std::string filepath);
 
     /// \brief Print \p qmod to an standard output stream \p o.
-    void PrintToStream(QModule::Ref qmod, std::ostream& o = std::cout);
+    void PrintToStream(QModule::Ref qmod, std::ostream& o = std::cout, bool pretty = true);
 }
 
 #endif

@@ -16,14 +16,14 @@ static Opt<std::string> InFilepath
 static Opt<std::string> OutFilepath
 ("o", "The output file.", "/dev/stdout", false);
 
-static Opt<bool> Pretty
-("pretty", "Print in a pretty format.", true, false);
+static Opt<bool> NoPretty
+("-no-pretty", "Print in a pretty format (negation).", false, false);
 static Opt<bool> ShowStats
 ("stats", "Print statistical data collected.", false, false);
 static Opt<bool> Reorder
 ("ord", "Order the program input.", false, false);
-static Opt<bool> Verify
-("verify", "Verify the compiled code.", true, false);
+static Opt<bool> NoVerify
+("-no-verify", "Verify the compiled code (negation).", false, false);
 static Opt<bool> Force
 ("f", "Compile and print the module, even if verification fails.", false, false);
 
@@ -38,7 +38,7 @@ with the connectivity graph.", "ibmqx2", false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
-    PrintToStream(qmod, O);
+    PrintToStream(qmod, O, !NoPretty.getVal());
     O.close();
 }
 
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
                 "h"
             },
             Reorder.getVal(),
-            Verify.getVal(),
+            !NoVerify.getVal(),
             Force.getVal()
         };
 

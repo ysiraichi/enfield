@@ -98,6 +98,6 @@ QModule::uRef efd::ParseFile(std::string filepath) {
     return qmod;
 }
 
-void efd::PrintToStream(QModule::Ref qmod, std::ostream& o) {
-    qmod->print(o, true);
+void efd::PrintToStream(QModule::Ref qmod, std::ostream& o, bool pretty) {
+    qmod->print(o, pretty);
 }
