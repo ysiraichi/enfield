@@ -6,4 +6,5 @@ add_library (EfdSupport
     Timer.cpp
     Stats.cpp
     ExpTSFinder.cpp
-    ApproxTSFinder.cpp)
+    ApproxTSFinder.cpp
+    Defs.cpp)
