@@ -358,6 +358,8 @@ namespace efd {
             Iterator removeChild(Iterator it);
             /// \brief Removes the \p child (must exist).
             void removeChild(Node::Ref child);
+            /// \brief Clears all the childrem.
+            void clear();
 
             uint32_t getChildNumber() const override;
 

@@ -84,6 +84,9 @@ namespace efd {
             /// \brief Replaces the \p stmt by the vector \p stmts.
             Iterator replaceStatement(Node::Ref stmt, std::vector<Node::uRef> stmts);
 
+            /// \brief Removes all statements present int this module.
+            void clearStatements();
+
             /// \brief Inserts a gate to the QModule.
             void insertGate(NDGateSign::uRef gate);
 

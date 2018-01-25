@@ -388,6 +388,10 @@ efd::Node::Iterator efd::NDList::removeChild(Iterator it) {
     return it;
 }
 
+void efd::NDList::clear() {
+    mChild.clear();
+}
+
 void efd::NDList::removeChild(Node::Ref ref) {
     auto it = findChild(ref);
     assert(it != end() && "Can't remove inexistent child.");

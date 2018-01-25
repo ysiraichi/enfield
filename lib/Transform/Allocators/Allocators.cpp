@@ -1,5 +1,6 @@
 #include "enfield/Transform/Allocators/Allocators.h"
 #include "enfield/Transform/Allocators/DynprogDepSolver.h"
+#include "enfield/Transform/Allocators/GreedyCktQAllocator.h"
 #include "enfield/Transform/Allocators/SimpleDepSolver.h"
 #include "enfield/Transform/Allocators/WeightedSIMappingFinder.h"
 #include "enfield/Transform/Allocators/RandomMappingFinder.h"
