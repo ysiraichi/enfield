@@ -92,3 +92,6 @@ efd_test (WeightedSIMappingFinderTests
 efd_test (QbitterQbitAllocatorTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
+efd_test (GreedyCktQAllocatorTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
