@@ -170,7 +170,10 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
                     }
 
                     // This will repeat two times (if both 'a' and 'b' are not frozen)
-                    while (!foundFrozen && !frozen[notFrozen]) {
+                    uint32_t i = 0;
+
+                    do {
+                        ++i;
                         uint32_t u = mapping[theOther];
 
                         for (uint32_t v : mArchGraph->adj(u)) {
@@ -189,8 +192,8 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
                             }
                         }
 
-                        std::swap(notFrozen, theOther);
-                    }
+                        if (!foundFrozen) std::swap(notFrozen, theOther);
+                    } while (i < 2 && !foundFrozen && !frozen[notFrozen]);
                 }
 
                 if (!foundFrozen) {
@@ -242,7 +245,6 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
                     frozen[b] = true;
 
                     ops.second.push_back({ Operation::K_OP_SWAP, a, b });
-                    std::cout << "SWAP(" << a << " => " << u << "; " << b << " => " << b << ")" << std::endl;
 
                     std::swap(mapping[a], mapping[b]);
                     std::swap(assign[u], assign[v]);
@@ -254,11 +256,7 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
             std::swap(sol.mInitial[a], sol.mInitial[newA]);
             std::swap(mapping[a], mapping[newA]);
             std::swap(assign[u], assign[v]);
-
-            std::cout << "FRZ(" << a << " => " << mapping[a] << "; " << newA << " => " << mapping[newA] << ")" << std::endl;
         }
-
-        // std::cout << "Cost: " << best.cost << std::endl;
 
         auto dep = depBuilder.getDeps(best.cnode->node)[0];
         uint32_t a = dep.mFrom, b = dep.mTo;
@@ -268,10 +266,8 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
 
         if (mArchGraph->hasEdge(mapping[a], mapping[b])) {
             ops.second.push_back({ Operation::K_OP_CNOT, a, b });
-            std::cout << "CNOT(" << a << " => " << mapping[a] << "; " << b << " => " << mapping[b] << ")" << std::endl;
         } else {
             ops.second.push_back({ Operation::K_OP_REV, a, b });
-            std::cout << "REV(" << a << " => " << mapping[a] << "; " << b << " => " << mapping[b] << ")" << std::endl;
         }
 
         for (uint32_t q : best.cnode->qargsid) {
