@@ -25,6 +25,9 @@ efd_test (BFSPathFinderTests
 efd_test (ApproxTSFinderTests
     EfdSupport)
 
+efd_test (EnumStringTests
+    EfdSupport)
+
 # ==-------- Analysis ----------==
 efd_test (ASTNodeTests
     EfdAnalysis EfdSupport)
