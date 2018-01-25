@@ -19,7 +19,7 @@ namespace efd {
 
         protected:
             /// \brief Type sensitive parsing of the arguments itself.
-            virtual void parseImpl(const int argc, const char **argv) = 0;
+            virtual void parseImpl(std::vector<std::string> args) = 0;
 
         public:
             /// \brief Command line string that represents the option.
@@ -37,10 +37,12 @@ namespace efd {
             /// \brief True if the option was constructed as 'required'.
             bool isRequired();
 
-            /// \brief True if this is a boolean option.
-            virtual bool isBoolean() = 0;
+            /// \brief Type sensitive number of arguments consumed.
+            virtual uint32_t argsConsumed() = 0;
+            /// \brief Return the value in a string representation.
+            virtual std::string getStringVal() = 0;
             /// \brief Calls the \em parseImpl function, which is type-dependent.
-            void parse(const int argc, const char **argv);
+            void parse(std::vector<std::string> args);
     };
 
     /// \brief Class used to declare the command line options available.
@@ -50,7 +52,7 @@ namespace efd {
             T mVal;
 
         protected:
-            void parseImpl(const int argc, const char **argv) override;
+            void parseImpl(std::vector<std::string> args) override;
 
         public:
             Opt(std::string name, std::string description, bool isRequired = false);
@@ -58,7 +60,8 @@ namespace efd {
 
             /// \brief Gets a const reference to the value of this command line option.
             const T& getVal() const;
-            bool isBoolean() override;
+            uint32_t argsConsumed() override;
+            std::string getStringVal() override;
     };
 
     /// \brief Parses the command line arguments (this function should be used in the main
@@ -67,32 +70,35 @@ namespace efd {
     void ParseArguments(int argc, char **argv);
 
     template class Opt<bool>;
-    template <> bool Opt<bool>::isBoolean();
-    template <> void Opt<bool>::parseImpl(const int argc, const char **argv);
+    template <> uint32_t Opt<bool>::argsConsumed();
+    template <> std::string Opt<bool>::getStringVal();
+    template <> void Opt<bool>::parseImpl(std::vector<std::string> args);
 
     template class Opt<int>;
-    template <> void Opt<int>::parseImpl(const int argc, const char **argv);
+    template <> void Opt<int>::parseImpl(std::vector<std::string> args);
 
     template class Opt<unsigned>;
-    template <> void Opt<unsigned>::parseImpl(const int argc, const char **argv);
+    template <> void Opt<unsigned>::parseImpl(std::vector<std::string> args);
 
     template class Opt<long long>;
-    template <> void Opt<long long>::parseImpl(const int argc, const char **argv);
+    template <> void Opt<long long>::parseImpl(std::vector<std::string> args);
 
     template class Opt<unsigned long long>;
-    template <> void Opt<unsigned long long>::parseImpl(const int argc, const char **argv);
+    template <> void Opt<unsigned long long>::parseImpl(std::vector<std::string> args);
 
     template class Opt<float>;
-    template <> void Opt<float>::parseImpl(const int argc, const char **argv);
+    template <> void Opt<float>::parseImpl(std::vector<std::string> args);
 
     template class Opt<double>;
-    template <> void Opt<double>::parseImpl(const int argc, const char **argv);
+    template <> void Opt<double>::parseImpl(std::vector<std::string> args);
 
     template class Opt<std::string>;
-    template <> void Opt<std::string>::parseImpl(const int argc, const char **argv);
+    template <> std::string Opt<std::string>::getStringVal();
+    template <> void Opt<std::string>::parseImpl(std::vector<std::string> args);
 
     template class Opt<std::vector<std::string>>;
-    template <> void Opt<std::vector<std::string>>::parseImpl(const int argc, const char **argv);
+    template <> std::string Opt<std::vector<std::string>>::getStringVal();
+    template <> void Opt<std::vector<std::string>>::parseImpl(std::vector<std::string> args);
 };
 
 template <typename T>
@@ -107,11 +113,14 @@ template <typename T>
 const T& efd::Opt<T>::getVal() const { return mVal; }
 
 template <typename T>
-void efd::Opt<T>::parseImpl(const int argc, const char **argv) {
+void efd::Opt<T>::parseImpl(std::vector<std::string> args) {
     assert(false && "Option with 'parse' function not implemented.");
 }
 
 template <typename T>
-bool efd::Opt<T>::isBoolean() { return false; }
+uint32_t efd::Opt<T>::argsConsumed() { return 1; }
+
+template <typename T>
+std::string efd::Opt<T>::getStringVal() { return std::to_string(mVal); }
 
 #endif
