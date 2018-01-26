@@ -28,6 +28,9 @@ efd_test (ApproxTSFinderTests
 efd_test (EnumStringTests
     EfdSupport)
 
+efd_test (PossibleValuesListTraitTests
+    EfdSupport)
+
 # ==-------- Analysis ----------==
 efd_test (ASTNodeTests
     EfdAnalysis EfdSupport)
