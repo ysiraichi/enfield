@@ -10,6 +10,7 @@
 
 namespace efd {
     class ArgsParser;
+    template <typename T> class Opt;
 
     /// \brief Base class for implementing command line options.
     class OptBase {
@@ -49,6 +50,56 @@ namespace efd {
             void parse(std::vector<std::string> args);
     };
 
+    /// \brief Parses the arguments in \p args to \p opt.
+    ///
+    /// One should implement this trait in order to have its type parsed by the
+    /// command line.
+    /// P.S: Traits are the only way to do this. We can not have partial
+    /// specialization.
+    template <typename T> struct ParseOptTrait {
+        static void Run(Opt<T>* opt, std::vector<std::string> args);
+    };
+
+    template <> struct ParseOptTrait<bool> {
+        static void Run(Opt<bool>* opt, std::vector<std::string> args);
+    };
+
+    template <> struct ParseOptTrait<int> {
+        static void Run(Opt<int>* opt, std::vector<std::string> args);
+    };
+
+    template <> struct ParseOptTrait<unsigned> {
+        static void Run(Opt<unsigned>* opt, std::vector<std::string> args);
+    };
+
+    template <> struct ParseOptTrait<long long> {
+        static void Run(Opt<long long>* opt, std::vector<std::string> args);
+    };
+
+    template <> struct ParseOptTrait<unsigned long long> {
+        static void Run(Opt<unsigned long long>* opt, std::vector<std::string> args);
+    };
+
+    template <> struct ParseOptTrait<float> {
+        static void Run(Opt<float>* opt, std::vector<std::string> args);
+    };
+
+    template <> struct ParseOptTrait<double> {
+        static void Run(Opt<double>* opt, std::vector<std::string> args);
+    };
+
+    template <> struct ParseOptTrait<std::string> {
+        static void Run(Opt<std::string>* opt, std::vector<std::string> args);
+    };
+
+    template <> struct ParseOptTrait<std::vector<std::string>> {
+        static void Run(Opt<std::vector<std::string>>* opt, std::vector<std::string> args);
+    };
+
+    template <typename T, T first, T last> struct ParseOptTrait<EnumString<T, first, last>> {
+        static void Run(Opt<EnumString<T, first, last>>* opt, std::vector<std::string> args);
+    };
+
     /// \brief Class used to declare the command line options available.
     template <typename T>
     class Opt : OptBase {
@@ -68,6 +119,8 @@ namespace efd {
             std::vector<std::string> getPossibleValuesList() override;
             uint32_t argsConsumed() override;
             std::string getStringVal() override;
+
+            friend struct ParseOptTrait<T>;
     };
 
     /// \brief Parses the command line arguments (this function should be used in the main
@@ -75,37 +128,23 @@ namespace efd {
     void ParseArguments(const int argc, const char **argv);
     void ParseArguments(int argc, char **argv);
 
-    template class Opt<bool>;
     template <> uint32_t Opt<bool>::argsConsumed();
     template <> std::string Opt<bool>::getStringVal();
-    template <> void Opt<bool>::parseImpl(std::vector<std::string> args);
-
-    template class Opt<int>;
-    template <> void Opt<int>::parseImpl(std::vector<std::string> args);
-
-    template class Opt<unsigned>;
-    template <> void Opt<unsigned>::parseImpl(std::vector<std::string> args);
-
-    template class Opt<long long>;
-    template <> void Opt<long long>::parseImpl(std::vector<std::string> args);
-
-    template class Opt<unsigned long long>;
-    template <> void Opt<unsigned long long>::parseImpl(std::vector<std::string> args);
-
-    template class Opt<float>;
-    template <> void Opt<float>::parseImpl(std::vector<std::string> args);
-
-    template class Opt<double>;
-    template <> void Opt<double>::parseImpl(std::vector<std::string> args);
-
-    template class Opt<std::string>;
     template <> std::string Opt<std::string>::getStringVal();
-    template <> void Opt<std::string>::parseImpl(std::vector<std::string> args);
-
-    template class Opt<std::vector<std::string>>;
     template <> std::string Opt<std::vector<std::string>>::getStringVal();
-    template <> void Opt<std::vector<std::string>>::parseImpl(std::vector<std::string> args);
 };
+
+template <typename T>
+void efd::ParseOptTrait<T>::Run(Opt<T>* opt, std::vector<std::string> args) {
+    ERR << "Parse method not implemented for '" << typeid(T).name() << "'." << std::endl;
+    assert(false && "Option with 'parse' function not implemented.");
+}
+
+template <typename T, T first, T last>
+void efd::ParseOptTrait<efd::EnumString<T, first, last>>::
+Run(Opt<efd::EnumString<T, first, last>>* opt, std::vector<std::string> args) {
+    opt->mVal = args[0];
+}
 
 template <typename T>
 efd::Opt<T>::Opt(std::string name, std::string description, bool isRequired) :
@@ -120,7 +159,7 @@ const T& efd::Opt<T>::getVal() const { return mVal; }
 
 template <typename T>
 void efd::Opt<T>::parseImpl(std::vector<std::string> args) {
-    assert(false && "Option with 'parse' function not implemented.");
+    ParseOptTrait<T>::Run(this, args);
 }
 
 template <typename T>

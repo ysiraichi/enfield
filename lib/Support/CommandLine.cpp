@@ -67,9 +67,49 @@ static std::shared_ptr<ArgsParser> GetParser() {
     return Parser;
 }
 
-template <>
-void efd::Opt<bool>::parseImpl(std::vector<std::string> args) {
-    mVal = !mVal;
+void efd::ParseOptTrait<bool>::
+Run(Opt<bool>* opt, std::vector<std::string> args) {
+    opt->mVal = !opt->mVal;
+}
+
+void efd::ParseOptTrait<int>::
+Run(Opt<int>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stoi(args[0]);
+}
+
+void efd::ParseOptTrait<uint32_t>::
+Run(Opt<uint32_t>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stoul(args[0]);
+}
+
+void efd::ParseOptTrait<long long>::
+Run(Opt<long long>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stoll(args[0]);
+}
+
+void efd::ParseOptTrait<unsigned long long>::
+Run(Opt<unsigned long long>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stoull(args[0]);
+}
+
+void efd::ParseOptTrait<float>::
+Run(Opt<float>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stof(args[0]);
+}
+
+void efd::ParseOptTrait<double>::
+Run(Opt<double>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stod(args[0]);
+}
+
+void efd::ParseOptTrait<std::string>::
+Run(Opt<std::string>* opt, std::vector<std::string> args) {
+    opt->mVal = args[0];
+}
+
+void efd::ParseOptTrait<std::vector<std::string>>::
+Run(Opt<std::vector<std::string>>* opt, std::vector<std::string> args) {
+    opt->mVal.push_back(args[0]);
 }
 
 template <>
@@ -84,48 +124,8 @@ std::string efd::Opt<bool>::getStringVal() {
 }
 
 template <>
-void efd::Opt<int>::parseImpl(std::vector<std::string> args) {
-    mVal = std::stoi(args[0]);
-}
-
-template <>
-void efd::Opt<uint32_t>::parseImpl(std::vector<std::string> args) {
-    mVal = std::stoul(args[0]);
-}
-
-template <>
-void efd::Opt<long long>::parseImpl(std::vector<std::string> args) {
-    mVal = std::stoll(args[0]);
-}
-
-template <>
-void efd::Opt<unsigned long long>::parseImpl(std::vector<std::string> args) {
-    mVal = std::stoull(args[0]);
-}
-
-template <>
-void efd::Opt<float>::parseImpl(std::vector<std::string> args) {
-    mVal = std::stof(args[0]);
-}
-
-template <>
-void efd::Opt<double>::parseImpl(std::vector<std::string> args) {
-    mVal = std::stod(args[0]);
-}
-
-template <>
-void efd::Opt<std::string>::parseImpl(std::vector<std::string> args) {
-    mVal = args[0];
-}
-
-template <>
 std::string efd::Opt<std::string>::getStringVal() {
     return mVal;
-}
-
-template <>
-void efd::Opt<std::vector<std::string>>::parseImpl(std::vector<std::string> args) {
-    mVal.push_back(args[0]);
 }
 
 template <>
