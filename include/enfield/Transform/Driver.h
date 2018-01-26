@@ -2,12 +2,15 @@
 #define __EFD_DRIVER_H__
 
 #include "enfield/Transform/QModule.h"
+#include "enfield/Arch/Architectures.h"
+#include "enfield/Transform/Allocators/Allocators.h"
 
 namespace efd {
     /// \brief Required information in order to compile a \em QModule.
     struct CompilationSettings {
-        std::string architecture;
-        std::string allocator;
+        EnumArchitecture architecture;
+        EnumAllocator allocator;
+        std::string fileA;
         std::vector<std::string> basis;
         bool reorder;
         bool verify;
