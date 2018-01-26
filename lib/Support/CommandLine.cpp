@@ -159,16 +159,58 @@ void efd::OptBase::parse(std::vector<std::string> args) {
     mIsParsed = true;
 }
 
+static void PrintOption(OptBase* ptr, bool printDefault = true) {
+    static const int nCols = 20;
+    std::cout << "\t" << std::left << std::setw(nCols) << "-" + ptr->mName;
+    std::cout << ptr->mDescription << std::endl;
+
+    auto possibleValues = ptr->getPossibleValuesList();
+    if (!possibleValues.empty()) {
+        std::cout << "\t" << std::left << std::setw(nCols) << " " << "Possible: [";
+
+        for (uint32_t i = 0, e = possibleValues.size(); i < e; ++i) {
+            std::cout << possibleValues[i];
+            if (i < e - 1) std::cout << ", ";
+        }
+
+        std::cout << "]" << std::endl;
+    }
+
+    if (printDefault) {
+        std::cout << "\t" << std::left << std::setw(nCols) << " " <<
+            "Default: " << ptr->getStringVal() << std::endl;
+    }
+}
+
 static void PrintCommandLineHelp() {
     std::shared_ptr<ArgsParser> Parser = GetParser();
 
+    std::cout << "Usage:" << std::endl;
+    std::cout << "\t$ efd <required> [Options]" << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "Examples:" << std::endl;
+    std::cout << "\tCompiles the file 'test.qasm' using 'Q_dynprog' and 'A_ibmqx2' ";
+    std::cout << "(default values)" << std::endl;
+    std::cout << "\t$ efd -i test.qasm" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "\tCompiles the file 'test.qasm' using 'Q_wpm' and 'A_ibmqx3'." << std::endl;
+    std::cout << "\tIn the end, it shows some statistical data." << std::endl;
+    std::cout << "\t$ efd -i test.qasm -alloc Q_wpm -arch A_ibmqx3 -stats" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "\tCompiles the file 'test.qasm' using 'Q_wpm' and a custom" << std::endl;
+    std::cout << "\tarchitecture specified in 'folder/arch'. In the end, it shows some " << std::endl;
+    std::cout << "\tstatistical data." << std::endl;
+    std::cout << "\t$ efd -i test.qasm -alloc Q_wpm -arch-file folder/arch -stats" << std::endl;
+
+    std::cout << std::endl;
     std::cout << "Required:" << std::endl;
 
-    const int nCols = 20;
     for (auto pair : Parser->mArgMap) {
         if (pair.second[0]->isRequired()) {
-            std::cout << "\t" << std::left << std::setw(nCols) << "-" + pair.first;
-            std::cout << pair.second[0]->mDescription << std::endl;
+            PrintOption(pair.second[0], false);
         }
     }
 
@@ -177,10 +219,7 @@ static void PrintCommandLineHelp() {
 
     for (auto pair : Parser->mArgMap) {
         if (!pair.second[0]->isRequired()) {
-            std::cout << "\t" << std::left << std::setw(nCols) << "-" + pair.first;
-            std::cout << pair.second[0]->mDescription << std::endl;
-            std::cout << "\t" << std::left << std::setw(nCols) << " " <<
-                "Default: " << pair.second[0]->getStringVal() << std::endl;
+            PrintOption(pair.second[0]);
         }
     }
 }

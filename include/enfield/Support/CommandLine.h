@@ -1,6 +1,8 @@
 #ifndef __EFD_COMMAND_LINE_H__
 #define __EFD_COMMAND_LINE_H__
 
+#include "enfield/Support/PossibleValuesListTrait.h"
+
 #include <string>
 #include <vector>
 #include <cassert>
@@ -37,6 +39,8 @@ namespace efd {
             /// \brief True if the option was constructed as 'required'.
             bool isRequired();
 
+            /// \brief Return list of possible values for this option.
+            virtual std::vector<std::string> getPossibleValuesList() = 0;
             /// \brief Type sensitive number of arguments consumed.
             virtual uint32_t argsConsumed() = 0;
             /// \brief Return the value in a string representation.
@@ -60,6 +64,8 @@ namespace efd {
 
             /// \brief Gets a const reference to the value of this command line option.
             const T& getVal() const;
+
+            std::vector<std::string> getPossibleValuesList() override;
             uint32_t argsConsumed() override;
             std::string getStringVal() override;
     };
@@ -115,6 +121,11 @@ const T& efd::Opt<T>::getVal() const { return mVal; }
 template <typename T>
 void efd::Opt<T>::parseImpl(std::vector<std::string> args) {
     assert(false && "Option with 'parse' function not implemented.");
+}
+
+template <typename T>
+std::vector<std::string> efd::Opt<T>::getPossibleValuesList() {
+    return PossibleValuesListTrait<T>::Get();
 }
 
 template <typename T>
