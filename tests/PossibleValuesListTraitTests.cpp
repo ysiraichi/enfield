@@ -9,10 +9,7 @@
 using namespace efd;
 
 enum class E { A, B, C, D, E, F, G, H, I, J, K, L };
-
-template class EnumString<E, E::A, E::L>;
-typedef EnumString<E, E::A, E::L> EEnum;
-
+typedef efd::EnumString<E, E::A, E::L> EEnum;
 template<> std::vector<std::string> EEnum::mStrVal {
     "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"
 };

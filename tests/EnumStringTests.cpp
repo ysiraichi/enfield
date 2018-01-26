@@ -41,7 +41,6 @@ using namespace efd;
     }
 
 enum A { AA, AB, AC, AD };
-template class EnumString<A, AA, AD>;
 typedef EnumString<A, AA, AD> AEnum;
 
 template<> std::vector<std::string> AEnum::mStrVal {
@@ -56,7 +55,6 @@ TEST(EnumStringTests, SimpleTest) {
 }
 
 enum class B { AA, AB, AC, AD };
-template class EnumString<B, B::AA, B::AD>;
 typedef EnumString<B, B::AA, B::AD> BEnum;
 
 template<> std::vector<std::string> BEnum::mStrVal {
@@ -71,7 +69,6 @@ TEST(EnumStringTests, EnumClassSimpleTest) {
 }
 
 enum class C { AA = 200, AB, AC, AD };
-template class EnumString<C, C::AA, C::AD>;
 typedef EnumString<C, C::AA, C::AD> CEnum;
 
 template<> std::vector<std::string> CEnum::mStrVal {
@@ -134,7 +131,6 @@ TEST(EnumStringTests, InitSTRErrorsTest) {
 }
 
 enum class E { A = 0, B, C, D = 200, E, F, G, H, I = 8, J, K, L = 300 };
-template class EnumString<E, E::A, E::L>;
 typedef EnumString<E, E::A, E::L> EEnum;
 
 template<> std::vector<std::string> EEnum::mStrVal {
