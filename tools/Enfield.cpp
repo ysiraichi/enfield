@@ -15,6 +15,8 @@ static Opt<std::string> InFilepath
 ("i", "The input file.", "/dev/stdin", true);
 static Opt<std::string> OutFilepath
 ("o", "The output file.", "/dev/stdout", false);
+static Opt<std::string> ArchFilepath
+("arch-file", "An input file for using a custom architecture.", "", false);
 
 static Opt<bool> NoPretty
 ("-no-pretty", "Print in a pretty format (negation).", false, false);
@@ -28,13 +30,11 @@ static Opt<bool> Force
 ("f", "Compile and print the module, even if verification fails.", false, false);
 
 // TODO: This should be change to a nicer interface.
-static Opt<std::string> Allocator
-("alloc", "Sets the allocator to be used. \
-Default: dynprog. \
-Options: dynprog; wpm; qubiter; wqubiter; random.", "dynprog", false);
-static efd::Opt<std::string> Arch
-("arch", "Name of the architechture, or a file \
-with the connectivity graph.", "ibmqx2", false);
+static Opt<EnumAllocator> Alloc
+("alloc", "Sets the allocator to be used.", Allocator::Q_dynprog, false);
+static efd::Opt<EnumArchitecture> Arch
+("arch", "Name of the architechture, or a file with the connectivity graph.",
+Architecture::A_ibmqx2, false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
@@ -52,7 +52,8 @@ int main(int argc, char** argv) {
     if (qmod.get() != nullptr) {
         CompilationSettings settings {
             Arch.getVal(),
-            Allocator.getVal(),
+            Alloc.getVal(),
+            ArchFilepath.getVal(),
             {
                 "intrinsic_swap__",
                 "intrinsic_rev_cx__",

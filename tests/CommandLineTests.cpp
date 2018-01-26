@@ -74,6 +74,14 @@ TEST(CommandLineTest, NotEnoughArgumentsTest) {
             "Not enough command line arguments.");
 }
 
+namespace efd {
+    template <> std::string Opt<std::vector<int>>::getStringVal() {
+        std::string str;
+        for (auto i : mVal) str += std::to_string(i) + "; ";
+        return str;
+    }
+}
+
 TEST(CommandLineTest, NoParserImplementedTest) {
     efd::Opt<std::vector<bool>> optVec("vec", "Passing a vector as argument.");
 
@@ -86,8 +94,16 @@ TEST(CommandLineTest, NoParserImplementedTest) {
 }
 
 namespace efd {
-    template <> void Opt<std::vector<int>>::parseImpl(int argc, const char **argv) {
-        std::string sVector = argv[1];
+    template <> std::string Opt<std::vector<bool>>::getStringVal() {
+        std::string str;
+        for (auto i : mVal)
+            if (i) str += "true; ";
+            else str += "false; ";
+        return str;
+    }
+
+    template <> void Opt<std::vector<int>>::parseImpl(std::vector<std::string> args) {
+        std::string sVector = args[0];
         std::istringstream iVector(sVector);
 
         for (std::string val; iVector >> val;)

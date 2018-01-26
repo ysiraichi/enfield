@@ -30,10 +30,12 @@ QModule::uRef efd::Compile(QModule::uRef qmod, CompilationSettings settings) {
     auto xbitToNumber = xbitPass->getData(); 
 
     std::shared_ptr<ArchGraph> archGraph;
-    if (HasArchitecture(settings.architecture)) {
+    if (settings.fileA == "" && HasArchitecture(settings.architecture)) {
         archGraph = CreateArchitecture(settings.architecture);
+    } else if (settings.fileA != "") {
+        archGraph = ArchGraph::Read(settings.fileA);
     } else {
-        archGraph = ArchGraph::Read(settings.architecture);
+        ERR << "Architecture file: " << settings.fileA << " not found." << std::endl;
     }
 
     assert(xbitToNumber.getQSize() <= archGraph->size() &&

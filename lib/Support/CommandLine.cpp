@@ -1,12 +1,13 @@
 
 #include "enfield/Support/CommandLine.h"
+#include "enfield/Support/Defs.h"
 
 #include <cstdlib>
 
 #include <iostream>
 #include <iomanip>
 
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <memory>
 
@@ -16,7 +17,7 @@ namespace efd {
 
     class ArgsParser {
         public:
-            std::unordered_map<std::string, std::vector<OptBase*> > mArgMap;
+            std::map<std::string, std::vector<OptBase*> > mArgMap;
 
             ArgsParser() {}
 
@@ -32,12 +33,13 @@ bool efd::ArgsParser::hasOpt(OptBase* opt) {
 }
 
 void efd::ArgsParser::addOpt(OptBase* opt) {
+    std::string name(opt->mName);
+
     if (!hasOpt(opt)) {
-        std::string name(opt->mName);
         mArgMap.insert(std::make_pair(name, std::vector<OptBase*>()));
     }
 
-    mArgMap[opt->mName].push_back(opt);
+    mArgMap[name].push_back(opt);
 }
 
 void efd::ArgsParser::delOpt(OptBase* opt) {
@@ -65,60 +67,72 @@ static std::shared_ptr<ArgsParser> GetParser() {
     return Parser;
 }
 
-template <>
-void efd::Opt<bool>::parseImpl(const int argc, const char **argv) {
-    mVal = !mVal;
+void efd::ParseOptTrait<bool>::
+Run(Opt<bool>* opt, std::vector<std::string> args) {
+    opt->mVal = !opt->mVal;
+}
+
+void efd::ParseOptTrait<int>::
+Run(Opt<int>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stoi(args[0]);
+}
+
+void efd::ParseOptTrait<uint32_t>::
+Run(Opt<uint32_t>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stoul(args[0]);
+}
+
+void efd::ParseOptTrait<long long>::
+Run(Opt<long long>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stoll(args[0]);
+}
+
+void efd::ParseOptTrait<unsigned long long>::
+Run(Opt<unsigned long long>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stoull(args[0]);
+}
+
+void efd::ParseOptTrait<float>::
+Run(Opt<float>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stof(args[0]);
+}
+
+void efd::ParseOptTrait<double>::
+Run(Opt<double>* opt, std::vector<std::string> args) {
+    opt->mVal = std::stod(args[0]);
+}
+
+void efd::ParseOptTrait<std::string>::
+Run(Opt<std::string>* opt, std::vector<std::string> args) {
+    opt->mVal = args[0];
+}
+
+void efd::ParseOptTrait<std::vector<std::string>>::
+Run(Opt<std::vector<std::string>>* opt, std::vector<std::string> args) {
+    opt->mVal.push_back(args[0]);
 }
 
 template <>
-bool efd::Opt<bool>::isBoolean() { return true; }
-
-template <>
-void efd::Opt<int>::parseImpl(const int argc, const char **argv) {
-    assert(argc >= 2 && "Not enough command line arguments.");
-    mVal = std::stoi(std::string(argv[1]));
+uint32_t efd::Opt<bool>::argsConsumed() {
+    return 0;
 }
 
 template <>
-void efd::Opt<uint32_t>::parseImpl(const int argc, const char **argv) {
-    assert(argc >= 2 && "Not enough command line arguments.");
-    mVal = std::stoul(std::string(argv[1]));
+std::string efd::Opt<bool>::getStringVal() {
+    if (mVal) return "true";
+    else return "false";
 }
 
 template <>
-void efd::Opt<long long>::parseImpl(const int argc, const char **argv) {
-    assert(argc >= 2 && "Not enough command line arguments.");
-    mVal = std::stoll(std::string(argv[1]));
+std::string efd::Opt<std::string>::getStringVal() {
+    return mVal;
 }
 
 template <>
-void efd::Opt<unsigned long long>::parseImpl(const int argc, const char **argv) {
-    assert(argc >= 2 && "Not enough command line arguments.");
-    mVal = std::stoull(std::string(argv[1]));
-}
-
-template <>
-void efd::Opt<float>::parseImpl(const int argc, const char **argv) {
-    assert(argc >= 2 && "Not enough command line arguments.");
-    mVal = std::stof(std::string(argv[1]));
-}
-
-template <>
-void efd::Opt<double>::parseImpl(const int argc, const char **argv) {
-    assert(argc >= 2 && "Not enough command line arguments.");
-    mVal = std::stod(std::string(argv[1]));
-}
-
-template <>
-void efd::Opt<std::string>::parseImpl(const int argc, const char **argv) {
-    assert(argc >= 2 && "Not enough command line arguments.");
-    mVal = std::string(argv[1]);
-}
-
-template <>
-void efd::Opt<std::vector<std::string>>::parseImpl(const int argc, const char **argv) {
-    assert(argc >= 2 && "Not enough command line arguments.");
-    mVal.push_back(std::string(argv[1]));
+std::string efd::Opt<std::vector<std::string>>::getStringVal() {
+    std::string str;
+    for (auto s : mVal) str += s + "; ";
+    return str;
 }
 
 efd::OptBase::OptBase(std::string name, std::string description, bool isRequired) : 
@@ -140,20 +154,73 @@ bool efd::OptBase::isRequired() {
     return mIsRequired;
 }
 
-void efd::OptBase::parse(const int argc, const char **argv) {
-    parseImpl(argc, argv);
+void efd::OptBase::parse(std::vector<std::string> args) {
+    parseImpl(args);
     mIsParsed = true;
+}
+
+static void PrintOption(OptBase* ptr, bool printDefault = true) {
+    static const int nCols = 20;
+    std::cout << "\t" << std::left << std::setw(nCols) << "-" + ptr->mName;
+    std::cout << ptr->mDescription << std::endl;
+
+    auto possibleValues = ptr->getPossibleValuesList();
+    if (!possibleValues.empty()) {
+        std::cout << "\t" << std::left << std::setw(nCols) << " " << "Possible: [";
+
+        for (uint32_t i = 0, e = possibleValues.size(); i < e; ++i) {
+            std::cout << possibleValues[i];
+            if (i < e - 1) std::cout << ", ";
+        }
+
+        std::cout << "]" << std::endl;
+    }
+
+    if (printDefault) {
+        std::cout << "\t" << std::left << std::setw(nCols) << " " <<
+            "Default: " << ptr->getStringVal() << std::endl;
+    }
 }
 
 static void PrintCommandLineHelp() {
     std::shared_ptr<ArgsParser> Parser = GetParser();
 
-    std::cout << "Arguments:" << std::endl;
+    std::cout << "Usage:" << std::endl;
+    std::cout << "\t$ efd <required> [Options]" << std::endl;
 
-    const int nCols = 20;
+    std::cout << std::endl;
+    std::cout << "Examples:" << std::endl;
+    std::cout << "\tCompiles the file 'test.qasm' using 'Q_dynprog' and 'A_ibmqx2' ";
+    std::cout << "(default values)" << std::endl;
+    std::cout << "\t$ efd -i test.qasm" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "\tCompiles the file 'test.qasm' using 'Q_wpm' and 'A_ibmqx3'." << std::endl;
+    std::cout << "\tIn the end, it shows some statistical data." << std::endl;
+    std::cout << "\t$ efd -i test.qasm -alloc Q_wpm -arch A_ibmqx3 -stats" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "\tCompiles the file 'test.qasm' using 'Q_wpm' and a custom" << std::endl;
+    std::cout << "\tarchitecture specified in 'folder/arch'. In the end, it shows some " << std::endl;
+    std::cout << "\tstatistical data." << std::endl;
+    std::cout << "\t$ efd -i test.qasm -alloc Q_wpm -arch-file folder/arch -stats" << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "Required:" << std::endl;
+
     for (auto pair : Parser->mArgMap) {
-        std::cout << "\t" << std::left << std::setw(nCols) << "-" + pair.first;
-        std::cout << pair.second[0]->mDescription << std::endl;
+        if (pair.second[0]->isRequired()) {
+            PrintOption(pair.second[0], false);
+        }
+    }
+
+    std::cout << std::endl;
+    std::cout << "Options:" << std::endl;
+
+    for (auto pair : Parser->mArgMap) {
+        if (!pair.second[0]->isRequired()) {
+            PrintOption(pair.second[0]);
+        }
     }
 }
 
@@ -165,22 +232,39 @@ void efd::ParseArguments(int argc, char** argv) {
 
 void efd::ParseArguments(const int argc, const char **argv) {
     std::shared_ptr<ArgsParser> Parser = GetParser();
+    std::vector<std::string> rawArgs;
 
-    for (int i = 1; i < argc; ++i) {
+    for (int32_t i = 0; i < argc; ++i)
+        rawArgs.push_back(argv[i]);
+
+    for (int32_t i = 1; i < argc; ++i) {
+        std::string arg(rawArgs[i]);
+
         // Removing the initial '-'
-        const char *argName = argv[i] + 1;
-        std::string arg(argName);
-
-        const char **argvI = argv + i;
-        const int argcI = argc - i;
+        if (arg[0] == '-') {
+            arg = arg.substr(1);
+        }
 
         if (Parser->mArgMap.find(arg) != Parser->mArgMap.end()) {
             std::vector<OptBase*>& optVector = Parser->mArgMap[arg];
 
-            for (OptBase *opt : optVector)
-                opt->parse(argcI, argvI);
+            int32_t toBeConsumed = optVector[0]->argsConsumed();
+            if (i + toBeConsumed >= argc) {
+                ERR << "There should be " << toBeConsumed << " arguments for -" << arg
+                    << ", but there was only " << argc - i << "." << std::endl;
+                assert(false && "Not enough command line arguments.");
+            }
 
-            if (!optVector[0]->isBoolean()) ++i;
+            std::vector<std::string> optArgs;
+            for (int32_t j = 0; j < toBeConsumed; ++j) {
+                optArgs.push_back(rawArgs[i + 1 + j]);
+            }
+
+            for (OptBase *opt : optVector) {
+                opt->parse(optArgs);
+            }
+
+            i += toBeConsumed;
         }
     }
 

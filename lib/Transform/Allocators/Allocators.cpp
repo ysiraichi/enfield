@@ -15,6 +15,18 @@ namespace efd {
     typedef std::shared_ptr<efd::AllocatorRegistry> AllocatorRegistryPtr;
 }
 
+template <> std::vector<std::string> efd::EnumAllocator::mStrVal {
+#define EFD_FIRSTLAST(_First_, _Last_)
+#define EFD_ALLOCATOR(_Name_, _Class_) \
+    "Q_"#_Name_,
+#define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
+    "Q_"#_Name_,
+#include "enfield/Transform/Allocators/Allocators.def"
+#undef EFD_FIRSTLAST
+#undef EFD_ALLOCATOR
+#undef EFD_ALLOCATOR_SIMPLE
+};
+
 // -------------- Static -----------------
 
 static efd::AllocatorRegistryPtr Registry(nullptr);
@@ -26,29 +38,32 @@ static efd::AllocatorRegistryPtr GetRegistry() {
 
 // -------------- Public Functions -----------------
 void efd::InitializeAllQbitAllocators() {
+#define EFD_FIRSTLAST(_First_, _Last_)
 #define EFD_ALLOCATOR(_Name_, _Class_) \
-    RegisterQbitAllocator(#_Name_, Create##_Class_);
+    RegisterQbitAllocator(Allocator::Q_##_Name_, Create##_Class_);
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
-    RegisterQbitAllocator(#_Name_, Create##_Finder_##With##_Builder_);
+    RegisterQbitAllocator(Allocator::Q_##_Name_, Create##_Finder_##With##_Builder_);
 #include "enfield/Transform/Allocators/Allocators.def"
+#undef EFD_FIRSTLAST
 #undef EFD_ALLOCATOR
 #undef EFD_ALLOCATOR_SIMPLE
 }
 
-bool efd::HasAllocator(std::string key) {
+bool efd::HasAllocator(EnumAllocator key) {
     return GetRegistry()->hasObj(key);
 }
 
-void efd::RegisterQbitAllocator(std::string key, AllocatorRegistry::CtorTy ctor) {
+void efd::RegisterQbitAllocator(EnumAllocator key, AllocatorRegistry::CtorTy ctor) {
     GetRegistry()->registerObj(key, ctor);
 }
 
 efd::AllocatorRegistry::RetTy
-efd::CreateQbitAllocator(std::string key, AllocatorRegistry::ArgTy arg) {
+efd::CreateQbitAllocator(EnumAllocator key, AllocatorRegistry::ArgTy arg) {
     return GetRegistry()->createObj(key, arg);
 }
 
 // -------------- Allocator Functions -----------------
+#define EFD_FIRSTLAST(_First_, _Last_)
 #define EFD_ALLOCATOR(_Name_, _Class_) \
     efd::AllocatorRegistry::RetTy efd::Create##_Class_(AllocatorRegistry::ArgTy arg) {\
         return _Class_::Create(arg);\
@@ -62,6 +77,7 @@ efd::CreateQbitAllocator(std::string key, AllocatorRegistry::ArgTy arg) {
         return std::move(allocator);\
     }
 #include "enfield/Transform/Allocators/Allocators.def"
+#undef EFD_FIRSTLAST
 #undef EFD_ALLOCATOR
 #undef EFD_ALLOCATOR_SIMPLE
 

@@ -10,7 +10,7 @@ using namespace efd;
 
 TEST(IBMQX2Tests, IntantiationTest) {
     InitializeAllArchitectures();
-    ArchGraph::uRef graph = efd::CreateArchitecture("ibmqx2");
+    ArchGraph::uRef graph = efd::CreateArchitecture(Architecture::A_ibmqx2);
 
     ASSERT_FALSE(graph == nullptr);
 
