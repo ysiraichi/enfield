@@ -44,14 +44,25 @@ namespace efd {
 #undef EFD_COUPLING
 #undef EFD_ARCHITECTURE_END
 
+template <> std::vector<std::string> efd::EnumArchitecture::mStrVal {
+#define EFD_FIRSTLAST(_First_, _Last_)
+#define EFD_ARCH(_Arch_, _Name_) \
+    "A_"#_Name_,
+#include "enfield/Arch/Architectures.def"
+#undef EFD_FIRSTLAST
+#undef EFD_ARCH
+};
+
 // Creating functions for each architecture, so that it
 // will get the following signature: (int) -> ArchGraph*
+#define EFD_FIRSTLAST(_First_, _Last_)
 #define EFD_ARCH(_Arch_, _Name_) \
     ArchRegistry::RetTy CreateArch##_Arch_(int pad) {\
         auto arch = Arch##_Arch_::Create();\
         return ArchRegistry::RetTy(arch.release());\
     }
 #include "enfield/Arch/Architectures.def"
+#undef EFD_FIRSTLAST
 #undef EFD_ARCH
 }
 
@@ -61,20 +72,22 @@ static efd::ArchRegistryPtr GetRegistry() {
 }
 
 void efd::InitializeAllArchitectures() {
+#define EFD_FIRSTLAST(_First_, _Last_)
 #define EFD_ARCH(_Arch_, _Name_) \
-    RegisterArchitecture(#_Name_, CreateArch##_Arch_);
+    RegisterArchitecture(Architecture::A_##_Name_, CreateArch##_Arch_);
 #include "enfield/Arch/Architectures.def"
+#undef EFD_FIRSTLAST
 #undef EFD_ARCH
 }
 
-bool efd::HasArchitecture(std::string key) {
+bool efd::HasArchitecture(EnumArchitecture key) {
     return GetRegistry()->hasObj(key);
 }
 
-void efd::RegisterArchitecture(std::string key, ArchRegistry::CtorTy ctor) {
+void efd::RegisterArchitecture(EnumArchitecture key, ArchRegistry::CtorTy ctor) {
     GetRegistry()->registerObj(key, ctor);
 }
 
-efd::ArchRegistry::RetTy efd::CreateArchitecture(std::string key) {
+efd::ArchRegistry::RetTy efd::CreateArchitecture(EnumArchitecture key) {
     return GetRegistry()->createObj(key, 0);
 }

@@ -1,6 +1,9 @@
 #ifndef __EFD_REGISTRY_H__
 #define __EFD_REGISTRY_H__
 
+#include "enfield/Support/EnumString.h"
+#include "enfield/Support/Defs.h"
+
 #include <iostream>
 #include <map>
 #include <functional>
@@ -11,8 +14,13 @@ namespace efd {
     /// \brief Base registry class for sets.
     ///
     /// This is used by storing Allocators and Architectures.
-    template <typename RTy, typename ATy,
-             typename KTy = std::string,
+    /// Type-Parameters:
+    ///   - RTy: the return type (basically, what we are storing).
+    ///   - ATy: the type of the argument of the constructor (for now, we accept only
+    ///          one -- we could use std::forward, though).
+    ///   - KTy: the key type (it should be an EnumString).
+    ///   - CTy: the comparison type.
+    template <typename RTy, typename ATy, typename KTy,
              typename CTy = std::less<KTy>>
     class Registry {
         public:
@@ -23,7 +31,7 @@ namespace efd {
             typedef std::function<RetTy(ArgTy)> CtorTy;
 
         private:
-            std::map<KeyTy, CtorTy> mCtorMap;
+            std::map<KeyTy, CtorTy, CmpTy> mCtorMap;
 
         public:
             /// \brief Registers an object constructor \p ctor with \p key.
@@ -41,7 +49,7 @@ void efd::Registry<RetTy, ArgTy, KeyTy, CmpTy>::registerObj(KeyTy key, CtorTy ct
     if (!hasObj(key)) {
         mCtorMap.insert(std::make_pair(key, ctor));
     } else {
-        std::cerr << "Architecture `" << key << "` overrided." << std::endl;
+        WAR << "Object `" << key.getStringValue() << "` overrided." << std::endl;
     }
 }
 
