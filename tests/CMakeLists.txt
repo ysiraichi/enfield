@@ -88,6 +88,9 @@ efd_test (SemanticVerifierPassTests
 efd_test (ArchVerifierPassTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
+efd_test (LayersBuilderPassTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
 # ==-------- Allocator ----------==
 efd_test (DynprogDepSolverTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
