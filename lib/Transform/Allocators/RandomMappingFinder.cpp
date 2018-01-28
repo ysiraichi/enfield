@@ -2,13 +2,19 @@
 
 #include <ctime>
 #include <algorithm>
+#include <chrono>
+#include <random>
 
-efd::Opt<uint32_t> Seed
-("seed", "Seed to be used in the RandomQbitAllocator.", std::time(0), false);
+efd::Opt<uint32_t> Seed ("seed", "Seed to be used in the RandomQbitAllocator.",
+std::chrono::system_clock::now().time_since_epoch().count(), false);
 efd::Stat<uint32_t> SeedStat
 ("seed", "Seed used in the random allocator.");
 
-int rnd(int i) { int r = std::rand() % i; return r; }
+int rnd(int i) {
+    static std::default_random_engine generator(Seed.getVal());
+    static std::uniform_int_distribution<int> distribution(0, i - 1);
+    return distribution(generator);
+}
 
 efd::MappingFinder::Mapping
 efd::RandomMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
@@ -21,7 +27,6 @@ efd::RandomMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
 
     // "Generating" the initial mapping.
     SeedStat = Seed.getVal();
-    std::srand(Seed.getVal());
     std::random_shuffle(mapping.begin(), mapping.end(), rnd);
 
     return mapping;
