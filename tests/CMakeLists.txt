@@ -104,3 +104,6 @@ efd_test (QbitterQbitAllocatorTests
 efd_test (GreedyCktQAllocatorTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
+efd_test (IBMQAllocatorTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+

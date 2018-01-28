@@ -9,4 +9,5 @@ add_library (EfdAllocator
     RandomMappingFinder.cpp
     PathGuidedSolBuilder.cpp
     QbitterSolBuilder.cpp
-    GreedyCktQAllocator.cpp)
+    GreedyCktQAllocator.cpp
+    IBMQAllocator.cpp)
