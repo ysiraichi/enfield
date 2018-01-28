@@ -30,7 +30,7 @@ namespace efd {
             /// \brief Wraps \p ref with \p ifstmt if \p ifstmt is not nullptr.
             Node::uRef wrapWithIfNode(Node::uRef ref, NDIfStmt::Ref ifstmt);
             /// \brief Apply the swaps for the current dependency.
-            void applyOperations(Node::Ref ref);
+            void applyOperations(NDQOp::Ref ref, NDIfStmt::Ref ifstmt = nullptr);
 
         public:
             SolutionImplPass(Solution& sol) : mData(sol) {}
@@ -64,66 +64,76 @@ efd::Node::uRef efd::SolutionImplPass::wrapWithIfNode
     return ref;
 }
 
-void efd::SolutionImplPass::applyOperations(Node::Ref ref) {
-    auto& ops = mData.mOpSeqs[mDepIdx].second;
-    ++mDepIdx;
+void efd::SolutionImplPass::applyOperations(NDQOp::Ref qop, NDIfStmt::Ref ifstmt) {
+    bool stillHasOpSeqs = mDepIdx < mData.mOpSeqs.size();
+    bool isIfStmtAndHasOp = ifstmt && stillHasOpSeqs && ifstmt == mData.mOpSeqs[mDepIdx].first;
+    bool isQOpAndHasOp = !ifstmt && stillHasOpSeqs && qop == mData.mOpSeqs[mDepIdx].first;
 
-    // If there is nothing to be done in this dep, simply return.
-    if (ops.empty()) return;
+    if (isIfStmtAndHasOp || isQOpAndHasOp) {
+        auto& ops = mData.mOpSeqs[mDepIdx].second;
+        ++mDepIdx;
 
-    NDIfStmt::Ref ifstmt = efd::dynCast<NDIfStmt>(ref->getParent());
+        Node::Ref key = ifstmt;
+        if (key == nullptr) { key = qop; }
 
-    Node::Ref key;
-    if (ifstmt != nullptr) {
-        key = ifstmt;
-    } else {
-        key = ref;
-    }
+        mReplVector[key] = std::vector<Node::uRef>();
 
-    mReplVector[key] = std::vector<Node::uRef>();
+        for (auto& op : ops) {
+            switch (op.mK) {
+                case Operation::K_OP_CNOT:
+                    {
+                        auto clone = uniqueCastForward<NDQOp>(qop->clone());
+                        clone->getQArgs()->apply(this);
+                        mReplVector[key].push_back(wrapWithIfNode(std::move(clone), ifstmt));
+                    }
+                    break;
 
-    for (auto& op : ops) {
-        switch (op.mK) {
-            case Operation::K_OP_CNOT:
-                {
-                    NDQOp::uRef clone = uniqueCastForward<NDQOp>(ref->clone());
+                case Operation::K_OP_SWAP:
+                    mReplVector[key].push_back(
+                            efd::CreateISwap(mMap[op.mU]->clone(), mMap[op.mV]->clone()));
+                    std::swap(mMap[op.mU], mMap[op.mV]);
+                    break;
 
-                    auto qargs = clone->getQArgs();
-                    qargs->setChild(0, mMap[op.mU]->clone());
-                    qargs->setChild(1, mMap[op.mV]->clone());
+                case Operation::K_OP_REV:
+                    {
+                        Node::uRef call = efd::CreateIRevCX(
+                                    mMap[op.mU]->clone(),
+                                    mMap[op.mV]->clone());
+                        mReplVector[key].push_back(wrapWithIfNode(std::move(call), ifstmt));
+                    }
+                    break;
 
-                    mReplVector[key].push_back(std::move(clone));
-                }
-                break;
-
-            case Operation::K_OP_SWAP:
-                mReplVector[key].push_back(
-                        efd::CreateISwap(mMap[op.mU]->clone(), mMap[op.mV]->clone()));
-                std::swap(mMap[op.mU], mMap[op.mV]);
-                break;
-
-            case Operation::K_OP_REV:
-                {
-                    Node::uRef call = efd::CreateIRevCX(
-                                mMap[op.mU]->clone(),
-                                mMap[op.mV]->clone());
-                    call = wrapWithIfNode(std::move(call), ifstmt);
-                    mReplVector[key].push_back(wrapWithIfNode(std::move(call), ifstmt));
-                }
-                break;
-
-            case Operation::K_OP_LCNOT:
-                {
-                    Node::uRef call = efd::CreateILongCX(
-                                mMap[op.mU]->clone(), 
-                                mMap[op.mW]->clone(), 
-                                mMap[op.mV]->clone());
-                    call = wrapWithIfNode(std::move(call), ifstmt);
-                    mReplVector[key].push_back(wrapWithIfNode(std::move(call), ifstmt));
-                }
-                break;
+                case Operation::K_OP_LCNOT:
+                    {
+                        Node::uRef call = efd::CreateILongCX(
+                                    mMap[op.mU]->clone(), 
+                                    mMap[op.mW]->clone(), 
+                                    mMap[op.mV]->clone());
+                        mReplVector[key].push_back(wrapWithIfNode(std::move(call), ifstmt));
+                    }
+                    break;
+            }
         }
+
+        if (ops.empty()) {
+            qop->getQArgs()->apply(this);
+        }
+    } else {
+        qop->getQArgs()->apply(this);
     }
+
+
+    // if (!mReplVector[key].empty()) {
+    //     NDQOp::uRef clone = uniqueCastForward<NDQOp>(ref->clone());
+
+    //     auto qargs = clone->getQArgs();
+    //     for (uint32_t i = 0, e = qargs->getChildNumber(); i < e; ++i) {
+    //         auto qarg = qargs->getChild(i);
+    //         qargs->setChild(i, getMappedNode(qarg));
+    //     }
+
+    //     mReplVector[key].push_back(wrapWithIfNode(std::move(clone), ifstmt));
+    // }
 }
 
 bool efd::SolutionImplPass::run(QModule::Ref qmod) {
@@ -149,23 +159,23 @@ bool efd::SolutionImplPass::run(QModule::Ref qmod) {
 }
 
 void efd::SolutionImplPass::visit(NDQOpMeasure::Ref ref) {
-    ref->setQBit(getMappedNode(ref->getQBit()));
+    applyOperations(ref);
 }
 
 void efd::SolutionImplPass::visit(NDQOpReset::Ref ref) {
-    ref->setQArg(getMappedNode(ref->getQArg()));
+    applyOperations(ref);
 }
 
 void efd::SolutionImplPass::visit(NDQOpU::Ref ref) {
-    ref->setQArg(getMappedNode(ref->getQArg()));
+    applyOperations(ref);
 }
 
 void efd::SolutionImplPass::visit(NDQOpBarrier::Ref ref) {
-    ref->getQArgs()->apply(this);
+    applyOperations(ref);
 }
 
 void efd::SolutionImplPass::visit(NDIfStmt::Ref ref) {
-    ref->getQOp()->apply(this);
+    applyOperations(ref->getQOp(), ref);
 }
 
 void efd::SolutionImplPass::visit(NDList::Ref ref) {
@@ -175,21 +185,11 @@ void efd::SolutionImplPass::visit(NDList::Ref ref) {
 }
 
 void efd::SolutionImplPass::visit(NDQOpCX::Ref ref) {
-    ref->setLhs(getMappedNode(ref->getLhs()));
-    ref->setRhs(getMappedNode(ref->getRhs()));
-
-    assert(ref == mData.mOpSeqs[mDepIdx].first &&
-            "Wrong cnot dependency.");
-
     applyOperations(ref);
 }
 
 void efd::SolutionImplPass::visit(NDQOpGen::Ref ref) {
-    ref->getQArgs()->apply(this);
-
-    if (!mData.mOpSeqs.empty() && ref == mData.mOpSeqs[mDepIdx].first) {
-        applyOperations(ref);
-    }
+    applyOperations(ref);
 }
 
 
