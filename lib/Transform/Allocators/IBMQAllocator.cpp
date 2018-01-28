@@ -47,6 +47,7 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
 
     if (dist == deps.size()) {
         result.isTrivialLayer = deps.empty();
+        result.success = true; 
         return result;
     }
 
@@ -159,6 +160,8 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
         result.success = true;
         result.opv = bestOpv;
         result.map = bestMap;
+    } else {
+        result.success = false;
     }
 
     return result;
