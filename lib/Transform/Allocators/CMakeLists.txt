@@ -4,6 +4,7 @@ add_library (EfdAllocator
     DepSolverQAllocator.cpp
     DynprogDepSolver.cpp
     SimpleDepSolver.cpp
+    BoundedSIDepSolver.cpp
     WeightedSIMappingFinder.cpp
     IdentityMappingFinder.cpp
     RandomMappingFinder.cpp
