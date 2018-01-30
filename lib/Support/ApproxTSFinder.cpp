@@ -20,10 +20,22 @@ static const uint32_t _black  = 3;
 static inline uint32_t max(uint32_t a, uint32_t b) { return (a > b) ? a : b; }
 static inline uint32_t min(uint32_t a, uint32_t b) { return (a < b) ? a : b; }
 
-static uint32_t getUndefVertex(std::vector<uint32_t> M) {
-    for (uint32_t i = 0, e = M.size(); i < e; ++i)
+static uint32_t getUndefVertex(uint32_t start, uint32_t end, std::vector<uint32_t> M) {
+    for (uint32_t i = start; i < end; ++i)
         if (M[i] == efd::_undef) return i;
     return efd::_undef;
+}
+
+template <typename T>
+static std::string VecToString(std::vector<T> v) {
+    std::string s = "[";
+    uint32_t sz = v.size();
+    for (uint32_t i = 0; i < sz; ++i) {
+        s += std::to_string(v[i]);
+        if (i != sz - 1) s += "; ";
+    }
+    s += "]";
+    return s;
 }
 
 static void fixUndefAssignments(efd::Graph::Ref graph, 
@@ -118,7 +130,6 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
             l[i] = max(l[i], bgraph.getW(i, j));
         }
     }
-
     /*
      *     1.4. Construct 'eqgraph' (the equality graph) 'H = (V, El)', where an edge
      *          '(u, v)' from 'E' is in 'El' iff 'w(u, v) = lx(u) + ly(v)';
@@ -132,12 +143,9 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
      *     2.3. Initialize the 'slack' structure for computing '@' (needed on 2.4.);  |
      */
     uint32_t u;
-    while ((u = getUndefVertex(M)) != efd::_undef) {
-        std::vector<uint32_t> slack(ysize, efd::_undef);
+    while ((u = getUndefVertex(0, xsize, M)) != efd::_undef) {
+        std::vector<uint32_t> slack(ysize, efd::_undef), slackx(ysize, u);
         std::vector<bool> S(xsize, false), T(ysize, false), NS(ysize, false);
-
-        for (uint32_t i = 0; i < xsize; ++i)
-            if (M[i] == efd::_undef) { u = i; break; }
 
         S[u] = true;
 
@@ -154,10 +162,9 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
         bool reset = false;
 
         for (uint32_t y : bgraph.succ(u))
-            if (l[u] + l[y] == bgraph.getW(u, y)) NS[y - xsize] = true;
+            NS[y - xsize] = l[u] + l[y] == bgraph.getW(u, y);
 
         do {
-
             if (NS == T) {
                 uint32_t alpha = efd::_undef;
 
@@ -169,11 +176,13 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
                 for (uint32_t i = 0; i < ysize; ++i)
                     if (T[i]) l[i + xsize] += alpha;
 
-                for (uint32_t i = 0; i < xsize; ++i)
-                    if (S[i]) {
-                        for (uint32_t y : bgraph.succ(i))
-                            if (l[i] + l[y] == bgraph.getW(i, y)) NS[y - xsize] = true;
-                    }
+                for (uint32_t i = 0; i < ysize; ++i)
+                    if (!T[i]) slack[i] -= alpha;
+
+                for (uint32_t i = 0; i < ysize; ++i) {
+                    uint32_t y = i + xsize;
+                    NS[i] = NS[i] || (l[slackx[i]] + l[y]) == bgraph.getW(slackx[i], y);
+                }
             }
 
             /*
@@ -245,8 +254,13 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
                     T[v - xsize] = true;
 
                     for (uint32_t y : bgraph.succ(z)) {
-                        slack[y - xsize] = min(slack[y - xsize], l[z] + l[y] - bgraph.getW(z, y));
-                        if (l[z] + l[y] == bgraph.getW(z, y)) NS[y - xsize] = true;
+                        uint32_t i = y - xsize;
+                        uint32_t newSlack = l[z] + l[y] - bgraph.getW(z, y);
+
+                        if (slack[i] > newSlack) {
+                            slack[i] = newSlack;
+                            slackx[i] = z;
+                        }
                     }
                 }
             }
