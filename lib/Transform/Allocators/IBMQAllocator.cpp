@@ -10,8 +10,6 @@ extern Opt<uint32_t> Seed;
 static Opt<uint32_t> Trials
 ("trials", "Number of times that IBMQAllocator should try.", 20, false);
 
-static std::string MappingToString(Mapping m);
-
 IBMQAllocator::IBMQAllocator(ArchGraph::sRef archGraph) : QbitAllocator(archGraph) {}
 
 IBMQAllocator::uRef IBMQAllocator::Create(ArchGraph::sRef archGraph) {
@@ -335,14 +333,4 @@ Solution IBMQAllocator::executeAllocation(QModule::Ref qmod) {
     }
 
     return sol;
-}
-
-static std::string MappingToString(Mapping m) {
-    std::string s = "[";
-    for (uint32_t i = 0, e = m.size(); i < e; ++i) {
-        s = s + std::to_string(i) + " => " + std::to_string(m[i]) + ";";
-        if (i != e - 1) s = s + " ";
-    }
-    s = s + "]";
-    return s;
 }

@@ -1,5 +1,6 @@
 EFD_FIRSTLAST(dynprog, wqubiter)
 EFD_ALLOCATOR(dynprog, DynprogDepSolver)
+EFD_ALLOCATOR(bsi, BoundedSIDepSolver)
 EFD_ALLOCATOR(grdy, GreedyCktQAllocator)
 EFD_ALLOCATOR(ibm, IBMQAllocator)
 EFD_ALLOCATOR_SIMPLE(wpm, WeightedSIMappingFinder, PathGuidedSolBuilder)
