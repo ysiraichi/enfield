@@ -137,13 +137,15 @@ void efd::SolutionImplPass::applyOperations(NDQOp::Ref qop, NDIfStmt::Ref ifstmt
 }
 
 bool efd::SolutionImplPass::run(QModule::Ref qmod) {
+    INF << "Initial Configuration: " << MappingToString(mData.mInitial) << std::endl;
     auto xtonpass = PassCache::Get<XbitToNumberWrapperPass>(qmod);
 
     mXbitToNumber = xtonpass->getData();
     mMap.assign(mXbitToNumber.getQSize(), nullptr);
 
-    for (uint32_t i = 0, e = mXbitToNumber.getQSize(); i < e; ++i)
+    for (uint32_t i = 0, e = mXbitToNumber.getQSize(); i < e; ++i) {
         mMap[i] = mXbitToNumber.getQNode(mData.mInitial[i]);
+    }
 
     mDepIdx = 0;
     for (auto it = qmod->stmt_begin(), end = qmod->stmt_end(); it != end; ++it) {
@@ -289,6 +291,10 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
         totalDeps += d.mDeps.size();
     DepStat = totalDeps;
 
+    // Filling Qubit information.
+    mVQubits = depBuilder.mXbitToNumber.getQSize();
+    mPQubits = mArchGraph->size();
+
     // Setting up timer ----------------
     timer.start();
     // ---------------------------------
@@ -327,19 +333,41 @@ void efd::QbitAllocator::setDontInline() {
 }
 
 efd::QbitAllocator::Mapping efd::GenAssignment
-(uint32_t archQ, QbitAllocator::Mapping mapping) {
+(uint32_t archQ, QbitAllocator::Mapping mapping, bool fill) {
+    uint32_t progQ = mapping.size();
     // 'archQ' is the number of qubits from the architecture.
-    std::vector<uint32_t> assign(archQ, archQ);
+    std::vector<uint32_t> assign(archQ, _undef);
 
     // for 'u' in arch; and 'a' in prog:
     // if 'a' -> 'u', then 'u' -> 'a'
-    for (uint32_t i = 0, e = mapping.size(); i < e; ++i)
-        assign[mapping[i]] = i;
+    for (uint32_t i = 0; i < progQ; ++i)
+        if (mapping[i] != _undef)
+            assign[mapping[i]] = i;
 
-    // Fill the qubits in the architecture that were not mapped.
-    uint32_t id = mapping.size();
-    for (uint32_t i = 0; i < archQ; ++i)
-        assign[i] = (assign[i] == archQ) ? id++ : assign[i];
+    if (fill) {
+        // Fill the qubits in the architecture that were not mapped.
+        uint32_t a = 0, u = 0;
+
+        do {
+            while (a < progQ && mapping[a] != _undef) ++a;
+            while (u < archQ && assign[u] != _undef) ++u;
+            assign[u] = a;
+            ++u; ++a;
+        } while (u < archQ);
+    }
 
     return assign;
+}
+
+std::string efd::MappingToString(Mapping m) {
+    std::string s = "[";
+    for (uint32_t i = 0, e = m.size(); i < e; ++i) {
+        s = s + std::to_string(i) + " => ";
+        if (m[i] == _undef) s = s + "_undef";
+        else s = s + std::to_string(m[i]);
+        s = s + ";";
+        if (i != e - 1) s = s + " ";
+    }
+    s = s + "]";
+    return s;
 }
