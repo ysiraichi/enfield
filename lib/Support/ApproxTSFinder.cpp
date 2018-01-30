@@ -91,6 +91,7 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
             if (d[tgt] != efd::_undef)
                 // The id of 'tgt' in the 'bgraph' is 'j + xsize'.
                 bgraph.putEdge(i, j + xsize, d[tgt]);
+                bgraph.putEdge(j + xsize, i, d[tgt]);
         }
     }
 
@@ -103,15 +104,17 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
     uint32_t maxw = 0;
 
     for (uint32_t i = 0; i < xsize; ++i) {
-        for (uint32_t j : bgraph.adj(i)) {
+        for (uint32_t j : bgraph.succ(i)) {
             uint32_t w = bgraph.getW(i, j);
             if (maxw < w) maxw = w;
         }
     }
 
     for (uint32_t i = 0; i < xsize; ++i) {
-        for (uint32_t j : bgraph.adj(i)) {
-            bgraph.setW(i, j, maxw - bgraph.getW(i, j));
+        for (uint32_t j : bgraph.succ(i)) {
+            uint32_t neww = maxw - bgraph.getW(i, j);
+            bgraph.setW(i, j, neww);
+            bgraph.setW(j, i, neww);
             l[i] = max(l[i], bgraph.getW(i, j));
         }
     }
@@ -138,7 +141,7 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
 
         S[u] = true;
 
-        for (uint32_t y : bgraph.adj(u))
+        for (uint32_t y : bgraph.succ(u))
             slack[y - xsize] = l[u] + l[y] - bgraph.getW(u, y);
         /*
          *     2.4. If 'T' equals the neighbors of 'S':  <<------------------------|      |
@@ -150,7 +153,7 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
 
         bool reset = false;
 
-        for (uint32_t y : bgraph.adj(u))
+        for (uint32_t y : bgraph.succ(u))
             if (l[u] + l[y] == bgraph.getW(u, y)) NS[y - xsize] = true;
 
         do {
@@ -168,7 +171,7 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
 
                 for (uint32_t i = 0; i < xsize; ++i)
                     if (S[i]) {
-                        for (uint32_t y : bgraph.adj(i))
+                        for (uint32_t y : bgraph.succ(i))
                             if (l[i] + l[y] == bgraph.getW(i, y)) NS[y - xsize] = true;
                     }
             }
@@ -193,10 +196,23 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
                     if (!T[i] && NS[i]) { v += i; break; }
 
                 if (M[v] == efd::_undef) {
+                    // Finding an alternate path from u -> v.
+                    // 1. We create a directed graph similar to 'bgraph'. Every unmatched edge
+                    // corresponds to an edge from X to Y vertices set. The oposite is true for
+                    // matched edges.
+                    efd::Graph altGraph(bsize);
+
+                    for (uint32_t x = 0; x < xsize; ++x)
+                        for (uint32_t y : bgraph.succ(x))
+                            if (l[x] + l[y] == bgraph.getW(x, y)) {
+                                if (M[x] == y) { altGraph.putEdge(y, x); }
+                                else { altGraph.putEdge(x, y); }
+                            }
+
+                    // 2. BFS through 'altGraph' until we find 'v'.
                     std::queue<uint32_t> q;
                     std::vector<uint32_t> pi(bsize, efd::_undef);
                     std::vector<bool> visited(bsize, false);
-                    std::vector<bool> isaugpath(bsize, false);
 
                     q.push(u);
                     visited[u] = true;
@@ -207,23 +223,11 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
 
                         if (a == v) break;
 
-                        if (isaugpath[a] && M[a] != efd::_undef) {
-                            uint32_t b = M[a];
-                            pi[b] = a;
-                            visited[b] = true;
-                            isaugpath[b] = !isaugpath[a];
-                            q.push(b);
-                        } else {
-                            for (uint32_t b : bgraph.adj(a)) {
-                                uint32_t x = a, y = b;
-                                if (b < a) std::swap(x, y);
-
-                                if (!visited[b] && l[x] + l[y] == bgraph.getW(x, y)) {
-                                    isaugpath[b] = !isaugpath[a];
-                                    pi[b] = a;
-                                    visited[b] = true;
-                                    q.push(b);
-                                }
+                        for (uint32_t b : altGraph.succ(a)) {
+                            if (!visited[b]) {
+                                pi[b] = a;
+                                q.push(b);
+                                visited[b] = true;
                             }
                         }
                     }
@@ -240,7 +244,7 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
                     S[z] = true;
                     T[v - xsize] = true;
 
-                    for (uint32_t y : bgraph.adj(z)) {
+                    for (uint32_t y : bgraph.succ(z)) {
                         slack[y - xsize] = min(slack[y - xsize], l[z] + l[y] - bgraph.getW(z, y));
                         if (l[z] + l[y] == bgraph.getW(z, y)) NS[y - xsize] = true;
                     }
