@@ -34,7 +34,8 @@ namespace efd {
 
             typedef std::vector<CandPair> CandidatesTy;
             CandidatesTy extendCandidates(Dep& dep, std::vector<bool>& mapped,
-                                          CandidatesTy& candidates);
+                                          CandidatesTy& candidates, bool isFirst = false);
+            uint32_t assignNonMappedVQubit(uint32_t u, Assign& assign, std::vector<bool>& notMapped);
             TKSResult process(Mapping& last, Mapping& current);
             uint32_t getNearest(uint32_t u, Assign& assign);
 
