@@ -265,6 +265,8 @@ void efd::ParseArguments(const int argc, const char **argv) {
             }
 
             i += toBeConsumed;
+        } else {
+            WAR << "CommandLine argument '" << arg << "' not used!" << std::endl;
         }
     }
 

@@ -31,6 +31,9 @@ efd_test (EnumStringTests
 efd_test (PossibleValuesListTraitTests
     EfdSupport)
 
+efd_test (BitOptionsTests
+    EfdSupport)
+
 # ==-------- Analysis ----------==
 efd_test (ASTNodeTests
     EfdAnalysis EfdSupport)
