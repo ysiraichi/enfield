@@ -20,10 +20,14 @@ struct DepComp {
     }
 };
 
-efd::Solution efd::PathGuidedSolBuilder::build
-(Mapping initial, DepsSet& deps, ArchGraph::Ref g) {
+efd::Solution efd::PathGuidedSolBuilder::build(Mapping initial,
+                                               DepsSet& deps,
+                                               ArchGraph::Ref g) {
     if (mPathFinder.get() == nullptr)
         mPathFinder = BFSPathFinder::Create();
+
+    bool keepStats = get(SolutionBuilderOptions::KeepStats);
+    bool improveInitialMapping = get(SolutionBuilderOptions::ImproveInitial);
 
     Mapping match = initial;
     Solution solution { initial, Solution::OpSequences(deps.size()), 0 };
@@ -38,7 +42,7 @@ efd::Solution efd::PathGuidedSolBuilder::build
 
     std::vector<bool> frozen(g->size(), false);
     for (uint32_t i = 0, e = deps.size(); i < e; ++i) {
-        bool changeInitialMapping = true;
+        bool changeInitialMapping = improveInitialMapping;
         Dep d = deps[i][0];
 
         auto& ops = solution.mOpSeqs[i];
@@ -55,6 +59,12 @@ efd::Solution efd::PathGuidedSolBuilder::build
 
         if (path.size() > 2) {
             for (auto u : path) {
+                // In case qubit 'u' has'n been assigned to no one, we just change
+                // the initial mapping here (we already filled the 'assign' in line 57)
+                if (solution.mInitial[assign[u]] == _undef) {
+                    solution.mInitial[assign[u]] = u;
+                }
+
                 if (frozen[u]) changeInitialMapping = false;
                 frozen[u] = true;
             }
@@ -80,11 +90,14 @@ efd::Solution efd::PathGuidedSolBuilder::build
             if (changeInitialMapping) {
                 ops.second.clear();
             } else {
-                // ------ Stats
-                SerialSwapsCount += 1;
-                MeanSwapsSize += ops.second.size();
-                TotalSwapCost += SwapCost.getVal() * ops.second.size();
-                // --------------------
+                if (keepStats) {
+                    // ------ Stats
+                    SerialSwapsCount += 1;
+                    MeanSwapsSize += ops.second.size();
+                    TotalSwapCost += SwapCost.getVal() * ops.second.size();
+                    // --------------------
+                }
+
                 solution.mCost += (SwapCost.getVal() * ops.second.size());
             }
 
@@ -104,7 +117,8 @@ efd::Solution efd::PathGuidedSolBuilder::build
         --freq[d];
     }
 
-    if (SerialSwapsCount.getVal()) MeanSwapsSize /= ((double) SerialSwapsCount.getVal());
+    if (keepStats && SerialSwapsCount.getVal())
+        MeanSwapsSize /= ((double) SerialSwapsCount.getVal());
 
     return solution;
 }
