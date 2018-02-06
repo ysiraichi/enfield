@@ -9,7 +9,7 @@ efd::WeightedSIMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
     if (mSIFinder.get() == nullptr)
         mSIFinder = WeightedSIFinder<WeightTy>::Create();
 
-    auto wg = toShared(WeightedGraph<WeightTy>::Create(qbits));
+    auto wg = toShared(WeightedGraph<WeightTy>::Create(qbits, Graph::Directed));
 
     std::map<std::pair<uint32_t, uint32_t>, WeightTy> wMap;
     for (auto& dep : deps) {

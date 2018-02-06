@@ -103,7 +103,6 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
             if (d[tgt] != efd::_undef)
                 // The id of 'tgt' in the 'bgraph' is 'j + xsize'.
                 bgraph.putEdge(i, j + xsize, d[tgt]);
-                bgraph.putEdge(j + xsize, i, d[tgt]);
         }
     }
 
@@ -209,7 +208,7 @@ static void fixUndefAssignments(efd::Graph::Ref graph,
                     // 1. We create a directed graph similar to 'bgraph'. Every unmatched edge
                     // corresponds to an edge from X to Y vertices set. The oposite is true for
                     // matched edges.
-                    efd::Graph altGraph(bsize);
+                    efd::Graph altGraph(bsize, efd::Graph::Directed);
 
                     for (uint32_t x = 0; x < xsize; ++x)
                         for (uint32_t y : bgraph.succ(x))
