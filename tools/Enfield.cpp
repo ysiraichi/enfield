@@ -29,12 +29,16 @@ static Opt<bool> NoVerify
 static Opt<bool> Force
 ("f", "Compile and print the module, even if verification fails.", false, false);
 
-// TODO: This should be change to a nicer interface.
 static Opt<EnumAllocator> Alloc
 ("alloc", "Sets the allocator to be used.", Allocator::Q_dynprog, false);
 static efd::Opt<EnumArchitecture> Arch
 ("arch", "Name of the architechture, or a file with the connectivity graph.",
 Architecture::A_ibmqx2, false);
+
+static Opt<std::string> PrintDepGraphFile
+("-print-depgraph", "Choose a file to print the dependency graph.", "", false);
+static Opt<std::string> PrintArchGraphFile
+("-print-archgraph", "Choose a file to print the architecture graph.", "", false);
 
 static void DumpToOutFile(QModule* qmod) {
     std::ofstream O(OutFilepath.getVal());
@@ -50,10 +54,31 @@ int main(int argc, char** argv) {
     QModule::uRef qmod = ParseFile(InFilepath.getVal());
 
     if (qmod.get() != nullptr) {
+        ArchGraph::sRef archGraph;
+        if (!ArchFilepath.isParsed() && HasArchitecture(Arch.getVal())) {
+            archGraph = CreateArchitecture(Arch.getVal());
+        } else if (ArchFilepath.isParsed()) {
+            archGraph = ArchGraph::Read(ArchFilepath.getVal());
+        } else {
+            ERR << "Architecture: " << Arch.getVal().getStringValue()
+                << " not found." << std::endl;
+        }
+
+        if (PrintArchGraphFile.isParsed()) {
+            std::ofstream ofs(PrintArchGraphFile.getVal());
+            ofs << archGraph->dotify() << std::endl;
+            ofs.close();
+        }
+
+        if (PrintDepGraphFile.isParsed()) {
+            std::ofstream ofs(PrintDepGraphFile.getVal());
+            PrintDependencyGraph(qmod.get(), ofs);
+            ofs.close();
+        }
+
         CompilationSettings settings {
-            Arch.getVal(),
+            archGraph,
             Alloc.getVal(),
-            ArchFilepath.getVal(),
             {
                 "intrinsic_swap__",
                 "intrinsic_rev_cx__",

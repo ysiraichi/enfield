@@ -20,17 +20,23 @@ namespace efd {
                 K_ARCH
             };
 
+            enum Type { Directed, Undirected };
+
         protected:
             Kind mK;
             uint32_t mN;
+            Type mTy;
 
             std::vector<std::set<uint32_t>> mSuccessors;
             std::vector<std::set<uint32_t>> mPredecessors;
 
-            Graph(Kind k, uint32_t n);
+            Graph(Kind k, uint32_t n, Type ty = Undirected);
+
+            virtual std::string vertexToString(uint32_t i) const;
+            virtual std::string edgeToString(uint32_t i, uint32_t j, std::string op) const;
 
         public:
-            Graph(uint32_t n);
+            Graph(uint32_t n, Type ty = Undirected);
 
             /// \brief Return the degree entering the vertex \p i.
             uint32_t inDegree(uint32_t i) const;
@@ -44,7 +50,7 @@ namespace efd {
             /// \brief Return the set of predecessors of some vertex \p i.
             std::set<uint32_t>& pred(uint32_t i); 
             /// \brief Return the set of adjacent vertices of some vertex \p i.
-            std::set<uint32_t> adj(uint32_t i); 
+            std::set<uint32_t> adj(uint32_t i) const;
     
             /// \brief Inserts an edge (i, j) in the successor's list and
             /// an edge (j, i) in the predecessor's list.
@@ -57,15 +63,21 @@ namespace efd {
             /// \brief Returns true if this is an architecture graph.
             bool isArch() const;
 
+            /// \brief Returns true if this is a directed graph.
+            bool isDirectedGraph() const;
+
+            /// \brief Converts itself to a 'dot' graph representation.
+            std::string dotify(std::string name = "Dump") const;
+
             /// \brief Returns true if \p g is of this type.
             static bool ClassOf(const Graph* g);
     
             /// \brief Encapsulates the creation of a new Graph.
-            static uRef Create(uint32_t n);
+            static uRef Create(uint32_t n, Type ty = Undirected);
             /// \brief Parses the file \p filename into a Graph representation.
-            static uRef Read(std::string filepath);
+            static uRef Read(std::string filepath, Type ty = Undirected);
             /// \brief Parses the string \p graphStr into a Graph representation.
-            static uRef ReadString(std::string graphStr);
+            static uRef ReadString(std::string graphStr, Type ty = Undirected);
     };
 }
 

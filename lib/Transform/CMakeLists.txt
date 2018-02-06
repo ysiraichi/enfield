@@ -17,4 +17,5 @@ add_library (EfdTransform
     CNOTLBOWrapperPass.cpp
     SemanticVerifierPass.cpp
     ArchVerifierPass.cpp
-    Driver.cpp)
+    Driver.cpp
+    DependencyGraphBuilderPass.cpp)

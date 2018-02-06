@@ -7,6 +7,7 @@
 #include "enfield/Transform/ReverseEdgesPass.h"
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Transform/Allocators/Allocators.h"
+#include "enfield/Transform/DependencyGraphBuilderPass.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/Defs.h"
 
@@ -29,29 +30,20 @@ QModule::uRef efd::Compile(QModule::uRef qmod, CompilationSettings settings) {
     auto xbitPass = PassCache::Get<XbitToNumberWrapperPass>(qmod.get());
     auto xbitToNumber = xbitPass->getData(); 
 
-    std::shared_ptr<ArchGraph> archGraph;
-    if (settings.fileA == "" && HasArchitecture(settings.architecture)) {
-        archGraph = CreateArchitecture(settings.architecture);
-    } else if (settings.fileA != "") {
-        archGraph = ArchGraph::Read(settings.fileA);
-    } else {
-        ERR << "Architecture file: " << settings.fileA << " not found." << std::endl;
-    }
-
-    assert(xbitToNumber.getQSize() <= archGraph->size() &&
+    assert(xbitToNumber.getQSize() <= settings.archGraph->size() &&
             "Using more qbits than the maximum permitted by the architecture.");
 
-    auto allocPass = CreateQbitAllocator(settings.allocator, archGraph);
+    auto allocPass = CreateQbitAllocator(settings.allocator, settings.archGraph);
     allocPass->setInlineAll(settings.basis);
     PassCache::Run(qmod.get(), allocPass.get());
 
-    auto revPass = ReverseEdgesPass::Create(archGraph);
+    auto revPass = ReverseEdgesPass::Create(settings.archGraph);
     PassCache::Run(qmod.get(), revPass.get());
 
     if (settings.verify) {
         auto mapping = allocPass->getData().mInitial;
 
-        auto aVerifierPass = ArchVerifierPass::Create(archGraph);
+        auto aVerifierPass = ArchVerifierPass::Create(settings.archGraph);
         auto sVerifierPass = SemanticVerifierPass::Create(std::move(qmodCopy), mapping);
         sVerifierPass->setInlineAll(settings.basis);
 
@@ -102,4 +94,10 @@ QModule::uRef efd::ParseFile(std::string filepath) {
 
 void efd::PrintToStream(QModule::Ref qmod, std::ostream& o, bool pretty) {
     qmod->print(o, pretty);
+}
+
+void efd::PrintDependencyGraph(QModule::Ref qmod, std::ostream& o) {
+    auto depgraphPass = PassCache::Get<DependencyGraphBuilderPass>(qmod);
+    auto graph = depgraphPass->getData();
+    o << graph->dotify() << std::endl;
 }

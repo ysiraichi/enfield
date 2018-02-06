@@ -8,9 +8,8 @@
 namespace efd {
     /// \brief Required information in order to compile a \em QModule.
     struct CompilationSettings {
-        EnumArchitecture architecture;
+        ArchGraph::sRef archGraph;
         EnumAllocator allocator;
-        std::string fileA;
         std::vector<std::string> basis;
         bool reorder;
         bool verify;
@@ -28,6 +27,9 @@ namespace efd {
 
     /// \brief Print \p qmod to an standard output stream \p o.
     void PrintToStream(QModule::Ref qmod, std::ostream& o = std::cout, bool pretty = true);
+
+    /// \brief Print the dependency graph of the \p qmod in \p o.
+    void PrintDependencyGraph(QModule::Ref qmod, std::ostream& o = std::cout);
 }
 
 #endif

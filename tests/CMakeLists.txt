@@ -34,6 +34,9 @@ efd_test (PossibleValuesListTraitTests
 efd_test (BitOptionsTests
     EfdSupport)
 
+efd_test (GraphDotifyTests
+    EfdSupport)
+
 # ==-------- Analysis ----------==
 efd_test (ASTNodeTests
     EfdAnalysis EfdSupport)
@@ -92,6 +95,9 @@ efd_test (ArchVerifierPassTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 efd_test (LayersBuilderPassTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
+efd_test (DependencyGraphBuilderPassTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 # ==-------- Allocator ----------==

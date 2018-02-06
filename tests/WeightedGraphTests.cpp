@@ -43,7 +43,7 @@ TEST(GraphTests, DifferentWeightIntTest) {
 1 4 4\n\
 4 1 1\n\
 ";
-    auto graph = efd::WeightedGraph<int>::ReadString(gStr);
+    auto graph = efd::WeightedGraph<int>::ReadString(gStr, efd::Graph::Directed);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), (uint32_t) 5);
@@ -78,7 +78,7 @@ TEST(GraphTests, DoubleWeightTest) {
 1 4 4.1\n\
 4 1 3.14159\n\
 ";
-    auto graph = efd::WeightedGraph<double>::ReadString(gStr);
+    auto graph = efd::WeightedGraph<double>::ReadString(gStr, efd::Graph::Directed);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), (uint32_t) 5);
