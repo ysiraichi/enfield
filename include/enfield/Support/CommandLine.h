@@ -102,7 +102,7 @@ namespace efd {
 
     /// \brief Class used to declare the command line options available.
     template <typename T>
-    class Opt : OptBase {
+    class Opt : public OptBase {
         private:
             T mVal;
 
