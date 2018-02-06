@@ -27,6 +27,7 @@ namespace efd {
             uint32_t mVID;
 
             ArchGraph(uint32_t n, bool isGeneric = true);
+            std::string vertexToString(uint32_t i) const override;
 
         public:
             /// \brief Gets the node corresponding to the uid.

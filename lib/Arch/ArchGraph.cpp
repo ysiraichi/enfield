@@ -5,8 +5,24 @@
 #include <fstream>
 #include <sstream>
 
-efd::ArchGraph::ArchGraph(uint32_t n, bool isGeneric) : Graph(K_ARCH, n), mNodes(n),
-    mId(n, ""), mGeneric(isGeneric), mVID(0) {
+efd::ArchGraph::ArchGraph(uint32_t n, bool isGeneric)
+    : Graph(K_ARCH, n, Directed), mNodes(n), mId(n, ""), mGeneric(isGeneric), mVID(0) {}
+
+std::string efd::ArchGraph::vertexToString(uint32_t i) const {
+    auto vstr = getNode(i)->toString(false);
+    std::size_t pos;
+
+    pos = 0;
+    while ((pos = vstr.find(pos, '[')) != std::string::npos) {
+        vstr = vstr.erase(pos, 1);
+    }
+
+    pos = 0;
+    while ((pos = vstr.find(pos, ']')) != std::string::npos) {
+        vstr = vstr.erase(pos, 1);
+    }
+
+    return vstr;
 }
 
 efd::Node::Ref efd::ArchGraph::getNode(uint32_t i) const {
