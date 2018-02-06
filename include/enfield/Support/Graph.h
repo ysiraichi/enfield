@@ -67,7 +67,7 @@ namespace efd {
             bool isDirectedGraph() const;
 
             /// \brief Converts itself to a 'dot' graph representation.
-            std::string dotify(std::string name = "Graph") const;
+            std::string dotify(std::string name = "Dump") const;
 
             /// \brief Returns true if \p g is of this type.
             static bool ClassOf(const Graph* g);
