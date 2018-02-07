@@ -2,15 +2,15 @@
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/CommandLine.h"
+#include "enfield/Support/uRefCast.h"
 
 #include <fstream>
 #include <random>
 
 static efd::Opt<unsigned> Deps
 ("deps", "Number of dependencies.", 0, true);
-static efd::Opt<std::string> Arch
-("arch", "Name of the architechture, or a file \
-with the connectivity graph.", "IBMQX2", false);
+static efd::Opt<unsigned> Vertices
+("vert", "Number of vertices to be used.", 0, true);
 static efd::Opt<std::string> Out
 ("o", "Name of the output file.", "/dev/stdout", false);
 
@@ -18,21 +18,14 @@ int main(int argc, char **argv) {
     efd::InitializeAllArchitectures();
     efd::ParseArguments(argc, argv);
 
-    efd::ArchGraph* arch;
-    if (efd::HasArchitecture(Arch.getVal())) {
-        arch = efd::CreateArchitecture(Arch.getVal()).release();
-    } else {
-        arch = efd::ArchGraph::Read(Arch.getVal()).release();
-    }
-
-    auto nqbts = arch->size();
+    auto nqbts = Vertices.getVal();
     auto qmod = efd::QModule::Create();
 
-    for (auto it = arch->reg_begin(), end = arch->reg_end(); it != end; ++it) {
-        qmod->insertReg(efd::NDRegDecl::CreateQ(
-                    efd::NDId::Create(it->first),
-                    efd::NDInt::Create(std::to_string(it->second))));
-    }
+    auto regId = efd::NDId::Create("q");
+
+    qmod->insertReg(efd::NDRegDecl::CreateQ(
+                efd::uniqueCastForward<efd::NDId>(regId->clone()),
+                efd::NDInt::Create(std::to_string(nqbts))));
 
     std::ofstream o(Out.getVal());
     std::vector<std::pair<unsigned, unsigned>> edges;
@@ -53,8 +46,12 @@ int main(int argc, char **argv) {
         auto x = runit(rng);
         auto edge = edges[x];
 
-        auto lhs = arch->getNode(edge.first);
-        auto rhs = arch->getNode(edge.second);
+        auto lhs = efd::NDIdRef::Create(
+                efd::uniqueCastForward<efd::NDId>(regId->clone()),
+                efd::NDInt::Create(std::to_string(edge.first)));
+        auto rhs = efd::NDIdRef::Create(
+                efd::uniqueCastForward<efd::NDId>(regId->clone()),
+                efd::NDInt::Create(std::to_string(edge.second)));
 
         auto qargs = efd::NDList::Create();
         qargs->addChild(lhs->clone());
