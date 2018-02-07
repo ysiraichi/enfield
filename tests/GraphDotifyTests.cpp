@@ -33,7 +33,7 @@ TEST(GraphDotifyTests, UndirectedGraphTest) {
 1 4\n";
 
         const std::string result =
-"graph Graph {\n\
+"graph Dump {\n\
     0;\n\
     0 -- 1;\n\
     0 -- 2;\n\
@@ -59,7 +59,7 @@ TEST(GraphDotifyTests, UndirectedGraphTest) {
 4 1\n";
 
         const std::string result =
-"graph Graph {\n\
+"graph Dump {\n\
     0;\n\
     0 -- 1;\n\
     0 -- 2;\n\
@@ -86,7 +86,7 @@ TEST(GraphDotifyTests, DirectedGraphTest) {
 4 1\n";
 
         const std::string result =
-"digraph Graph {\n\
+"digraph Dump {\n\
     0;\n\
     0 -> 1;\n\
     1;\n\
@@ -112,7 +112,7 @@ TEST(GraphDotifyTests, DirectedGraphTest) {
 1 4\n";
 
         const std::string result =
-"digraph Graph {\n\
+"digraph Dump {\n\
     0;\n\
     0 -> 1;\n\
     0 -> 2;\n\
@@ -141,7 +141,7 @@ TEST(GraphDotifyTests, UndirectedWeightedGraphTest) {
 1 4 1\n";
 
         const std::string result =
-"graph Graph {\n\
+"graph Dump {\n\
     0;\n\
     0 -- 1[label=1];\n\
     0 -- 2[label=1];\n\
@@ -165,7 +165,7 @@ TEST(GraphDotifyTests, UndirectedWeightedGraphTest) {
 4 1 1\n";
 
         const std::string result =
-"graph Graph {\n\
+"graph Dump {\n\
     0;\n\
     0 -- 1[label=1];\n\
     0 -- 2[label=2];\n\
@@ -192,7 +192,7 @@ TEST(GraphDotifyTests, DirectedWeightedGraphTest) {
 1 3 1\n";
 
         const std::string result =
-"digraph Graph {\n\
+"digraph Dump {\n\
     0;\n\
     0 -> 1[label=1];\n\
     1;\n\
@@ -217,7 +217,7 @@ TEST(GraphDotifyTests, DirectedWeightedGraphTest) {
 2 4 3\n";
 
         const std::string result =
-"digraph Graph {\n\
+"digraph Dump {\n\
     0;\n\
     0 -> 1[label=1];\n\
     1;\n\
