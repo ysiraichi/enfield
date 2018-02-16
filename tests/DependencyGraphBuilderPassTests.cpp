@@ -50,7 +50,7 @@ qreg q[2];\
 CX q[0], q[1];\
 ";
         const std::string result =
-"digraph Graph {\n\
+"digraph Dump {\n\
     0;\n\
     0 -> 1[label=1];\n\
     1;\n\
@@ -70,7 +70,7 @@ CX q[4], q[0];\
 CX q[3], q[0];\
 ";
         const std::string result =
-"digraph Graph {\n\
+"digraph Dump {\n\
     0;\n\
     1;\n\
     1 -> 0[label=1];\n\
@@ -99,7 +99,7 @@ CX q[0], q[1];\
 CX q[0], q[1];\
 ";
         const std::string result =
-"digraph Graph {\n\
+"digraph Dump {\n\
     0;\n\
     0 -> 1[label=4];\n\
     1;\n\
@@ -126,7 +126,7 @@ CX q[4], q[0];\
 CX q[3], q[0];\
 ";
         const std::string result =
-"digraph Graph {\n\
+"digraph Dump {\n\
     0;\n\
     1;\n\
     1 -> 0[label=1];\n\
@@ -153,7 +153,7 @@ gate test a, b, c {CX a, b;CX a, c;CX b, c;}\
 test q[0], q[1], q[2];\
 ";
         const std::string result =
-"digraph Graph {\n\
+"digraph Dump {\n\
     0;\n\
     0 -> 1[label=1];\n\
     0 -> 2[label=1];\n\
@@ -175,7 +175,7 @@ test q[0], q[1], q[2];\
 test q[3], q[4], q[2];\
 ";
         const std::string result =
-"digraph Graph {\n\
+"digraph Dump {\n\
     0;\n\
     0 -> 1[label=1];\n\
     0 -> 2[label=1];\n\
@@ -199,7 +199,7 @@ test q[0], q[1], q[2];\
 test q[4], q[1], q[0];\
 ";
         const std::string result =
-"digraph Graph {\n\
+"digraph Dump {\n\
     0;\n\
     0 -> 1[label=1];\n\
     0 -> 2[label=1];\n\

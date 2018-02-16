@@ -9,9 +9,17 @@
 #include "enfield/Transform/Allocators/Allocators.h"
 #include "enfield/Transform/DependencyGraphBuilderPass.h"
 #include "enfield/Arch/Architectures.h"
+#include "enfield/Support/Stats.h"
 #include "enfield/Support/Defs.h"
 
 using namespace efd;
+
+static Stat<uint32_t> StatNofEdges
+("DGEdges", "Number of edges in the dependency graph.");
+static Stat<uint32_t> StatNofVertices
+("DGVertices", "Number of vertices in the dependency graph.");
+static Stat<double> StatDepGraphDensity
+("DGDensity", "Density of the dependency graph.");
 
 QModule::uRef efd::Compile(QModule::uRef qmod, CompilationSettings settings) {
     bool success = true;
@@ -100,4 +108,13 @@ void efd::PrintDependencyGraph(QModule::Ref qmod, std::ostream& o) {
     auto depgraphPass = PassCache::Get<DependencyGraphBuilderPass>(qmod);
     auto graph = depgraphPass->getData();
     o << graph->dotify() << std::endl;
+
+    StatNofVertices = graph->size();
+    StatNofEdges = 0;
+
+    for (uint32_t i = 0, e = graph->size(); i < e; ++i)
+        StatNofEdges += graph->succ(i).size();
+
+    StatDepGraphDensity = ((double) StatNofEdges.getVal()) /
+        ((double) StatNofVertices.getVal() * StatNofVertices.getVal());
 }
