@@ -33,11 +33,18 @@ namespace efd {
             };
 
             typedef std::vector<CandPair> CandidatesTy;
-            CandidatesTy extendCandidates(Dep& dep, std::vector<bool>& mapped,
-                                          CandidatesTy& candidates, bool isFirst = false);
+            typedef std::vector<std::vector<uint32_t>> Matrix;
+
+
+            CandidatesTy extendCandidates(Dep& dep,
+                                          std::vector<bool>& mapped,
+                                          CandidatesTy& candidates,
+                                          bool isFirst = false);
             uint32_t assignNonMappedVQubit(uint32_t u, Assign& assign, std::vector<bool>& notMapped);
             TKSResult process(Mapping& last, Mapping& current);
             uint32_t getNearest(uint32_t u, Assign& assign);
+
+            uint32_t estimateCost(Mapping& previous, Mapping& current, Matrix& distance);
 
         public:
             /// \brief Create a new instance of this class.
