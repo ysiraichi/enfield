@@ -19,18 +19,46 @@ static Opt<uint32_t> MaxPartialSolutions
 ("-bsi-max-partial", "Limits the max number of partial solutions per step.",
  std::numeric_limits<uint32_t>::max(), false);
 
+namespace bsi {
+    struct TracebackInfo {
+        Mapping m;
+        uint32_t parent;
+        uint32_t cost;
+    };
+}
+
+static std::vector<uint32_t> CalculateDistance(uint32_t u, efd::ArchGraph::Ref graph) {
+    uint32_t size = graph->size();
+    std::vector<uint32_t> distance(size, _undef);
+    std::queue<uint32_t> q;
+    std::vector<bool> visited(size, false);
+
+    q.push(u);
+    visited[u] = true;
+    distance[u] = 0;
+
+    while (!q.empty()) {
+        uint32_t u = q.front();
+        q.pop();
+
+        for (uint32_t v : graph->adj(u)) {
+            if (!visited[v]) {
+                visited[v] = true;
+                distance[v] = distance[u] + 1;
+                q.push(v);
+            }
+        }
+    }
+
+    return distance;
+}
+
 BoundedSIDepSolver::BoundedSIDepSolver(ArchGraph::sRef archGraph)
     : DepSolverQAllocator(archGraph) {}
 
 BoundedSIDepSolver::uRef BoundedSIDepSolver::Create(ArchGraph::sRef archGraph) {
     return uRef(new BoundedSIDepSolver(archGraph));
 }
-
-struct TracebackInfo {
-    Mapping m;
-    uint32_t parent;
-    uint32_t cost;
-};
 
 Solution BoundedSIDepSolver::solve(DepsSet& deps) {
     Solution sol;
@@ -43,6 +71,11 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
     CandidatesTy candidates { { Mapping(mVQubits, _undef), 0 } };
     std::vector<CandidatesTy> candidatesCollection;
     std::vector<bool> mapped(mVQubits, false);
+
+    Matrix distance(mPQubits, std::vector<uint32_t>(mPQubits, _undef));
+    for (uint32_t i = 0; i < mPQubits; ++i) {
+        distance[i] = CalculateDistance(i, mArchGraph.get());
+    }
 
     bool isFirst = true;
 
@@ -96,8 +129,8 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
     INF << "MaxSize: " << layerMaxSize << std::endl;
 
     if (nofLayers > 0) {
-        std::vector<std::vector<TracebackInfo>> mem
-            (nofLayers, std::vector<TracebackInfo>(layerMaxSize, { {}, _undef, _undef }));
+        std::vector<std::vector<bsi::TracebackInfo>> mem
+            (nofLayers, std::vector<bsi::TracebackInfo>(layerMaxSize, { {}, _undef, _undef }));
 
         for (uint32_t i = 0, e = candidatesCollection[0].size(); i < e; ++i)
             mem[0][i] = { candidatesCollection[0][i].m, _undef, candidatesCollection[0][i].cost };
@@ -107,32 +140,33 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
             uint32_t jLayerSize = candidatesCollection[i].size();
             for (uint32_t j = 0; j < jLayerSize; ++j) {
                 Timer jt;
-
                 jt.start();
-                TracebackInfo best = { {}, _undef, _undef };
+
+                bsi::TracebackInfo best = { {}, _undef, _undef };
                 uint32_t kLayerSize = candidatesCollection[i - 1].size();
 
                 for (uint32_t k = 0; k < kLayerSize; ++k) {
-                    auto r = process(mem[i - 1][k].m, candidatesCollection[i][j].m);
+                    auto candidate = candidatesCollection[i][j].m;
 
-                    uint32_t newCost = mem[i - 1][k].cost + candidatesCollection[i][j].cost
-                        + (r.swaps.size() * SwapCost.getVal());
+                    uint32_t cost = estimateCost(mem[i - 1][k].m, candidate, distance);
+                    cost += mem[i - 1][k].cost;
 
-                    if (newCost < best.cost)
-                        best = { r.newCurrent, k, newCost };
+                    if (cost < best.cost) {
+                        best = { candidate, k, cost };
+                    }
                 }
 
                 mem[i][j] = best;
-                jt.stop();
 
-                // INF << "(i:" << i << ", j:" << j << "): "
-                //     << ((double) jt.getMilliseconds()) / 1000.0 << std::endl;
+                jt.stop();
+                INF << "(i:" << i << ", j:" << j << "): "
+                    << ((double) jt.getMilliseconds()) / 1000.0 << std::endl;
             }
 
             INF << "End: " << i << " of " << nofLayers << " layers." << std::endl;
         }
 
-        TracebackInfo best = { {}, _undef, _undef };
+        bsi::TracebackInfo best = { {}, _undef, _undef };
         uint32_t lastLayer = nofLayers - 1;
 
         for (uint32_t i = 0, e = candidatesCollection[lastLayer].size(); i < e; ++i) {
@@ -140,32 +174,34 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
                 best = mem[lastLayer][i];
         }
 
-        sol.mCost = best.cost;
-        std::stack<TracebackInfo> infoStack;
+        std::vector<bsi::TracebackInfo> infoVector;
 
         {
             // Here, we populate the stack of TracebackInfo.
             // Doing so, the one that is in the top is the one that should be used
             // sooner.
-            TracebackInfo info = best;
+            bsi::TracebackInfo info = best;
 
             for (int32_t i = nofLayers - 1; i >= 0; --i) {
-                infoStack.push(info);
+                infoVector.push_back(info);
 
                 if (info.parent != _undef)
                     info = mem[i - 1][info.parent];
             }
+
+            std::reverse(infoVector.begin(), infoVector.end());
         }
 
         // Third Phase:
         //     build the operations vector by tracebacking from the solution we have
         //     found. For this, we have to go through every dependency again.
-        auto info = infoStack.top();
-        infoStack.pop();
+        uint32_t idx = 0;
+        auto info = infoVector[0];
 
-        sol.mInitial = info.m;
+        Mapping realToDummy = infoVector[0].m;
+        Mapping dummyToPhys = IdentityMapping(mPQubits);
         for (auto& iDependencies : deps) {
-            // Here, we are sure that there are no instruction dependency that has more than
+            // We are sure that there are no instruction dependency that has more than
             // one dependency.
             if (iDependencies.getSize() < 1)
                 continue;
@@ -182,31 +218,61 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
             if ((u == _undef || v == _undef) ||
                 (!mArchGraph->hasEdge(u, v) && !mArchGraph->hasEdge(v, u))) {
 
-                if (infoStack.empty()) {
+                if (++idx >= infoVector.size()) {
                     ERR << "Not enough mappings were generated, maybe!?" << std::endl;
                     ERR << "Mapping for '" << iDependencies.mCallPoint->toString(false)
                         << "'." << std::endl;
                     std::exit(static_cast<uint32_t>(ExitCode::EXIT_unreachable));
                 }
 
-                auto newInfo = infoStack.top();
-                infoStack.pop();
+                auto newInfo = infoVector[idx];
 
-                auto r = process(info.m, newInfo.m);
+                // Transform all mappings into dummy mappings.
+                auto prev = Mapping(mVQubits, _undef);
+                auto curr = Mapping(mVQubits, _undef);
 
-                auto last = r.newLast;
-                auto assign = GenAssignment(mPQubits, r.newLast, false);
+                for (uint32_t i = 0; i < mVQubits; ++i) {
+                    if (info.m[i] != _undef && newInfo.m[i] == _undef) {
+                        ERR << "Assumption that previous mappings have same mapped qubits "
+                            << "than current mapping broken." << std::endl;
+                        std::exit(static_cast<uint32_t>(ExitCode::EXIT_unreachable));
+                    }
 
-                for (auto swp : r.swaps) {
+                    if (info.m[i] != _undef) {
+                        prev[realToDummy[i]] = info.m[i];
+                        curr[realToDummy[i]] = newInfo.m[i];
+                    }
+                }
+
+                auto prevAssign = GenAssignment(mPQubits, prev, false);
+                auto currAssign = GenAssignment(mPQubits, curr, false);
+
+                ApproxTSFinder finder(mArchGraph);
+                auto swaps = finder.find(prevAssign, currAssign);
+
+                auto assign = GenAssignment(mPQubits, dummyToPhys);
+
+                INF << "From " << MappingToString(info.m) << " to " << MappingToString(newInfo.m) << std::endl;
+
+                for (auto swp : swaps) {
                     uint32_t a = assign[swp.u], b = assign[swp.v];
-                    std::swap(last[a], last[b]);
+
+                    if (!mArchGraph->hasEdge(swp.u, swp.v)) {
+                        std::swap(a, b);
+                    }
+
                     std::swap(assign[swp.u], assign[swp.v]);
+                    std::swap(dummyToPhys[a], dummyToPhys[b]);
                     opVector.push_back({ Operation::K_OP_SWAP, a, b });
                 }
 
-                for (uint32_t i = 0; i < mVQubits; ++i)
-                    if (sol.mInitial[i] == _undef && r.newLast[i] != _undef)
-                        sol.mInitial[i] = r.newLast[i];
+                sol.mCost += (SwapCost.getVal() * swaps.size());
+
+                for (uint32_t i = 0; i < mVQubits; ++i) {
+                    if (realToDummy[i] == _undef && newInfo.m[i] != _undef) {
+                        realToDummy[i] = assign[newInfo.m[i]];
+                    }
+                }
 
                 info = newInfo;
             }
@@ -222,6 +288,7 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
                 op.mK = Operation::K_OP_CNOT;
             } else if (mArchGraph->hasEdge(v, u)) {
                 op.mK = Operation::K_OP_REV;
+                sol.mCost += RevCost.getVal();
             } else {
                 ERR << "Mapping " << MappingToString(info.m) << " not able to satisfy dependency "
                     << "(" << a << "{" << u << "}, " << b << "{" << v << "})" << std::endl;
@@ -231,14 +298,24 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
             opVector.push_back(op);
             sol.mOpSeqs.push_back(std::make_pair(iDependencies.mCallPoint, opVector));
         }
-    }
 
-    auto initialAssign = GenAssignment(mPQubits, sol.mInitial);
-    for (uint32_t i = 0; i < mVQubits; ++i)
-        if (sol.mInitial[i] == _undef) {
-            auto it = std::find(initialAssign.begin(), initialAssign.end(), i);
-            sol.mInitial[i] = std::distance(initialAssign.begin(), it);
+        Fill(mVQubits, realToDummy);
+        sol.mInitial = realToDummy;
+
+        auto dummyToReal = GenAssignment(mVQubits, realToDummy, false);
+
+        // Transforming swaps from dummy to real.
+        for (auto& pair : sol.mOpSeqs) {
+            for (auto& op : pair.second) {
+                if (op.mK == Operation::K_OP_SWAP) {
+                    op.mU = dummyToReal[op.mU];
+                    op.mV = dummyToReal[op.mV];
+                }
+            }
         }
+    } else {
+        Fill(mVQubits, sol.mInitial);
+    }
 
     return sol;
 }
@@ -257,6 +334,43 @@ uint32_t BoundedSIDepSolver::assignNonMappedVQubit(uint32_t u,
     assign[u] = idx;
     notMapped[idx] = false;
     return idx;
+}
+
+uint32_t BoundedSIDepSolver::estimateCost(Mapping& previous,
+                                          Mapping& current,
+                                          Matrix& distance) {
+    auto prevAssign = GenAssignment(mPQubits, previous, false);
+    auto curAssign = GenAssignment(mPQubits, current, false);
+
+    for (uint32_t i = 0; i < mVQubits; ++i) {
+        if (current[i] != _undef && previous[i] == _undef) {
+            if (prevAssign[current[i]] == _undef) {
+                previous[i] = current[i];
+            } else {
+                previous[i] = getNearest(current[i], prevAssign);
+            }
+
+            prevAssign[previous[i]] = i;
+        } else if (current[i] == _undef && previous[i] != _undef) {
+            if (curAssign[previous[i]] == _undef) {
+                current[i] = previous[i];
+            } else {
+                current[i] = getNearest(previous[i], curAssign);
+            }
+
+            curAssign[current[i]] = i;
+        }
+    }
+
+    uint32_t totalDistance = 0;
+
+    for (uint32_t i = 0; i < mVQubits; ++i) {
+        if (current[i] != _undef) {
+            totalDistance += distance[previous[i]][current[i]];
+        }
+    }
+
+    return totalDistance;
 }
 
 BoundedSIDepSolver::TKSResult BoundedSIDepSolver::process(Mapping& last, Mapping& current) {
