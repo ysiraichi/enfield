@@ -320,22 +320,6 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
     return sol;
 }
 
-uint32_t BoundedSIDepSolver::assignNonMappedVQubit(uint32_t u,
-                                                   Assign& assign,
-                                                   std::vector<bool>& notMapped) {
-    uint32_t idx = 0;
-    while (idx < mVQubits && !notMapped[idx]) ++idx;
-    
-    if (idx >= mVQubits) {
-        ERR << "Not found virtual qubits for allocating." << std::endl;
-        std::exit(static_cast<uint32_t>(ExitCode::EXIT_unreachable));
-    }
-    
-    assign[u] = idx;
-    notMapped[idx] = false;
-    return idx;
-}
-
 uint32_t BoundedSIDepSolver::estimateCost(Mapping& previous,
                                           Mapping& current,
                                           Matrix& distance) {
@@ -371,73 +355,6 @@ uint32_t BoundedSIDepSolver::estimateCost(Mapping& previous,
     }
 
     return totalDistance;
-}
-
-BoundedSIDepSolver::TKSResult BoundedSIDepSolver::process(Mapping& last, Mapping& current) {
-    Timer pt, ft;
-
-    pt.start();
-    TKSResult r { {}, current, last };
-    auto assign = GenAssignment(mPQubits, r.newLast, false);
-
-    // 1. We create a new 'last' mapping that will contain only the mappings relevant to
-    // 'current'. This way we do not constrain the position of irrelevant qubits.
-    for (uint32_t i = 0; i < mVQubits; ++i) {
-        if (r.newCurrent[i] != _undef && r.newLast[i] == _undef) {
-            r.newLast[i] = getNearest(r.newCurrent[i], assign);
-            assign[r.newLast[i]] = i;
-        } else if (r.newCurrent[i] == _undef) r.newLast[i] = _undef;
-    }
-
-    ApproxTSFinder finder(mArchGraph);
-    auto lastAssign = GenAssignment(mPQubits, r.newLast, false);
-    auto currentAssign = GenAssignment(mPQubits, r.newCurrent, false);
-
-    ft.start();
-    r.swaps = finder.find(lastAssign, currentAssign);
-    ft.stop();
-
-    // 2. Retrieval of the 'irrelevant' qubits, so that we maintain consistency.
-    for (uint32_t i = 0; i < mVQubits; ++i) {
-        if (last[i] != _undef) r.newLast[i] = last[i];
-    }
-
-    r.newCurrent = r.newLast;
-    assign = GenAssignment(mPQubits, r.newCurrent, false);
-
-    std::vector<bool> notMapped(mVQubits, false);
-
-    for (uint32_t i = 0; i < mVQubits; ++i)
-        if (r.newCurrent[i] == _undef)
-            notMapped[i] = true;
-
-    // 3. Application of the necessary swaps in order to reach 'current' with the irrelevant
-    // qubits.
-    for (auto swp : r.swaps) {
-        std::array<std::pair<uint32_t, uint32_t>, 2> arr = {{
-            { assign[swp.u], swp.u }, { assign[swp.v], swp.v }
-        }};
-
-        // If some of the vertices we are using for swaps are still not defined, we should
-        // define those (up until now, we are doing it greedly)!
-        for (auto& pair : arr) {
-            if (pair.first != _undef) continue;
-            pair.first = assignNonMappedVQubit(pair.second, assign, notMapped);
-            r.newLast[pair.first] = pair.second;
-            r.newCurrent[pair.first] = pair.second;
-        }
-
-        uint32_t a = arr[0].first, b = arr[1].first;
-        uint32_t u = arr[0].second, v = arr[1].second;
-
-        std::swap(r.newCurrent[a], r.newCurrent[b]);
-        std::swap(assign[u], assign[v]);
-    }
-
-    pt.stop();
-    // INF << "(" << ((double) ft.getMicroseconds()) / 1000000.0 << ", "
-    //     << ((double) pt.getMicroseconds()) / 1000000.0 << ")" << std::endl;
-    return r;
 }
 
 uint32_t BoundedSIDepSolver::getNearest(uint32_t u, Assign& assign) {
