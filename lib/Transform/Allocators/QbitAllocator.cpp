@@ -332,8 +332,7 @@ void efd::QbitAllocator::setDontInline() {
     mInlineAll = false;
 }
 
-efd::QbitAllocator::Mapping efd::GenAssignment
-(uint32_t archQ, QbitAllocator::Mapping mapping, bool fill) {
+efd::Assign efd::GenAssignment(uint32_t archQ, Mapping mapping, bool fill) {
     uint32_t progQ = mapping.size();
     // 'archQ' is the number of qubits from the architecture.
     std::vector<uint32_t> assign(archQ, _undef);
@@ -346,17 +345,43 @@ efd::QbitAllocator::Mapping efd::GenAssignment
 
     if (fill) {
         // Fill the qubits in the architecture that were not mapped.
-        uint32_t a = 0, u = 0;
-
-        do {
-            while (a < progQ && mapping[a] != _undef) ++a;
-            while (u < archQ && assign[u] != _undef) ++u;
-            assign[u] = a;
-            ++u; ++a;
-        } while (u < archQ);
+        Fill(mapping, assign);
     }
 
     return assign;
+}
+
+void efd::Fill(Mapping& mapping, Assign& assign) {
+    uint32_t progQ = mapping.size(), archQ = assign.size();
+    uint32_t a = 0, u = 0;
+
+    do {
+        while (a < progQ && mapping[a] != _undef) ++a;
+        while (u < archQ && assign[u] != _undef) ++u;
+
+        if (u < archQ && a < progQ) {
+            mapping[a] = u;
+            assign[u] = a;
+            ++u; ++a;
+        } else {
+            break;
+        }
+    } while (true);
+}
+
+void efd::Fill(uint32_t archQ, Mapping& mapping) {
+    auto assign = GenAssignment(archQ, mapping, false);
+    Fill(mapping, assign);
+}
+
+efd::Mapping efd::IdentityMapping(uint32_t progQ) {
+    Mapping mapping(progQ, _undef);
+
+    for (uint32_t i = 0; i < progQ; ++i) {
+        mapping[i] = i;
+    }
+
+    return mapping;
 }
 
 std::string efd::MappingToString(Mapping m) {

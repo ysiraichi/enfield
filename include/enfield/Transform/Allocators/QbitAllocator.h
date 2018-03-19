@@ -90,8 +90,14 @@ namespace efd {
 
     /// \brief Generates an assignment mapping (maps the architecture's qubits
     /// to the logical ones) of size \p archQ.
-    QbitAllocator::Mapping GenAssignment(uint32_t archQ, QbitAllocator::Mapping mapping,
-                                         bool fill = true);
+    Assign GenAssignment(uint32_t archQ, Mapping mapping, bool fill = true);
+
+    /// \brief Fills the unmapped qubits with the ones missing.
+    void Fill(uint32_t archQ, Mapping& mapping);
+    void Fill(Mapping& mapping, Assign& assign);
+
+    /// \brief Returns an identity mapping.
+    Mapping IdentityMapping(uint32_t progQ);
 
     /// \brief Prints the mapping \p m to a string and returns it.
     std::string MappingToString(Mapping m);
