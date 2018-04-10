@@ -1,4 +1,5 @@
 #include "enfield/Arch/ArchGraph.h"
+#include "enfield/Analysis/Nodes.h"
 #include "enfield/Support/RTTI.h"
 
 #include <cassert>
@@ -96,13 +97,27 @@ std::unique_ptr<efd::ArchGraph> efd::ArchGraph::Create(uint32_t n) {
 }
 
 static std::unique_ptr<efd::ArchGraph> ReadFromIn(std::istream& in) {
-    uint32_t n;
-    in >> n;
+    uint32_t regs, qubits;
+    in >> regs >> qubits;
 
-    std::unique_ptr<efd::ArchGraph> graph(efd::ArchGraph::Create(n));
+    std::unique_ptr<efd::ArchGraph> graph(efd::ArchGraph::Create(qubits));
+
+    for (uint32_t rid = 0; rid < regs; ++rid) {
+        uint32_t regsize;
+        std::string regname;
+        in >> regname >> regsize;
+
+        auto ndID = efd::NDId::Create(regname);
+        for (uint32_t i = 0; i < regsize; ++i) {
+            auto ndN = efd::NDInt::Create(std::to_string(i));
+            auto ndIDCpy = efd::dynCast<efd::NDId>(ndID->clone().release());
+            graph->putVertex(efd::NDIdRef::Create(efd::NDId::uRef(ndIDCpy), std::move(ndN)));
+        }
+    }
+
     for (std::string uS, vS; in >> uS >> vS;) {
-        uint32_t u = graph->putVertex(uS);
-        uint32_t v = graph->putVertex(vS);
+        uint32_t u = graph->getUId(uS);
+        uint32_t v = graph->getUId(vS);
         graph->putEdge(u, v);
     }
 

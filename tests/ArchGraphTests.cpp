@@ -9,7 +9,8 @@ using namespace efd;
 TEST(ArchGraphTests, TreeCreationTest) {
     const std::string gStr =
 "\
-5\n\
+1 5\n\
+q 5\n\
 q[0] q[1]\n\
 q[0] q[2]\n\
 q[1] q[3]\n\
@@ -33,7 +34,8 @@ q[1] q[4]\n\
 TEST(ArchGraphTests, SomeReverseEdgesTest) {
     const std::string gStr =
 "\
-5\n\
+1 5\n\
+q 5\n\
 q[0] q[1]\n\
 q[1] q[0]\n\
 q[0] q[2]\n\

@@ -17,7 +17,8 @@ static ArchGraph::sRef getGraph() {
     if (g.get() != nullptr) return g;
     const std::string gStr =
 "\
-5\n\
+1 5\n\
+q 5\n\
 q[0] q[1]\n\
 q[1] q[2]\n\
 q[0] q[2]\n\
