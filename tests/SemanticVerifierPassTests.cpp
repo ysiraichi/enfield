@@ -67,6 +67,56 @@ CX q[1], q[2];\
     }
 }
 
+TEST(SemanticVerifierPassTests, BarrierProgram) {
+    {
+        const std::string progBefore =
+"\
+qreg q[5];\
+barrier q[0], q[1];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+qreg q[5];\
+barrier q[1], q[2];\
+";
+
+        Mapping mapping { 1, 2, 0, 3, 4 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        EXPECT_TRUE(areSemanticalyEqual);
+    }
+
+    {
+        const std::string progBefore =
+"\
+qreg q[5];\
+barrier q[2], q[1];\
+barrier q[2], q[0];\
+barrier q[1], q[0];\
+barrier q[4], q[3];\
+barrier q[4], q[0];\
+barrier q[3], q[0];\
+";
+        const std::string progAfter =
+"\
+include \"qelib1.inc\";\
+qreg q[5];\
+barrier q[3], q[4];\
+barrier q[3], q[2];\
+barrier q[4], q[2];\
+barrier q[0], q[1];\
+barrier q[0], q[2];\
+barrier q[1], q[2];\
+";
+
+        Mapping mapping { 2, 4, 3, 1, 0 };
+        bool areSemanticalyEqual = CheckSemanticVerifier(progBefore, progAfter, mapping);
+
+        EXPECT_TRUE(areSemanticalyEqual);
+    }
+}
+
 TEST(SemanticVerifierPassTests, ProgramWithGatesTest) {
     {
         const std::string progBefore =

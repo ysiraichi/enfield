@@ -218,26 +218,36 @@ void SemanticVerifierVisitor::visitNDQOp(NDQOp::Ref tgtQOp, NDIfStmt::Ref tgtIfS
     // If this operation deals with more than one qubit, we assume it deals with exactly two
     // qubits, and that it is a CNOT gate.
     if (srcOpQubits.size() > 1) {
-        assert(IsCNOTGateCall(srcQOp) && "SemanticVerifier only handles CNOT gates.");
+        if (IsCNOTGateCall(srcQOp)) {
+            // Both CNOTs and REV_CNOTS have the same semantic.
+            // The only difference is in the way they are implemented. 
+            SemanticCNOT srcCNOT { srcOpQubits[0], srcOpQubits[1] };
+            SemanticCNOT tgtCNOT { tgtOpQubits[0], tgtOpQubits[1] };
 
-        // Both CNOTs and REV_CNOTS have the same semantic.
-        // The only difference is in the way they are implemented. 
-        SemanticCNOT srcCNOT { srcOpQubits[0], srcOpQubits[1] };
-        SemanticCNOT tgtCNOT { tgtOpQubits[0], tgtOpQubits[1] };
+            if (!IsCNOTGateCall(tgtQOp)) {
+                auto tgtQOpGen = dynCast<NDQOpGen>(tgtQOp);
 
-        if (!IsCNOTGateCall(tgtQOp)) {
-            auto tgtQOpGen = dynCast<NDQOpGen>(tgtQOp);
-
-            // Checking for intrinsics.
-            if (tgtQOpGen && tgtQOpGen->isIntrinsic() &&
-                    tgtQOpGen->getIntrinsicKind() == NDQOpGen::K_INTRINSIC_LCX) {
-                    tgtCNOT.u = tgtOpQubits[0];
-                    tgtCNOT.v = tgtOpQubits[2];
+                // Checking for intrinsics.
+                if (tgtQOpGen && tgtQOpGen->isIntrinsic() &&
+                        tgtQOpGen->getIntrinsicKind() == NDQOpGen::K_INTRINSIC_LCX) {
+                        tgtCNOT.u = tgtOpQubits[0];
+                        tgtCNOT.v = tgtOpQubits[2];
+                }
             }
-        }
 
-        // Check if, semanticaly, CNOTs are applied to the same qubits in the same order.
-        mSuccess = mSuccess && srcCNOT == tgtCNOT;
+            // Check if, semanticaly, CNOTs are applied to the same qubits in the same order.
+            mSuccess = mSuccess && srcCNOT == tgtCNOT;
+
+        } else if (instanceOf<NDQOpBarrier>(srcQOp)) {
+
+            auto src = dynCast<NDQOpBarrier>(srcQOp);
+            auto tgt = dynCast<NDQOpBarrier>(tgtQOp);
+
+            mSuccess = src->getQArgs()->getChildNumber() == tgt->getQArgs()->getChildNumber();
+
+        } else {
+            assert(false && "Node is neither CNOT nor Barrier.");
+        }
 
     } else {
         if (tgtIfStmt != nullptr)
