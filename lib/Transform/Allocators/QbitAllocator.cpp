@@ -266,18 +266,18 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
         // -----------------------------------------------------
     }
 
-    if (!mArchGraph->isGeneric()) {
-        // Setting up timer ----------------
-        timer.start();
-        // ---------------------------------
+    // Replacing all declared registers to the registers declared in the
+    // architecture graph.
+    // Setting up timer ----------------
+    timer.start();
+    // ---------------------------------
 
-        replaceWithArchSpecs();
+    replaceWithArchSpecs();
 
-        // Stopping timer and setting the stat -----------------
-        timer.stop();
-        ReplaceTime = ((double) timer.getMicroseconds() / 1000000.0);
-        // -----------------------------------------------------
-    }
+    // Stopping timer and setting the stat -----------------
+    timer.stop();
+    ReplaceTime = ((double) timer.getMicroseconds() / 1000000.0);
+    // -----------------------------------------------------
 
     // Getting the new information, since it can be the case that the qmodule
     // was modified.
