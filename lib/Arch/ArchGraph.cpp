@@ -53,7 +53,7 @@ uint32_t efd::ArchGraph::putVertex(Node::uRef node) {
 }
 
 void efd::ArchGraph::putReg(std::string id, std::string size) {
-    mRegs[id] = std::stoul(size);
+    mRegs.push_back(std::make_pair(id, std::stoul(size)));
 }
 
 uint32_t efd::ArchGraph::getUId(std::string s) {
@@ -108,6 +108,7 @@ static std::unique_ptr<efd::ArchGraph> ReadFromIn(std::istream& in) {
         in >> regname >> regsize;
 
         auto ndID = efd::NDId::Create(regname);
+        graph->putReg(regname, std::to_string(regsize));
         for (uint32_t i = 0; i < regsize; ++i) {
             auto ndN = efd::NDInt::Create(std::to_string(i));
             auto ndIDCpy = efd::dynCast<efd::NDId>(ndID->clone().release());
