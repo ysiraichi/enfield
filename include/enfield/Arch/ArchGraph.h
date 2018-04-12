@@ -13,7 +13,7 @@ namespace efd {
             typedef std::unique_ptr<ArchGraph> uRef;
             typedef std::shared_ptr<ArchGraph> sRef;
 
-            typedef std::unordered_map<std::string, uint32_t> RegsVector;
+            typedef std::vector<std::pair<std::string, uint32_t>> RegsVector;
             typedef RegsVector::iterator RegsIterator;
 
         protected:
