@@ -9,7 +9,7 @@
 
 namespace efd {
     class QModule;
-    typedef std::set<Node::Ref> Layer;
+    typedef std::vector<Node::Ref> Layer;
     typedef std::vector<Layer> Layers;
 
     /// \brief Create the layers of the 'QModule'.
