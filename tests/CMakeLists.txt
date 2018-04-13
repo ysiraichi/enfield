@@ -100,6 +100,9 @@ efd_test (LayersBuilderPassTests
 efd_test (DependencyGraphBuilderPassTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
+efd_test (CircuitGraphTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
 # ==-------- Allocator ----------==
 efd_test (DynprogDepSolverTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)

@@ -31,24 +31,47 @@ namespace efd {
 
     /// \brief The Circuit representation of the \em QModule.
     class CircuitGraph {
-        private:
+        public:
             /// \brief Representation of a quantum operation.
             struct CircuitNode {
-                enum class Type { INPUT, OUTPUT, GATE };
+                public:
+                    typedef CircuitNode* Ref;
+                    typedef std::unique_ptr<CircuitNode> uRef;
+                    typedef std::shared_ptr<CircuitNode> sRef;
 
-                typedef CircuitNode* Ref;
-                typedef std::unique_ptr<CircuitNode> uRef;
-                typedef std::shared_ptr<CircuitNode> sRef;
+                private:
+                    enum class Type { INPUT, OUTPUT, GATE };
 
-                Type mType;
-                Node::Ref mNode;
-                std::unordered_map
-                    <uint32_t, std::pair<CircuitNode::sRef, CircuitNode::sRef>>
-                    mStepMap;
+                    Type mType;
+                    Node::Ref mNode;
+                    std::unordered_map
+                        <uint32_t, std::pair<CircuitNode::sRef, CircuitNode::sRef>>
+                        mStepMap;
 
-                CircuitNode(Type type);
+                    CircuitNode(Type type);
+
+                public:
+                    /// \brief Returns the \em Node::Ref associated with this circuit node.
+                    Node::Ref node();
+
+                    /// \brief Returns the number of \p Xbit's in this node.
+                    uint32_t numberOfXbits();
+
+                    /// \brief True if this node has reached the end (output node).
+                    bool isOutputNode();
+                    /// \brief True if this node is in the beginning (input node).
+                    bool isInputNode();
+                    /// \brief True if this node is in the middle (gate node).
+                    bool isGateNode();
+
+                    /// \brief Returns the \p Xbit ID's in this node.
+                    std::vector<uint32_t> getXbitsIds();
+
+                    friend class CircuitGraph;
             };
 
+        private:
+            bool mInit;
             uint32_t mQubits;
             uint32_t mCbits;
             std::vector<CircuitNode::sRef> mGraphHead;
@@ -71,22 +94,34 @@ namespace efd {
 
                     /// \brief Advances the bit \p xbit.
                     bool next(Xbit xbit);
+                    bool next(uint32_t id);
                     /// \brief Retreats the bit \p xbit.
                     bool back(Xbit xbit);
+                    bool back(uint32_t id);
                     /// \brief Returns the \p Node::Ref for the bit \p xbit.
                     Node::Ref get(Xbit xbit);
+                    Node::Ref get(uint32_t id);
 
-                    /// \brief True if all bits have reached the end.
-                    bool endOfCircuit();
-                    /// \brief True if \p xbit has reached the end.
-                    bool endOfCircuit(Xbit xbit);
-                    /// \brief True if \p xbit is in the beginning.
-                    bool beginningOfCircuit(Xbit xbit);
+                    CircuitNode::sRef operator[](Xbit xbit);
+                    CircuitNode::sRef operator[](uint32_t id);
 
                     friend class CircuitGraph;
             };
 
+            CircuitGraph();
             CircuitGraph(uint32_t qubits, uint32_t cbits);
+
+            /// \brief Initializes the CircuitGraph.
+            void init(uint32_t qubits, uint32_t cbits);
+            /// \brief Checks if the CircuitGraph is initialized. Exits with error if not.
+            void checkInitialized();
+
+            /// \breif Returns the number of qubits.
+            uint32_t getQSize() const;
+            /// \breif Returns the number of cbits.
+            uint32_t getCSize() const;
+            /// \breif Returns the number of bits.
+            uint32_t size() const;
 
             /// \brief Appends a node to the bits \p xbits.
             void append(std::vector<Xbit> xbits, Node::Ref node);
