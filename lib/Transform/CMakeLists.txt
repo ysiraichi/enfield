@@ -18,4 +18,5 @@ add_library (EfdTransform
     SemanticVerifierPass.cpp
     ArchVerifierPass.cpp
     Driver.cpp
-    DependencyGraphBuilderPass.cpp)
+    DependencyGraphBuilderPass.cpp
+    CircuitGraph.cpp)
