@@ -12,7 +12,7 @@ using namespace efd;
 enum PropKind { K_SWP, K_FRZ } type;
 
 struct AllocProps {
-    CircuitNode* cnode;
+    CircuitGraph::CircuitNode::sRef cnode;
     uint32_t cost;
     std::vector<uint32_t> path;
 
@@ -38,7 +38,10 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
 
     auto cgbpass = PassCache::Get<CircuitGraphBuilderPass>(qmod);
     auto cgraph = cgbpass->getData();
-    auto xbits = cgraph.size();
+    auto it = cgraph.build_iterator();
+
+    auto xbitNumber = cgraph.size();
+    auto qubitNumber = cgraph.getQSize();
 
     BFSPathFinder bfs;
 
@@ -49,11 +52,15 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
     Solution sol { mapping, Solution::OpSequences(depsSet.size()), 0 };
 
     std::vector<Node::uRef> allocatedStatements;
-    std::map<CircuitNode*, uint32_t> reached;
-    std::vector<bool> marked(xbits, false);
-    std::vector<bool> frozen(mapping.size(), false);
+    std::map<Node::Ref, uint32_t> reached;
+    std::vector<bool> marked(xbitNumber, false);
+    std::vector<bool> frozen(qubitNumber, false);
 
     uint32_t t = 0;
+
+    for (uint32_t i = 0; i < xbitNumber; ++i) {
+        it.next(i);
+    }
 
     while (allocatedStatements.size() < qmod->getNumberOfStmts()) {
         bool changed, redo = false;
@@ -61,12 +68,12 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
         do {
             changed = false;
 
-            for (uint32_t i = 0; i < xbits; ++i) {
-                auto cnode = cgraph[i];
+            for (uint32_t i = 0; i < xbitNumber; ++i) {
+                auto cnode = it[i];
 
-                if (cnode && cnode->qargsid.size() + cnode->cargsid.size() <= 1) {
-                    allocatedStatements.push_back(cnode->node->clone());
-                    cgraph[i] = cnode->child[i];
+                if (cnode->isGateNode() && cnode->numberOfXbits() <= 1) {
+                    allocatedStatements.push_back(cnode->node()->clone());
+                    it.next(i);
                     changed = true;
                 }
             }
@@ -77,26 +84,28 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
         if (redo) continue;
         redo = false;
 
-        // Reach gates with non-marked xbits and mark them.
-        for (uint32_t i = 0; i < xbits; ++i) {
-            auto cnode = cgraph[i];
+        // Reach gates with non-marked xbitNumber and mark them.
+        for (uint32_t i = 0; i < xbitNumber; ++i) {
+            auto cnode = it[i];
+            auto node = cnode->node();
 
-            if (cnode && !marked[i]) {
+            if (cnode->isGateNode() && !marked[i]) {
                 marked[i] = true;
 
-                if (reached.find(cnode) == reached.end())
-                    reached[cnode] = cnode->qargsid.size() + cnode->cargsid.size();
-                --reached[cnode];
+                if (reached.find(node) == reached.end())
+                    reached[node] = cnode->numberOfXbits();
+                --reached[node];
             }
         }
 
-        std::set<CircuitNode*> allocatable;
+        std::set<CircuitGraph::CircuitNode::sRef> allocatable;
 
-        // Advance the xbits' cgraph and unmark them.
-        for (uint32_t i = 0; i < xbits; ++i) {
-            auto cnode = cgraph[i];
+        // Advance the xbitNumber' cgraph and unmark them.
+        for (uint32_t i = 0; i < xbitNumber; ++i) {
+            auto cnode = it[i];
+            auto node = cnode->node();
 
-            if (cnode && !reached[cnode]) {
+            if (cnode->isGateNode() && !reached[node]) {
                 allocatable.insert(cnode);
             }
         }
@@ -105,23 +114,24 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
 
         // Removing instructions that don't use only one qubit, but do not have any dependencies
         for (auto cnode : allocatable) {
-            auto node = cnode->node;
+            auto node = cnode->node();
             auto dep = depBuilder.getDeps(node);
 
             if (dep.getSize() == 0) {
                 redo = true;
                 allocatedStatements.push_back(node->clone());
 
-                for (uint32_t q : cnode->qargsid) {
-                    frozen[q] = true;
-                    marked[q] = false;
-                    cgraph[q] = cgraph[q]->child[q];
+                // for (uint32_t q : cnode->qargsid) {
+                for (uint32_t i : cnode->getXbitsIds()) {
+                    if (i < qubitNumber) frozen[i] = true;
+                    marked[i] = false;
+                    it.next(i);
                 }
 
-                for (uint32_t c : cnode->cargsid) {
-                    marked[c] = false;
-                    cgraph[c] = cgraph[c]->child[c];
-                }
+                // for (uint32_t c : cnode->cargsid) {
+                //     marked[c] = false;
+                //     cgraph[c] = cgraph[c]->child[c];
+                // }
             }
         }
 
@@ -134,7 +144,7 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
         for (auto cnode : allocatable) {
             // Calculate cost for allocating cnode->node;
 
-            auto node = cnode->node;
+            auto node = cnode->node();
             auto dep = depBuilder.getDeps(node);
 
             assert(dep.getSize() <= 1 && "Can only allocate gates with at most one depenency.");
@@ -220,12 +230,12 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
                 best = props;
         }
 
-        assert(best.cnode != nullptr && "There must be a 'best' node.");
+        assert(best.cnode.get() != nullptr && "There must be a 'best' node.");
 
         // Allocate best node;
         // Setting the 'stop' flag;
         auto& ops = sol.mOpSeqs[t++];
-        auto node = best.cnode->node;
+        auto node = best.cnode->node();
         auto newNode = node->clone();
 
         ops.first = newNode.get();
@@ -258,7 +268,7 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
             std::swap(assign[u], assign[v]);
         }
 
-        auto dep = depBuilder.getDeps(best.cnode->node)[0];
+        auto dep = depBuilder.getDeps(node)[0];
         uint32_t a = dep.mFrom, b = dep.mTo;
 
         frozen[a] = true;
@@ -270,15 +280,16 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
             ops.second.push_back({ Operation::K_OP_REV, a, b });
         }
 
-        for (uint32_t q : best.cnode->qargsid) {
-            marked[q] = false;
-            cgraph[q] = cgraph[q]->child[q];
+        // for (uint32_t q : best.cnode->qargsid) {
+        for (uint32_t i : best.cnode->getXbitsIds()) {
+            marked[i] = false;
+            it.next(i);
         }
 
-        for (uint32_t c : best.cnode->cargsid) {
-            marked[c] = true;
-            cgraph[c] = cgraph[c]->child[c];
-        }
+        // for (uint32_t c : best.cnode->cargsid) {
+        //     marked[c] = true;
+        //     cgraph[c] = cgraph[c]->child[c];
+        // }
 
         sol.mCost += best.cost;
     }

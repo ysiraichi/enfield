@@ -6,13 +6,28 @@ uint8_t efd::CNOTLBOWrapperPass::ID = 0;
 
 efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
     auto& layers = mData.layers;
-    auto xbits = graph.size();
+
+    auto xbitNumber = graph.size();
+    auto qubitNumber = graph.getQSize();
+    auto cbitNumber = graph.getCSize();
 
     bool stop, ugate;
-    auto ref = graph;
-    auto marked = std::vector<bool>(xbits, false);
+    auto marked = std::vector<bool>(xbitNumber, false);
     auto reached = std::unordered_map<Node::Ref, uint32_t>();
     auto order = Ordering();
+    auto it = graph.build_iterator();
+
+    std::vector<Xbit> xbits;
+
+    for (uint32_t i = 0; i < qubitNumber; ++i) {
+        it.next(i);
+        xbits.push_back(Xbit::Q(i));
+    }
+
+    for (uint32_t i = 0; i < cbitNumber; ++i) {
+        it.next(i + qubitNumber);
+        xbits.push_back(Xbit::C(i));
+    }
 
     do {
         stop = true;
@@ -24,10 +39,12 @@ efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
             Layer layer;
             ugate = false;
 
-            for (uint32_t i = 0; i < xbits; ++i) {
-                if (ref[i] && ref[i]->qargsid.size() + ref[i]->cargsid.size() == 1) {
-                    layer.insert(ref[i]->node);
-                    ref[i] = ref[i]->child[i];
+            for (uint32_t i = 0; i < qubitNumber; ++i) {
+                auto qubit = xbits[i];
+
+                if (it[qubit]->isGateNode() && it[qubit]->numberOfXbits() == 1) {
+                    layer.insert(it[qubit]->node());
+                    it.next(qubit);
                     ugate = true;
                 }
             }
@@ -41,28 +58,34 @@ efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
 
         Layer layer;
         // Reach gates with non-marked xbits and mark them.
-        for (uint32_t i = 0; i < xbits; ++i) {
-            if (ref[i] && !marked[i]) {
+        for (uint32_t i = 0; i < xbitNumber; ++i) {
+            auto bit = xbits[i];
+
+            if (it[bit]->isGateNode() && !marked[i]) {
                 marked[i] = true;
 
-                if (reached.find(ref[i]->node) == reached.end())
-                    reached[ref[i]->node] = ref[i]->qargsid.size() +
-                        ref[i]->cargsid.size();
-                --reached[ref[i]->node];
+                auto node = it[bit]->node();
+
+                if (reached.find(node) == reached.end())
+                    reached[node] = it[bit]->numberOfXbits();
+                --reached[node];
             }
         }
 
         // Advance the xbits' ref and unmark them.
-        for (uint32_t i = 0; i < xbits; ++i) {
-            if (ref[i] && !reached[ref[i]->node]) {
-                layer.insert(ref[i]->node);
+        for (uint32_t i = 0; i < xbitNumber; ++i) {
+            auto bit = xbits[i];
+            auto node = it[bit]->node();
+
+            if (it[bit]->isGateNode() && !reached[node]) {
+                layer.insert(node);
                 marked[i] = false;
-                ref[i] = ref[i]->child[i];
+                it.next(bit);
             }
 
             // If ref isn't nullptr, it means that there still are
             // operations to emit.
-            if (ref[i]) stop = false;
+            if (!it[bit]->isOutputNode()) stop = false;
         }
 
 

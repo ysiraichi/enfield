@@ -8,8 +8,7 @@ using namespace efd;
 
 struct Checker {
     std::vector<bool> gused;
-    std::vector<std::set<uint32_t>> lqused;
-    std::vector<std::set<uint32_t>> lcused;
+    std::vector<std::set<uint32_t>> used;
 };
 
 static void CheckCircuitGraph(std::string prog, Checker checker) {
@@ -19,11 +18,14 @@ static void CheckCircuitGraph(std::string prog, Checker checker) {
     cgbp->run(qmod.get());
 
     auto cgraph = cgbp->getData();
+    auto it = cgraph.build_iterator();
     auto xbits = cgraph.size();
 
-    for (uint32_t i = 0; i < xbits; ++i)
-        if (checker.gused[i]) ASSERT_FALSE(cgraph[i] == nullptr);
-        else ASSERT_TRUE(cgraph[i] == nullptr);
+    for (uint32_t i = 0; i < xbits; ++i) {
+        it.next(i);
+        if (checker.gused[i]) ASSERT_TRUE(it[i]->isGateNode());
+        else ASSERT_FALSE(it[i]->isGateNode());
+    }
 
     bool stop;
     auto marked = std::vector<bool>(xbits, false);
@@ -31,37 +33,41 @@ static void CheckCircuitGraph(std::string prog, Checker checker) {
 
     do {
         stop = true;
-        std::set<CircuitNode*> completed;
+        std::set<CircuitGraph::CircuitNode::sRef> completed;
 
         for (uint32_t i = 0; i < xbits; ++i) {
-            if (cgraph[i] && !marked[i]) {
+            if (it[i]->isGateNode() && !marked[i]) {
+                auto node = it[i]->node();
                 marked[i] = true;
-                if (reached.find(cgraph[i]->node) == reached.end())
-                    reached[cgraph[i]->node] = cgraph[i]->qargsid.size() +
-                        cgraph[i]->cargsid.size();
-                --reached[cgraph[i]->node];
+
+                if (reached.find(node) == reached.end())
+                    reached[node] = it[i]->numberOfXbits();
+                --reached[node];
             }
         }
 
         for (uint32_t i = 0; i < xbits; ++i) {
-            if (cgraph[i] && !reached[cgraph[i]->node]) {
-                completed.insert(cgraph[i]);
+            auto node = it[i]->node();
+
+            if (it[i]->isGateNode() && !reached[node]) {
+                completed.insert(it[i]);
                 marked[i] = false;
-                cgraph[i] = cgraph[i]->child[i];
+                it.next(i);
             }
 
-            if (cgraph[i]) stop = false;
+            if (!it[i]->isOutputNode()) stop = false;
         }
 
         for (auto cnode : completed) {
             bool found = false;
 
             uint32_t i = 0;
-            for (uint32_t e = checker.lqused.size(); i < e; ++i) {
-                if (cnode->qargsid == checker.lqused[i] && cnode->cargsid == checker.lcused[i]) {
+            for (uint32_t e = checker.used.size(); i < e; ++i) {
+                auto used = cnode->getXbitsIds();
+                std::set<uint32_t> set(used.begin(), used.end());
+                if (set == checker.used[i]) {
                     found = true;
-                    checker.lqused.erase(checker.lqused.begin() + i);
-                    checker.lcused.erase(checker.lcused.begin() + i);
+                    checker.used.erase(checker.used.begin() + i);
                     break;
                 }
             }
@@ -82,7 +88,7 @@ qreg q[5];\
 cx q[0], q[1];\
 ";
 
-        CheckCircuitGraph(program, Checker {{ 1, 1, 0, 0, 0 }, {{ 0, 1 }}, {{}}});
+        CheckCircuitGraph(program, Checker {{ 1, 1, 0, 0, 0 }, {{ 0, 1 }}});
     }
     {
         const std::string program =
@@ -93,7 +99,7 @@ qreg q[5];\
 h q[4];\
 ";
 
-        CheckCircuitGraph(program, Checker {{ 0, 0, 0, 0, 1 }, {{ 4 }}, {{}}});
+        CheckCircuitGraph(program, Checker {{ 0, 0, 0, 0, 1 }, {{ 4 }}});
     }
     {
         const std::string program =
@@ -105,7 +111,7 @@ creg c[5];\
 measure q[2] -> c[2];\
 ";
 
-        CheckCircuitGraph(program, Checker {{ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 }, {{ 2 }}, {{ 7 }}});
+        CheckCircuitGraph(program, Checker {{ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 }, {{ 2, 7}}});
     }
 }
 
@@ -122,17 +128,17 @@ h q[4];\
 ";
 
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 0, 1 }, { 3, 2 }, { 4 }}, {{}, {}, {}}});
+                {{ 0, 1 }, { 3, 2 }, { 4 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 0, 1 }, { 4 }, { 3, 2 }}, {{}, {}, {}}});
+                {{ 0, 1 }, { 4 }, { 3, 2 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 3, 2 }, { 0, 1 }, { 4 }}, {{}, {}, {}}});
+                {{ 3, 2 }, { 0, 1 }, { 4 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 3, 2 }, { 4 }, { 0, 1 }}, {{}, {}, {}}});
+                {{ 3, 2 }, { 4 }, { 0, 1 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 4 }, { 0, 1 }, { 3, 2 }}, {{}, {}, {}}});
+                {{ 4 }, { 0, 1 }, { 3, 2 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 4 }, { 3, 2 }, { 0, 1 }}, {{}, {}, {}}});
+                {{ 4 }, { 3, 2 }, { 0, 1 }}});
     }
     {
         const std::string program =
@@ -147,53 +153,53 @@ h q[0];\
 ";
 
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 4 }, { 2, 1 }, { 3 }, { 0 }}, {{}, {}, {}, {}}});
+                {{ 4 }, { 2, 1 }, { 3 }, { 0 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 4 }, { 2, 1 }, { 0 }, { 3 }}, {{}, {}, {}, {}}});
+                {{ 4 }, { 2, 1 }, { 0 }, { 3 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 4 }, { 3 }, { 2, 1 }, { 0 }}, {{}, {}, {}, {}}});
+                {{ 4 }, { 3 }, { 2, 1 }, { 0 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 4 }, { 3 }, { 0 }, { 2, 1 }}, {{}, {}, {}, {}}});
+                {{ 4 }, { 3 }, { 0 }, { 2, 1 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 4 }, { 0 }, { 3 }, { 2, 1 }}, {{}, {}, {}, {}}});
+                {{ 4 }, { 0 }, { 3 }, { 2, 1 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 4 }, { 0 }, { 2, 1 }, { 3 }}, {{}, {}, {}, {}}});
+                {{ 4 }, { 0 }, { 2, 1 }, { 3 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 3 }, { 2, 1 }, { 4 }, { 0 }}, {{}, {}, {}, {}}});
+                {{ 3 }, { 2, 1 }, { 4 }, { 0 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 3 }, { 2, 1 }, { 0 }, { 4 }}, {{}, {}, {}, {}}});
+                {{ 3 }, { 2, 1 }, { 0 }, { 4 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 3 }, { 4 }, { 2, 1 }, { 0 }}, {{}, {}, {}, {}}});
+                {{ 3 }, { 4 }, { 2, 1 }, { 0 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 3 }, { 4 }, { 0 }, { 2, 1 }}, {{}, {}, {}, {}}});
+                {{ 3 }, { 4 }, { 0 }, { 2, 1 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 3 }, { 0 }, { 4 }, { 2, 1 }}, {{}, {}, {}, {}}});
+                {{ 3 }, { 0 }, { 4 }, { 2, 1 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 3 }, { 0 }, { 2, 1 }, { 4 }}, {{}, {}, {}, {}}});
+                {{ 3 }, { 0 }, { 2, 1 }, { 4 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 0 }, { 2, 1 }, { 3 }, { 4 }}, {{}, {}, {}, {}}});
+                {{ 0 }, { 2, 1 }, { 3 }, { 4 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 0 }, { 2, 1 }, { 4 }, { 3 }}, {{}, {}, {}, {}}});
+                {{ 0 }, { 2, 1 }, { 4 }, { 3 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 0 }, { 3 }, { 2, 1 }, { 4 }}, {{}, {}, {}, {}}});
+                {{ 0 }, { 3 }, { 2, 1 }, { 4 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 0 }, { 3 }, { 4 }, { 2, 1 }}, {{}, {}, {}, {}}});
+                {{ 0 }, { 3 }, { 4 }, { 2, 1 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 0 }, { 4 }, { 3 }, { 2, 1 }}, {{}, {}, {}, {}}});
+                {{ 0 }, { 4 }, { 3 }, { 2, 1 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 0 }, { 4 }, { 2, 1 }, { 3 }}, {{}, {}, {}, {}}});
+                {{ 0 }, { 4 }, { 2, 1 }, { 3 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 2, 1 }, { 4 }, { 3 }, { 0 }}, {{}, {}, {}, {}}});
+                {{ 2, 1 }, { 4 }, { 3 }, { 0 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 2, 1 }, { 4 }, { 0 }, { 3 }}, {{}, {}, {}, {}}});
+                {{ 2, 1 }, { 4 }, { 0 }, { 3 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 2, 1 }, { 3 }, { 4 }, { 0 }}, {{}, {}, {}, {}}});
+                {{ 2, 1 }, { 3 }, { 4 }, { 0 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 2, 1 }, { 3 }, { 0 }, { 4 }}, {{}, {}, {}, {}}});
+                {{ 2, 1 }, { 3 }, { 0 }, { 4 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 2, 1 }, { 0 }, { 4 }, { 3 }}, {{}, {}, {}, {}}});
+                {{ 2, 1 }, { 0 }, { 4 }, { 3 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 1 },
-                {{ 2, 1 }, { 0 }, { 3 }, { 4 }}, {{}, {}, {}, {}}});
+                {{ 2, 1 }, { 0 }, { 3 }, { 4 }}});
     }
     {
         const std::string program =
@@ -210,53 +216,53 @@ measure q[3] -> c[3];\
 
 
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 1 }, { 2 }, { 3 }, { 0 }}, {{ 6 }, { 7 }, { 8 }, { 5 }}});
+                {{ 1, 6 }, { 2, 7 }, { 3, 8 }, { 0, 5 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 1 }, { 2 }, { 0 }, { 3 }}, {{ 6 }, { 7 }, { 5 }, { 8 }}});
+                {{ 1, 6 }, { 2, 7 }, { 0, 5 }, { 3, 8 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 1 }, { 3 }, { 2 }, { 0 }}, {{ 6 }, { 8 }, { 7 }, { 5 }}});
+                {{ 1, 6 }, { 3, 8 }, { 2, 7 }, { 0, 5 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 1 }, { 3 }, { 0 }, { 2 }}, {{ 6 }, { 8 }, { 5 }, { 7 }}});
+                {{ 1, 6 }, { 3, 8 }, { 0, 5 }, { 2, 7 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 1 }, { 0 }, { 3 }, { 2 }}, {{ 6 }, { 5 }, { 8 }, { 7 }}});
+                {{ 1, 6 }, { 0, 5 }, { 3, 8 }, { 2, 7 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 1 }, { 0 }, { 2 }, { 3 }}, {{ 6 }, { 5 }, { 7 }, { 8 }}});
+                {{ 1, 6 }, { 0, 5 }, { 2, 7 }, { 3, 8 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 3 }, { 2 }, { 1 }, { 0 }}, {{ 8 }, { 7 }, { 6 }, { 5 }}});
+                {{ 3, 8 }, { 2, 7 }, { 1, 6 }, { 0, 5 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 3 }, { 2 }, { 0 }, { 1 }}, {{ 8 }, { 7 }, { 5 }, { 6 }}});
+                {{ 3, 8 }, { 2, 7 }, { 0, 5 }, { 1, 6 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 3 }, { 1 }, { 2 }, { 0 }}, {{ 8 }, { 6 }, { 7 }, { 5 }}});
+                {{ 3, 8 }, { 1, 6 }, { 2, 7 }, { 0, 5 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 3 }, { 1 }, { 0 }, { 2 }}, {{ 8 }, { 6 }, { 5 }, { 7 }}});
+                {{ 3, 8 }, { 1, 6 }, { 0, 5 }, { 2, 7 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 3 }, { 0 }, { 1 }, { 2 }}, {{ 8 }, { 5 }, { 6 }, { 7 }}});
+                {{ 3, 8 }, { 0, 5 }, { 1, 6 }, { 2, 7 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 3 }, { 0 }, { 2 }, { 1 }}, {{ 8 }, { 5 }, { 7 }, { 6 }}});
+                {{ 3, 8 }, { 0, 5 }, { 2, 7 }, { 1, 6 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 0 }, { 2 }, { 3 }, { 1 }}, {{ 5 }, { 7 }, { 8 }, { 6 }}});
+                {{ 0, 5 }, { 2, 7 }, { 3, 8 }, { 1, 6 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 0 }, { 2 }, { 1 }, { 3 }}, {{ 5 }, { 7 }, { 6 }, { 8 }}});
+                {{ 0, 5 }, { 2, 7 }, { 1, 6 }, { 3, 8 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 0 }, { 3 }, { 2 }, { 1 }}, {{ 5 }, { 8 }, { 7 }, { 6 }}});
+                {{ 0, 5 }, { 3, 8 }, { 2, 7 }, { 1, 6 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 0 }, { 3 }, { 1 }, { 2 }}, {{ 5 }, { 8 }, { 6 }, { 7 }}});
+                {{ 0, 5 }, { 3, 8 }, { 1, 6 }, { 2, 7 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 0 }, { 1 }, { 3 }, { 2 }}, {{ 5 }, { 6 }, { 8 }, { 7 }}});
+                {{ 0, 5 }, { 1, 6 }, { 3, 8 }, { 2, 7 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 0 }, { 1 }, { 2 }, { 3 }}, {{ 5 }, { 6 }, { 7 }, { 8 }}});
+                {{ 0, 5 }, { 1, 6 }, { 2, 7 }, { 3, 8 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 2 }, { 1 }, { 3 }, { 0 }}, {{ 7 }, { 6 }, { 8 }, { 5 }}});
+                {{ 2, 7 }, { 1, 6 }, { 3, 8 }, { 0, 5 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 2 }, { 1 }, { 0 }, { 3 }}, {{ 7 }, { 6 }, { 5 }, { 8 }}});
+                {{ 2, 7 }, { 1, 6 }, { 0, 5 }, { 3, 8 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 2 }, { 3 }, { 1 }, { 0 }}, {{ 7 }, { 8 }, { 6 }, { 5 }}});
+                {{ 2, 7 }, { 3, 8 }, { 1, 6 }, { 0, 5 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 2 }, { 3 }, { 0 }, { 1 }}, {{ 7 }, { 8 }, { 5 }, { 6 }}});
+                {{ 2, 7 }, { 3, 8 }, { 0, 5 }, { 1, 6 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 2 }, { 0 }, { 1 }, { 3 }}, {{ 7 }, { 5 }, { 6 }, { 8 }}});
+                {{ 2, 7 }, { 0, 5 }, { 1, 6 }, { 3, 8 }}});
         CheckCircuitGraph(program, Checker {{ 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
-                {{ 2 }, { 0 }, { 3 }, { 1 }}, {{ 7 }, { 5 }, { 8 }, { 6 }}});
+                {{ 2, 7 }, { 0, 5 }, { 3, 8 }, { 1, 6 }}});
     }
 }
 
@@ -298,46 +304,24 @@ measure q[3] -> c[3];\
                     {
                         { 0 }, { 1 }, { 2 }, { 3 },
                         { 0 },
-                        { 0 },
+                        { 0, 4 },
+                        { 1, 4, 5, 6, 7 },
                         { 1 },
-                        { 1 },
-                        { 1 },
+                        { 1, 5 },
+                        { 2, 4, 5, 6, 7 },
+                        { 2, 4, 5, 6, 7  },
+                        { 2, 4, 5, 6, 7  },
                         { 2 },
-                        { 2 },
-                        { 2 },
-                        { 2 },
-                        { 2 },
+                        { 2, 6 },
+                        { 3, 4, 5, 6, 7  },
+                        { 3, 4, 5, 6, 7  },
+                        { 3, 4, 5, 6, 7  },
+                        { 3, 4, 5, 6, 7  },
+                        { 3, 4, 5, 6, 7  },
+                        { 3, 4, 5, 6, 7  },
+                        { 3, 4, 5, 6, 7  },
                         { 3 },
-                        { 3 },
-                        { 3 },
-                        { 3 },
-                        { 3 },
-                        { 3 },
-                        { 3 },
-                        { 3 },
-                        { 3 }
-                    },
-                    {
-                        {}, {}, {}, {},
-                        {},
-                        { 4 },
-                        { 4, 5, 6, 7 },
-                        {},
-                        { 5 },
-                        { 4, 5, 6, 7 },
-                        { 4, 5, 6, 7 },
-                        { 4, 5, 6, 7 },
-                        {},
-                        { 6 },
-                        { 4, 5, 6, 7 },
-                        { 4, 5, 6, 7 },
-                        { 4, 5, 6, 7 },
-                        { 4, 5, 6, 7 },
-                        { 4, 5, 6, 7 },
-                        { 4, 5, 6, 7 },
-                        { 4, 5, 6, 7 },
-                        {},
-                        { 7 }
+                        { 3, 7 }
                     }
                 });
     }

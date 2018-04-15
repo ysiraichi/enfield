@@ -4,20 +4,9 @@
 #include "enfield/Analysis/Nodes.h"
 #include "enfield/Transform/Pass.h"
 #include "enfield/Transform/QModule.h"
-#include <set>
-#include <map>
+#include "enfield/Transform/CircuitGraph.h"
 
 namespace efd {
-    /// \brief Circuit operation node.
-    struct CircuitNode {
-        Node::Ref node;
-        std::set<uint32_t> qargsid;
-        std::set<uint32_t> cargsid;
-        std::map<uint32_t, CircuitNode*> child;
-    };
-
-    typedef std::vector<CircuitNode*> CircuitGraph;
-
     /// \brief Builds the circuit graph corresponding to the \em QModule
     /// given.
     ///

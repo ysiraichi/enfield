@@ -38,11 +38,11 @@ namespace efd {
             uint32_t mXbitsSrc;
             XbitToNumber& mXtoNSrc;
             XbitToNumber& mXtoNTgt;
-            CircuitGraph& mCkt;
+            CircuitGraph::Iterator& mIt;
             Mapping mMap;
             Assign mAssign;
 
-            std::map<CircuitNode*, uint32_t> mReached;
+            std::map<Node::Ref, uint32_t> mReached;
             std::vector<bool> mMarked;
 
             inline uint32_t getTgtUId(uint32_t srcUId);
@@ -58,7 +58,7 @@ namespace efd {
         public:
             SemanticVerifierVisitor(XbitToNumber& xtonsrc,
                                     XbitToNumber& xtontgt,
-                                    CircuitGraph& ckt,
+                                    CircuitGraph::Iterator& it,
                                     Mapping initial);
 
             void visit(NDQOpMeasure::Ref ref) override;
@@ -75,22 +75,27 @@ namespace efd {
 
 SemanticVerifierVisitor::SemanticVerifierVisitor(XbitToNumber& xtonsrc,
                                                  XbitToNumber& xtontgt,
-                                                 CircuitGraph& ckt,
+                                                 CircuitGraph::Iterator& iterator,
                                                  Mapping initial) :
     mQubitsSrc(xtonsrc.getQSize()),
     mQubitsTgt(xtontgt.getQSize()),
     mXbitsSrc(xtonsrc.getQSize() + xtonsrc.getCSize()),
     mXtoNSrc(xtonsrc),
     mXtoNTgt(xtontgt),
-    mCkt(ckt),
+    mIt(iterator),
     mMap(initial),
     mMarked(mXbitsSrc, false),
     mSuccess(true) {
     
 
     mAssign.assign(mQubitsTgt, 0);
-    for (uint32_t i = 0; i < mQubitsTgt; ++i)
+    for (uint32_t i = 0; i < mQubitsTgt; ++i) {
         mAssign[mMap[i]] = i;
+    }
+
+    for (uint32_t i = 0; i < mXbitsSrc; ++i) {
+        mIt.next(i);
+    }
 
     postprocessing({});
 }
@@ -115,21 +120,22 @@ uint32_t SemanticVerifierVisitor::getSrcUId(uint32_t tgtUId) {
 
 void SemanticVerifierVisitor::updatedReachedCktNodes() {
     for (uint32_t i = 0; i < mXbitsSrc; ++i) {
-        auto cktNode = mCkt[i];
+        auto circuitNode = mIt[i];
+        auto node = circuitNode->node();
 
-        if (cktNode && !mMarked[i]) {
+        if (circuitNode->isGateNode() && !mMarked[i]) {
             mMarked[i] = true;
 
-            if (mReached.find(cktNode) == mReached.end())
-                mReached[cktNode] = cktNode->qargsid.size() + cktNode->cargsid.size();
-            --mReached[cktNode];
+            if (mReached.find(node) == mReached.end())
+                mReached[node] = circuitNode->numberOfXbits();
+            --mReached[node];
         }
     }
 }
 
 void SemanticVerifierVisitor::advanceCktNodes(std::vector<uint32_t> xbitsToUpdate) {
     for (uint32_t x : xbitsToUpdate) {
-        mCkt[x] = mCkt[x]->child[x];
+        mIt.next(x);
         mMarked[x] = false;
     }
 }
@@ -161,11 +167,11 @@ void SemanticVerifierVisitor::visitNDQOp(NDQOp::Ref tgtQOp, NDIfStmt::Ref tgtIfS
     std::vector<uint32_t> srcOpQubits;
     std::vector<uint32_t> srcOpCbits;
 
-    auto srcCNode = mCkt[getSrcUId(tgtOpQubits[0])];
+    auto srcCNode = mIt[getSrcUId(tgtOpQubits[0])];
 
-    if (srcCNode == nullptr) { mSuccess = false; return; }
+    if (!srcCNode->isGateNode()) { mSuccess = false; return; }
 
-    auto srcNode = srcCNode->node;
+    auto srcNode = srcCNode->node();
     NDQOp::Ref srcQOp = nullptr;
 
     if (tgtIfStmt != nullptr && tgtIfStmt->getKind() == srcNode->getKind()) {
@@ -201,13 +207,14 @@ void SemanticVerifierVisitor::visitNDQOp(NDQOp::Ref tgtQOp, NDIfStmt::Ref tgtIfS
     }
 
     // All qubits and cbits have reached this node (and they are not null).
-    auto firstSrcCNode = mCkt[getSrcUId(srcOpQubits[0])];
-    mSuccess = mSuccess && firstSrcCNode && !mReached[firstSrcCNode];
+    auto firstSrcCNode = mIt[getSrcUId(srcOpQubits[0])];
+    auto firstSrcNode = firstSrcCNode->node();
+    mSuccess = mSuccess && firstSrcCNode->isGateNode() && !mReached[firstSrcNode];
 
     // All used qubits have reached the same node (there is no instruction that is dependent
     // of others that is being executed before its dependencies) 
     for (uint32_t i = 1; i < srcQArgsChildrem; ++i) {
-        mSuccess = mSuccess && mCkt[getSrcUId(srcOpQubits[i])] == mCkt[getSrcUId(srcOpQubits[i - 1])];
+        mSuccess = mSuccess && mIt[getSrcUId(srcOpQubits[i])]->node() == firstSrcNode;
     }
 
     if (srcOpCbits.size() != tgtOpCbits.size())
@@ -251,9 +258,9 @@ void SemanticVerifierVisitor::visitNDQOp(NDQOp::Ref tgtQOp, NDIfStmt::Ref tgtIfS
 
     } else {
         if (tgtIfStmt != nullptr)
-            mSuccess = mSuccess && firstSrcCNode->node->getKind() == tgtIfStmt->getKind();
+            mSuccess = mSuccess && firstSrcCNode->node()->getKind() == tgtIfStmt->getKind();
         else
-            mSuccess = mSuccess && firstSrcCNode->node->getKind() == tgtQOp->getKind();
+            mSuccess = mSuccess && firstSrcCNode->node()->getKind() == tgtQOp->getKind();
 
         // Checking all real arguments.
         auto tgtArgs = tgtQOp->getArgs();
@@ -280,16 +287,19 @@ void SemanticVerifierVisitor::visit(NDQOpMeasure::Ref ref) {
     uint32_t tgtQUId = mXtoNTgt.getQUId(ref->getQBit()->toString(false));
     uint32_t tgtCUId = getRealTgtCUId(mXtoNTgt.getCUId(ref->getCBit()->toString(false)));
 
-    auto srcCNode = mCkt[getSrcUId(tgtQUId)];
-    auto srcNode = dynCast<NDQOpMeasure>(srcCNode->node);
+    auto srcCNode = mIt[getSrcUId(tgtQUId)];
+    auto srcNode = dynCast<NDQOpMeasure>(srcCNode->node());
 
     if (srcNode != nullptr) {
         uint32_t srcQUId = mXtoNSrc.getQUId(srcNode->getQBit()->toString(false));
         uint32_t srcCUId = getRealSrcCUId(mXtoNSrc.getCUId(srcNode->getCBit()->toString(false)));
 
-        mSuccess = mSuccess && tgtQUId == getTgtUId(srcQUId) && tgtCUId == getTgtUId(srcCUId);
-        mSuccess = mSuccess && srcCNode && !mReached[srcCNode];
-        mSuccess = mSuccess && mCkt[srcQUId] == mCkt[srcCUId] && !mReached[srcCNode];
+        mSuccess = mSuccess && tgtQUId == getTgtUId(srcQUId);
+        mSuccess = mSuccess && tgtCUId == getTgtUId(srcCUId);
+
+        mSuccess = mSuccess && srcCNode->isGateNode();
+        mSuccess = mSuccess && !mReached[srcNode];
+        mSuccess = mSuccess && mIt[srcQUId]->node() == mIt[srcCUId]->node();
         mSuccess = mSuccess && srcNode->getKind() == ref->getKind();
 
         if (mSuccess) postprocessing({ srcQUId, srcCUId });
@@ -353,7 +363,11 @@ bool SemanticVerifierPass::run(QModule* tgt) {
     auto xtonpassTgt = PassCache::Get<XbitToNumberWrapperPass>(tgt);
 
     mData = true;
-    SemanticVerifierVisitor visitor(xtonpassSrc->getData(), xtonpassTgt->getData(), ckt, mInitial);
+    auto it = ckt.build_iterator();
+    SemanticVerifierVisitor visitor(xtonpassSrc->getData(),
+                                    xtonpassTgt->getData(),
+                                    it,
+                                    mInitial);
     for (auto it = tgt->stmt_begin(), end = tgt->stmt_end();
             it != end && mData; ++it) {
         (*it)->apply(&visitor);
@@ -361,7 +375,7 @@ bool SemanticVerifierPass::run(QModule* tgt) {
     }
 
     for (uint32_t i = 0, e = ckt.size(); i < e; ++i) {
-        if (ckt[i] != nullptr) { mData = false; break; }
+        if (!it[i]->isOutputNode()) { mData = false; break; }
     }
 
     return false;
