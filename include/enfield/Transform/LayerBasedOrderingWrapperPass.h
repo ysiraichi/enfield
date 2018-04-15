@@ -2,12 +2,11 @@
 #define __EFD_LAYER_BASED_ORDERING_WRAPPER_PASS_H__
 
 #include "enfield/Transform/CircuitGraphBuilderPass.h"
+#include "enfield/Transform/LayersBuilderPass.h"
 #include <set>
 #include <unordered_map>
 
 namespace efd {
-    typedef std::set<Node::Ref> Layer;
-    typedef std::vector<Layer> Layers;
     typedef std::vector<uint32_t> Ordering;
 
     struct LayerBasedOrdering {

@@ -17,6 +17,7 @@ efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
     auto order = Ordering();
     auto it = graph.build_iterator();
 
+    std::set<Node::Ref> processed;
     std::vector<Xbit> xbits;
 
     for (uint32_t i = 0; i < qubitNumber; ++i) {
@@ -43,7 +44,10 @@ efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
                 auto qubit = xbits[i];
 
                 if (it[qubit]->isGateNode() && it[qubit]->numberOfXbits() == 1) {
-                    layer.insert(it[qubit]->node());
+                    auto node = it[qubit]->node();
+                    layer.push_back(node);
+                    processed.insert(node);
+
                     it.next(qubit);
                     ugate = true;
                 }
@@ -72,19 +76,24 @@ efd::Ordering efd::CNOTLBOWrapperPass::generate(CircuitGraph& graph) {
             }
         }
 
-        // Advance the xbits' ref and unmark them.
+        // Advance the xbits and unmark them.
         for (uint32_t i = 0; i < xbitNumber; ++i) {
             auto bit = xbits[i];
             auto node = it[bit]->node();
 
             if (it[bit]->isGateNode() && !reached[node]) {
-                layer.insert(node);
+
+                if (processed.find(node) == processed.end()) {
+                    layer.push_back(node);
+                    processed.insert(node);
+                }
+
                 marked[i] = false;
                 it.next(bit);
             }
 
-            // If ref isn't nullptr, it means that there still are
-            // operations to emit.
+            // If the xbits in the processed nodes haven't reached the end (output nodes)
+            // we keep going.
             if (!it[bit]->isOutputNode()) stop = false;
         }
 
