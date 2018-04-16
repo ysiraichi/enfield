@@ -1,5 +1,6 @@
 # Enfield
------------------------------------------------------
+
+[![Build Status](https://travis-ci.org/ysiraichi/enfield.svg?branch=master)](https://travis-ci.org/ysiraichi/enfield)
 
 This project was built on top of [Bison](https://www.gnu.org/software/bison/) (v3.0.2) 
 and [Flex](https://github.com/westes/flex) (2.5.39).
