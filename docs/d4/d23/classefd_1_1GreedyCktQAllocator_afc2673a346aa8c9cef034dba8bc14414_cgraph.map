@@ -1,0 +1,50 @@
+<map id="efd::GreedyCktQAllocator::executeAllocation" name="efd::GreedyCktQAllocator::executeAllocation">
+<area shape="rect" id="node2" href="$db/db3/classefd_1_1Graph.xhtml#a3531989ad03fb1b38b43c7554d0d378e" title="Return the set of adjacent vertices of some vertex i. " alt="" coords="284,5,392,32"/>
+<area shape="rect" id="node3" href="$d0/d54/classefd_1_1CircuitGraph.xhtml#ad1dbcb28dda3121f795a74944927de4a" title="Builds an iterator instance for this CircuitGraph. " alt="" coords="273,57,403,98"/>
+<area shape="rect" id="node5" href="$dd/d52/classefd_1_1QModule.xhtml#a0d1ee13f9fdf977893067cb4d0688e3f" title="Removes all statements present int this module. " alt="" coords="237,123,439,149"/>
+<area shape="rect" id="node7" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="279,173,397,200"/>
+<area shape="rect" id="node9" href="$d3/d4f/classefd_1_1WeightedSIMappingFinder.xhtml#a75ebcbce80487bf331c26b2c2cfa9689" title="Creates an instance of this class. " alt="" coords="237,225,439,266"/>
+<area shape="rect" id="node10" href="$d8/d45/classefd_1_1BFSPathFinder.xhtml#a4a91e28940313cb585654f5214187cac" title="Searches for a path from u to v in the graph g. " alt="" coords="269,342,407,383"/>
+<area shape="rect" id="node12" href="$db/db3/classefd_1_1Graph.xhtml#aa85ea20ad74d6a7df7a52c13a9fabe2d" title="Return the number of vertices. " alt="" coords="537,349,651,376"/>
+<area shape="rect" id="node14" href="$d3/d4f/classefd_1_1WeightedSIMappingFinder.xhtml#a093d61927d15ffcf545c657889fdb237" title="Returns a mapping generated from a set of dependencies. " alt="" coords="237,459,439,501"/>
+<area shape="rect" id="node22" href="$d4/deb/namespaceefd.xhtml#a5b9a652c9403e0dbe7115d9d7f5e7d62" title="Generates an assignment mapping (maps the architecture&#39;s qubits to the logical ones) of size archQ..." alt="" coords="267,525,409,552"/>
+<area shape="rect" id="node24" href="$d1/df9/classefd_1_1PassCache.xhtml#a8c54d0a438f35de5629ae78c886687a8" title="Gets a shared pointer to the pass T run in qmod. If it does not exist, it tries to run..." alt="" coords="265,576,411,603"/>
+<area shape="rect" id="node25" href="$db/d56/classefd_1_1PassT.xhtml#aae3442c1486bcec7622a64451262d684" title="efd::PassT::getData" alt="" coords="268,627,408,653"/>
+<area shape="rect" id="node26" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a7c4de988e4910f1ab11c137ed3f35049" title="efd::DependencyBuilder\l::getDependencies" alt="" coords="257,678,419,719"/>
+<area shape="rect" id="node29" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a983d11adaea7f3f7c01bfc42fa0c17c3" title="efd::DependencyBuilder\l::getDeps" alt="" coords="257,743,419,785"/>
+<area shape="rect" id="node30" href="$dd/d52/classefd_1_1QModule.xhtml#a13a07a303d5913d73fecc7babaeba7ac" title="Return the number of statements. " alt="" coords="245,809,431,850"/>
+<area shape="rect" id="node32" href="$d0/d54/classefd_1_1CircuitGraph.xhtml#adcb4c92728654114aa63ba37f853bac5" title="Returns the number of qubits. " alt="" coords="273,926,403,967"/>
+<area shape="rect" id="node33" href="$d1/dca/structefd_1_1Dependencies.xhtml#a162d900ef6a43cdd8e1097808f1f43c9" title="Forwards to the mDeps attribute. " alt="" coords="269,991,407,1033"/>
+<area shape="rect" id="node34" href="$de/d50/classefd_1_1Opt.xhtml#af670a67c3fd6e0c5cbea732b3749fb14" title="Gets a const reference to the value of this command line option. " alt="" coords="281,1057,395,1084"/>
+<area shape="rect" id="node35" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#a84ee9721cbab55494c64d6d1d66eada8" title="Returns the Xbit ID&#39;s in this node. " alt="" coords="255,1109,421,1150"/>
+<area shape="rect" id="node36" href="$db/db3/classefd_1_1Graph.xhtml#aace719bbdaaef0e8787f8a0032a676d8" title="Returns true whether it has an edge (i, j). " alt="" coords="267,291,409,317"/>
+<area shape="rect" id="node37" href="$dd/d52/classefd_1_1QModule.xhtml#ae5c8859117a0d6ea5aeddd1a3fb060ec" title="Inserts ref at the back, and returns a iterator to this node. " alt="" coords="225,875,451,901"/>
+<area shape="rect" id="node41" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#a3dd251562e11352a1e7dbaf93e5e9960" title="True if this node is in the middle (gate node). " alt="" coords="254,1174,422,1215"/>
+<area shape="rect" id="node44" href="$d7/d0b/classefd_1_1CircuitGraph_1_1Iterator.xhtml#aeee56d067ea9d2ef87f882279492a528" title="efd::CircuitGraph::\lIterator::next" alt="" coords="273,1239,403,1281"/>
+<area shape="rect" id="node45" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#a748e8cd12225a2d0268e84979726cd03" title="Returns the Node::Ref associated with this circuit node. " alt="" coords="273,1305,403,1346"/>
+<area shape="rect" id="node46" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#acdd2fff3b8fbce45bf0fd84efab71ab1" title="Returns the number of Xbit&#39;s in this node. " alt="" coords="245,1370,431,1411"/>
+<area shape="rect" id="node47" href="$d1/dca/structefd_1_1Dependencies.xhtml#a44ff7c580f8709701e476adb60daa220" title="Forwards to the mDeps attribute. " alt="" coords="269,1435,407,1477"/>
+<area shape="rect" id="node48" href="$d7/d0b/classefd_1_1CircuitGraph_1_1Iterator.xhtml#af67b0dc3050162bf837a9b5c18fe27e3" title="efd::CircuitGraph::\lIterator::operator[]" alt="" coords="273,1501,403,1542"/>
+<area shape="rect" id="node49" href="$d0/d54/classefd_1_1CircuitGraph.xhtml#af5bed18e4c713957e30e7c11d0995da1" title="Returns the number of bits. " alt="" coords="261,1567,415,1593"/>
+<area shape="rect" id="node4" href="$d0/d54/classefd_1_1CircuitGraph.xhtml#a3b7cd29688c62411a7e561599a1dcbcb" title="Checks if the CircuitGraph is initialized. Exits with error if not. " alt="" coords="529,57,659,98"/>
+<area shape="rect" id="node6" href="$da/ddd/classefd_1_1NDList.xhtml#a6d57f95bd61a3796252fa542e2c0b129" title="Clears all the childrem. " alt="" coords="531,123,657,149"/>
+<area shape="rect" id="node8" href="$d6/d6a/classefd_1_1Node.xhtml#ac078ce64eb404cfdc24b9288908536e4" title="Clones the current node (deep copy). " alt="" coords="523,173,665,200"/>
+<area shape="rect" id="node11" href="$db/db3/classefd_1_1Graph.xhtml#ac63b24166d3aa01848e0bd2ad9d46f2e" title="Return the set of predecessors of some vertex i. " alt="" coords="536,299,652,325"/>
+<area shape="rect" id="node13" href="$db/db3/classefd_1_1Graph.xhtml#a64836ad3c96e79e02179787ce3bd42c9" title="Return the set of succesors of some vertex i. " alt="" coords="535,248,653,275"/>
+<area shape="rect" id="node15" href="$d5/db6/classefd_1_1WeightedSIFinder.xhtml#a5bcd8385114a9ef46c78edefc57abd12" title="Creates an instance of this class. " alt="" coords="518,518,670,559"/>
+<area shape="rect" id="node16" href="$d4/deb/namespaceefd.xhtml#a5d73093d1b1ab771a2e970412a565f39" title="Wrapper function that &quot;transforms&quot; a std::unique_ptr into a std::shared_ptr. " alt="" coords="544,584,644,611"/>
+<area shape="rect" id="node17" href="$d2/d54/classefd_1_1WeightedGraph.xhtml#a38be91c7b4b1b647d6924dd187482bd2" title="Encapsulates the creation of a new Graph. " alt="" coords="525,635,663,677"/>
+<area shape="rect" id="node18" href="$d2/d54/classefd_1_1WeightedGraph.xhtml#ab686ed750280f96379b4dbf552fa4ff5" title="Insert the edge (i, j) with weight w(i, j) = w. " alt="" coords="525,401,663,442"/>
+<area shape="rect" id="node21" href="$d6/d1e/classefd_1_1SIFinder.xhtml#a103eba12aca0f90381b197e5902777d6" title="Returns a valid matching of h in g. " alt="" coords="531,467,657,493"/>
+<area shape="rect" id="node19" href="$db/db3/classefd_1_1Graph.xhtml#a3ecb9d2571e0ca6798a8de8a9efa08ed" title="Inserts an edge (i, j) in the successor&#39;s list and an edge (j, i) in the predecessor&#39;s list..." alt="" coords="749,433,887,460"/>
+<area shape="rect" id="node20" href="$db/db3/classefd_1_1Graph.xhtml#a9010eb5a297272371c090f47098e2ccf" title="Returns true if this is a directed graph. " alt="" coords="947,408,1132,435"/>
+<area shape="rect" id="node23" href="$d4/deb/namespaceefd.xhtml#a35884a2adaf86bf35e7e3f1f65acc522" title="efd::Fill" alt="" coords="561,701,627,728"/>
+<area shape="rect" id="node27" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#ad18a762f3acc821e6e05541cc3670a73" title="efd::DependencyBuilder\l::getDepsSet" alt="" coords="513,753,675,794"/>
+<area shape="rect" id="node28" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a39689f940b3544a042ff0f1968068d53" title="Gets the DepsSet corresponding to the current quantum gate, or the global (if current gate is null)..." alt="" coords="737,753,899,794"/>
+<area shape="rect" id="node31" href="$da/ddd/classefd_1_1NDList.xhtml#a7d1b691a45689241a8138539a2be8596" title="Returns the number of childrem of this node. " alt="" coords="499,820,689,847"/>
+<area shape="rect" id="node38" href="$da/ddd/classefd_1_1NDList.xhtml#a664c2f4a60746612062d7b112ff9842e" title="Appends a child to the end of the list. " alt="" coords="520,873,668,900"/>
+<area shape="rect" id="node40" href="$d6/d6a/classefd_1_1Node.xhtml#ae890d36b0dcb332d82616b3180da1886" title="Returns a iterator to the beginning of the vector. " alt="" coords="535,924,653,951"/>
+<area shape="rect" id="node39" href="$d6/d6a/classefd_1_1Node.xhtml#a48e9d49d994b9023b8400316e2782e2b" title="Sets the parent node of the current node. " alt="" coords="747,873,889,900"/>
+<area shape="rect" id="node42" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#a08725ecabe57a0f5aa58ca11f1b9fce6" title="True if this node is in the beginning (input node). " alt="" coords="509,1174,679,1215"/>
+<area shape="rect" id="node43" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#a05bee78f4954f7ac4bab2e16f99dc26c" title="True if this node has reached the end (output node). " alt="" coords="505,1239,683,1281"/>
+</map>

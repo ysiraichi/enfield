@@ -1,0 +1,4 @@
+<map id="efd::RegisterQbitAllocator" name="efd::RegisterQbitAllocator">
+<area shape="rect" id="node2" href="$dc/dd0/classefd_1_1Registry.xhtml#a900a2969cf951c52b2f01b5ba472f5e5" title="Registers an object constructor ctor with key. " alt="" coords="225,5,393,32"/>
+<area shape="rect" id="node3" href="$dc/dd0/classefd_1_1Registry.xhtml#acbc4d1970bfb864501536a764bcce3fe" title="Returns true if key exists inside mCtorMap. " alt="" coords="441,5,588,32"/>
+</map>

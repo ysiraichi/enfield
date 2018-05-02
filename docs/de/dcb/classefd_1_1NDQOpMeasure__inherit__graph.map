@@ -1,0 +1,4 @@
+<map id="efd::NDQOpMeasure" name="efd::NDQOpMeasure">
+<area shape="rect" id="node2" href="$dd/d94/classefd_1_1NDQOp.xhtml" title="Generic node for quantum operations. This is also the base node for the other quantum gates..." alt="" coords="31,80,125,107"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml" title="Base class for AST nodes. " alt="" coords="39,5,117,32"/>
+</map>

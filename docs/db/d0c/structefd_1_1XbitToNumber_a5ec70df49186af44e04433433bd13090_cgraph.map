@@ -1,0 +1,4 @@
+<map id="efd::XbitToNumber::getQNode" name="efd::XbitToNumber::getQNode">
+<area shape="rect" id="node2" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#a7d9474b325920d98f5832d5f1923ba2b" title="Gets a constant reference to the mapping of qubtis of a gate. " alt="" coords="381,5,521,47"/>
+<area shape="rect" id="node3" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#a58b4d8cab140b577430f717ba0a9fde8" title="Returns the std::string id representation of the corresponding qubit, represented by uint32_t id in t..." alt="" coords="193,35,333,76"/>
+</map>

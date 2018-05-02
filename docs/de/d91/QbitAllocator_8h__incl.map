@@ -1,0 +1,16 @@
+<map id="include/enfield/Transform/Allocators/QbitAllocator.h" name="include/enfield/Transform/Allocators/QbitAllocator.h">
+<area shape="rect" id="node2" href="$d7/d9d/ArchGraph_8h.xhtml" title="enfield/Arch/ArchGraph.h" alt="" coords="129,191,297,218"/>
+<area shape="rect" id="node14" href="$d9/dcf/DependencyBuilderPass_8h.xhtml" title="enfield/Transform/Dependency\lBuilderPass.h" alt="" coords="344,95,544,136"/>
+<area shape="rect" id="node19" href="$d9/d41/CommandLine_8h.xhtml" title="enfield/Support/CommandLine.h" alt="" coords="1153,102,1361,129"/>
+<area shape="rect" id="node29" href="$dc/d09/Stats_8h.xhtml" title="enfield/Support/Stats.h" alt="" coords="5,348,160,375"/>
+<area shape="rect" id="node3" href="$d7/d16/Graph_8h.xhtml" title="enfield/Support/Graph.h" alt="" coords="722,273,881,300"/>
+<area shape="rect" id="node8" href="$d4/daf/Nodes_8h.xhtml" title="enfield/Analysis/Nodes.h" alt="" coords="235,348,402,375"/>
+<area shape="rect" id="node9" href="$d1/d2e/WrapperVal_8h.xhtml" title="enfield/Support/WrapperVal.h" alt="" coords="444,423,636,449"/>
+<area shape="rect" id="node11" href="$d5/dfc/RTTI_8h.xhtml" title="enfield/Support/RTTI.h" alt="" coords="143,423,297,449"/>
+<area shape="rect" id="node15" href="$df/d29/Pass_8h.xhtml" title="enfield/Transform/Pass.h" alt="" coords="432,348,600,375"/>
+<area shape="rect" id="node16" href="$d4/d73/QModule_8h.xhtml" title="enfield/Transform/QModule.h" alt="" coords="354,273,545,300"/>
+<area shape="rect" id="node17" href="$d6/d94/XbitToNumberPass_8h.xhtml" title="enfield/Transform/XbitTo\lNumberPass.h" alt="" coords="481,184,647,225"/>
+<area shape="rect" id="node20" href="$d1/d5e/PossibleValuesListTrait_8h.xhtml" title="enfield/Support/Possible\lValuesListTrait.h" alt="" coords="1261,184,1424,225"/>
+<area shape="rect" id="node21" href="$dd/d62/EnumString_8h.xhtml" title="enfield/Support/EnumString.h" alt="" coords="1253,273,1445,300"/>
+<area shape="rect" id="node22" href="$d1/d73/Defs_8h.xhtml" title="enfield/Support/Defs.h" alt="" coords="1452,348,1604,375"/>
+</map>

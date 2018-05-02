@@ -1,0 +1,12 @@
+<map id="efd::NDQOp" name="efd::NDQOp">
+<area shape="rect" id="node3" href="$d2/d2a/classefd_1_1NDQOpBarrier.xhtml" title="NDQOp specialized for barrier operation. " alt="" coords="281,5,414,32"/>
+<area shape="rect" id="node4" href="$d3/d14/classefd_1_1NDQOpCX.xhtml" title="NDQOp specialized for barrier operation. " alt="" coords="290,56,405,83"/>
+<area shape="rect" id="node5" href="$d2/dff/classefd_1_1NDQOpGen.xhtml" title="NDQOp specialized for generic gates. " alt="" coords="288,107,407,133"/>
+<area shape="rect" id="node9" href="$d4/d64/classefd_1_1NDQOpMeasure.xhtml" title="NDQOp specialized for measure operation. " alt="" coords="275,157,420,184"/>
+<area shape="rect" id="node10" href="$d0/dd2/classefd_1_1NDQOpReset.xhtml" title="NDQOp specialized for reset operation. " alt="" coords="282,208,413,235"/>
+<area shape="rect" id="node11" href="$d7/dbe/classefd_1_1NDQOpU.xhtml" title="NDQOp specialized for barrier operation. " alt="" coords="295,259,400,285"/>
+<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml" title="Base class for AST nodes. " alt="" coords="5,132,84,159"/>
+<area shape="rect" id="node6" href="$d2/d46/structefd_1_1NDQOpLongCX.xhtml" title="Special node for long cnot calls. " alt="" coords="468,56,611,83"/>
+<area shape="rect" id="node7" href="$d1/d69/structefd_1_1NDQOpRevCX.xhtml" title="Special node for reversal cnot calls. " alt="" coords="470,107,609,133"/>
+<area shape="rect" id="node8" href="$dd/d04/structefd_1_1NDQOpSwap.xhtml" title="Special node for swap calls. " alt="" coords="475,157,603,184"/>
+</map>

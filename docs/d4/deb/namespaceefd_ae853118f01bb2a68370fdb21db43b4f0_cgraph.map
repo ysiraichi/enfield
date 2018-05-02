@@ -1,0 +1,4 @@
+<map id="efd::RegisterArchitecture" name="efd::RegisterArchitecture">
+<area shape="rect" id="node2" href="$dc/dd0/classefd_1_1Registry.xhtml#a900a2969cf951c52b2f01b5ba472f5e5" title="Registers an object constructor ctor with key. " alt="" coords="220,5,388,32"/>
+<area shape="rect" id="node3" href="$dc/dd0/classefd_1_1Registry.xhtml#acbc4d1970bfb864501536a764bcce3fe" title="Returns true if key exists inside mCtorMap. " alt="" coords="436,5,583,32"/>
+</map>

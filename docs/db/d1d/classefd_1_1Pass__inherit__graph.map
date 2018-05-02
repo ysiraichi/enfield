@@ -1,0 +1,33 @@
+<map id="efd::Pass" name="efd::Pass">
+<area shape="rect" id="node2" href="$db/d56/classefd_1_1PassT.xhtml" title="Should serve as base class for classes that produces some data of type T. " alt="" coords="141,308,260,335"/>
+<area shape="rect" id="node3" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; DependencyBuilder \&gt;" alt="" coords="465,183,688,210"/>
+<area shape="rect" id="node5" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; XbitToNumber \&gt;" alt="" coords="479,248,674,275"/>
+<area shape="rect" id="node7" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; LayerBasedOrdering \&gt;" alt="" coords="463,20,691,47"/>
+<area shape="rect" id="node10" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; DependencyGraph\l::sRef \&gt;" alt="" coords="473,96,680,137"/>
+<area shape="rect" id="node12" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; CircuitGraph \&gt;" alt="" coords="485,314,668,340"/>
+<area shape="rect" id="node14" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; Solution \&gt;" alt="" coords="498,375,655,402"/>
+<area shape="rect" id="node22" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; bool \&gt;" alt="" coords="509,454,644,480"/>
+<area shape="rect" id="node25" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; Layers \&gt;" alt="" coords="502,540,651,567"/>
+<area shape="rect" id="node27" href="$d6/d84/classefd_1_1PassT_3_01void_01_4.xhtml" title="efd::PassT\&lt; void \&gt;" alt="" coords="133,699,268,726"/>
+<area shape="rect" id="node4" href="$d1/d06/classefd_1_1DependencyBuilderWrapperPass.xhtml" title="WrapperPass that yields a DependencyBuilder structure. " alt="" coords="743,183,983,210"/>
+<area shape="rect" id="node6" href="$de/d2b/classefd_1_1XbitToNumberWrapperPass.xhtml" title="WrapperPass that yields a XbitToNumber structure. " alt="" coords="757,248,968,275"/>
+<area shape="rect" id="node8" href="$d6/de0/classefd_1_1LayerBasedOrderingWrapperPass.xhtml" title="Interface for ordering the program by a specific layer&#45;based ordering. " alt="" coords="740,20,985,47"/>
+<area shape="rect" id="node9" href="$dd/db9/classefd_1_1CNOTLBOWrapperPass.xhtml" title="Layer&#45;based Ordering with CNOT priority. " alt="" coords="1035,20,1225,47"/>
+<area shape="rect" id="node11" href="$d6/d27/classefd_1_1DependencyGraphBuilderPass.xhtml" title="Constructs the dependency graph for a QModule. " alt="" coords="749,103,976,130"/>
+<area shape="rect" id="node13" href="$de/dd0/classefd_1_1CircuitGraphBuilderPass.xhtml" title="Builds the circuit graph corresponding to the QModule given. " alt="" coords="767,314,958,340"/>
+<area shape="rect" id="node15" href="$de/d5a/classefd_1_1QbitAllocator.xhtml" title="Base abstract class that allocates the qbits used in the program to the qbits that are in the physica..." alt="" coords="801,375,924,402"/>
+<area shape="rect" id="node16" href="$da/d6e/classefd_1_1DepSolverQAllocator.xhtml" title="Wrapper for making it easier to implement algorithms for Qubit Allocation. " alt="" coords="1045,324,1215,351"/>
+<area shape="rect" id="node20" href="$d4/d23/classefd_1_1GreedyCktQAllocator.xhtml" title="efd::GreedyCktQAllocator" alt="" coords="1044,375,1216,402"/>
+<area shape="rect" id="node21" href="$d3/d6c/classefd_1_1IBMQAllocator.xhtml" title="Port of IBM&#39;s allocator. " alt="" coords="1063,426,1197,452"/>
+<area shape="rect" id="node17" href="$de/d80/classefd_1_1BoundedSIDepSolver.xhtml" title="Implementation of DepSolverQAllocator that bounds the subgraph isomorphism search. " alt="" coords="1275,274,1448,300"/>
+<area shape="rect" id="node18" href="$df/d73/classefd_1_1DynprogDepSolver.xhtml" title="Implementation of DepSolverQAllocator that uses dynamic programming to obtain an optimal solution..." alt="" coords="1282,324,1441,351"/>
+<area shape="rect" id="node19" href="$d2/d8a/classefd_1_1SimpleDepSolver.xhtml" title="DependencySolver that allocates the logical qubits from an initial mapping. " alt="" coords="1287,375,1436,402"/>
+<area shape="rect" id="node23" href="$d0/de6/classefd_1_1ArchVerifierPass.xhtml" title="Verifies if the CNOT relations between every qubit respects the architecture constraints. " alt="" coords="789,483,936,510"/>
+<area shape="rect" id="node24" href="$d6/dd7/classefd_1_1SemanticVerifierPass.xhtml" title="Verifies the CNOT relations between every qubit. " alt="" coords="775,432,950,459"/>
+<area shape="rect" id="node26" href="$d4/d1b/classefd_1_1LayersBuilderPass.xhtml" title="Create the layers of the &#39;QModule&#39;. " alt="" coords="784,540,941,567"/>
+<area shape="rect" id="node28" href="$d8/df2/classefd_1_1FlattenPass.xhtml" title="Flattens the given QModule. " alt="" coords="517,772,636,799"/>
+<area shape="rect" id="node29" href="$d5/de3/classefd_1_1InlineAllPass.xhtml" title="efd::InlineAllPass" alt="" coords="515,823,639,850"/>
+<area shape="rect" id="node30" href="$d8/dd7/classefd_1_1RenameQbitPass.xhtml" title="Renames all the qbits according to the map from the constructor. " alt="" coords="501,620,652,647"/>
+<area shape="rect" id="node31" href="$d2/ddc/classefd_1_1ReverseEdgesPass.xhtml" title="Pass that reverses the edges accordingly with the architecture Graph. " alt="" coords="495,671,659,698"/>
+<area shape="rect" id="node32" href="$d4/dd6/classefd_1_1SolutionImplPass.xhtml" title="efd::SolutionImplPass" alt="" coords="501,722,652,748"/>
+</map>

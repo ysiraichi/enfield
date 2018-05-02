@@ -1,0 +1,6 @@
+<map id="efd::NDIdRef::toString" name="efd::NDIdRef::toString">
+<area shape="rect" id="node2" href="$d8/dd2/classefd_1_1NDIdRef.xhtml#aee4047da725c610abf28c2558ff5012f" title="Gets the id. " alt="" coords="215,5,353,32"/>
+<area shape="rect" id="node4" href="$d8/dd2/classefd_1_1NDIdRef.xhtml#ab2b468c0bd46cbfdcc01ceea43f5f49d" title="Gets an integer representing the position. " alt="" coords="216,56,352,83"/>
+<area shape="rect" id="node5" href="$df/d1b/classefd_1_1NDValue.xhtml#a9ded6b0d00e7ea4d748be60c5cc3632b" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="207,107,361,133"/>
+<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="409,31,507,57"/>
+</map>

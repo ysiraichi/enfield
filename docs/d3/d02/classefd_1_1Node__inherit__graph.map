@@ -1,0 +1,26 @@
+<map id="efd::Node" name="efd::Node">
+<area shape="rect" id="node2" href="$d8/df0/classefd_1_1NDBinOp.xhtml" title="Binary operation node. " alt="" coords="153,5,257,32"/>
+<area shape="rect" id="node3" href="$d0/d9e/classefd_1_1NDDecl.xhtml" title="Node for declaration of registers (concrete and quantum). " alt="" coords="158,56,253,83"/>
+<area shape="rect" id="node7" href="$d8/dd2/classefd_1_1NDIdRef.xhtml" title="Node for id references (register specific positions). " alt="" coords="155,107,255,133"/>
+<area shape="rect" id="node8" href="$dc/d9d/classefd_1_1NDIfStmt.xhtml" title="Node for conditional statement. " alt="" coords="153,157,257,184"/>
+<area shape="rect" id="node9" href="$d3/d29/classefd_1_1NDInclude.xhtml" title="Node used to parse another file. " alt="" coords="150,208,261,235"/>
+<area shape="rect" id="node10" href="$da/ddd/classefd_1_1NDList.xhtml" title="Base class for list of nodes. " alt="" coords="161,259,250,285"/>
+<area shape="rect" id="node13" href="$d9/dcb/classefd_1_1NDQasmVersion.xhtml" title="Node that holds the current Qasm version and the rest of the program. " alt="" coords="132,309,279,336"/>
+<area shape="rect" id="node14" href="$dd/d94/classefd_1_1NDQOp.xhtml" title="Generic node for quantum operations. This is also the base node for the other quantum gates..." alt="" coords="158,360,253,387"/>
+<area shape="rect" id="node24" href="$de/dd3/classefd_1_1NDUnaryOp.xhtml" title="Unary operation node. " alt="" coords="145,411,265,437"/>
+<area shape="rect" id="node25" href="$df/d1b/classefd_1_1NDValue.xhtml" title="Node for literal types. " alt="" coords="139,461,272,488"/>
+<area shape="rect" id="node4" href="$db/d1f/classefd_1_1NDGateSign.xhtml" title="Node for declaration of opaque quantum gates. " alt="" coords="338,31,461,57"/>
+<area shape="rect" id="node6" href="$da/d97/classefd_1_1NDRegDecl.xhtml" title="efd::NDRegDecl" alt="" coords="340,81,459,108"/>
+<area shape="rect" id="node5" href="$d1/d4b/classefd_1_1NDGateDecl.xhtml" title="Node for declaration of quantum gates. " alt="" coords="530,31,653,57"/>
+<area shape="rect" id="node11" href="$da/d14/classefd_1_1NDGOpList.xhtml" title="Node for list of qubit operation sequences inside gate declarations. " alt="" coords="341,183,457,209"/>
+<area shape="rect" id="node12" href="$da/d7f/classefd_1_1NDStmtList.xhtml" title="Node for list of qubit operation sequences. " alt="" coords="341,233,458,260"/>
+<area shape="rect" id="node15" href="$d2/d2a/classefd_1_1NDQOpBarrier.xhtml" title="NDQOp specialized for barrier operation. " alt="" coords="333,284,466,311"/>
+<area shape="rect" id="node16" href="$d3/d14/classefd_1_1NDQOpCX.xhtml" title="NDQOp specialized for barrier operation. " alt="" coords="342,335,457,361"/>
+<area shape="rect" id="node17" href="$d2/dff/classefd_1_1NDQOpGen.xhtml" title="NDQOp specialized for generic gates. " alt="" coords="340,385,459,412"/>
+<area shape="rect" id="node21" href="$d4/d64/classefd_1_1NDQOpMeasure.xhtml" title="NDQOp specialized for measure operation. " alt="" coords="327,436,472,463"/>
+<area shape="rect" id="node22" href="$d0/dd2/classefd_1_1NDQOpReset.xhtml" title="NDQOp specialized for reset operation. " alt="" coords="334,487,465,513"/>
+<area shape="rect" id="node23" href="$d7/dbe/classefd_1_1NDQOpU.xhtml" title="NDQOp specialized for barrier operation. " alt="" coords="347,537,452,564"/>
+<area shape="rect" id="node18" href="$d2/d46/structefd_1_1NDQOpLongCX.xhtml" title="Special node for long cnot calls. " alt="" coords="520,335,663,361"/>
+<area shape="rect" id="node19" href="$d1/d69/structefd_1_1NDQOpRevCX.xhtml" title="Special node for reversal cnot calls. " alt="" coords="522,385,661,412"/>
+<area shape="rect" id="node20" href="$dd/d04/structefd_1_1NDQOpSwap.xhtml" title="Special node for swap calls. " alt="" coords="527,436,655,463"/>
+</map>

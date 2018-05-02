@@ -1,0 +1,5 @@
+<map id="efd::UsedBitsVisitor" name="efd::UsedBitsVisitor">
+<area shape="rect" id="node2" href="$d8/d5d/classefd_1_1NodeVisitor.xhtml" title="Interface class to be used as a visitor. " alt="" coords="5,5,121,32"/>
+<area shape="rect" id="node3" href="$db/d0c/structefd_1_1XbitToNumber.xhtml" title="Maps every quantum and classic bit (not register) to a number inside a vector. " alt="" coords="145,5,277,32"/>
+<area shape="rect" id="node4" href="$dd/d52/classefd_1_1QModule.xhtml" title="Qasm module representation. " alt="" coords="301,5,401,32"/>
+</map>

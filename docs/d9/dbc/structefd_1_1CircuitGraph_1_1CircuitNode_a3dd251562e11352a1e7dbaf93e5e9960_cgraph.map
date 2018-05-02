@@ -1,0 +1,4 @@
+<map id="efd::CircuitGraph::CircuitNode::isGateNode" name="efd::CircuitGraph::CircuitNode::isGateNode">
+<area shape="rect" id="node2" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#a08725ecabe57a0f5aa58ca11f1b9fce6" title="True if this node is in the beginning (input node). " alt="" coords="226,5,395,47"/>
+<area shape="rect" id="node3" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#a05bee78f4954f7ac4bab2e16f99dc26c" title="True if this node has reached the end (output node). " alt="" coords="221,71,400,112"/>
+</map>

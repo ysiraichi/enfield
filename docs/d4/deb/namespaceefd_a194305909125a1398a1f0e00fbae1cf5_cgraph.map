@@ -1,0 +1,5 @@
+<map id="efd::GetIntrinsicGates" name="efd::GetIntrinsicGates">
+<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="225,5,344,32"/>
+<area shape="rect" id="node4" href="$d4/deb/namespaceefd.xhtml#ad7adca0e4de58074aa3f91827469a491" title="Uses the RTTI framework to cast forwardly an unique_ptr. " alt="" coords="204,56,365,83"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#ac078ce64eb404cfdc24b9288908536e4" title="Clones the current node (deep copy). " alt="" coords="413,5,556,32"/>
+</map>

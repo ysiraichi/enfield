@@ -1,0 +1,5 @@
+<map id="efd::NDQOp::getOperation" name="efd::NDQOp::getOperation">
+<area shape="rect" id="node2" href="$dd/d94/classefd_1_1NDQOp.xhtml#aa9d90f493865fe9cdc3fecd468eaa33b" title="Gets the id. " alt="" coords="242,5,374,32"/>
+<area shape="rect" id="node4" href="$df/d1b/classefd_1_1NDValue.xhtml#a9ded6b0d00e7ea4d748be60c5cc3632b" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="231,56,385,83"/>
+<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="433,5,531,32"/>
+</map>

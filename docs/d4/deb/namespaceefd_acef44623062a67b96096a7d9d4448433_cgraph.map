@@ -1,0 +1,6 @@
+<map id="efd::PrintStats" name="efd::PrintStats">
+<area shape="rect" id="node2" href="$d8/d51/classefd_1_1StatsPool.xhtml#a1fbb6d94a00b13ad41ed4c5d40c88e6f" title="efd::StatsPool::print" alt="" coords="160,31,299,57"/>
+<area shape="rect" id="node3" href="$db/d5d/classefd_1_1StatBase.xhtml#a3e9289cc9a1413590fc9ee7f1529652c" title="efd::StatBase::isZero" alt="" coords="347,5,493,32"/>
+<area shape="rect" id="node4" href="$db/d5d/classefd_1_1StatBase.xhtml#a636146648872719acb7f676d1b8277da" title="Prints the stat in out (it prints what toString returns). " alt="" coords="353,56,487,83"/>
+<area shape="rect" id="node5" href="$db/d5d/classefd_1_1StatBase.xhtml#ae2978e28d003ba2a3dc8b9e1239dae12" title="Returns a string with the contents of the stat. e.g.: 35::CNOTNum::Number of CNOT nodes..." alt="" coords="541,56,696,83"/>
+</map>

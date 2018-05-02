@@ -1,0 +1,5 @@
+<map id="efd::NDQOpLongCX" name="efd::NDQOpLongCX">
+<area shape="rect" id="node2" href="$d2/dff/classefd_1_1NDQOpGen.xhtml" title="NDQOp specialized for generic gates. " alt="" coords="17,157,136,184"/>
+<area shape="rect" id="node3" href="$dd/d94/classefd_1_1NDQOp.xhtml" title="Generic node for quantum operations. This is also the base node for the other quantum gates..." alt="" coords="29,81,124,108"/>
+<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml" title="Base class for AST nodes. " alt="" coords="37,5,116,32"/>
+</map>

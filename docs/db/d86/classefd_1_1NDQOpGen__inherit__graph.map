@@ -1,0 +1,7 @@
+<map id="efd::NDQOpGen" name="efd::NDQOpGen">
+<area shape="rect" id="node4" href="$d2/d46/structefd_1_1NDQOpLongCX.xhtml" title="Special node for long cnot calls. " alt="" coords="5,229,148,256"/>
+<area shape="rect" id="node5" href="$d1/d69/structefd_1_1NDQOpRevCX.xhtml" title="Special node for reversal cnot calls. " alt="" coords="173,229,311,256"/>
+<area shape="rect" id="node6" href="$dd/d04/structefd_1_1NDQOpSwap.xhtml" title="Special node for swap calls. " alt="" coords="335,229,463,256"/>
+<area shape="rect" id="node2" href="$dd/d94/classefd_1_1NDQOp.xhtml" title="Generic node for quantum operations. This is also the base node for the other quantum gates..." alt="" coords="195,80,289,107"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml" title="Base class for AST nodes. " alt="" coords="203,5,281,32"/>
+</map>

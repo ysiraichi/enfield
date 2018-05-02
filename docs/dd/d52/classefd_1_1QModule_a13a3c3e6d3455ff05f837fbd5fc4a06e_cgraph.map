@@ -1,0 +1,5 @@
+<map id="efd::QModule::insertReg" name="efd::QModule::insertReg">
+<area shape="rect" id="node2" href="$d0/d9e/classefd_1_1NDDecl.xhtml#a34957c2122c38cebf80a264d5fa3863f" title="Gets the id node. " alt="" coords="225,5,357,32"/>
+<area shape="rect" id="node4" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="217,56,364,83"/>
+<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="412,5,509,32"/>
+</map>

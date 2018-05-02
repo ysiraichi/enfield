@@ -1,0 +1,9 @@
+<map id="efd::QModulefyVisitor" name="efd::QModulefyVisitor">
+<area shape="rect" id="node2" href="$d8/d5d/classefd_1_1NodeVisitor.xhtml" title="Interface class to be used as a visitor. " alt="" coords="5,272,121,299"/>
+<area shape="rect" id="node3" href="$d3/d29/classefd_1_1NDInclude.xhtml" title="Node used to parse another file. " alt="" coords="111,132,221,159"/>
+<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml" title="Base class for AST nodes. " alt="" coords="157,5,236,32"/>
+<area shape="rect" id="node8" href="$d0/d9e/classefd_1_1NDDecl.xhtml" title="Node for declaration of registers (concrete and quantum). " alt="" coords="207,81,301,108"/>
+<area shape="rect" id="node5" href="$dd/d52/classefd_1_1QModule.xhtml" title="Qasm module representation. " alt="" coords="344,272,444,299"/>
+<area shape="rect" id="node6" href="$d1/d4b/classefd_1_1NDGateDecl.xhtml" title="Node for declaration of quantum gates. " alt="" coords="197,272,319,299"/>
+<area shape="rect" id="node7" href="$db/d1f/classefd_1_1NDGateSign.xhtml" title="Node for declaration of opaque quantum gates. " alt="" coords="197,183,319,209"/>
+</map>

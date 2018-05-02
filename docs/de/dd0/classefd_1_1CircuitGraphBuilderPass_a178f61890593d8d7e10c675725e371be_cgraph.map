@@ -1,0 +1,29 @@
+<map id="efd::CircuitGraphBuilderPass::run" name="efd::CircuitGraphBuilderPass::run">
+<area shape="rect" id="node2" href="$d0/d54/classefd_1_1CircuitGraph.xhtml#a55b28f16e4da779c944ca4ab5ef07d95" title="Appends a node to the bits xbits. " alt="" coords="245,35,375,76"/>
+<area shape="rect" id="node5" href="$d9/d6b/classefd_1_1Xbit.xhtml#a4cddd18c9e4ec4f08b28d1c3a81f67cc" title="Creates a classical Xbit with id. " alt="" coords="265,101,355,127"/>
+<area shape="rect" id="node6" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="475,538,572,565"/>
+<area shape="rect" id="node7" href="$d1/df9/classefd_1_1PassCache.xhtml#a8c54d0a438f35de5629ae78c886687a8" title="Gets a shared pointer to the pass T run in qmod. If it does not exist, it tries to run..." alt="" coords="237,202,383,229"/>
+<area shape="rect" id="node8" href="$d4/d64/classefd_1_1NDQOpMeasure.xhtml#addcc5fd8d95d5790f75b643e88e76c7e" title="Gets the cbit node. " alt="" coords="233,253,387,295"/>
+<area shape="rect" id="node9" href="$d6/d6a/classefd_1_1Node.xhtml#a63e30243eca03b0c85d8c4856e91c79d" title="Gets the i&#45;th child. " alt="" coords="243,319,377,346"/>
+<area shape="rect" id="node10" href="$da/ddd/classefd_1_1NDList.xhtml#a7d1b691a45689241a8138539a2be8596" title="Returns the number of childrem of this node. " alt="" coords="215,370,405,397"/>
+<area shape="rect" id="node11" href="$dc/d9d/classefd_1_1NDIfStmt.xhtml#a5ec6f243aee6d4fe8988885ea9c449de" title="Gets the id inside the conditional. " alt="" coords="224,421,396,447"/>
+<area shape="rect" id="node12" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#aee01f34943dd3c3afa794cb45815268f" title="Returns the number of cbits in a given gate (if any). " alt="" coords="240,472,380,513"/>
+<area shape="rect" id="node13" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ae9f84f1119a80e918cc3b3fd916a5922" title="Returns an uint32_t number representing the classic bit;. " alt="" coords="240,537,380,579"/>
+<area shape="rect" id="node14" href="$db/d56/classefd_1_1PassT.xhtml#aae3442c1486bcec7622a64451262d684" title="efd::PassT::getData" alt="" coords="240,603,380,630"/>
+<area shape="rect" id="node15" href="$dd/d94/classefd_1_1NDQOp.xhtml#af7ef43289355c5bb047a46419177c8ed" title="Gets the quantum arguments. " alt="" coords="231,654,389,681"/>
+<area shape="rect" id="node16" href="$dc/d9d/classefd_1_1NDIfStmt.xhtml#ae5c408d49862e644f1d299ab5b2f121d" title="Gets the qop. " alt="" coords="231,705,389,731"/>
+<area shape="rect" id="node17" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ab395508705fe60ed3bd0cfb28eb5ffc6" title="Returns the number of qbits in a given gate (if any). " alt="" coords="240,756,380,797"/>
+<area shape="rect" id="node19" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ae645e4b0ccb9c25c534883843484f06a" title="Returns an uint32_t number representing the qubit in this specific gate (if any). ..." alt="" coords="240,821,380,863"/>
+<area shape="rect" id="node20" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#aa3dc820bf243cb3f06c6e6155e853888" title="Returns a list of uids that relate to a given register. " alt="" coords="240,887,380,928"/>
+<area shape="rect" id="node21" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="237,953,383,979"/>
+<area shape="rect" id="node22" href="$d0/d54/classefd_1_1CircuitGraph.xhtml#aacac1809d4af7ea1b82d9dd24661360c" title="Initializes the CircuitGraph. " alt="" coords="237,1003,383,1030"/>
+<area shape="rect" id="node23" href="$d9/d6b/classefd_1_1Xbit.xhtml#a9bc4937fc867235e1e7867529aee20e3" title="Creates a quantum Xbit with id. " alt="" coords="265,1054,355,1081"/>
+<area shape="rect" id="node24" href="$dd/d52/classefd_1_1QModule.xhtml#ac00e1eb93f94c00db1e6a661d8f95d9d" title="Iterator to the beginning of the statement node vector. " alt="" coords="243,1105,377,1147"/>
+<area shape="rect" id="node26" href="$dd/d52/classefd_1_1QModule.xhtml#a23d45e3b6c65d5fa14b199da8b0617c7" title="Iterator to the end of the statement node vector. " alt="" coords="229,1171,391,1198"/>
+<area shape="rect" id="node28" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="244,1222,376,1249"/>
+<area shape="rect" id="node3" href="$d0/d54/classefd_1_1CircuitGraph.xhtml#a3b7cd29688c62411a7e561599a1dcbcb" title="Checks if the CircuitGraph is initialized. Exits with error if not. " alt="" coords="459,5,588,47"/>
+<area shape="rect" id="node4" href="$d9/d6b/classefd_1_1Xbit.xhtml#ad18f73714ed4aa4fe239a210280e7519" title="Gets the real id for this bit. " alt="" coords="456,71,591,98"/>
+<area shape="rect" id="node18" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#a7d9474b325920d98f5832d5f1923ba2b" title="Gets a constant reference to the mapping of qubtis of a gate. " alt="" coords="453,789,593,831"/>
+<area shape="rect" id="node25" href="$d6/d6a/classefd_1_1Node.xhtml#ae890d36b0dcb332d82616b3180da1886" title="Returns a iterator to the beginning of the vector. " alt="" coords="464,1113,583,1139"/>
+<area shape="rect" id="node27" href="$d6/d6a/classefd_1_1Node.xhtml#a335606078a1d727de214982453c9dd1b" title="Returns a iterator to the end of the vector. " alt="" coords="469,1171,577,1198"/>
+</map>

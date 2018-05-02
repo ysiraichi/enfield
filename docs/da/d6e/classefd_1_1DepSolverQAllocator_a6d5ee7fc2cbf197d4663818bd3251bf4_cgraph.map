@@ -1,0 +1,8 @@
+<map id="efd::DepSolverQAllocator::executeAllocation" name="efd::DepSolverQAllocator::executeAllocation">
+<area shape="rect" id="node2" href="$d1/df9/classefd_1_1PassCache.xhtml#a8c54d0a438f35de5629ae78c886687a8" title="Gets a shared pointer to the pass T run in qmod. If it does not exist, it tries to run..." alt="" coords="237,5,382,32"/>
+<area shape="rect" id="node3" href="$db/d56/classefd_1_1PassT.xhtml#aae3442c1486bcec7622a64451262d684" title="efd::PassT::getData" alt="" coords="239,56,379,83"/>
+<area shape="rect" id="node4" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a7c4de988e4910f1ab11c137ed3f35049" title="efd::DependencyBuilder\l::getDependencies" alt="" coords="229,107,390,149"/>
+<area shape="rect" id="node7" href="$da/d6e/classefd_1_1DepSolverQAllocator.xhtml#a32e0e8fba459848dcc59e293916c54e1" title="Solves the allocation problem, returning a solution. " alt="" coords="224,173,395,214"/>
+<area shape="rect" id="node5" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#ad18a762f3acc821e6e05541cc3670a73" title="efd::DependencyBuilder\l::getDepsSet" alt="" coords="443,107,604,149"/>
+<area shape="rect" id="node6" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a39689f940b3544a042ff0f1968068d53" title="Gets the DepsSet corresponding to the current quantum gate, or the global (if current gate is null)..." alt="" coords="652,107,813,149"/>
+</map>

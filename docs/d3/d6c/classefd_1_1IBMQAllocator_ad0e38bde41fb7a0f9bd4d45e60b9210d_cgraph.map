@@ -1,0 +1,26 @@
+<map id="efd::IBMQAllocator::executeAllocation" name="efd::IBMQAllocator::executeAllocation">
+<area shape="rect" id="node2" href="$dd/d52/classefd_1_1QModule.xhtml#a0d1ee13f9fdf977893067cb4d0688e3f" title="Removes all statements present int this module. " alt="" coords="198,5,401,32"/>
+<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="240,56,359,83"/>
+<area shape="rect" id="node6" href="$d8/d45/classefd_1_1BFSPathFinder.xhtml#a4a91e28940313cb585654f5214187cac" title="Searches for a path from u to v in the graph g. " alt="" coords="231,158,368,199"/>
+<area shape="rect" id="node8" href="$db/db3/classefd_1_1Graph.xhtml#aa85ea20ad74d6a7df7a52c13a9fabe2d" title="Return the number of vertices. " alt="" coords="498,111,613,137"/>
+<area shape="rect" id="node9" href="$db/db3/classefd_1_1Graph.xhtml#a64836ad3c96e79e02179787ce3bd42c9" title="Return the set of succesors of some vertex i. " alt="" coords="496,224,615,251"/>
+<area shape="rect" id="node10" href="$d1/df9/classefd_1_1PassCache.xhtml#a8c54d0a438f35de5629ae78c886687a8" title="Gets a shared pointer to the pass T run in qmod. If it does not exist, it tries to run..." alt="" coords="227,275,372,301"/>
+<area shape="rect" id="node11" href="$db/d56/classefd_1_1PassT.xhtml#aae3442c1486bcec7622a64451262d684" title="efd::PassT::getData" alt="" coords="229,325,369,352"/>
+<area shape="rect" id="node12" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a983d11adaea7f3f7c01bfc42fa0c17c3" title="efd::DependencyBuilder\l::getDeps" alt="" coords="219,377,380,418"/>
+<area shape="rect" id="node13" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ab395508705fe60ed3bd0cfb28eb5ffc6" title="Returns the number of qbits in a given gate (if any). " alt="" coords="229,611,369,653"/>
+<area shape="rect" id="node15" href="$d1/dca/structefd_1_1Dependencies.xhtml#a162d900ef6a43cdd8e1097808f1f43c9" title="Forwards to the mDeps attribute. " alt="" coords="230,494,369,535"/>
+<area shape="rect" id="node16" href="$de/d50/classefd_1_1Opt.xhtml#af670a67c3fd6e0c5cbea732b3749fb14" title="Gets a const reference to the value of this command line option. " alt="" coords="242,560,357,587"/>
+<area shape="rect" id="node17" href="$db/db3/classefd_1_1Graph.xhtml#aace719bbdaaef0e8787f8a0032a676d8" title="Returns true whether it has an edge (i, j). " alt="" coords="228,443,371,469"/>
+<area shape="rect" id="node18" href="$dd/d52/classefd_1_1QModule.xhtml#ae5c8859117a0d6ea5aeddd1a3fb060ec" title="Inserts ref at the back, and returns a iterator to this node. " alt="" coords="187,677,412,704"/>
+<area shape="rect" id="node23" href="$d4/deb/namespaceefd.xhtml#aac5a20e6db5d358cf72d4816441d0b0d" title="Prints the mapping m to a string and returns it. " alt="" coords="226,728,373,755"/>
+<area shape="rect" id="node24" href="$d1/dca/structefd_1_1Dependencies.xhtml#a44ff7c580f8709701e476adb60daa220" title="Forwards to the mDeps attribute. " alt="" coords="230,779,369,821"/>
+<area shape="rect" id="node25" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="233,845,365,872"/>
+<area shape="rect" id="node3" href="$da/ddd/classefd_1_1NDList.xhtml#a6d57f95bd61a3796252fa542e2c0b129" title="Clears all the childrem. " alt="" coords="493,5,618,32"/>
+<area shape="rect" id="node5" href="$d6/d6a/classefd_1_1Node.xhtml#ac078ce64eb404cfdc24b9288908536e4" title="Clones the current node (deep copy). " alt="" coords="484,56,627,83"/>
+<area shape="rect" id="node7" href="$db/db3/classefd_1_1Graph.xhtml#ac63b24166d3aa01848e0bd2ad9d46f2e" title="Return the set of predecessors of some vertex i. " alt="" coords="497,165,613,192"/>
+<area shape="rect" id="node14" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#a7d9474b325920d98f5832d5f1923ba2b" title="Gets a constant reference to the mapping of qubtis of a gate. " alt="" coords="485,586,625,627"/>
+<area shape="rect" id="node19" href="$da/ddd/classefd_1_1NDList.xhtml#a664c2f4a60746612062d7b112ff9842e" title="Appends a child to the end of the list. " alt="" coords="481,652,629,679"/>
+<area shape="rect" id="node21" href="$d6/d6a/classefd_1_1Node.xhtml#ae890d36b0dcb332d82616b3180da1886" title="Returns a iterator to the beginning of the vector. " alt="" coords="496,703,615,729"/>
+<area shape="rect" id="node22" href="$da/ddd/classefd_1_1NDList.xhtml#a7d1b691a45689241a8138539a2be8596" title="Returns the number of childrem of this node. " alt="" coords="460,753,651,780"/>
+<area shape="rect" id="node20" href="$d6/d6a/classefd_1_1Node.xhtml#a48e9d49d994b9023b8400316e2782e2b" title="Sets the parent node of the current node. " alt="" coords="699,652,841,679"/>
+</map>

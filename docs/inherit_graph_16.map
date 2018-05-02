@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$db/db3/classefd_1_1Graph.xhtml" title="Graph representation. " alt="" coords="5,56,88,83"/>
+<area shape="rect" id="node2" href="$d5/dae/classefd_1_1ArchGraph.xhtml" title="This is the base class for the architectures that this project will be supporting. " alt="" coords="166,31,277,57"/>
+<area shape="rect" id="node5" href="$d2/d54/classefd_1_1WeightedGraph.xhtml" title="efd::WeightedGraph\&lt; T \&gt;" alt="" coords="136,81,307,108"/>
+<area shape="rect" id="node3" href="$d7/db8/classefd_1_1ArchIBMQX2.xhtml" title="efd::ArchIBMQX2" alt="" coords="355,5,480,32"/>
+<area shape="rect" id="node4" href="$d6/df8/classefd_1_1ArchIBMQX3.xhtml" title="efd::ArchIBMQX3" alt="" coords="355,56,480,83"/>
+</map>

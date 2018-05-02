@@ -1,0 +1,8 @@
+<map id="efd::ParseArguments" name="efd::ParseArguments">
+<area shape="rect" id="node2" href="$d6/d25/classefd_1_1OptBase.xhtml#a36fb712beadd9a5429bc2d7121eb71af" title="Type sensitive number of arguments consumed. " alt="" coords="199,5,393,32"/>
+<area shape="rect" id="node3" href="$de/d50/classefd_1_1Opt.xhtml#af670a67c3fd6e0c5cbea732b3749fb14" title="Gets a const reference to the value of this command line option. " alt="" coords="239,56,353,83"/>
+<area shape="rect" id="node4" href="$d6/d25/classefd_1_1OptBase.xhtml#a0ab870ed13c778499c0b53b3b617f34d" title="True if this option has already been parsed. " alt="" coords="217,107,375,133"/>
+<area shape="rect" id="node5" href="$d6/d25/classefd_1_1OptBase.xhtml#ae271836d2366f5dc5ee502430df99c8a" title="True if the option was constructed as &#39;required&#39;. " alt="" coords="211,157,381,184"/>
+<area shape="rect" id="node6" href="$d6/d25/classefd_1_1OptBase.xhtml#a62615588393d0a86d38c5d1d3b4c8f97" title="Calls the parseImpl function, which is type&#45;dependent. " alt="" coords="227,208,365,235"/>
+<area shape="rect" id="node7" href="$d6/d25/classefd_1_1OptBase.xhtml#a78c038f9edc737659541e5cf4f2249ea" title="Type sensitive parsing of the arguments itself. " alt="" coords="441,208,605,235"/>
+</map>

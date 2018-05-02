@@ -1,0 +1,9 @@
+<map id="efd::QModulefyVisitor::visit" name="efd::QModulefyVisitor::visit">
+<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="224,5,343,32"/>
+<area shape="rect" id="node4" href="$dd/d52/classefd_1_1QModule.xhtml#a13a3c3e6d3455ff05f837fbd5fc4a06e" title="Inserts a register declaration node. " alt="" coords="201,56,365,83"/>
+<area shape="rect" id="node8" href="$d4/deb/namespaceefd.xhtml#ad7adca0e4de58074aa3f91827469a491" title="Uses the RTTI framework to cast forwardly an unique_ptr. " alt="" coords="203,107,364,133"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#ac078ce64eb404cfdc24b9288908536e4" title="Clones the current node (deep copy). " alt="" coords="415,5,558,32"/>
+<area shape="rect" id="node5" href="$d0/d9e/classefd_1_1NDDecl.xhtml#a34957c2122c38cebf80a264d5fa3863f" title="Gets the id node. " alt="" coords="421,56,553,83"/>
+<area shape="rect" id="node7" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="413,107,560,133"/>
+<area shape="rect" id="node6" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="608,56,705,83"/>
+</map>

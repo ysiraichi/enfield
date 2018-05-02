@@ -1,0 +1,6 @@
+<map id="efd::NDDecl" name="efd::NDDecl">
+<area shape="rect" id="node3" href="$db/d1f/classefd_1_1NDGateSign.xhtml" title="Node for declaration of opaque quantum gates. " alt="" coords="5,155,128,181"/>
+<area shape="rect" id="node5" href="$da/d97/classefd_1_1NDRegDecl.xhtml" title="efd::NDRegDecl" alt="" coords="153,155,271,181"/>
+<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml" title="Base class for AST nodes. " alt="" coords="99,5,178,32"/>
+<area shape="rect" id="node4" href="$d1/d4b/classefd_1_1NDGateDecl.xhtml" title="Node for declaration of quantum gates. " alt="" coords="5,229,128,256"/>
+</map>

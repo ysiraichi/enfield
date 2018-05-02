@@ -1,0 +1,5 @@
+<map id="efd::NDGateSign" name="efd::NDGateSign">
+<area shape="rect" id="node4" href="$d1/d4b/classefd_1_1NDGateDecl.xhtml" title="Node for declaration of quantum gates. " alt="" coords="5,229,128,256"/>
+<area shape="rect" id="node2" href="$d0/d9e/classefd_1_1NDDecl.xhtml" title="Node for declaration of registers (concrete and quantum). " alt="" coords="19,80,114,107"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml" title="Base class for AST nodes. " alt="" coords="27,5,106,32"/>
+</map>

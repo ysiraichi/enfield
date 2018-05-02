@@ -1,0 +1,18 @@
+<map id="include/enfield/Transform/Allocators/SolutionBuilder.h" name="include/enfield/Transform/Allocators/SolutionBuilder.h">
+<area shape="rect" id="node2" href="$dd/d3b/QbitAllocator_8h.xhtml" title="enfield/Transform/Allocators\l/QbitAllocator.h" alt="" coords="567,95,753,136"/>
+<area shape="rect" id="node31" href="$d0/d86/BitOptions_8h.xhtml" title="enfield/Support/BitOptions.h" alt="" coords="1523,102,1709,129"/>
+<area shape="rect" id="node3" href="$d7/d9d/ArchGraph_8h.xhtml" title="enfield/Arch/ArchGraph.h" alt="" coords="168,281,336,307"/>
+<area shape="rect" id="node15" href="$d9/dcf/DependencyBuilderPass_8h.xhtml" title="enfield/Transform/Dependency\lBuilderPass.h" alt="" coords="560,184,760,225"/>
+<area shape="rect" id="node20" href="$d9/d41/CommandLine_8h.xhtml" title="enfield/Support/CommandLine.h" alt="" coords="1180,191,1388,218"/>
+<area shape="rect" id="node30" href="$dc/d09/Stats_8h.xhtml" title="enfield/Support/Stats.h" alt="" coords="5,437,160,464"/>
+<area shape="rect" id="node4" href="$d7/d16/Graph_8h.xhtml" title="enfield/Support/Graph.h" alt="" coords="689,363,847,389"/>
+<area shape="rect" id="node9" href="$d4/daf/Nodes_8h.xhtml" title="enfield/Analysis/Nodes.h" alt="" coords="199,437,366,464"/>
+<area shape="rect" id="node10" href="$d1/d2e/WrapperVal_8h.xhtml" title="enfield/Support/WrapperVal.h" alt="" coords="444,512,636,539"/>
+<area shape="rect" id="node12" href="$d5/dfc/RTTI_8h.xhtml" title="enfield/Support/RTTI.h" alt="" coords="143,512,297,539"/>
+<area shape="rect" id="node16" href="$df/d29/Pass_8h.xhtml" title="enfield/Transform/Pass.h" alt="" coords="397,437,565,464"/>
+<area shape="rect" id="node17" href="$d4/d73/QModule_8h.xhtml" title="enfield/Transform/QModule.h" alt="" coords="321,363,511,389"/>
+<area shape="rect" id="node18" href="$d6/d94/XbitToNumberPass_8h.xhtml" title="enfield/Transform/XbitTo\lNumberPass.h" alt="" coords="637,273,803,315"/>
+<area shape="rect" id="node21" href="$d1/d5e/PossibleValuesListTrait_8h.xhtml" title="enfield/Support/Possible\lValuesListTrait.h" alt="" coords="1277,273,1440,315"/>
+<area shape="rect" id="node22" href="$dd/d62/EnumString_8h.xhtml" title="enfield/Support/EnumString.h" alt="" coords="1288,363,1480,389"/>
+<area shape="rect" id="node23" href="$d1/d73/Defs_8h.xhtml" title="enfield/Support/Defs.h" alt="" coords="1581,437,1733,464"/>
+</map>

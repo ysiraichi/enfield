@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$db/dde/classefd_1_1MappingFinder.xhtml" title="Interface for finding a mapping from some set of dependencies. " alt="" coords="5,56,139,83"/>
+<area shape="rect" id="node2" href="$d5/d24/classefd_1_1IdentityMappingFinder.xhtml" title="Finds a mapping where the logical qubit 0 is mapped to the physical qubit 0, etc. ..." alt="" coords="199,5,375,32"/>
+<area shape="rect" id="node3" href="$dd/d03/classefd_1_1RandomMappingFinder.xhtml" title="Randomizes the mapping. " alt="" coords="196,56,379,83"/>
+<area shape="rect" id="node4" href="$d3/d4f/classefd_1_1WeightedSIMappingFinder.xhtml" title="Finds a mapping with a weighted partial matching algorithm (subgraph isomorphism). " alt="" coords="187,107,388,133"/>
+</map>

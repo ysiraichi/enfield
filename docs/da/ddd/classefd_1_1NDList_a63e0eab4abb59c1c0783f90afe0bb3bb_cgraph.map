@@ -1,0 +1,5 @@
+<map id="efd::NDList::Create" name="efd::NDList::Create">
+<area shape="rect" id="node2" href="$d4/deb/namespaceefd.xhtml#a3fd26bc2a0a0c6d9948d0d3cef2e1515" title="Returns true if the pointer src is of class TargetTy. " alt="" coords="203,5,314,32"/>
+<area shape="rect" id="node3" href="$da/ddd/classefd_1_1NDList.xhtml#a2642c91fda9d33512d1aa1aa7851b6bd" title="efd::NDList::NDList" alt="" coords="189,56,328,83"/>
+<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml#a09ac8cdf7898a3d17293d92ae956eece" title="Constructs the node, initially empty (with no information). " alt="" coords="376,56,495,83"/>
+</map>

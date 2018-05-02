@@ -1,0 +1,4 @@
+<map id="efd::WeightedGraph::putEdge" name="efd::WeightedGraph::putEdge">
+<area shape="rect" id="node2" href="$db/db3/classefd_1_1Graph.xhtml#a9010eb5a297272371c090f47098e2ccf" title="Returns true if this is a directed graph. " alt="" coords="379,13,564,39"/>
+<area shape="rect" id="node3" href="$db/db3/classefd_1_1Graph.xhtml#a3ecb9d2571e0ca6798a8de8a9efa08ed" title="Inserts an edge (i, j) in the successor&#39;s list and an edge (j, i) in the predecessor&#39;s list..." alt="" coords="192,38,331,65"/>
+</map>
