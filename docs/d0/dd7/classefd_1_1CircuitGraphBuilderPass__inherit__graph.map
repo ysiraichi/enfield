@@ -1,0 +1,5 @@
+<map id="efd::CircuitGraphBuilderPass" name="efd::CircuitGraphBuilderPass">
+<area shape="rect" id="node2" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; CircuitGraph \&gt;" alt="" coords="9,171,192,197"/>
+<area shape="rect" id="node3" href="$d0/d98/classefd_1_1Pass.xhtml" title="Base class for implementation of QModule passes. This information will be used when the QModule&#39;s fun..." alt="" coords="72,5,151,32"/>
+<area shape="rect" id="node4" href="$db/d56/classefd_1_1PassT.xhtml" title="Should serve as base class for classes that produces some data of type T. " alt="" coords="117,81,236,108"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="efd::PathFinder" name="efd::PathFinder">
+<area shape="rect" id="node2" href="$d8/d45/classefd_1_1BFSPathFinder.xhtml" title="Finds swaps for one restriction only. " alt="" coords="5,80,143,107"/>
+<area shape="rect" id="node3" href="$d3/dc3/classefd_1_1DijkstraPathFinder.xhtml" title="Dijkstra algorithm for finding a swap sequence in a weighted graph. " alt="" coords="167,80,355,107"/>
+</map>

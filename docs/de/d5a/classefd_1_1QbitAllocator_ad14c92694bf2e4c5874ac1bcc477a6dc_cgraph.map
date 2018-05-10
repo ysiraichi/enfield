@@ -1,0 +1,17 @@
+<map id="efd::QbitAllocator::run" name="efd::QbitAllocator::run">
+<area shape="rect" id="node2" href="$de/d5a/classefd_1_1QbitAllocator.xhtml#a34312df8398c33f3f004d3fd7c838228" title="Executes the allocation algorithm after the preprocessing. " alt="" coords="230,5,363,47"/>
+<area shape="rect" id="node3" href="$d1/df9/classefd_1_1PassCache.xhtml#a8c54d0a438f35de5629ae78c886687a8" title="Gets a shared pointer to the pass T run in qmod. If it does not exist, it tries to run..." alt="" coords="224,71,369,98"/>
+<area shape="rect" id="node4" href="$db/d56/classefd_1_1PassT.xhtml#aae3442c1486bcec7622a64451262d684" title="efd::PassT::getData" alt="" coords="227,122,367,149"/>
+<area shape="rect" id="node5" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a7c4de988e4910f1ab11c137ed3f35049" title="efd::DependencyBuilder\l::getDependencies" alt="" coords="216,173,377,215"/>
+<area shape="rect" id="node8" href="$d4/d89/classefd_1_1Timer.xhtml#ac83f06f2145058ef3b3b6a53892ed39b" title="Gets the number of microseconds stored in mDuration. " alt="" coords="203,239,391,266"/>
+<area shape="rect" id="node9" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ab395508705fe60ed3bd0cfb28eb5ffc6" title="Returns the number of qbits in a given gate (if any). " alt="" coords="227,291,367,332"/>
+<area shape="rect" id="node11" href="$d6/d1d/classefd_1_1Stat.xhtml#a8618606575e5c9045c0ec670fbdadaab" title="efd::Stat::operator=" alt="" coords="229,357,364,383"/>
+<area shape="rect" id="node12" href="$d1/df9/classefd_1_1PassCache.xhtml#a22f92cfd25891762477252a6cbcc4906" title="Wrapper that runs a created pass. " alt="" coords="223,407,371,434"/>
+<area shape="rect" id="node13" href="$db/db3/classefd_1_1Graph.xhtml#aa85ea20ad74d6a7df7a52c13a9fabe2d" title="Return the number of vertices. " alt="" coords="239,458,354,485"/>
+<area shape="rect" id="node14" href="$d4/dd6/classefd_1_1SolutionImplPass.xhtml#a7841dcb9503f9aa95ac1f3d26bf7697a" title="efd::SolutionImplPass\l::SolutionImplPass" alt="" coords="221,509,372,551"/>
+<area shape="rect" id="node15" href="$d4/d89/classefd_1_1Timer.xhtml#a04b2df0f873780111173bc5e2a1810aa" title="Starts the timer. " alt="" coords="239,575,354,602"/>
+<area shape="rect" id="node16" href="$d4/d89/classefd_1_1Timer.xhtml#a0b9a3de677363a5d3f995ac03a3d0a5e" title="Stops the timer. " alt="" coords="239,626,354,653"/>
+<area shape="rect" id="node6" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#ad18a762f3acc821e6e05541cc3670a73" title="efd::DependencyBuilder\l::getDepsSet" alt="" coords="439,173,600,215"/>
+<area shape="rect" id="node7" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a39689f940b3544a042ff0f1968068d53" title="Gets the DepsSet corresponding to the current quantum gate, or the global (if current gate is null)..." alt="" coords="648,173,809,215"/>
+<area shape="rect" id="node10" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#a7d9474b325920d98f5832d5f1923ba2b" title="Gets a constant reference to the mapping of qubtis of a gate. " alt="" coords="449,291,589,332"/>
+</map>

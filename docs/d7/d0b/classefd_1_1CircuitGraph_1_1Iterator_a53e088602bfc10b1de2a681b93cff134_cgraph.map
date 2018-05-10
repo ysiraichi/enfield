@@ -1,0 +1,5 @@
+<map id="efd::CircuitGraph::Iterator::next" name="efd::CircuitGraph::Iterator::next">
+<area shape="rect" id="node2" href="$d9/d6b/classefd_1_1Xbit.xhtml#ad18f73714ed4aa4fe239a210280e7519" title="Gets the real id for this bit. " alt="" coords="183,5,317,32"/>
+<area shape="rect" id="node3" href="$d7/d0b/classefd_1_1CircuitGraph_1_1Iterator.xhtml#aeee56d067ea9d2ef87f882279492a528" title="efd::CircuitGraph::\lIterator::next" alt="" coords="185,57,315,98"/>
+<area shape="rect" id="node4" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#a05bee78f4954f7ac4bab2e16f99dc26c" title="True if this node has reached the end (output node). " alt="" coords="365,57,544,98"/>
+</map>

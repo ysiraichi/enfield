@@ -1,0 +1,17 @@
+<map id="efd::DependencyGraphBuilderPass::run" name="efd::DependencyGraphBuilderPass::run">
+<area shape="rect" id="node2" href="$d2/d54/classefd_1_1WeightedGraph.xhtml#a38be91c7b4b1b647d6924dd187482bd2" title="Encapsulates the creation of a new Graph. " alt="" coords="261,5,399,47"/>
+<area shape="rect" id="node3" href="$d1/df9/classefd_1_1PassCache.xhtml#a8c54d0a438f35de5629ae78c886687a8" title="Gets a shared pointer to the pass T run in qmod. If it does not exist, it tries to run..." alt="" coords="257,71,403,98"/>
+<area shape="rect" id="node4" href="$db/d56/classefd_1_1PassT.xhtml#aae3442c1486bcec7622a64451262d684" title="efd::PassT::getData" alt="" coords="260,122,400,149"/>
+<area shape="rect" id="node5" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a7c4de988e4910f1ab11c137ed3f35049" title="efd::DependencyBuilder\l::getDependencies" alt="" coords="249,173,411,215"/>
+<area shape="rect" id="node8" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ab395508705fe60ed3bd0cfb28eb5ffc6" title="Returns the number of qbits in a given gate (if any). " alt="" coords="260,239,400,280"/>
+<area shape="rect" id="node10" href="$d2/d54/classefd_1_1WeightedGraph.xhtml#a44a294b52142aaaa321c520be2ac93ab" title="Gets the weight of an edge (i, j). " alt="" coords="261,304,399,345"/>
+<area shape="rect" id="node11" href="$db/db3/classefd_1_1Graph.xhtml#aace719bbdaaef0e8787f8a0032a676d8" title="Returns true whether it has an edge (i, j). " alt="" coords="259,370,401,397"/>
+<area shape="rect" id="node13" href="$d2/d54/classefd_1_1WeightedGraph.xhtml#ab686ed750280f96379b4dbf552fa4ff5" title="Insert the edge (i, j) with weight w(i, j) = w. " alt="" coords="261,421,399,463"/>
+<area shape="rect" id="node16" href="$d2/d54/classefd_1_1WeightedGraph.xhtml#a09a5e25004bf84b802f8219b579d31e1" title="Sets the weight of an edge (i, j). " alt="" coords="261,487,399,528"/>
+<area shape="rect" id="node6" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#ad18a762f3acc821e6e05541cc3670a73" title="efd::DependencyBuilder\l::getDepsSet" alt="" coords="459,173,620,215"/>
+<area shape="rect" id="node7" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a39689f940b3544a042ff0f1968068d53" title="Gets the DepsSet corresponding to the current quantum gate, or the global (if current gate is null)..." alt="" coords="680,173,841,215"/>
+<area shape="rect" id="node9" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#a7d9474b325920d98f5832d5f1923ba2b" title="Gets a constant reference to the mapping of qubtis of a gate. " alt="" coords="469,239,609,280"/>
+<area shape="rect" id="node12" href="$db/db3/classefd_1_1Graph.xhtml#a64836ad3c96e79e02179787ce3bd42c9" title="Return the set of succesors of some vertex i. " alt="" coords="480,370,599,397"/>
+<area shape="rect" id="node14" href="$db/db3/classefd_1_1Graph.xhtml#a3ecb9d2571e0ca6798a8de8a9efa08ed" title="Inserts an edge (i, j) in the successor&#39;s list and an edge (j, i) in the predecessor&#39;s list..." alt="" coords="470,425,609,451"/>
+<area shape="rect" id="node15" href="$db/db3/classefd_1_1Graph.xhtml#a9010eb5a297272371c090f47098e2ccf" title="Returns true if this is a directed graph. " alt="" coords="668,450,853,477"/>
+</map>

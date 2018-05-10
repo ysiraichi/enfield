@@ -1,0 +1,11 @@
+<map id="efd::NDGOpList::cloneImpl" name="efd::NDGOpList::cloneImpl">
+<area shape="rect" id="node2" href="$da/ddd/classefd_1_1NDList.xhtml#aed2ba2ed453bc5ec3f84b45b836f041e" title="Deep&#45;copies the childrem of list. " alt="" coords="233,56,413,83"/>
+<area shape="rect" id="node7" href="$da/d14/classefd_1_1NDGOpList.xhtml#ad763f42c1ceddbf4aab2808682bc1e1b" title="Creates a new instance of this node. " alt="" coords="242,107,405,133"/>
+<area shape="rect" id="node3" href="$da/ddd/classefd_1_1NDList.xhtml#a664c2f4a60746612062d7b112ff9842e" title="Appends a child to the end of the list. " alt="" coords="483,5,631,32"/>
+<area shape="rect" id="node5" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="498,56,617,83"/>
+<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml#a48e9d49d994b9023b8400316e2782e2b" title="Sets the parent node of the current node. " alt="" coords="701,5,844,32"/>
+<area shape="rect" id="node6" href="$d6/d6a/classefd_1_1Node.xhtml#ac078ce64eb404cfdc24b9288908536e4" title="Clones the current node (deep copy). " alt="" coords="701,56,844,83"/>
+<area shape="rect" id="node8" href="$da/d14/classefd_1_1NDGOpList.xhtml#aa2ec8dc00392f74e5d4bd261fb1a43c5" title="efd::NDGOpList::NDGOpList" alt="" coords="461,107,653,133"/>
+<area shape="rect" id="node9" href="$da/ddd/classefd_1_1NDList.xhtml#a2642c91fda9d33512d1aa1aa7851b6bd" title="efd::NDList::NDList" alt="" coords="703,107,842,133"/>
+<area shape="rect" id="node10" href="$d6/d6a/classefd_1_1Node.xhtml#a09ac8cdf7898a3d17293d92ae956eece" title="Constructs the node, initially empty (with no information). " alt="" coords="892,107,1011,133"/>
+</map>

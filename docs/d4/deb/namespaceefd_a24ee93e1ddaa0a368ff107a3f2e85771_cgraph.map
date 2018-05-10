@@ -1,0 +1,4 @@
+<map id="efd::CreateArchitecture" name="efd::CreateArchitecture">
+<area shape="rect" id="node2" href="$dc/dd0/classefd_1_1Registry.xhtml#af46d8fc9d6740ffdd21cab91e8d417b7" title="Creates an object instance by calling the constructor mapped by key, with arg. " alt="" coords="211,5,372,32"/>
+<area shape="rect" id="node3" href="$dc/dd0/classefd_1_1Registry.xhtml#acbc4d1970bfb864501536a764bcce3fe" title="Returns true if key exists inside mCtorMap. " alt="" coords="420,5,567,32"/>
+</map>

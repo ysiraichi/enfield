@@ -1,0 +1,4 @@
+<map id="efd::SimpleDepSolver::solve" name="efd::SimpleDepSolver::solve">
+<area shape="rect" id="node2" href="$d7/d30/classefd_1_1SolutionBuilder.xhtml#ae665e11991333ba13c1c34d31068f812" title="Constructs a solution (QbitAllocator::Solution) from the mapping initial, with deps dependencies in t..." alt="" coords="203,5,337,47"/>
+<area shape="rect" id="node3" href="$db/dde/classefd_1_1MappingFinder.xhtml#a1a6223338a442d56a2fc338c450268fc" title="Returns a mapping generated from a set of dependencies. " alt="" coords="203,71,337,112"/>
+</map>

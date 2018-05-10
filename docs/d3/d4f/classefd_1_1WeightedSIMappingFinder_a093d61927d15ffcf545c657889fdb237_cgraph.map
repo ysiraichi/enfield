@@ -1,0 +1,10 @@
+<map id="efd::WeightedSIMappingFinder::find" name="efd::WeightedSIMappingFinder::find">
+<area shape="rect" id="node2" href="$d5/db6/classefd_1_1WeightedSIFinder.xhtml#a5bcd8385114a9ef46c78edefc57abd12" title="Creates an instance of this class. " alt="" coords="255,5,407,47"/>
+<area shape="rect" id="node3" href="$d2/d54/classefd_1_1WeightedGraph.xhtml#a38be91c7b4b1b647d6924dd187482bd2" title="Encapsulates the creation of a new Graph. " alt="" coords="261,71,400,112"/>
+<area shape="rect" id="node4" href="$d6/d1e/classefd_1_1SIFinder.xhtml#a103eba12aca0f90381b197e5902777d6" title="Returns a valid matching of h in g. " alt="" coords="267,137,394,163"/>
+<area shape="rect" id="node5" href="$d2/d54/classefd_1_1WeightedGraph.xhtml#ab686ed750280f96379b4dbf552fa4ff5" title="Insert the edge (i, j) with weight w(i, j) = w. " alt="" coords="261,188,400,229"/>
+<area shape="rect" id="node8" href="$db/db3/classefd_1_1Graph.xhtml#aa85ea20ad74d6a7df7a52c13a9fabe2d" title="Return the number of vertices. " alt="" coords="273,254,388,281"/>
+<area shape="rect" id="node9" href="$d4/deb/namespaceefd.xhtml#a5d73093d1b1ab771a2e970412a565f39" title="Wrapper function that &quot;transforms&quot; a std::unique_ptr into a std::shared_ptr. " alt="" coords="281,305,381,331"/>
+<area shape="rect" id="node6" href="$db/db3/classefd_1_1Graph.xhtml#a9010eb5a297272371c090f47098e2ccf" title="Returns true if this is a directed graph. " alt="" coords="641,195,827,222"/>
+<area shape="rect" id="node7" href="$db/db3/classefd_1_1Graph.xhtml#a3ecb9d2571e0ca6798a8de8a9efa08ed" title="Inserts an edge (i, j) in the successor&#39;s list and an edge (j, i) in the predecessor&#39;s list..." alt="" coords="455,221,593,247"/>
+</map>

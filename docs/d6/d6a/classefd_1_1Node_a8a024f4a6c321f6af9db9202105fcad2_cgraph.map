@@ -1,0 +1,7 @@
+<map id="efd::Node::equals" name="efd::Node::equals">
+<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#a09d052b58e537bb983993baa68ab1cc9" title="Extend the &#39;equals&#39; implementation by implementing this method. " alt="" coords="194,5,345,32"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#a63e30243eca03b0c85d8c4856e91c79d" title="Gets the i&#45;th child. " alt="" coords="202,56,337,83"/>
+<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml#a11df06f4d8e590426340024cbb2db23e" title="Returns the number of childrem of this node. " alt="" coords="179,107,360,133"/>
+<area shape="rect" id="node5" href="$d6/d6a/classefd_1_1Node.xhtml#a23e33e714f48070d9e8c090cd396d956" title="Returns the kind of this node. " alt="" coords="204,157,335,184"/>
+<area shape="rect" id="node6" href="$d6/d6a/classefd_1_1Node.xhtml#ae9f49bc3eeebb8d24af82ecaa8cc3636" title="Returns a std::string representation of the operation. " alt="" coords="189,208,350,235"/>
+</map>

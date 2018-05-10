@@ -1,0 +1,10 @@
+<map id="include/enfield/Support/BitOptions.h" name="include/enfield/Support/BitOptions.h">
+<area shape="rect" id="node2" href="$db/d60/SolutionBuilder_8h.xhtml" title="include/enfield/Transform\l/Allocators/SolutionBuilder.h" alt="" coords="288,95,475,136"/>
+<area shape="rect" id="node3" href="$dd/d3e/SimpleDepSolver_8h.xhtml" title="include/enfield/Transform\l/Allocators/SimpleDepSolver.h" alt="" coords="504,184,704,225"/>
+<area shape="rect" id="node6" href="$dd/de8/PathGuidedSolBuilder_8h.xhtml" title="include/enfield/Transform\l/Allocators/PathGuidedSolBuilder.h" alt="" coords="32,184,259,225"/>
+<area shape="rect" id="node8" href="$de/d8c/QbitterSolBuilder_8h.xhtml" title="include/enfield/Transform\l/Allocators/QbitterSolBuilder.h" alt="" coords="283,184,480,225"/>
+<area shape="rect" id="node4" href="$dc/dea/Allocators_8cpp.xhtml" title="lib/Transform/Allocators\l/Allocators.cpp" alt="" coords="208,273,368,315"/>
+<area shape="rect" id="node5" href="$d9/dcf/SimpleDepSolver_8cpp.xhtml" title="lib/Transform/Allocators\l/SimpleDepSolver.cpp" alt="" coords="576,273,736,315"/>
+<area shape="rect" id="node7" href="$d3/d84/PathGuidedSolBuilder_8cpp.xhtml" title="lib/Transform/Allocators\l/PathGuidedSolBuilder.cpp" alt="" coords="5,273,184,315"/>
+<area shape="rect" id="node9" href="$db/de4/QbitterSolBuilder_8cpp.xhtml" title="lib/Transform/Allocators\l/QbitterSolBuilder.cpp" alt="" coords="392,273,552,315"/>
+</map>

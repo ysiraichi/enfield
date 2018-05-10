@@ -1,0 +1,17 @@
+<map id="efd::PathGuidedSolBuilder::build" name="efd::PathGuidedSolBuilder::build">
+<area shape="rect" id="node2" href="$d8/d45/classefd_1_1BFSPathFinder.xhtml#a795602a2f10b312f8917cf0ed4122834" title="Creates one instance of this finder. " alt="" coords="263,5,400,47"/>
+<area shape="rect" id="node4" href="$d1/df1/classefd_1_1PathFinder.xhtml#a0fdddf7200df832f1c10913c9b0f7207" title="Searches for a path from u to v in the graph g. " alt="" coords="261,71,401,98"/>
+<area shape="rect" id="node5" href="$d4/deb/namespaceefd.xhtml#a5b9a652c9403e0dbe7115d9d7f5e7d62" title="Generates an assignment mapping (maps the architecture&#39;s qubits to the logical ones) of size archQ..." alt="" coords="261,122,402,149"/>
+<area shape="rect" id="node7" href="$d8/db9/classefd_1_1BitOptions.xhtml#a7a46d7d9a192e778e1d3c4094ab6935a" title="Gets the value related to the bit that option represents. " alt="" coords="264,173,399,199"/>
+<area shape="rect" id="node8" href="$d6/d1d/classefd_1_1Stat.xhtml#a080a49d5ae6f48b13fc26d33a4b14f34" title="Gets a copy of the value stored. " alt="" coords="273,223,390,250"/>
+<area shape="rect" id="node9" href="$de/d50/classefd_1_1Opt.xhtml#af670a67c3fd6e0c5cbea732b3749fb14" title="Gets a const reference to the value of this command line option. " alt="" coords="274,274,389,301"/>
+<area shape="rect" id="node10" href="$db/db3/classefd_1_1Graph.xhtml#aace719bbdaaef0e8787f8a0032a676d8" title="Returns true whether it has an edge (i, j). " alt="" coords="260,325,403,351"/>
+<area shape="rect" id="node12" href="$d5/dae/classefd_1_1ArchGraph.xhtml#a10786b155e3d2d397b9d94227080155a" title="Returns true if the edge (i, j) is a reverse edge. i.e.: if (i, j) is not in the graph, but (j, i) is. " alt="" coords="228,375,435,402"/>
+<area shape="rect" id="node13" href="$d6/d1d/classefd_1_1Stat.xhtml#a2febb473f64f46e3b63b29713bb78b30" title="efd::Stat::operator+=" alt="" coords="260,426,403,453"/>
+<area shape="rect" id="node14" href="$d6/d1d/classefd_1_1Stat.xhtml#aa8ec5fbc5d1199f264fdc3e95bd3f659" title="efd::Stat::operator/=" alt="" coords="262,477,401,503"/>
+<area shape="rect" id="node15" href="$d1/dca/structefd_1_1Dependencies.xhtml#a44ff7c580f8709701e476adb60daa220" title="Forwards to the mDeps attribute. " alt="" coords="262,528,401,569"/>
+<area shape="rect" id="node16" href="$db/db3/classefd_1_1Graph.xhtml#aa85ea20ad74d6a7df7a52c13a9fabe2d" title="Return the number of vertices. " alt="" coords="274,594,389,621"/>
+<area shape="rect" id="node3" href="$d8/d45/classefd_1_1BFSPathFinder.xhtml#a576be3bbb9c43840eea330b7035159a9" title="efd::BFSPathFinder\l::BFSPathFinder" alt="" coords="483,5,620,47"/>
+<area shape="rect" id="node6" href="$d4/deb/namespaceefd.xhtml#a35884a2adaf86bf35e7e3f1f65acc522" title="efd::Fill" alt="" coords="519,122,584,149"/>
+<area shape="rect" id="node11" href="$db/db3/classefd_1_1Graph.xhtml#a64836ad3c96e79e02179787ce3bd42c9" title="Return the set of succesors of some vertex i. " alt="" coords="492,325,611,351"/>
+</map>

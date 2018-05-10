@@ -1,0 +1,6 @@
+<map id="efd::Graph::dotify" name="efd::Graph::dotify">
+<area shape="rect" id="node2" href="$db/db3/classefd_1_1Graph.xhtml#a3531989ad03fb1b38b43c7554d0d378e" title="Return the set of adjacent vertices of some vertex i. " alt="" coords="215,5,323,32"/>
+<area shape="rect" id="node3" href="$db/db3/classefd_1_1Graph.xhtml#a8082556444e5ba4d05519a4674b9352a" title="efd::Graph::edgeToString" alt="" coords="185,56,353,83"/>
+<area shape="rect" id="node4" href="$db/db3/classefd_1_1Graph.xhtml#ab47a77bae3a7ad42e41b1b255cf65d0a" title="efd::Graph::vertexToString" alt="" coords="409,81,585,108"/>
+<area shape="rect" id="node5" href="$db/db3/classefd_1_1Graph.xhtml#a9010eb5a297272371c090f47098e2ccf" title="Returns true if this is a directed graph. " alt="" coords="176,157,361,184"/>
+</map>

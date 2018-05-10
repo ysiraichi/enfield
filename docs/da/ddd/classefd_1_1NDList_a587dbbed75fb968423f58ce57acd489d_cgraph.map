@@ -1,0 +1,5 @@
+<map id="efd::NDList::removeChild" name="efd::NDList::removeChild">
+<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#a335606078a1d727de214982453c9dd1b" title="Returns a iterator to the end of the vector. " alt="" coords="255,5,363,32"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#ae80bbf9487f0e43317c29c63a414ff34" title="Returns a iterator pointing to the given child. " alt="" coords="240,56,379,83"/>
+<area shape="rect" id="node4" href="$da/ddd/classefd_1_1NDList.xhtml#ae7c4d5c8dcb0a7439b62e3f662cbb85f" title="Removes the child in the iterator it. The iterator moves to the next element. " alt="" coords="224,107,395,133"/>
+</map>

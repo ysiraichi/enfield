@@ -1,0 +1,6 @@
+<map id="efd::BitOptions&lt; ETy, last &gt;" name="efd::BitOptions&lt; ETy, last &gt;">
+<area shape="rect" id="node2" href="$d8/db9/classefd_1_1BitOptions.xhtml" title="efd::BitOptions\&lt; Solution\lBuilderOptions, SolutionBuilder\lOptions::KeepStats \&gt;" alt="" coords="83,139,286,195"/>
+<area shape="rect" id="node3" href="$d7/d30/classefd_1_1SolutionBuilder.xhtml" title="Interface for building the solution from an initial mapping. " alt="" coords="117,244,252,271"/>
+<area shape="rect" id="node4" href="$da/df7/classefd_1_1PathGuidedSolBuilder.xhtml" title="Solves the dependencies by looking at the path in the graph. " alt="" coords="5,320,180,347"/>
+<area shape="rect" id="node5" href="$d2/d7c/classefd_1_1QbitterSolBuilder.xhtml" title="Solves the dependencies using the &#39;long&#45;cnot&#39; gates. " alt="" coords="205,320,351,347"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="efd::BoundedSIDepSolver::solve" name="efd::BoundedSIDepSolver::solve">
+<area shape="rect" id="node2" href="$d4/dfd/classefd_1_1ApproxTSFinder.xhtml#a48e2a69ee11d70c0d074cba522c48149" title="efd::ApproxTSFinder\l::ApproxTSFinder" alt="" coords="245,5,387,47"/>
+<area shape="rect" id="node4" href="$d4/deb/namespaceefd.xhtml#a18b0007f75e6b8d651b15754ff89f910" title="Fills the unmapped qubits with the ones missing. " alt="" coords="283,71,349,98"/>
+<area shape="rect" id="node6" href="$d4/deb/namespaceefd.xhtml#a5b9a652c9403e0dbe7115d9d7f5e7d62" title="Generates an assignment mapping (maps the architecture&#39;s qubits to the logical ones) of size archQ..." alt="" coords="459,122,601,149"/>
+<area shape="rect" id="node7" href="$d4/dfd/classefd_1_1ApproxTSFinder.xhtml#a3142f7094125f35c011e0ffab5d6af7b" title="Finds a swap sequence to reach to from from. " alt="" coords="245,173,387,215"/>
+<area shape="rect" id="node10" href="$d4/d89/classefd_1_1Timer.xhtml#a12124caea02f8efea63a4ed320acb06f" title="Gets the number of milliseconds stored in mDuration. " alt="" coords="227,239,405,266"/>
+<area shape="rect" id="node11" href="$d1/dca/structefd_1_1Dependencies.xhtml#a162d900ef6a43cdd8e1097808f1f43c9" title="Forwards to the mDeps attribute. " alt="" coords="247,291,385,332"/>
+<area shape="rect" id="node12" href="$de/d50/classefd_1_1Opt.xhtml#af670a67c3fd6e0c5cbea732b3749fb14" title="Gets a const reference to the value of this command line option. " alt="" coords="259,357,373,383"/>
+<area shape="rect" id="node13" href="$db/db3/classefd_1_1Graph.xhtml#aace719bbdaaef0e8787f8a0032a676d8" title="Returns true whether it has an edge (i, j). " alt="" coords="245,407,387,434"/>
+<area shape="rect" id="node15" href="$d4/deb/namespaceefd.xhtml#a186bbb1cec68c992374b8795b10af1a8" title="Returns an identity mapping. " alt="" coords="246,458,386,485"/>
+<area shape="rect" id="node16" href="$d4/deb/namespaceefd.xhtml#aac5a20e6db5d358cf72d4816441d0b0d" title="Prints the mapping m to a string and returns it. " alt="" coords="243,509,389,535"/>
+<area shape="rect" id="node17" href="$d1/dca/structefd_1_1Dependencies.xhtml#a44ff7c580f8709701e476adb60daa220" title="Forwards to the mDeps attribute. " alt="" coords="247,560,385,601"/>
+<area shape="rect" id="node18" href="$d4/d89/classefd_1_1Timer.xhtml#a04b2df0f873780111173bc5e2a1810aa" title="Starts the timer. " alt="" coords="259,626,373,653"/>
+<area shape="rect" id="node19" href="$d4/d89/classefd_1_1Timer.xhtml#a0b9a3de677363a5d3f995ac03a3d0a5e" title="Stops the timer. " alt="" coords="259,677,373,703"/>
+<area shape="rect" id="node20" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="250,727,382,754"/>
+<area shape="rect" id="node3" href="$d1/dad/classefd_1_1TokenSwapFinder.xhtml#a4e88829212a32134fa42349ad5412f75" title="efd::TokenSwapFinder\l::TokenSwapFinder" alt="" coords="453,5,607,47"/>
+<area shape="rect" id="node5" href="$d4/deb/namespaceefd.xhtml#a35884a2adaf86bf35e7e3f1f65acc522" title="efd::Fill" alt="" coords="679,97,745,123"/>
+<area shape="rect" id="node8" href="$d4/dfd/classefd_1_1ApproxTSFinder.xhtml#a7edb103acffbe37cfbad6d4ea2bb36cc" title="Finds a swap sequence to reach to from from in graph. " alt="" coords="459,173,601,215"/>
+<area shape="rect" id="node9" href="$db/db3/classefd_1_1Graph.xhtml#aa85ea20ad74d6a7df7a52c13a9fabe2d" title="Return the number of vertices. " alt="" coords="655,181,769,207"/>
+<area shape="rect" id="node14" href="$db/db3/classefd_1_1Graph.xhtml#a64836ad3c96e79e02179787ce3bd42c9" title="Return the set of succesors of some vertex i. " alt="" coords="471,407,589,434"/>
+</map>

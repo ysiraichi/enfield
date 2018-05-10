@@ -1,0 +1,5 @@
+<map id="efd::QbitterSolBuilder" name="efd::QbitterSolBuilder">
+<area shape="rect" id="node2" href="$d7/d30/classefd_1_1SolutionBuilder.xhtml" title="Interface for building the solution from an initial mapping. " alt="" coords="39,244,174,271"/>
+<area shape="rect" id="node3" href="$d8/db9/classefd_1_1BitOptions.xhtml" title="efd::BitOptions\&lt; Solution\lBuilderOptions, SolutionBuilder\lOptions::KeepStats \&gt;" alt="" coords="5,139,208,195"/>
+<area shape="rect" id="node4" href="$d8/db9/classefd_1_1BitOptions.xhtml" title="Implements bit options for size last. " alt="" coords="32,5,181,47"/>
+</map>

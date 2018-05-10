@@ -1,0 +1,11 @@
+<map id="efd::XbitToNumberWrapperPass::run" name="efd::XbitToNumberWrapperPass::run">
+<area shape="rect" id="node2" href="$da/d97/classefd_1_1NDRegDecl.xhtml#a2acfdcaf9096f9882565fd1a07d00870" title="Used by visitor classes. " alt="" coords="240,5,399,32"/>
+<area shape="rect" id="node4" href="$db/d1f/classefd_1_1NDGateSign.xhtml#a9de83ab086f1b4414589d97196c602ff" title="Used by visitor classes. " alt="" coords="239,56,400,83"/>
+<area shape="rect" id="node6" href="$dd/d52/classefd_1_1QModule.xhtml#af560135001f7e189109fdd5330f1908f" title="Iterator to the beginning of the gate declaration node vector. " alt="" coords="249,107,389,149"/>
+<area shape="rect" id="node7" href="$dd/d52/classefd_1_1QModule.xhtml#a674bb9ce9b51f508600c30ad781d8af3" title="Iterator to the end of the gate declaration node vector. " alt="" coords="235,173,403,200"/>
+<area shape="rect" id="node8" href="$dd/d52/classefd_1_1QModule.xhtml#a06eca2b18de495ccb1bb7dae6dafd997" title="Iterator to the beginning of the register node vector. " alt="" coords="237,224,401,251"/>
+<area shape="rect" id="node9" href="$dd/d52/classefd_1_1QModule.xhtml#a9f18c4d27fb850ad0f66724b1f01b11b" title="Iterator to the end of the register node vector. " alt="" coords="242,275,397,301"/>
+<area shape="rect" id="node10" href="$d3/d66/classefd_1_1XbitToNumberVisitor.xhtml#ac921e86864be36b0242a426ebed7d2ab" title="efd::XbitToNumberVisitor\l::XbitToNumberVisitor" alt="" coords="235,326,404,367"/>
+<area shape="rect" id="node3" href="$d8/d5d/classefd_1_1NodeVisitor.xhtml#a1ed0cb8e09b3a2c62a148c29faf19e53" title="efd::NodeVisitor::visit" alt="" coords="452,5,600,32"/>
+<area shape="rect" id="node5" href="$d8/d5d/classefd_1_1NodeVisitor.xhtml#a92cc388d2e4f23f9e8a3fdfc84684a9d" title="efd::NodeVisitor::visit" alt="" coords="452,56,600,83"/>
+</map>

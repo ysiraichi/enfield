@@ -1,0 +1,8 @@
+<map id="efd::RenameQbitPass::run" name="efd::RenameQbitPass::run">
+<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#ab813c60af1717cf50e92a28b274c24ef" title="Used by visitor classes. " alt="" coords="253,5,371,32"/>
+<area shape="rect" id="node3" href="$db/da6/classefd_1_1RenameQbitVisitor.xhtml#a2c6e2ed96f5efe418edc1c2cca24e643" title="efd::RenameQbitVisitor\l::RenameQbitVisitor" alt="" coords="233,57,391,98"/>
+<area shape="rect" id="node4" href="$dd/d52/classefd_1_1QModule.xhtml#ac00e1eb93f94c00db1e6a661d8f95d9d" title="Iterator to the beginning of the statement node vector. " alt="" coords="245,122,379,163"/>
+<area shape="rect" id="node6" href="$dd/d52/classefd_1_1QModule.xhtml#a23d45e3b6c65d5fa14b199da8b0617c7" title="Iterator to the end of the statement node vector. " alt="" coords="231,188,393,215"/>
+<area shape="rect" id="node5" href="$d6/d6a/classefd_1_1Node.xhtml#ae890d36b0dcb332d82616b3180da1886" title="Returns a iterator to the beginning of the vector. " alt="" coords="441,129,560,156"/>
+<area shape="rect" id="node7" href="$d6/d6a/classefd_1_1Node.xhtml#a335606078a1d727de214982453c9dd1b" title="Returns a iterator to the end of the vector. " alt="" coords="447,188,555,215"/>
+</map>

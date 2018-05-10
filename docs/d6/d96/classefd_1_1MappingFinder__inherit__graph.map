@@ -1,0 +1,5 @@
+<map id="efd::MappingFinder" name="efd::MappingFinder">
+<area shape="rect" id="node2" href="$d5/d24/classefd_1_1IdentityMappingFinder.xhtml" title="Finds a mapping where the logical qubit 0 is mapped to the physical qubit 0, etc. ..." alt="" coords="5,80,181,107"/>
+<area shape="rect" id="node3" href="$dd/d03/classefd_1_1RandomMappingFinder.xhtml" title="Randomizes the mapping. " alt="" coords="206,80,389,107"/>
+<area shape="rect" id="node4" href="$d3/d4f/classefd_1_1WeightedSIMappingFinder.xhtml" title="Finds a mapping with a weighted partial matching algorithm (subgraph isomorphism). " alt="" coords="413,80,614,107"/>
+</map>
