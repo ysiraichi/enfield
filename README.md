@@ -5,6 +5,8 @@
 This project was built on top of [Bison](https://www.gnu.org/software/bison/) (v3.0.2) 
 and [Flex](https://github.com/westes/flex) (2.5.39).
 
+Check out the [documentation here!!](https://ysiraichi.github.io/enfield/)
+
 ## Building
 
 Enfield uses CMake. So, in order to build this project, issue the following commands:
