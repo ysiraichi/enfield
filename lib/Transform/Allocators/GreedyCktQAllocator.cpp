@@ -170,40 +170,44 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
             } else {
                 bool foundFrozen = false;
 
-                if (!frozen[a] || !frozen[b]) {
-                    uint32_t notFrozen, theOther;
+                if (!frozen[a]) {
+                    uint32_t v = mapping[b];
 
-                    if (!frozen[b]) {
-                        notFrozen = b; theOther = a;
-                    } else {
-                        notFrozen = a; theOther = b;
-                    }
+                    for (uint32_t u : mArchGraph->adj(v)) {
+                        uint32_t newA = assign[u];
 
-                    // This will repeat two times (if both 'a' and 'b' are not frozen)
-                    uint32_t i = 0;
+                        if (!frozen[newA]) {
+                            props.type = K_FRZ;
+                            props.u.frz.from = a;
+                            props.u.frz.to = newA;
 
-                    do {
-                        ++i;
-                        uint32_t u = mapping[theOther];
+                            if (!mArchGraph->hasEdge(u, v))
+                                props.cost = RevCost.getVal();
 
-                        for (uint32_t v : mArchGraph->adj(u)) {
-                            uint32_t otherNotFrozen = assign[v];
-
-                            if (!frozen[otherNotFrozen]) {
-                                props.type = K_FRZ;
-                                props.u.frz.from = notFrozen;
-                                props.u.frz.to = otherNotFrozen;
-
-                                if (!mArchGraph->hasEdge(u, mapping[otherNotFrozen]))
-                                    props.cost = RevCost.getVal();
-
-                                foundFrozen = true;
-                                break;
-                            }
+                            foundFrozen = true;
+                            break;
                         }
+                    }
+                }
 
-                        if (!foundFrozen) std::swap(notFrozen, theOther);
-                    } while (i < 2 && !foundFrozen && !frozen[notFrozen]);
+                if (!foundFrozen && !frozen[b]) {
+                    uint32_t u = mapping[a];
+
+                    for (uint32_t v : mArchGraph->adj(u)) {
+                        uint32_t newB = assign[v];
+
+                        if (!frozen[newB]) {
+                            props.type = K_FRZ;
+                            props.u.frz.from = b;
+                            props.u.frz.to = newB;
+
+                            if (!mArchGraph->hasEdge(u, v))
+                                props.cost = RevCost.getVal();
+
+                            foundFrozen = true;
+                            break;
+                        }
+                    }
                 }
 
                 if (!foundFrozen) {
