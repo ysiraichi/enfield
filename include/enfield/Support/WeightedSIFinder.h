@@ -170,7 +170,7 @@ efd::SIFinder::Result efd::WeightedSIFinder<T>::find(Graph::Ref g, Graph::Ref h)
                 uint32_t u = findBestVertex(parent[a], a);
 
                 if (u == gSize) {
-                    notMatched.push_back(u);
+                    notMatched.push_back(a);
                     break;
                 } else {
                     matching[a] = u;
