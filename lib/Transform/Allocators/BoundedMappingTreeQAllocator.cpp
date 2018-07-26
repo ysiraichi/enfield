@@ -1,13 +1,10 @@
-#include "enfield/Transform/Allocators/BoundedSIDepSolver.h"
+#include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
 #include "enfield/Support/ApproxTSFinder.h"
 #include "enfield/Support/CommandLine.h"
 #include "enfield/Support/Defs.h"
 #include "enfield/Support/Timer.h"
 
-#include <cstdlib>
 #include <algorithm>
-#include <queue>
-#include <stack>
 
 using namespace efd;
 
@@ -19,17 +16,20 @@ static Opt<uint32_t> MaxPartialSolutions
 ("-bsi-max-partial", "Limits the max number of partial solutions per step.",
  std::numeric_limits<uint32_t>::max(), false);
 
-namespace bsi {
-    struct TracebackInfo {
-        Mapping m;
-        uint32_t parent;
-        uint32_t cost;
-    };
+namespace efd {
+    struct Candidate;
 }
 
-static std::vector<uint32_t> CalculateDistance(uint32_t u, efd::ArchGraph::Ref graph) {
-    uint32_t size = graph->size();
-    std::vector<uint32_t> distance(size, _undef);
+BoundedMappingTreeQAllocator::BoundedMappingTreeQAllocator(ArchGraph::sRef ag)
+    : QbitAllocator(ag),
+      mDistance(mPQubits, Vector(mPQubits, _undef)) {
+    preCalculateDistance();
+}
+
+Vector BoundedMappingTreeQAllocator::distanceFrom(uint32_t u) {
+    uint32_t size = mArch->size();
+
+    Vector distance(size, _undef);
     std::queue<uint32_t> q;
     std::vector<bool> visited(size, false);
 
@@ -53,29 +53,16 @@ static std::vector<uint32_t> CalculateDistance(uint32_t u, efd::ArchGraph::Ref g
     return distance;
 }
 
-BoundedSIDepSolver::BoundedSIDepSolver(ArchGraph::sRef archGraph)
-    : DepSolverQAllocator(archGraph) {}
-
-BoundedSIDepSolver::uRef BoundedSIDepSolver::Create(ArchGraph::sRef archGraph) {
-    return uRef(new BoundedSIDepSolver(archGraph));
+void BoundedMappingTreeQAllocator::preCalculateDistance() {
+    for (uint32_t i = 0; i < mPQubits; ++i) {
+        mDistance[i] = distanceFrom(i, mArchGraph.get());
+    }
 }
 
-Solution BoundedSIDepSolver::solve(DepsSet& deps) {
-    Solution sol;
-    sol.mCost = 0;
-
-    sol.mInitial.assign(mVQubits, 0);
-    for (uint32_t i = 0; i < mVQubits; ++i)
-        sol.mInitial[i] = i;
-
-    CandidatesTy candidates { { Mapping(mVQubits, _undef), 0 } };
-    std::vector<CandidatesTy> candidatesCollection;
+void BoundedMappingTreeQAllocator::phase1() {
+    CandidateVector candidates { { Mapping(mVQubits, _undef), 0 } };
+    std::vector<CandidateVector> candidates;
     std::vector<bool> mapped(mVQubits, false);
-
-    Matrix distance(mPQubits, std::vector<uint32_t>(mPQubits, _undef));
-    for (uint32_t i = 0; i < mPQubits; ++i) {
-        distance[i] = CalculateDistance(i, mArchGraph.get());
-    }
 
     bool isFirst = true;
 
@@ -114,6 +101,17 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
         INF << "Candidate number: " << candidates.size() << std::endl;
     }
     candidatesCollection.push_back(candidates);
+}
+
+Solution BoundedMappingTreeQAllocator::executeAllocation(QModule::Ref qmod) {
+    Solution sol;
+
+    sol.mCost = 0;
+    sol.mInitial.assign(mVQubits, 0);
+    for (uint32_t i = 0; i < mVQubits; ++i) {
+        sol.mInitial[i] = i;
+    }
+
 
     // Second Phase:
     //     here, the idea is to use, perhaps, dynamic programming to test all possibilities
@@ -321,141 +319,7 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
     return sol;
 }
 
-uint32_t BoundedSIDepSolver::estimateCost(Mapping& previous,
-                                          Mapping& current,
-                                          Matrix& distance) {
-    auto prevAssign = GenAssignment(mPQubits, previous, false);
-    auto curAssign = GenAssignment(mPQubits, current, false);
-
-    for (uint32_t i = 0; i < mVQubits; ++i) {
-        if (current[i] != _undef && previous[i] == _undef) {
-            if (prevAssign[current[i]] == _undef) {
-                previous[i] = current[i];
-            } else {
-                previous[i] = getNearest(current[i], prevAssign);
-            }
-
-            prevAssign[previous[i]] = i;
-        } else if (current[i] == _undef && previous[i] != _undef) {
-            if (curAssign[previous[i]] == _undef) {
-                current[i] = previous[i];
-            } else {
-                current[i] = getNearest(previous[i], curAssign);
-            }
-
-            curAssign[current[i]] = i;
-        }
-    }
-
-    uint32_t totalDistance = 0;
-
-    for (uint32_t i = 0; i < mVQubits; ++i) {
-        if (current[i] != _undef) {
-            totalDistance += distance[previous[i]][current[i]];
-        }
-    }
-
-    return totalDistance;
-}
-
-uint32_t BoundedSIDepSolver::getNearest(uint32_t u, Assign& assign) {
-    std::vector<bool> visited(mPQubits, false);
-    std::queue<uint32_t> q;
-    q.push(u);
-    visited[u] = true;
-
-    while (!q.empty()) {
-        uint32_t v = q.front();
-        q.pop();
-
-        if (assign[v] == _undef) return v;
-
-        for (uint32_t w : mArchGraph->adj(v))
-            if (!visited[w]) {
-                visited[w] = true;
-                q.push(w);
-            }
-    }
-
-    // There is no way we can not find anyone!!
-    ERR << "Can't find any vertice connected to v:" << u << "." << std::endl;
-    std::exit(static_cast<uint32_t>(ExitCode::EXIT_unreachable));
-}
-
-BoundedSIDepSolver::CandidatesTy
-BoundedSIDepSolver::extendCandidates(Dep& dep, std::vector<bool>& mapped,
-                                     CandidatesTy& candidates, bool isFirst) {
-    CandidatesTy newCandidates;
-    uint32_t a = dep.mFrom, b = dep.mTo;
-    uint32_t remainingSolutions = MaxPartialSolutions.getVal();
-
-    bool bothUnmapped = !mapped[a] && !mapped[b];
-    bool hasUnmapped = !mapped[a] || !mapped[b];
-
-    // Of course, there is the possibility where both are mapped.
-    // In this case, no worries since we do not use this variables.
-    uint32_t unmappedV = (!mapped[a]) ? a : b;
-    uint32_t mappedV = (mapped[a]) ? a : b;
-
-    for (uint32_t i = 0, e = candidates.size(); i < e && remainingSolutions; ++i) {
-        auto candPair = candidates[i];
-        auto assign = GenAssignment(mPQubits, candPair.m, false);
-
-        uint32_t remainingChildren = MaxChildren.getVal();
-        if (isFirst) remainingChildren = MaxPartialSolutions.getVal();
-
-        uint32_t maxMappingsAB = std::min(remainingChildren, remainingSolutions);
-        std::vector<std::pair<uint32_t, uint32_t>> mappingsForAB;
-
-        if (bothUnmapped) {
-            // If both 'a' or 'b' are not mapped.
-            for (uint32_t u = 0; u < mPQubits; ++u) {
-                if (assign[u] != _undef) continue;
-                for (uint32_t v : mArchGraph->adj(u)) {
-                    if (assign[v] != _undef) continue;
-                    mappingsForAB.push_back(std::make_pair(u, v));
-                }
-            }
-        } else if (hasUnmapped) {
-            // If only one of 'a' or 'b' are already mapped.
-            uint32_t u = candPair.m[mappedV];
-            for (uint32_t v : mArchGraph->adj(u)) {
-                if (assign[v] == _undef) {
-                    // This is one new candidate!
-                    uint32_t from = (mappedV == a) ? u : v;
-                    uint32_t to = (unmappedV == a) ? u : v;
-                    mappingsForAB.push_back(std::make_pair(from, to));
-                }
-            }
-        } else {
-            // If both, 'a' and 'b' are already mapped.
-            uint32_t u = candPair.m[a], v = candPair.m[b];
-
-            if (mArchGraph->hasEdge(u, v) || mArchGraph->hasEdge(v, u))
-                mappingsForAB.push_back(std::make_pair(u, v));
-        }
-
-        if (mappingsForAB.size() >= maxMappingsAB) {
-            mappingsForAB.erase(mappingsForAB.begin() + maxMappingsAB, mappingsForAB.end());
-        }
-
-        for (auto& mappingCand : mappingsForAB) {
-            CandPair nCand = candPair;
-            nCand.m[a] = mappingCand.first;
-            nCand.m[b] = mappingCand.second;
-
-            if (!mArchGraph->hasEdge(mappingCand.first, mappingCand.second)) {
-                nCand.cost += RevCost.getVal();
-            }
-            
-            newCandidates.push_back(nCand);
-        }
-
-        remainingSolutions -= std::min(maxMappingsAB, (uint32_t) mappingsForAB.size());
-    }
-
-    mapped[a] = true;
-    mapped[b] = true;
-
-    return newCandidates;
+BoundedMappingTreeQAllocator::uRef
+BoundedMappingTreeQAllocator::Create(ArchGraph::sRef ag) {
+    return uRef(new BoundedMappingTreeQAllocator(ag));
 }
