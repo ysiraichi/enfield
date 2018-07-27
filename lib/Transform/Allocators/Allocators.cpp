@@ -4,6 +4,7 @@
 #include "enfield/Transform/Allocators/IBMQAllocator.h"
 #include "enfield/Transform/Allocators/SimpleDepSolver.h"
 #include "enfield/Transform/Allocators/BoundedSIDepSolver.h"
+#include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
 #include "enfield/Transform/Allocators/WeightedSIMappingFinder.h"
 #include "enfield/Transform/Allocators/RandomMappingFinder.h"
 #include "enfield/Transform/Allocators/IdentityMappingFinder.h"
