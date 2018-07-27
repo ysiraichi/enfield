@@ -122,3 +122,6 @@ efd_test (IBMQAllocatorTests
 efd_test (BoundedSIDepSolverTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
+efd_test (BoundedMappingTreeQAllocatorTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
