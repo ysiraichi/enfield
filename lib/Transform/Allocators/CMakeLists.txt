@@ -11,4 +11,5 @@ add_library (EfdAllocator
     PathGuidedSolBuilder.cpp
     QbitterSolBuilder.cpp
     GreedyCktQAllocator.cpp
-    IBMQAllocator.cpp)
+    IBMQAllocator.cpp
+    BoundedMappingTreeQAllocator.cpp)
