@@ -30,7 +30,13 @@ efd::Solution efd::QbitterSolBuilder::build
             operation = { Operation::K_OP_LCNOT, a, b };
 
             auto path = finder->find(g, u, v);
-            assert(path.size() == 3 && "Can't apply a long cnot.");
+
+            if (path.size() == 3) {
+                ERR << "Can't apply a long cnot. Path size: `"
+                    << path.size() << "`." << std::endl;
+                ExitWith(ExitCode::EXIT_unreachable);
+            }
+
             operation.mW = assign[path[1]];
         }
         ops.second.push_back(operation);

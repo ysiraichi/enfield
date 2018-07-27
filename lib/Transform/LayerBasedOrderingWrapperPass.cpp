@@ -3,7 +3,12 @@
 #include <cassert>
 
 uint32_t efd::LayerBasedOrderingWrapperPass::getNodeId(Node::Ref ref) {
-    assert(mStmtId.find(ref) != mStmtId.end() && "Unknown node.");
+    if (mStmtId.find(ref) != mStmtId.end()) {
+        ERR << "Unknown node: `" << (ref == nullptr) ? "nullptr" : ref->toString(false)
+            << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     return mStmtId[ref];
 }
 

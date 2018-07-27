@@ -53,8 +53,12 @@ const efd::DependencyBuilder::DepsSet* efd::DependencyBuilder::getDepsSet
     const DepsSet* deps = &mGDeps;
 
     if (gate != nullptr) {
-        assert(mLDeps.find(gate) != mLDeps.end() && \
-                "No dependencies for this gate.");
+        if (mLDeps.find(gate) != mLDeps.end()) {
+            ERR << "No dependencies for this gate: `"
+                << gate->getId()->getVal() << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_unknown_resource);
+        }
+
         deps = &mLDeps.at(gate);
     }
 
@@ -87,7 +91,12 @@ efd::DependencyBuilder::DepsSet& efd::DependencyBuilder::getDependencies
 }
 
 const efd::Dependencies efd::DependencyBuilder::getDeps(Node* ref) const {
-    assert(mIDeps.find(ref) != mIDeps.end() && "Instruction never seen before.");
+    if (mIDeps.find(ref) == mIDeps.end()) {
+        std::string refStr = (ref == nullptr) ? "nullptr" : ref->toString(false);
+        ERR << "Instruction never seen before: `" << refStr << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unknown_resource);
+    }
+
     return mIDeps.at(ref);
 }
 
@@ -136,7 +145,12 @@ efd::NDGateDecl::Ref efd::DependencyBuilderVisitor::getParentGate(Node::Ref ref)
     }
 
     auto gate = dynCast<NDGateDecl>(goplist->getParent());
-    assert(gate != nullptr && "NDGOpList is owned by a non-gate node.");
+
+    if (gate == nullptr) {
+        ERR << "NDGOpList is owned by a no node." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     return gate;
 }
 
@@ -174,7 +188,12 @@ void efd::DependencyBuilderVisitor::visit(NDQOpGen::Ref ref) {
     // Getting the gate declaration node.
     Node::Ref node = mMod.getQGate(ref->getId()->getVal());
     NDGateDecl::Ref gRef = dynCast<NDGateDecl>(node);
-    assert(gRef != nullptr && "There is no quantum gate with this id.");
+
+    if (gRef == nullptr) {
+        std::string nodeStr = (node == nullptr) ? "nullptr" : node->toString(false);
+        ERR << "There is no quantum gate with this id: `" << nodeStr << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unknown_resource);
+    }
 
     auto& gDeps = mDepBuilder.mLDeps[gRef];
     Dependencies thisDeps { {}, ref };

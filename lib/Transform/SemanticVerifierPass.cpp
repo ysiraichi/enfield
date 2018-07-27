@@ -253,7 +253,9 @@ void SemanticVerifierVisitor::visitNDQOp(NDQOp::Ref tgtQOp, NDIfStmt::Ref tgtIfS
             mSuccess = src->getQArgs()->getChildNumber() == tgt->getQArgs()->getChildNumber();
 
         } else {
-            assert(false && "Node is neither CNOT nor Barrier.");
+            std::string str = (srcQOp == nullptr) ? "nullptr" : srcQOp->toString(false);
+            ERR << "Node is neither CNOT nor Barrier. Actual: `" << str << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
         }
 
     } else {

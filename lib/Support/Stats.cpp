@@ -1,7 +1,7 @@
 #include "enfield/Support/Stats.h"
+#include "enfield/Support/Defs.h"
 
 #include <memory>
-#include <cassert>
 #include <map>
 
 namespace efd {
@@ -20,7 +20,12 @@ namespace efd {
 }
 
 void efd::StatsPool::addStat(StatBase* stat) {
-    assert(!hasStat(stat->getName()) && "Stat with the same name already defined.");
+    if (hasStat(stat->getName())) {
+        ERR << "Stat with the same name already defined: `" << stat->getName()
+            << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     mMap[stat->getName()] = stat;
 }
 

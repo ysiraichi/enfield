@@ -56,7 +56,11 @@ void efd::ReverseEdgesVisitor::visit(NDQOpCX::Ref ref) {
 void efd::ReverseEdgesVisitor::visit(NDQOpGen::Ref ref) {
     if (ref->getId()->getVal() == "cx") {
         // Have to come up a way to overcome this.
-        assert(ref->getQArgs()->getChildNumber() == 2 && "CNot gate malformed.");
+        if (ref->getQArgs()->getChildNumber() != 2) {
+            ERR << "CNot gate malformed: `" << ref->toString(false) << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
+        }
+
         NDList* qargs = ref->getQArgs();
         uint32_t uidLhs = mG->getUId(qargs->getChild(0)->toString());
         uint32_t uidRhs = mG->getUId(qargs->getChild(1)->toString());

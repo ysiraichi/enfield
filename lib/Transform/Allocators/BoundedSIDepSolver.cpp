@@ -87,7 +87,7 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
         if (nofIDeps > 1) {
             ERR << "Instructions with more than one dependency not supported "
                 << "(" << iDependencies.mCallPoint->toString(false) << ")" << std::endl;
-            std::exit(static_cast<uint32_t>(ExitCode::EXIT_multi_deps));
+            ExitWith(ExitCode::EXIT_multi_deps);
         } else if (nofIDeps < 1) {
             continue;
         }
@@ -223,7 +223,7 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
                     ERR << "Not enough mappings were generated, maybe!?" << std::endl;
                     ERR << "Mapping for '" << iDependencies.mCallPoint->toString(false)
                         << "'." << std::endl;
-                    std::exit(static_cast<uint32_t>(ExitCode::EXIT_unreachable));
+                    ExitWith(ExitCode::EXIT_unreachable);
                 }
 
                 auto newInfo = infoVector[idx];
@@ -236,7 +236,7 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
                     if (info.m[i] != _undef && newInfo.m[i] == _undef) {
                         ERR << "Assumption that previous mappings have same mapped qubits "
                             << "than current mapping broken." << std::endl;
-                        std::exit(static_cast<uint32_t>(ExitCode::EXIT_unreachable));
+                        ExitWith(ExitCode::EXIT_unreachable);
                     }
 
                     if (info.m[i] != _undef) {
@@ -293,7 +293,7 @@ Solution BoundedSIDepSolver::solve(DepsSet& deps) {
             } else {
                 ERR << "Mapping " << MappingToString(info.m) << " not able to satisfy dependency "
                     << "(" << a << "{" << u << "}, " << b << "{" << v << "})" << std::endl;
-                std::exit(static_cast<uint32_t>(ExitCode::EXIT_unreachable));
+                ExitWith(ExitCode::EXIT_unreachable);
             }
 
             opVector.push_back(op);
@@ -379,7 +379,7 @@ uint32_t BoundedSIDepSolver::getNearest(uint32_t u, Assign& assign) {
 
     // There is no way we can not find anyone!!
     ERR << "Can't find any vertice connected to v:" << u << "." << std::endl;
-    std::exit(static_cast<uint32_t>(ExitCode::EXIT_unreachable));
+    ExitWith(ExitCode::EXIT_unreachable);
 }
 
 BoundedSIDepSolver::CandidatesTy

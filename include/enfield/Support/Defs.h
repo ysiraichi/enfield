@@ -33,8 +33,12 @@ namespace efd {
     /// this enum in order to exit with errors.
     enum class ExitCode {
         EXIT_multi_deps = 11,
+        EXIT_unknown_resource,
+        EXIT_out_of_bounds,
         EXIT_unreachable
     };
+
+    void ExitWith(ExitCode e);
 }
 
 #ifndef EFD_MESSAGE_LOG

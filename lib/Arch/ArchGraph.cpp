@@ -1,6 +1,7 @@
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Analysis/Nodes.h"
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/Defs.h"
 
 #include <cassert>
 #include <fstream>
@@ -27,7 +28,11 @@ std::string efd::ArchGraph::vertexToString(uint32_t i) const {
 }
 
 efd::Node::Ref efd::ArchGraph::getNode(uint32_t i) const {
-    assert(mNodes.size() > i && "Node index out of bounds.");
+    if (i >= mNodes.size()) {
+        ERR << "Node index out of bounds (of `" << mNodes.size()
+            << "`): `" << i << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
     return mNodes[i].get();
 }
 
@@ -57,7 +62,10 @@ void efd::ArchGraph::putReg(std::string id, std::string size) {
 }
 
 uint32_t efd::ArchGraph::getUId(std::string s) {
-    assert(hasSId(s) && "No such vertex with this string id.");
+    if (!hasSId(s)) {
+        ERR << "No such vertex with this string id: `" << s << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unknown_resource);
+    }
     return mStrToId[s];
 }
 
@@ -66,7 +74,11 @@ bool efd::ArchGraph::hasSId(std::string s) const {
 }
 
 std::string efd::ArchGraph::getSId(uint32_t i) {
-    assert(mId.size() > i && "Vertex index out of bounds.");
+    if (i >= mId.size()) {
+        ERR << "Vertex index out of bounds (of `" << mId.size() << "`): `"
+            << i << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
     return mId[i];
 }
 

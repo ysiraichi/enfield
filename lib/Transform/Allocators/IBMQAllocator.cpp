@@ -31,7 +31,7 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
         if (_deps.getSize() > 1) {
             ERR << "Not suporting gates with more than 1 dependency ("
                 << node->toString(false) << ")." << std::endl;
-            assert(false && "Gate with more than 1 dependency.");
+            ExitWith(ExitCode::EXIT_unreachable);
         } else if (_deps.getSize() == 1) {
             deps.push_back(_deps[0]);
         }
@@ -243,7 +243,7 @@ Solution IBMQAllocator::executeAllocation(QModule::Ref qmod) {
                     } else {
                         ERR << "If we found one configuration, it should not reach this point."
                             << std::endl;
-                        assert(false && "Unreachable.");
+                        ExitWith(ExitCode::EXIT_unreachable);
                     }
 
                     sol.mOpSeqs.push_back(std::make_pair(clone.get(), Solution::OpVector{ op }));
@@ -258,7 +258,7 @@ Solution IBMQAllocator::executeAllocation(QModule::Ref qmod) {
                                                      result.opv.begin(), result.opv.end());
             } else if (!result.opv.empty()) {
                 ERR << "Swap operations but there were no dependencies to satisfy." << std::endl;
-                assert(false && "Unreachable.");
+                ExitWith(ExitCode::EXIT_unreachable);
             }
         } else {
             INF << "Serializing this layer!" << std::endl;
@@ -271,7 +271,7 @@ Solution IBMQAllocator::executeAllocation(QModule::Ref qmod) {
                 if (!result.success) {
                     ERR << "Could not allocate sublayer " << node->toString(false)
                         << " on mapping: " << MappingToString(current) << "." << std::endl;
-                    assert(false && "Failed allocating sublayer.");
+                    ExitWith(ExitCode::EXIT_unreachable);
                 }
 
                 current = result.map;
@@ -305,7 +305,7 @@ Solution IBMQAllocator::executeAllocation(QModule::Ref qmod) {
                     } else {
                         ERR << "If we found one configuration, it should not reach this point."
                             << std::endl;
-                        assert(false && "Unreachable.");
+                        ExitWith(ExitCode::EXIT_unreachable);
                     }
 
                     opVector.push_back(op);
@@ -324,7 +324,7 @@ Solution IBMQAllocator::executeAllocation(QModule::Ref qmod) {
 
     if (firstLayer) {
         ERR << "No first layer found." << std::endl;
-        assert(false && "No first layer found.");
+        ExitWith(ExitCode::EXIT_unreachable);
     }
 
     qmod->clearStatements();

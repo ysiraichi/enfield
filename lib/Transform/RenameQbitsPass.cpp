@@ -29,7 +29,12 @@ namespace efd {
 
 efd::Node::uRef efd::RenameQbitVisitor::getNodeFromOld(Node::Ref old) {
     std::string id = old->toString();
-    assert(mAMap.find(id) != mAMap.end() && "Node not found for id/idref.");
+
+    if (mAMap.find(id) == mAMap.end()) {
+        ERR << "Node not found for id/idref: `" << id << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     return mAMap[id]->clone();
 }
 

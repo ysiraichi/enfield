@@ -80,8 +80,12 @@ efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
             vals[i][j] = { i, nullptr, UNREACH };
 
     for (uint32_t i = 1; i <= depN; ++i) {
-        assert(deps[i-1].getSize() == 1 &&
-                "Trying to allocate qbits to a gate with more than one dependency.");
+        if (deps[i-1].getSize() == 1) {
+            ERR << "Trying to allocate qbits to a gate with more than one dependency."
+                << " Gate: `" << deps[i-1].mCallPoint->toString(false) << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_multi_deps);
+        }
+
         efd::Dep dep = deps[i-1].mDeps[0];
 
         for (uint32_t tgt = 0; tgt < permN; ++tgt) {
@@ -146,7 +150,11 @@ efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
     std::vector<std::pair<uint32_t, Mapping>> mappings(depN);
 
     for (int i = depN-1; i >= 0; --i) {
-        assert(val->parent != nullptr && "Nullptr reached too soon.");
+        if (val->parent == nullptr) {
+            ERR << "Nullptr reached too soon." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
+        }
+
         mappings[i] = std::make_pair(val->pId, permutations[val->pId]);
         val = val->parent;
     }
@@ -194,7 +202,13 @@ efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
                 operation = { Operation::K_OP_REV, a, b };
             else {
                 auto path = finder->find(mArchGraph.get(), u, v);
-                assert(path.size() == 3 && "Can't apply a long cnot.");
+
+                if (path.size() != 3) {
+                    ERR << "Can't apply a long cnot. Actual path size: `"
+                        << path.size() << "`." << std::endl;
+                    ExitWith(ExitCode::EXIT_unreachable);
+                }
+
                 operation = { Operation::K_OP_LCNOT, a, b };
                 operation.mW = assign[path[1]];
             }

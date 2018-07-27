@@ -110,7 +110,10 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
             }
         }
 
-        assert(allocatable.size() >= 1 && "Every step has to be one allocatable node.");
+        if (allocatable.empty()) {
+            ERR << "Every step has to process at least one gate." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
+        }
 
         // Removing instructions that don't use only one qubit, but do not have any dependencies
         for (auto cnode : allocatable) {
@@ -147,7 +150,11 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
             auto node = cnode->node();
             auto dep = depBuilder.getDeps(node);
 
-            assert(dep.getSize() <= 1 && "Can only allocate gates with at most one depenency.");
+            if (dep.getSize() > 1) {
+                ERR << "Can only allocate gates with at most one depenency."
+                    << " Gate: `" << dep.mCallPoint->toString(false) << "`." << std::endl;
+                ExitWith(ExitCode::EXIT_unreachable);
+            }
 
             uint32_t a = dep[0].mFrom, b = dep[0].mTo;
             uint32_t u = mapping[a], v = mapping[b];
@@ -234,7 +241,10 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
                 best = props;
         }
 
-        assert(best.cnode.get() != nullptr && "There must be a 'best' node.");
+        if (best.cnode.get() == nullptr) {
+            ERR << "There must be a 'best' node." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
+        }
 
         // Allocate best node;
         // Setting the 'stop' flag;

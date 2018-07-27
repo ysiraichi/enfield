@@ -54,30 +54,58 @@ bool ArchVerifierVisitor::visitNDQOp(NDQOp::Ref qop) {
     }
 
     if (IsCNOTGateCall(qop)) {
+        if (qUIds.size() != 2) {
+            ERR << "CNOT call must have 2 quantum qubits. Actual: `"
+                << qop->toString(false) << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
+        }
 
-        assert(qUIds.size() == 2 && "CNOT call must have 2 quantum qubits.");
         success = checkCNOT({ qUIds[0], qUIds[1] });
 
     } else if (IsIntrinsicGateCall(qop)) {
         auto gen = dynCast<NDQOpGen>(qop);
 
-        assert(gen != nullptr && "Intrinsic call not generic operation!?");
-        assert(gen->isIntrinsic() && "Intrinsic call not marked as intrinsic!?");
+        if (gen == nullptr) {
+            ERR << "Intrinsic call not generic operation!? Actual: `"
+                << qop->toString(false) << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
+        }
+
+        if (!gen->isIntrinsic()) {
+            ERR << "Intrinsic call not marked as intrinsic!? Actual: `"
+                << qop->toString(false) << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
+        }
 
         switch (gen->getIntrinsicKind()) {
             case NDQOpGen::K_INTRINSIC_SWAP:
-                assert(qUIds.size() == 2 && "SWAP call must have 2 quantum qubits.");
+                if (qUIds.size() != 2) {
+                    ERR << "SWAP call must have 2 quantum qubits. Actual: `"
+                        << qUIds.size() << "`." << std::endl;
+                    ExitWith(ExitCode::EXIT_unreachable);
+                }
+
                 success = checkCNOT({ qUIds[0], qUIds[1] }) || checkCNOT({ qUIds[1], qUIds[0] });
                 break;
 
             case NDQOpGen::K_INTRINSIC_LCX:
-                assert(qUIds.size() == 3 && "LCX call must have 3 quantum qubits.");
+                if (qUIds.size() != 3) {
+                    ERR << "LCX call must have 3 quantum qubits. Actual: `"
+                        << qUIds.size() << "`." << std::endl;
+                    ExitWith(ExitCode::EXIT_unreachable);
+                }
+
                 success = (checkCNOT({ qUIds[0], qUIds[1] }) || checkCNOT({ qUIds[1], qUIds[0] })) &&
                           (checkCNOT({ qUIds[1], qUIds[2] }) || checkCNOT({ qUIds[2], qUIds[1] }));
                 break;
 
             case NDQOpGen::K_INTRINSIC_REV_CX:
-                assert(qUIds.size() == 2 && "Reversal call must have 2 quantum qubits.");
+                if (qUIds.size() != 2) {
+                    ERR << "Reversal call must have 2 quantum qubits. Actual: `"
+                        << qUIds.size() << "`." << std::endl;
+                    ExitWith(ExitCode::EXIT_unreachable);
+                }
+
                 success = checkCNOT({ qUIds[1], qUIds[0] });
                 break;
         }

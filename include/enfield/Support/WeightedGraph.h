@@ -72,14 +72,24 @@ void efd::WeightedGraph<T>::putEdge(uint32_t i, uint32_t j, T w) {
 template <typename T>
 void efd::WeightedGraph<T>::setW(uint32_t i, uint32_t j, T w) {
     auto pair = std::make_pair(i, j);
-    assert(mW.find(pair) != mW.end() && "Edge weight not found.");
+
+    if (mW.find(pair) == mW.end()) {
+        ERR << "Edge not found: `(" << i << ", " << j << ")`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     mW[pair] = w;
 }
 
 template <typename T>
 T efd::WeightedGraph<T>::getW(uint32_t i, uint32_t j) const {
     auto pair = std::make_pair(i, j);
-    assert(mW.find(pair) != mW.end() && "Edge weight not found.");
+
+    if (mW.find(pair) == mW.end()) {
+        ERR << "Edge weight not found for edge: `(" << i << ", " << j << ")`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     return mW.at(pair);
 }
 
