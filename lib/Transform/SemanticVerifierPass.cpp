@@ -11,7 +11,6 @@
 
 #include <unordered_map>
 #include <vector>
-#include <cassert>
 #include <algorithm>
 
 using namespace efd;

@@ -7,7 +7,6 @@
 #include "enfield/Support/Defs.h"
 
 #include <queue>
-#include <cassert>
 #include <limits>
 
 namespace efd {

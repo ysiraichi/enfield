@@ -3,7 +3,6 @@
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/Defs.h"
 
-#include <cassert>
 #include <fstream>
 #include <sstream>
 

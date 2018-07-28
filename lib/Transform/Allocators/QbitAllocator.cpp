@@ -10,7 +10,6 @@
 #include "enfield/Support/Timer.h"
 
 #include <iterator>
-#include <cassert>
 
 // ------------------ Solution Implementer ----------------------
 namespace efd {

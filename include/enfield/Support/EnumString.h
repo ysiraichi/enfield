@@ -6,7 +6,6 @@
 #include <vector>
 #include <algorithm>
 #include <typeinfo>
-#include <cassert>
 
 namespace efd {
     /// \brief Enum wrapper class.

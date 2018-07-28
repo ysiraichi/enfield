@@ -1,6 +1,5 @@
 #include "enfield/Transform/LayerBasedOrderingWrapperPass.h"
 #include "enfield/Transform/PassCache.h"
-#include <cassert>
 
 uint32_t efd::LayerBasedOrderingWrapperPass::getNodeId(Node::Ref ref) {
     if (mStmtId.find(ref) != mStmtId.end()) {

@@ -7,7 +7,6 @@
 #include <stack>
 #include <set>
 #include <map>
-#include <cassert>
 
 // White, gray and black are the usual dfs guys.
 // Silver is for marking when it is already in the stack

@@ -6,7 +6,6 @@
 #include "enfield/Support/uRefCast.h"
 #include "enfield/Support/Defs.h"
 
-#include <cassert>
 #include <unordered_set>
 #include <iterator>
 

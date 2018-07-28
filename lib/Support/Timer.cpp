@@ -1,7 +1,6 @@
 #include "enfield/Support/Timer.h"
 #include "enfield/Support/Defs.h"
 
-#include <cassert>
 
 efd::Timer efd::Timer::_Timer = efd::Timer();
 

@@ -3,7 +3,6 @@
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
 
-#include <cassert>
 #include <limits>
 
 using namespace efd;

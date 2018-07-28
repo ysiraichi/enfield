@@ -5,7 +5,6 @@
 #include "enfield/Support/uRefCast.h"
 #include "enfield/Support/Defs.h"
 
-#include <cassert>
 #include <unordered_map>
 #include <iterator>
 #include <iostream>

@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <queue>
-#include <cassert>
 
 void efd::ExpTSFinder::genAllAssigns(uint32_t n) {
     efd::Assign assign(n, 0);

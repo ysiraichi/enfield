@@ -3,7 +3,6 @@
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
 
-#include <cassert>
 #include <algorithm>
 
 // --------------------- Dependencies ------------------------

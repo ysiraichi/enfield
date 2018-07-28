@@ -4,7 +4,6 @@
 #include "enfield/Support/Defs.h"
 #include "enfield/Support/uRefCast.h"
 
-#include <cassert>
 #include <algorithm>
 
 // --------------------- XbitToNumber ------------------------

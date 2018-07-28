@@ -7,7 +7,6 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <cassert>
 #include <queue>
 #include <iostream>
 

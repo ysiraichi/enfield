@@ -8,7 +8,6 @@
 #include <map>
 #include <functional>
 #include <string>
-#include <cassert>
 
 namespace efd {
     /// \brief Base registry class for sets.

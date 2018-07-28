@@ -5,7 +5,6 @@
 #include "enfield/Support/Defs.h"
 
 #include <algorithm>
-#include <cassert>
 
 efd::Node::Node(Kind k, bool empty) : mK(k), mIsEmpty(empty), mWasGenerated(false),
     mInInclude(false) {

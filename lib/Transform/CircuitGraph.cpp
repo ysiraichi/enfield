@@ -1,7 +1,6 @@
 #include "enfield/Transform/CircuitGraph.h"
 #include "enfield/Support/Defs.h"
 
-#include <cassert>
 
 using namespace efd;
 

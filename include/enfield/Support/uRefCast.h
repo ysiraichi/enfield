@@ -3,7 +3,6 @@
 
 #include "enfield/Support/RTTI.h"
 
-#include <cassert>
 #include <memory>
 
 namespace efd {

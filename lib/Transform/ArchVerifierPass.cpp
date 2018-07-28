@@ -2,7 +2,6 @@
 #include "enfield/Transform/Utils.h"
 #include "enfield/Analysis/NodeVisitor.h"
 
-#include <cassert>
 
 using namespace efd;
 

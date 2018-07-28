@@ -3,7 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <cassert>
 
 // ----------------------------- Graph -------------------------------
 efd::Graph::Graph(Kind k, uint32_t n, Type ty) : mK(k), mN(n), mTy(ty) {

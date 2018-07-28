@@ -6,7 +6,6 @@
 #include <map>
 #include <fstream>
 #include <sstream>
-#include <cassert>
 
 namespace efd {
 

@@ -5,7 +5,6 @@
 
 #include <string>
 #include <vector>
-#include <cassert>
 #include <memory>
 
 namespace efd {
