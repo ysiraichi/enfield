@@ -1,6 +1,6 @@
 #include "enfield/Transform/RenameQbitsPass.h"
 #include "enfield/Analysis/NodeVisitor.h"
-
+#include "enfield/Support/Defs.h"
 
 uint8_t efd::RenameQbitPass::ID = 0;
 

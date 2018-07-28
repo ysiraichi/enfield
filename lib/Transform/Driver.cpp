@@ -38,7 +38,7 @@ QModule::uRef efd::Compile(QModule::uRef qmod, CompilationSettings settings) {
     auto xbitPass = PassCache::Get<XbitToNumberWrapperPass>(qmod.get());
     auto xbitToNumber = xbitPass->getData(); 
 
-    if (xbitToNumber.getQSize() <= settings.archGraph->size()) {
+    if (xbitToNumber.getQSize() > settings.archGraph->size()) {
         ERR << "Using more qbits than the maximum permitted by the architecture (max `"
             << settings.archGraph->size() << "`): `" << xbitToNumber.getQSize()
             << "`." << std::endl;

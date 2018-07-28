@@ -31,7 +31,7 @@ efd::Solution efd::QbitterSolBuilder::build
 
             auto path = finder->find(g, u, v);
 
-            if (path.size() == 3) {
+            if (path.size() != 3) {
                 ERR << "Can't apply a long cnot. Path size: `"
                     << path.size() << "`." << std::endl;
                 ExitWith(ExitCode::EXIT_unreachable);

@@ -17,7 +17,7 @@ void efd::ExpTSFinder::genAllAssigns(uint32_t n) {
 
 uint32_t efd::ExpTSFinder::getTargetId(Assign source, Assign target) {
     if (source.size() != target.size()) {
-        ERR <<  "The assignment map must be of same size: `"
+        ERR << "The assignment map must be of same size: `"
             << source.size() << "` and `" << target.size() << "`." << std::endl;
         ExitWith(ExitCode::EXIT_unreachable);
     }

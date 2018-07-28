@@ -237,8 +237,8 @@ std::string efd::NDRegDecl::getOperation() const {
         case CONCRETE: return "creg";
         case QUANTUM:  return "qreg";
         default: 
-                       ERR << "Unknown register type." << std::endl;
-                       ExitWith(ExitCode::EXIT_unreachable);
+                       efd::ERR << "Unknown register type." << std::endl;
+                       efd::ExitWith(efd::ExitCode::EXIT_unreachable);
     }
 }
 
@@ -398,8 +398,8 @@ void efd::NDList::removeChild(Node::Ref ref) {
     auto it = findChild(ref);
 
     if (it == end()) {
-		ERR << "Can't remove inexistent child." << std::endl;
-		ExitWith(ExitCode::EXIT_unreachable);
+		efd::ERR << "Can't remove inexistent child." << std::endl;
+		efd::ExitWith(efd::ExitCode::EXIT_unreachable);
 	}
 
     removeChild(it);
@@ -1147,8 +1147,8 @@ void efd::NDQOpGen::apply(NodeVisitor::Ref visitor) {
 
 efd::NDQOpGen::IntrinsicKind efd::NDQOpGen::getIntrinsicKind() const {
     if (!mIsIntrinsic) {
-		ERR << "Trying to get IntrinsicKind of non-intrinsic node." << std::endl;
-		ExitWith(ExitCode::EXIT_unreachable);
+		efd::ERR << "Trying to get IntrinsicKind of non-intrinsic node." << std::endl;
+		efd::ExitWith(efd::ExitCode::EXIT_unreachable);
 	}
 
     return mIK;
@@ -1237,8 +1237,8 @@ std::string efd::NDBinOp::getOperation() const {
         case OP_DIV: return "/";
         case OP_POW: return "^";
         default:
-                     ERR << "Unknown binary operation." << std::endl;
-                     ExitWith(ExitCode::EXIT_unknown_resource);
+                     efd::ERR << "Unknown binary operation." << std::endl;
+                     efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
     }
 }
 
@@ -1349,8 +1349,8 @@ std::string efd::NDUnaryOp::getOperation() const {
         case UOP_SQRT:  return "sqrt";
         case UOP_NEG:   return "-";
         default:
-                        ERR << "Unknown unary operation." << std::endl;
-                        ExitWith(ExitCode::EXIT_unknown_resource);
+                        efd::ERR << "Unknown unary operation." << std::endl;
+                        efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
     }
 }
 

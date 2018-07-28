@@ -2,6 +2,7 @@
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/Defs.h"
 
 #include <algorithm>
 
@@ -52,10 +53,10 @@ const efd::DependencyBuilder::DepsSet* efd::DependencyBuilder::getDepsSet
     const DepsSet* deps = &mGDeps;
 
     if (gate != nullptr) {
-        if (mLDeps.find(gate) != mLDeps.end()) {
-            ERR << "No dependencies for this gate: `"
+        if (mLDeps.find(gate) == mLDeps.end()) {
+            efd::ERR << "No dependencies for this gate: `"
                 << gate->getId()->getVal() << "`." << std::endl;
-            ExitWith(ExitCode::EXIT_unknown_resource);
+            efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
         }
 
         deps = &mLDeps.at(gate);
@@ -92,8 +93,8 @@ efd::DependencyBuilder::DepsSet& efd::DependencyBuilder::getDependencies
 const efd::Dependencies efd::DependencyBuilder::getDeps(Node* ref) const {
     if (mIDeps.find(ref) == mIDeps.end()) {
         std::string refStr = (ref == nullptr) ? "nullptr" : ref->toString(false);
-        ERR << "Instruction never seen before: `" << refStr << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unknown_resource);
+        efd::ERR << "Instruction never seen before: `" << refStr << "`." << std::endl;
+        efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
     }
 
     return mIDeps.at(ref);
@@ -146,8 +147,8 @@ efd::NDGateDecl::Ref efd::DependencyBuilderVisitor::getParentGate(Node::Ref ref)
     auto gate = dynCast<NDGateDecl>(goplist->getParent());
 
     if (gate == nullptr) {
-        ERR << "NDGOpList is owned by a no node." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        efd::ERR << "NDGOpList is owned by a no node." << std::endl;
+        efd::ExitWith(efd::ExitCode::EXIT_unreachable);
     }
 
     return gate;
@@ -190,8 +191,8 @@ void efd::DependencyBuilderVisitor::visit(NDQOpGen::Ref ref) {
 
     if (gRef == nullptr) {
         std::string nodeStr = (node == nullptr) ? "nullptr" : node->toString(false);
-        ERR << "There is no quantum gate with this id: `" << nodeStr << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unknown_resource);
+        efd::ERR << "There is no quantum gate with this id: `" << nodeStr << "`." << std::endl;
+        efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
     }
 
     auto& gDeps = mDepBuilder.mLDeps[gRef];

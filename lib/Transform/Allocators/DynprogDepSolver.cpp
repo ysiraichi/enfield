@@ -80,7 +80,7 @@ efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
             vals[i][j] = { i, nullptr, UNREACH };
 
     for (uint32_t i = 1; i <= depN; ++i) {
-        if (deps[i-1].getSize() == 1) {
+        if (deps[i-1].getSize() > 1) {
             ERR << "Trying to allocate qbits to a gate with more than one dependency."
                 << " Gate: `" << deps[i-1].mCallPoint->toString(false) << "`." << std::endl;
             ExitWith(ExitCode::EXIT_multi_deps);

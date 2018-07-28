@@ -1,11 +1,12 @@
 #include "enfield/Transform/LayerBasedOrderingWrapperPass.h"
 #include "enfield/Transform/PassCache.h"
+#include "enfield/Support/Defs.h"
 
 uint32_t efd::LayerBasedOrderingWrapperPass::getNodeId(Node::Ref ref) {
-    if (mStmtId.find(ref) != mStmtId.end()) {
-        ERR << "Unknown node: `" << (ref == nullptr) ? "nullptr" : ref->toString(false)
-            << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+    if (mStmtId.find(ref) == mStmtId.end()) {
+        std::string refStr = (ref == nullptr) ? "nullptr" : ref->toString(false);
+        efd::ERR << "Unknown node: `" << refStr << "`." << std::endl;
+        efd::ExitWith(efd::ExitCode::EXIT_unreachable);
     }
 
     return mStmtId[ref];

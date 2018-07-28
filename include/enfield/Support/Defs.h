@@ -43,9 +43,9 @@ namespace efd {
 
 #ifndef EFD_MESSAGE_LOG
 #define EFD_MESSAGE_LOG
-#define ERR efd::ErrorLog(__FILE__, __LINE__)
-#define WAR efd::WarningLog(__FILE__, __LINE__)
-#define INF efd::InfoLog(__FILE__, __LINE__)
+#define ERR ErrorLog(__FILE__, __LINE__)
+#define WAR WarningLog(__FILE__, __LINE__)
+#define INF InfoLog(__FILE__, __LINE__)
 #endif
 
 #endif

@@ -2,8 +2,10 @@
 #define __EFD_U_REF_CAST_H__
 
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/Defs.h"
 
 #include <memory>
+#include <typeinfo>
 
 namespace efd {
     /// \brief Uses the RTTI framework to cast backwardly an unique_ptr.
@@ -22,7 +24,7 @@ namespace efd {
             }
 
             ERR << "Failed when casting a std::unique_ptr. `"
-                << std::typeid(T).name() << "` not a base class of `" << std::typeid(U).name()
+                << typeid(T).name() << "` not a base class of `" << typeid(U).name()
                 << "`." << std::endl;
             ExitWith(ExitCode::EXIT_unreachable);
         }
@@ -41,7 +43,7 @@ namespace efd {
                 return std::unique_ptr<T>(toRef);
 
             ERR << "Failed when casting a std::unique_ptr: from `"
-                << std::typeid(U).name() << "` to `" << std::typeid(T).name()
+                << typeid(U).name() << "` to `" << typeid(T).name()
                 << "`." << std::endl;
             ExitWith(ExitCode::EXIT_unreachable);
         }
