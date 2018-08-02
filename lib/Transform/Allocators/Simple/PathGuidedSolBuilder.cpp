@@ -20,7 +20,7 @@ struct DepComp {
 };
 
 efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
-                                               DepsSet& deps,
+                                               DepsVector& deps,
                                                ArchGraph::Ref g) {
     if (mPathFinder.get() == nullptr)
         mPathFinder = BFSPathFinder::Create();

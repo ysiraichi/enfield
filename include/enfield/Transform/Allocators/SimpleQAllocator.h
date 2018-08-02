@@ -8,13 +8,13 @@ namespace efd {
     /// \brief Interface for finding a mapping from some set of dependencies.
     class MappingFinder {
         public:
-            typedef QbitAllocator::DepsSet DepsSet;
+            typedef QbitAllocator::DepsVector DepsVector;
 
             typedef MappingFinder* Ref;
             typedef std::shared_ptr<MappingFinder> sRef;
 
             /// \brief Returns a mapping generated from a set of dependencies.
-            virtual Mapping find(ArchGraph::Ref g, DepsSet& deps) = 0;
+            virtual Mapping find(ArchGraph::Ref g, DepsVector& deps) = 0;
     };
 
     /// \brief Options for solution builders.
@@ -27,7 +27,7 @@ namespace efd {
     class SolutionBuilder : public BitOptions<SolutionBuilderOptions,
                                               SolutionBuilderOptions::KeepStats> {
         public:
-            typedef QbitAllocator::DepsSet DepsSet;
+            typedef QbitAllocator::DepsVector DepsVector;
 
             typedef SolutionBuilder* Ref;
             typedef std::shared_ptr<SolutionBuilder> sRef;
@@ -40,7 +40,7 @@ namespace efd {
 
             /// \brief Constructs a solution (\em QbitAllocator::Solution) from the
             /// mapping \p initial, with \p deps dependencies in the architecture \p g.
-            virtual StdSolution build(Mapping initial, DepsSet& deps, ArchGraph::Ref g) = 0;
+            virtual StdSolution build(Mapping initial, DepsVector& deps, ArchGraph::Ref g) = 0;
     };
 
     /// \brief DependencySolver that allocates the logical qubits from an initial mapping.

@@ -15,8 +15,8 @@ namespace efd {
             typedef std::unique_ptr<QbitAllocator> uRef;
 
             typedef std::vector<std::string> BasisVector;
-            typedef DependencyBuilder::DepsSet DepsSet;
-            typedef DependencyBuilder::DepsSet::iterator Iterator;
+            typedef DependencyBuilder::DepsVector DepsVector;
+            typedef DependencyBuilder::DepsVector::iterator Iterator;
 
         private:
             /// \brief Inlines all gates, but those flagged.

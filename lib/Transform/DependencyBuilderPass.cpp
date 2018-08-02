@@ -48,9 +48,9 @@ uint32_t efd::DependencyBuilder::getUId(Node::Ref ref, NDGateDecl::Ref gate) {
     return mXbitToNumber.getQUId(_id, gate);
 }
 
-const efd::DependencyBuilder::DepsSet* efd::DependencyBuilder::getDepsSet
+const efd::DependencyBuilder::DepsVector* efd::DependencyBuilder::getDepsVector
 (NDGateDecl::Ref gate) const {
-    const DepsSet* deps = &mGDeps;
+    const DepsVector* deps = &mGDeps;
 
     if (gate != nullptr) {
         if (mLDeps.find(gate) == mLDeps.end()) {
@@ -65,10 +65,10 @@ const efd::DependencyBuilder::DepsSet* efd::DependencyBuilder::getDepsSet
     return deps;
 }
 
-efd::DependencyBuilder::DepsSet* efd::DependencyBuilder::getDepsSet
+efd::DependencyBuilder::DepsVector* efd::DependencyBuilder::getDepsVector
 (NDGateDecl::Ref gate) {
-    return const_cast<DepsSet*>(static_cast<const DependencyBuilder*>
-            (this)->getDepsSet(gate));
+    return const_cast<DepsVector*>(static_cast<const DependencyBuilder*>
+            (this)->getDepsVector(gate));
 }
 
 efd::XbitToNumber& efd::DependencyBuilder::getXbitToNumber() {
@@ -79,15 +79,15 @@ void efd::DependencyBuilder::setXbitToNumber(efd::XbitToNumber& xtn) {
     mXbitToNumber = xtn;
 }
 
-const efd::DependencyBuilder::DepsSet& efd::DependencyBuilder::getDependencies
+const efd::DependencyBuilder::DepsVector& efd::DependencyBuilder::getDependencies
 (NDGateDecl::Ref ref) const {
-    const DepsSet* deps = const_cast<DepsSet*>(getDepsSet(ref));
+    const DepsVector* deps = const_cast<DepsVector*>(getDepsVector(ref));
     return *deps;
 }
 
-efd::DependencyBuilder::DepsSet& efd::DependencyBuilder::getDependencies
+efd::DependencyBuilder::DepsVector& efd::DependencyBuilder::getDependencies
 (NDGateDecl::Ref ref) {
-    return *getDepsSet(ref);
+    return *getDepsVector(ref);
 }
 
 const efd::Dependencies efd::DependencyBuilder::getDeps(Node* ref) const {
@@ -155,13 +155,13 @@ efd::NDGateDecl::Ref efd::DependencyBuilderVisitor::getParentGate(Node::Ref ref)
 }
 
 void efd::DependencyBuilderVisitor::visit(NDGateDecl::Ref ref) {
-    mDepBuilder.mLDeps[ref] = DependencyBuilder::DepsSet();
+    mDepBuilder.mLDeps[ref] = DependencyBuilder::DepsVector();
     visitChildren(ref);
 }
 
 void efd::DependencyBuilderVisitor::visit(NDQOpCX::Ref ref) {
     auto gate = getParentGate(ref);
-    auto deps = mDepBuilder.getDepsSet(gate);
+    auto deps = mDepBuilder.getDepsVector(gate);
 
     // CX controlQ, invertQ;
     uint32_t controlQ = mDepBuilder.getUId(ref->getLhs(), gate);
@@ -178,7 +178,7 @@ void efd::DependencyBuilderVisitor::visit(NDQOpGen::Ref ref) {
     if (ref->getQArgs()->getChildNumber() == 1) return;
 
     auto gate = getParentGate(ref);
-    auto deps = mDepBuilder.getDepsSet(gate);
+    auto deps = mDepBuilder.getDepsVector(gate);
 
     // Getting the qargs uint32_t representations.
     std::vector<uint32_t> uidVector;

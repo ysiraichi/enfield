@@ -34,7 +34,7 @@ GreedyCktQAllocator::GreedyCktQAllocator(ArchGraph::sRef ag) : StdSolutionQAlloc
 StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
     auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(mMod);
     auto depBuilder = depPass->getData();
-    auto& depsSet = depBuilder.getDependencies();
+    auto& depsVector = depBuilder.getDependencies();
 
     auto cgbpass = PassCache::Get<CircuitGraphBuilderPass>(qmod);
     auto cgraph = cgbpass->getData();
@@ -46,10 +46,10 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
     BFSPathFinder bfs;
 
     auto mapfinder = WeightedSIMappingFinder::Create();
-    auto mapping = mapfinder->find(mArchGraph.get(), depsSet);
+    auto mapping = mapfinder->find(mArchGraph.get(), depsVector);
     auto assign = GenAssignment(mArchGraph->size(), mapping);
 
-    StdSolution sol { mapping, StdSolution::OpSequences(depsSet.size()), 0 };
+    StdSolution sol { mapping, StdSolution::OpSequences(depsVector.size()), 0 };
 
     std::vector<Node::uRef> allocatedStatements;
     std::map<Node::Ref, uint32_t> reached;

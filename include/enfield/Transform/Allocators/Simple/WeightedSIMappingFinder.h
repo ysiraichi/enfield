@@ -19,7 +19,7 @@ namespace efd {
             SIFinder::sRef mSIFinder;
 
         public:
-            Mapping find(ArchGraph::Ref g, DepsSet& deps) override;
+            Mapping find(ArchGraph::Ref g, DepsVector& deps) override;
 
             /// \brief Sets the subgraph isomorphism finder to \p finder.
             void setSIFinder(SIFinder::sRef finder);

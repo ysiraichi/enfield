@@ -13,7 +13,7 @@ namespace efd {
             typedef QbitterSolBuilder* Ref;
             typedef std::unique_ptr<QbitterSolBuilder> uRef;
 
-            StdSolution build(Mapping initial, DepsSet& deps, ArchGraph::Ref g) override;
+            StdSolution build(Mapping initial, DepsVector& deps, ArchGraph::Ref g) override;
 
             /// \brief Creates an instance of this class.
             static uRef Create();

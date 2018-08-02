@@ -197,7 +197,7 @@ measure carry[0] -> carryout[0];\
         };
 
         auto data = pass->getData();
-        DependencyBuilder::DepsSet deps;
+        DependencyBuilder::DepsVector deps;
         for (auto pair : gatesInfo) {
             auto sign = qmod->getQGate(pair.first);
             NDGateDecl::Ref gate = dynCast<NDGateDecl>(sign);

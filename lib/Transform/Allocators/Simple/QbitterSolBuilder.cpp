@@ -2,7 +2,7 @@
 #include "enfield/Support/BFSPathFinder.h"
 
 efd::StdSolution efd::QbitterSolBuilder::build
-(Mapping initial, DepsSet& deps, ArchGraph::Ref g) {
+(Mapping initial, DepsVector& deps, ArchGraph::Ref g) {
     auto mapping = initial;
     auto assign = GenAssignment(g->size(), mapping);
     auto finder = BFSPathFinder::Create();

@@ -52,27 +52,27 @@ namespace efd {
     /// \brief Keep track of the dependencies of each qbit for the whole program,
     /// as well as the dependencies for every gate.
     ///
-    /// Each gate, as well as the whole program have one 'DepsSet' variable. The idea is
+    /// Each gate, as well as the whole program have one 'DepsVector' variable. The idea is
     /// to store a sequence of parallel dependencies. Here, parallel dependency is a
     /// dependency that can't be broken down (unless the gate is inlined).
     struct DependencyBuilder {
         typedef DependencyBuilder* Ref;
-        typedef std::vector<Dependencies> DepsSet;
+        typedef std::vector<Dependencies> DepsVector;
 
         XbitToNumber mXbitToNumber;
 
-        std::unordered_map<NDGateDecl*, DepsSet> mLDeps;
+        std::unordered_map<NDGateDecl*, DepsVector> mLDeps;
         std::map<Node*, Dependencies> mIDeps;
-        DepsSet mGDeps;
+        DepsVector mGDeps;
 
         DependencyBuilder();
 
         /// \brief Gets an unsingned id for \p ref.
         uint32_t getUId(Node::Ref ref, NDGateDecl::Ref gate);
-        /// \brief Gets the DepsSet corresponding to the current quantum gate,
+        /// \brief Gets the DepsVector corresponding to the current quantum gate,
         /// or the global (if current gate is null).
-        const DepsSet* getDepsSet(NDGateDecl::Ref gate = nullptr) const;
-        DepsSet* getDepsSet(NDGateDecl::Ref gate = nullptr);
+        const DepsVector* getDepsVector(NDGateDecl::Ref gate = nullptr) const;
+        DepsVector* getDepsVector(NDGateDecl::Ref gate = nullptr);
 
         /// \brief Returns the structure that mapped the qbits.
         XbitToNumber& getXbitToNumber();
@@ -81,8 +81,8 @@ namespace efd {
 
         /// \brief Gets the dependencies for some gate declaration. If it is a
         /// nullptr, then it is returned the dependencies for the whole program.
-        const DepsSet& getDependencies(NDGateDecl::Ref ref = nullptr) const;
-        DepsSet& getDependencies(NDGateDecl::Ref ref = nullptr);
+        const DepsVector& getDependencies(NDGateDecl::Ref ref = nullptr) const;
+        DepsVector& getDependencies(NDGateDecl::Ref ref = nullptr);
 
         /// \brief Gets the dependencies for a specific instruction.
         const Dependencies getDeps(Node* ref) const;

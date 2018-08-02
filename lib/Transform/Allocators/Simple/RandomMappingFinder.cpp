@@ -17,7 +17,7 @@ int rnd(int i) {
 }
 
 efd::Mapping
-efd::RandomMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
+efd::RandomMappingFinder::find(ArchGraph::Ref g, DepsVector& deps) {
     uint32_t qbits = g->size();
     Mapping mapping(qbits);
 

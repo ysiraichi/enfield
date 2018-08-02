@@ -15,7 +15,7 @@ namespace efd {
             PathFinder::sRef mPathFinder;
 
         public:
-            StdSolution build(Mapping initial, DepsSet& deps, ArchGraph::Ref g) override;
+            StdSolution build(Mapping initial, DepsVector& deps, ArchGraph::Ref g) override;
 
             /// \brief Sets the path finder to be used.
             void setPathFinder(PathFinder::sRef finder);
