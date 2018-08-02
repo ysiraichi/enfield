@@ -4,7 +4,7 @@ efd::SimpleQAllocator::SimpleQAllocator(ArchGraph::sRef agraph) :
     DepSolverQAllocator(agraph) {
 }
 
-efd::Solution efd::SimpleQAllocator::buildStdSolution(QModule::Ref qmod) {
+efd::StdSolution efd::SimpleQAllocator::buildStdSolution(QModule::Ref qmod) {
     auto &deps = PassCache::Get<DependencyBuilderWrapperPass>(mMod)
         ->getData()
         .getDependencies();

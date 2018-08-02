@@ -16,7 +16,7 @@ namespace efd {
             struct AllocationResult {
                 Mapping map;
                 bool success;
-                Solution::OpVector opv;
+                StdSolution::OpVector opv;
                 bool isTrivialLayer;
             };
 
@@ -31,7 +31,7 @@ namespace efd {
         public:
             IBMQAllocator(ArchGraph::sRef archGraph);
 
-            Solution buildStdSolution(QModule::Ref qmod) override;
+            StdSolution buildStdSolution(QModule::Ref qmod) override;
             static uRef Create(ArchGraph::sRef archGraph);
     };
 }

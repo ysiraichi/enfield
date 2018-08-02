@@ -102,7 +102,7 @@ namespace efd {
 
             bmt::CandidateVCollection phase1();
             bmt::MappingSwapSequence phase2(const bmt::CandidateVCollection& collection);
-            Solution phase3(const bmt::MappingSwapSequence& mss);
+            StdSolution phase3(const bmt::MappingSwapSequence& mss);
 
             bmt::CandidateVector extendCandidates(Dep& dep,
                                                   const std::vector<bool>& mapped,
@@ -113,7 +113,7 @@ namespace efd {
             SwapSeq getTransformingSwapsFor(const Mapping& fromM, Mapping toM);
 
             BoundedMappingTreeQAllocator(ArchGraph::sRef ag);
-            Solution buildStdSolution(QModule::Ref qmod) override;
+            StdSolution buildStdSolution(QModule::Ref qmod) override;
 
         public:
             static uRef Create(ArchGraph::sRef ag);

@@ -51,7 +51,7 @@ namespace efd {
 
         protected:
             /// \brief Executes the allocation algorithm after the preprocessing.
-            virtual Solution buildStdSolution(QModule::Ref qmod) = 0;
+            virtual StdSolution buildStdSolution(QModule::Ref qmod) = 0;
 
             Mapping allocate(QModule::Ref qmod) override;
     };

@@ -2,7 +2,7 @@
 
 using namespace efd;
 
-// ------------------ Solution Implementer ----------------------
+// ------------------ StdSolution Implementer ----------------------
 namespace efd {
     class SolutionImplPass : public PassT<void>, public NodeVisitor {
         private:

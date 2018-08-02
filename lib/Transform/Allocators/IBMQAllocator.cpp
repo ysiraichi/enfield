@@ -51,7 +51,7 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
 
     uint32_t bestD = _undef;
     Mapping bestMap;
-    Solution::OpVector bestOpv;
+    StdSolution::OpVector bestOpv;
     bool found = false;
 
     uint32_t trials = Trials.getVal();
@@ -59,7 +59,7 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
 
         auto trialMap = current;
         auto trialAssign = assign;
-        Solution::OpVector trialOpv;
+        StdSolution::OpVector trialOpv;
 
         std::vector<std::vector<double>> rDist(mPQubits, std::vector<double>(mPQubits, _undef));
         for (uint32_t i = 0; i < mPQubits; ++i)
@@ -165,10 +165,10 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
     return result;
 }
 
-Solution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
+StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
     std::srand(Seed.getVal());
 
-    Solution sol;
+    StdSolution sol;
     sol.mCost = 0;
 
     auto dbwPass = PassCache::Get<DependencyBuilderWrapperPass>(qmod);
@@ -246,7 +246,7 @@ Solution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                         ExitWith(ExitCode::EXIT_unreachable);
                     }
 
-                    sol.mOpSeqs.push_back(std::make_pair(clone.get(), Solution::OpVector{ op }));
+                    sol.mOpSeqs.push_back(std::make_pair(clone.get(), StdSolution::OpVector{ op }));
                 }
 
                 newStatements.push_back(std::move(clone));
@@ -285,7 +285,7 @@ Solution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                 auto deps = depData.getDeps(node);
                 auto clone = node->clone();
 
-                Solution::OpVector opVector;
+                StdSolution::OpVector opVector;
 
                 if (!result.opv.empty()) {
                     opVector = result.opv;

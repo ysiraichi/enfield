@@ -20,7 +20,7 @@ struct DepComp {
     }
 };
 
-efd::Solution efd::PathGuidedSolBuilder::build(Mapping initial,
+efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
                                                DepsSet& deps,
                                                ArchGraph::Ref g) {
     if (mPathFinder.get() == nullptr)
@@ -30,7 +30,7 @@ efd::Solution efd::PathGuidedSolBuilder::build(Mapping initial,
     bool improveInitialMapping = get(SolutionBuilderOptions::ImproveInitial);
 
     Mapping match = initial;
-    Solution solution { initial, Solution::OpSequences(deps.size()), 0 };
+    StdSolution solution { initial, StdSolution::OpSequences(deps.size()), 0 };
 
     std::map<Dep, uint32_t, DepComp> freq;
     for (uint32_t i = 0, e = deps.size(); i < e; ++i) {

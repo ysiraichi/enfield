@@ -1,13 +1,13 @@
 #include "enfield/Transform/Allocators/QbitterSolBuilder.h"
 #include "enfield/Support/BFSPathFinder.h"
 
-efd::Solution efd::QbitterSolBuilder::build
+efd::StdSolution efd::QbitterSolBuilder::build
 (Mapping initial, DepsSet& deps, ArchGraph::Ref g) {
     auto mapping = initial;
     auto assign = GenAssignment(g->size(), mapping);
     auto finder = BFSPathFinder::Create();
 
-    Solution solution { initial, Solution::OpSequences(deps.size()), 0 };
+    StdSolution solution { initial, StdSolution::OpSequences(deps.size()), 0 };
 
     for (uint32_t i = 0, e = deps.size(); i < e; ++i) {
         auto dep = deps[i][0];

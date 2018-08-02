@@ -31,7 +31,7 @@ struct AllocProps {
 
 GreedyCktQAllocator::GreedyCktQAllocator(ArchGraph::sRef ag) : QbitAllocator(ag) {}
 
-Solution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
+StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
     auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(mMod);
     auto depBuilder = depPass->getData();
     auto& depsSet = depBuilder.getDependencies();
@@ -49,7 +49,7 @@ Solution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
     auto mapping = mapfinder->find(mArchGraph.get(), depsSet);
     auto assign = GenAssignment(mArchGraph->size(), mapping);
 
-    Solution sol { mapping, Solution::OpSequences(depsSet.size()), 0 };
+    StdSolution sol { mapping, StdSolution::OpSequences(depsSet.size()), 0 };
 
     std::vector<Node::uRef> allocatedStatements;
     std::map<Node::Ref, uint32_t> reached;

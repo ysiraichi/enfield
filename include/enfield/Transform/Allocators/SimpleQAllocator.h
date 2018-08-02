@@ -41,7 +41,7 @@ namespace efd {
 
             /// \brief Constructs a solution (\em QbitAllocator::Solution) from the
             /// mapping \p initial, with \p deps dependencies in the architecture \p g.
-            virtual Solution build(Mapping initial, DepsSet& deps, ArchGraph::Ref g) = 0;
+            virtual StdSolution build(Mapping initial, DepsSet& deps, ArchGraph::Ref g) = 0;
     };
 
     /// \brief DependencySolver that allocates the logical qubits from an initial mapping.
@@ -56,7 +56,7 @@ namespace efd {
 
             SimpleQAllocator(ArchGraph::sRef agraph);
 
-            Solution buildStdSolution(QModule::Ref qmod) override;
+            StdSolution buildStdSolution(QModule::Ref qmod) override;
 
         public:
             /// \brief Sets the mapping finder to \p finder.

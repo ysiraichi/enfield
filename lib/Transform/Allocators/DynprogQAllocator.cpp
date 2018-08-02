@@ -51,7 +51,7 @@ uint32_t efd::DynprogQAllocator::getIntermediateV(uint32_t u, uint32_t v) {
     return UNREACH;
 }
 
-efd::Solution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
+efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
     auto &deps = PassCache::Get<DependencyBuilderWrapperPass>(mMod)
         ->getData()
         .getDependencies();
@@ -146,9 +146,9 @@ efd::Solution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
         val = (minCost == val->cost) ? val : &vals[i][depN];
     }
 
-    Solution solution;
+    StdSolution solution;
     solution.mCost = val->cost;
-    solution.mOpSeqs.assign(depN, std::pair<Node::Ref, Solution::OpVector>());
+    solution.mOpSeqs.assign(depN, std::pair<Node::Ref, StdSolution::OpVector>());
 
     // Get the target mappings for each dependency (with its id).
     std::vector<std::pair<uint32_t, Mapping>> mappings(depN);

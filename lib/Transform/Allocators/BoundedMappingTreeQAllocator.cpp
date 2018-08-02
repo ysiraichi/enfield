@@ -270,11 +270,11 @@ BoundedMappingTreeQAllocator::phase2(const CandidateVCollection& collection) {
 }
 
 
-Solution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss) {
+StdSolution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss) {
     // Third Phase:
     //     build the operations vector by tracebacking from the solution we have
     //     found. For this, we have to go through every dependency again.
-    Solution sol;
+    StdSolution sol;
 
     sol.mCost = 0;
     sol.mInitial.assign(mVQubits, 0);
@@ -299,7 +299,7 @@ Solution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss) {
             uint32_t a = dep.mFrom, b = dep.mTo;
             uint32_t u = mapping[a], v = mapping[b];
 
-            Solution::OpVector opVector;
+            StdSolution::OpVector opVector;
 
             // If we can't satisfy (u, v) with the current mapping, it can only mean
             // that we must go to the next one.
@@ -380,7 +380,7 @@ Solution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss) {
     return sol;
 }
 
-Solution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
+StdSolution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
     if (mNCIterator.get() == nullptr) {
         mNCIterator.reset(new SeqNCandidateIterator(qmod->stmt_begin(), qmod->stmt_end()));
     }
@@ -417,7 +417,7 @@ Solution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
     mDBuilder = PassCache::Get<DependencyBuilderWrapperPass>(qmod)->getData();
     uint32_t nofDeps = mDBuilder.getDependencies().size();
 
-    Solution sol;
+    StdSolution sol;
 
     sol.mCost = 0;
     sol.mInitial = IdentityMapping(mPQubits);

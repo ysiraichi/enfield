@@ -11,7 +11,7 @@ namespace efd {
 
         protected:
             GreedyCktQAllocator(ArchGraph::sRef ag);
-            Solution buildStdSolution(QModule::Ref qmod) override;
+            StdSolution buildStdSolution(QModule::Ref qmod) override;
 
         public:
             static uRef Create(ArchGraph::sRef ag);

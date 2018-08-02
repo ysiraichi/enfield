@@ -5,7 +5,7 @@ using namespace efd;
 
 DepSolverQAllocator::DepSolverQAllocator(ArchGraph::sRef archGraph) : QbitAllocator(archGraph) {}
 
-Solution DepSolverQAllocator::executeAllocation(QModule::Ref qmod) {
+StdSolution DepSolverQAllocator::executeAllocation(QModule::Ref qmod) {
     auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(mMod);
     auto depBuilder = depPass->getData();
     auto& deps = depBuilder.getDependencies();

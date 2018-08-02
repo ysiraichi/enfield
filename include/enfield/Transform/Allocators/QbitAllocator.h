@@ -31,7 +31,7 @@ namespace efd {
     ///
     /// It consists in an initial mapping L:P->V (\em mInitial), a sequence of sequences
     /// of operations previously defined (\em mOpSeqs) and the final cost (\em mCost).
-    struct Solution {
+    struct StdSolution {
         typedef std::vector<Operation> OpVector;
         typedef std::vector<std::pair<Node::Ref, OpVector>> OpSequences;
         typedef std::vector<uint32_t> Mapping;
@@ -48,7 +48,7 @@ namespace efd {
             typedef QbitAllocator* Ref;
             typedef std::unique_ptr<QbitAllocator> uRef;
 
-            typedef Solution::Mapping Mapping;
+            typedef StdSolution::Mapping Mapping;
             typedef std::vector<std::string> BasisVector;
             typedef DependencyBuilder::DepsSet DepsSet;
             typedef DependencyBuilder::DepsSet::iterator Iterator;

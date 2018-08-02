@@ -23,7 +23,7 @@ namespace efd {
             /// there exists one.
             uint32_t getIntermediateV(uint32_t u, uint32_t v);
 
-            Solution buildStdSolution(QModule::Ref qmod) override;
+            StdSolution buildStdSolution(QModule::Ref qmod) override;
 
         public:
             /// \brief Create a new instance of this class.
