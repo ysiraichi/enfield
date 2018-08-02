@@ -1,7 +1,7 @@
 #ifndef __EFD_WEIGHTED_SI_MAPPING_FINDER_H__
 #define __EFD_WEIGHTED_SI_MAPPING_FINDER_H__
 
-#include "enfield/Transform/Allocators/MappingFinder.h"
+#include "enfield/Transform/Allocators/SimpleQAllocator.h"
 #include "enfield/Support/SIFinder.h"
 #include "enfield/Support/WeightedGraph.h"
 

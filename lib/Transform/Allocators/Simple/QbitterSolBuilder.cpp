@@ -1,4 +1,4 @@
-#include "enfield/Transform/Allocators/QbitterSolBuilder.h"
+#include "enfield/Transform/Allocators/Simple/QbitterSolBuilder.h"
 #include "enfield/Support/BFSPathFinder.h"
 
 efd::StdSolution efd::QbitterSolBuilder::build

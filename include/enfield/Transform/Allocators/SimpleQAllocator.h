@@ -2,12 +2,12 @@
 #define __EFD_SIMPLE_QALLOCATOR_H__
 
 #include "enfield/Transform/Allocators/StdSolutionQAllocator.h"
+#include "enfield/Support/BitOptions.h"
 
 namespace efd {
     /// \brief Interface for finding a mapping from some set of dependencies.
     class MappingFinder {
         public:
-            typedef QbitAllocator::Mapping Mapping;
             typedef QbitAllocator::DepsSet DepsSet;
 
             typedef MappingFinder* Ref;
@@ -27,7 +27,6 @@ namespace efd {
     class SolutionBuilder : public BitOptions<SolutionBuilderOptions,
                                               SolutionBuilderOptions::KeepStats> {
         public:
-            typedef QbitAllocator::Mapping Mapping;
             typedef QbitAllocator::DepsSet DepsSet;
 
             typedef SolutionBuilder* Ref;

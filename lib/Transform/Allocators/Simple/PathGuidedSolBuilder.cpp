@@ -1,5 +1,4 @@
-#include "enfield/Transform/Allocators/PathGuidedSolBuilder.h"
-#include "enfield/Transform/Allocators/QbitAllocator.h"
+#include "enfield/Transform/Allocators/Simple/PathGuidedSolBuilder.h"
 #include "enfield/Support/BFSPathFinder.h"
 #include "enfield/Support/Stats.h"
 

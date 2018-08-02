@@ -1,7 +1,7 @@
 #ifndef __EFD_IDENTITY_MAPPING_FINDER_H__
 #define __EFD_IDENTITY_MAPPING_FINDER_H__
 
-#include "enfield/Transform/Allocators/MappingFinder.h"
+#include "enfield/Transform/Allocators/SimpleQAllocator.h"
 
 namespace efd {
     /// \brief Finds a mapping where the logical qubit 0 is mapped to

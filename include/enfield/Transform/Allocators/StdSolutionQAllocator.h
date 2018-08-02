@@ -1,7 +1,7 @@
 #ifndef __EFD_STD_SOLUTION_QALLOCATOR_H__
 #define __EFD_STD_SOLUTION_QALLOCATOR_H__
 
-#include "enfield/Transform/QbitAllocator.h"
+#include "enfield/Transform/Allocators/QbitAllocator.h"
 
 namespace efd {
     /// \brief Struct used to describe the operation chosen for each solving each

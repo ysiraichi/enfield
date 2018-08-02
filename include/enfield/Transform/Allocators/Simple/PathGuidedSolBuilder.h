@@ -1,7 +1,7 @@
 #ifndef __EFD_PATH_GUIDED_SOL_BUILDER_H__
 #define __EFD_PATH_GUIDED_SOL_BUILDER_H__
 
-#include "enfield/Transform/Allocators/SolutionBuilder.h"
+#include "enfield/Transform/Allocators/SimpleQAllocator.h"
 #include "enfield/Support/PathFinder.h"
 
 namespace efd {

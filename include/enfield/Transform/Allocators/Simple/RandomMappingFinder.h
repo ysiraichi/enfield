@@ -1,7 +1,7 @@
 #ifndef __EFD_RANDOM_MAPPING_FINDER_H__
 #define __EFD_RANDOM_MAPPING_FINDER_H__
 
-#include "enfield/Transform/Allocators/MappingFinder.h"
+#include "enfield/Transform/Allocators/SimpleQAllocator.h"
 #include "enfield/Support/WeightedGraph.h"
 
 namespace efd {

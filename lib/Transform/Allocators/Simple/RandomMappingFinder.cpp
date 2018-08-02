@@ -1,4 +1,4 @@
-#include "enfield/Transform/Allocators/RandomMappingFinder.h"
+#include "enfield/Transform/Allocators/Simple/RandomMappingFinder.h"
 
 #include <ctime>
 #include <algorithm>

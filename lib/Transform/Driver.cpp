@@ -53,7 +53,7 @@ QModule::uRef efd::Compile(QModule::uRef qmod, CompilationSettings settings) {
     PassCache::Run(qmod.get(), revPass.get());
 
     if (settings.verify) {
-        auto mapping = allocPass->getData().mInitial;
+        auto mapping = allocPass->getData();
 
         auto aVerifierPass = ArchVerifierPass::Create(settings.archGraph);
         auto sVerifierPass = SemanticVerifierPass::Create(std::move(qmodCopy), mapping);

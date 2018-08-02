@@ -1,4 +1,10 @@
-#include "enfield/Transform/StdSolutionQAllocator.h"
+#include "enfield/Transform/Allocators/StdSolutionQAllocator.h"
+#include "enfield/Transform/RenameQbitsPass.h"
+#include "enfield/Transform/InlineAllPass.h"
+#include "enfield/Transform/PassCache.h"
+#include "enfield/Analysis/NodeVisitor.h"
+#include "enfield/Support/RTTI.h"
+#include "enfield/Support/uRefCast.h"
 
 using namespace efd;
 

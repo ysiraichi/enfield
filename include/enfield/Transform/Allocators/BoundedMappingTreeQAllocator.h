@@ -1,7 +1,7 @@
 #ifndef __EFD_BOUNDED_MAPPING_TREE_QALLOCATOR_H__
 #define __EFD_BOUNDED_MAPPING_TREE_QALLOCATOR_H__
 
-#include "enfield/Transform/Allocators/QbitAllocator.h"
+#include "enfield/Transform/Allocators/StdSolutionQAllocator.h"
 #include "enfield/Support/TokenSwapFinder.h"
 
 namespace efd {
@@ -81,7 +81,7 @@ namespace efd {
         virtual bmt::Vector select(const bmt::TIMatrix& mem) = 0;
     };
 
-    class BoundedMappingTreeQAllocator : public QbitAllocator {
+    class BoundedMappingTreeQAllocator : public StdSolutionQAllocator {
         public:
             typedef BoundedMappingTreeQAllocator* Ref;
             typedef std::unique_ptr<BoundedMappingTreeQAllocator> uRef;

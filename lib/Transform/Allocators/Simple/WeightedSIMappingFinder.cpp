@@ -1,4 +1,4 @@
-#include "enfield/Transform/Allocators/WeightedSIMappingFinder.h"
+#include "enfield/Transform/Allocators/Simple/WeightedSIMappingFinder.h"
 #include "enfield/Support/WeightedSIFinder.h"
 #include "enfield/Support/uRefCast.h"
 
