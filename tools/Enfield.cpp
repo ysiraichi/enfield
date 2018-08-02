@@ -3,6 +3,9 @@
 #include "enfield/Transform/Driver.h"
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Transform/IntrinsicGateCostPass.h"
+#include "enfield/Transform/QModuleQualityEvalPass.h"
+#include "enfield/Transform/InlineAllPass.h"
+#include "enfield/Transform/ReverseEdgesPass.h"
 #include "enfield/Transform/Allocators/Allocators.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/Stats.h"
@@ -10,8 +13,50 @@
 
 #include <fstream>
 #include <cassert>
+#include <cctype>
+#include <sstream>
+#include <map>
 
 using namespace efd;
+
+typedef std::map<std::string, uint32_t> MapGateUInt;
+
+namespace efd {
+    template <> std::string Opt<MapGateUInt>::getStringVal() {
+        std::string str;
+        for (auto& pair : mVal)
+            str += pair.first + ":" + std::to_string(pair.second) + " ";
+        return str;
+    }
+
+    template <> struct ParseOptTrait<MapGateUInt> {
+        static void Run(Opt<MapGateUInt>* opt, std::vector<std::string> args) {
+            std::string sVector = args[0];
+            std::istringstream iVector(sVector);
+
+            for (std::string str; iVector >> str;) {
+                std::size_t i = str.find(':');
+                int32_t l = i, r = i;
+
+                if (i != std::string::npos) {
+                    while (l >= 0 && !isspace(str[l])) --l;
+                    while (r < (int32_t) str.length() && !isspace(str[r])) ++r;
+                    ++l; --r;
+                }
+
+                std::string key = str.substr(l, i - l);
+                std::string val = str.substr(i + 1, r - i);
+                opt->mVal[key] = std::stoull(val);
+            }
+        }
+    };
+}
+
+static efd::Opt<MapGateUInt> GateWeights
+("-gate-w",
+"Cost of using each basis gate. \
+Should be specified as <gate>:<w> between quotes.",
+{{"U", 1}, {"CX", 10}}, false);
 
 static Opt<std::string> InFilepath
 ("i", "The input file.", "/dev/stdin", true);
@@ -44,6 +89,12 @@ static Opt<std::string> PrintArchGraphFile
 
 static efd::Stat<uint32_t> TotalCost
 ("TotalCost", "Total cost after allocating the qubits.");
+static efd::Stat<uint32_t> Depth
+("Depth", "Total depth after allocating the qubits.");
+static efd::Stat<uint32_t> Gates
+("Gates", "Total number of gates after allocating the qubits.");
+static efd::Stat<uint32_t> WeightedCost
+("WeightedCost", "Total weighted cost after allocating the qubits.");
 
 static void DumpToOutFile(QModule::Ref qmod) {
     std::ofstream O(OutFilepath.getVal());
@@ -51,9 +102,27 @@ static void DumpToOutFile(QModule::Ref qmod) {
     O.close();
 }
 
-static void ComputeStats(QModule::Ref qmod) {
+static void ComputeStats(QModule::Ref qmod, ArchGraph::sRef archGraph) {
     TotalCost = PassCache::Get<IntrinsicGateCostPass>(qmod)
                     ->getData();
+
+    std::vector<std::string> basisGates;
+    for (auto& pair : GateWeights.getVal()) {
+        basisGates.push_back(pair.first);
+    }
+
+    auto inlinePass = InlineAllPass::Create(basisGates);
+    auto reversePass = ReverseEdgesPass::Create(archGraph);
+    auto qualityPass = QModuleQualityEvalPass::Create(GateWeights.getVal());
+    PassCache::Run(qmod, inlinePass.get());
+    PassCache::Run(qmod, reversePass.get());
+    PassCache::Run(qmod, inlinePass.get());
+    PassCache::Run(qmod, qualityPass.get());
+    auto &quality = qualityPass->getData();
+
+    Depth = quality.mDepth;
+    Gates = quality.mGates;
+    WeightedCost = quality.mWeightedCost;
 }
 
 int main(int argc, char** argv) {
@@ -105,7 +174,7 @@ int main(int argc, char** argv) {
         };
 
         qmod.reset(Compile(std::move(qmod), settings).release());
-        ComputeStats(qmod.get());
+        ComputeStats(qmod.get(), archGraph);
 
         if (qmod.get() != nullptr)
             DumpToOutFile(qmod.get());
