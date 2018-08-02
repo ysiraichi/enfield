@@ -1,7 +1,7 @@
-#ifndef __EFD_DYNPROG_DEP_SOLVER_H__
-#define __EFD_DYNPROG_DEP_SOLVER_H__
+#ifndef __EFD_DYNPROG_QALLOCATOR_H__
+#define __EFD_DYNPROG_QALLOCATOR_H__
 
-#include "enfield/Transform/Allocators/DepSolverQAllocator.h"
+#include "enfield/Transform/Allocators/StdSolutionQAllocator.h"
 
 #include <unordered_map>
 #include <string>
@@ -11,19 +11,19 @@ struct MapResult;
 namespace efd {
     /// \brief Implementation of DepSolverQAllocator that uses dynamic programming to
     /// obtain an optimal solution.
-    class DynprogDepSolver : public DepSolverQAllocator {
+    class DynprogQAllocator : public StdSolutionQAllocator {
         public:
-            typedef DynprogDepSolver* Ref;
-            typedef std::unique_ptr<DynprogDepSolver> uRef;
+            typedef DynprogQAllocator* Ref;
+            typedef std::unique_ptr<DynprogQAllocator> uRef;
 
         protected:
-            DynprogDepSolver(ArchGraph::sRef archGraph);
+            DynprogQAllocator(ArchGraph::sRef archGraph);
 
             /// \brief Gets the intermediate vertex between 'u' and 'v', if
             /// there exists one.
             uint32_t getIntermediateV(uint32_t u, uint32_t v);
 
-            Solution solve(DepsSet& deps) override;
+            Solution buildStdSolution(QModule::Ref qmod) override;
 
         public:
             /// \brief Create a new instance of this class.

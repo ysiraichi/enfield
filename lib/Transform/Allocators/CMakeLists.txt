@@ -1,6 +1,7 @@
 add_library (EfdAllocator
     Allocators.cpp
     QbitAllocator.cpp
+    StdSolutionQAllocator.cpp
     DepSolverQAllocator.cpp
     DynprogDepSolver.cpp
     SimpleDepSolver.cpp

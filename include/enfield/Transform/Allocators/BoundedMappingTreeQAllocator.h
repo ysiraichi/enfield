@@ -113,7 +113,7 @@ namespace efd {
             SwapSeq getTransformingSwapsFor(const Mapping& fromM, Mapping toM);
 
             BoundedMappingTreeQAllocator(ArchGraph::sRef ag);
-            Solution executeAllocation(QModule::Ref qmod) override;
+            Solution buildStdSolution(QModule::Ref qmod) override;
 
         public:
             static uRef Create(ArchGraph::sRef ag);

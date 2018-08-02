@@ -380,7 +380,7 @@ Solution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss) {
     return sol;
 }
 
-Solution BoundedMappingTreeQAllocator::executeAllocation(QModule::Ref qmod) {
+Solution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
     if (mNCIterator.get() == nullptr) {
         mNCIterator.reset(new SeqNCandidateIterator(qmod->stmt_begin(), qmod->stmt_end()));
     }

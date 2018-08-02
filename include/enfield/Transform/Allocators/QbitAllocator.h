@@ -43,7 +43,7 @@ namespace efd {
 
     /// \brief Base abstract class that allocates the qbits used in the program to
     /// the qbits that are in the physical architecture.
-    class QbitAllocator : public PassT<Solution> {
+    class QbitAllocator : public PassT<Mapping> {
         public:
             typedef QbitAllocator* Ref;
             typedef std::unique_ptr<QbitAllocator> uRef;
@@ -76,7 +76,7 @@ namespace efd {
             QbitAllocator(ArchGraph::sRef archGraph);
 
             /// \brief Executes the allocation algorithm after the preprocessing.
-            virtual Solution executeAllocation(QModule::Ref qmod) = 0;
+            virtual Mapping allocate(QModule::Ref qmod) = 0;
 
         public:
             bool run(QModule::Ref qmod) override;

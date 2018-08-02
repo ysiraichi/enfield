@@ -31,7 +31,7 @@ struct AllocProps {
 
 GreedyCktQAllocator::GreedyCktQAllocator(ArchGraph::sRef ag) : QbitAllocator(ag) {}
 
-Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
+Solution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
     auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(mMod);
     auto depBuilder = depPass->getData();
     auto& depsSet = depBuilder.getDependencies();
@@ -294,16 +294,10 @@ Solution GreedyCktQAllocator::executeAllocation(QModule::Ref qmod) {
             ops.second.push_back({ Operation::K_OP_REV, a, b });
         }
 
-        // for (uint32_t q : best.cnode->qargsid) {
         for (uint32_t i : best.cnode->getXbitsIds()) {
             marked[i] = false;
             it.next(i);
         }
-
-        // for (uint32_t c : best.cnode->cargsid) {
-        //     marked[c] = true;
-        //     cgraph[c] = cgraph[c]->child[c];
-        // }
 
         sol.mCost += best.cost;
     }

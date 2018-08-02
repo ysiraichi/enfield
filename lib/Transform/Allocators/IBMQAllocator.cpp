@@ -165,7 +165,7 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
     return result;
 }
 
-Solution IBMQAllocator::executeAllocation(QModule::Ref qmod) {
+Solution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
     std::srand(Seed.getVal());
 
     Solution sol;

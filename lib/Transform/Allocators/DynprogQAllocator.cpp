@@ -1,4 +1,4 @@
-#include "enfield/Transform/Allocators/DynprogDepSolver.h"
+#include "enfield/Transform/Allocators/DynprogQAllocator.h"
 #include "enfield/Support/BFSPathFinder.h"
 #include "enfield/Support/CommandLine.h"
 #include "enfield/Support/ExpTSFinder.h"
@@ -38,7 +38,7 @@ static inline Val minVal(Val& a, Val& b) {
     else return b;
 }
 
-uint32_t efd::DynprogDepSolver::getIntermediateV(uint32_t u, uint32_t v) {
+uint32_t efd::DynprogQAllocator::getIntermediateV(uint32_t u, uint32_t v) {
     auto& succ = mArchGraph->succ(u);
 
     for (auto& w : succ) {
@@ -51,7 +51,11 @@ uint32_t efd::DynprogDepSolver::getIntermediateV(uint32_t u, uint32_t v) {
     return UNREACH;
 }
 
-efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
+efd::Solution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
+    auto &deps = PassCache::Get<DependencyBuilderWrapperPass>(mMod)
+        ->getData()
+        .getDependencies();
+
     ExpTSFinder tsp(mArchGraph);
     auto permutations = tsp.mAssigns;
 
@@ -221,11 +225,11 @@ efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
     return solution;
 }
 
-efd::DynprogDepSolver::DynprogDepSolver(ArchGraph::sRef pGraph) 
+efd::DynprogQAllocator::DynprogQAllocator(ArchGraph::sRef pGraph) 
     : DepSolverQAllocator(pGraph) {
 }
 
-efd::DynprogDepSolver::uRef efd::DynprogDepSolver::Create
+efd::DynprogQAllocator::uRef efd::DynprogQAllocator::Create
 (ArchGraph::sRef archGraph) {
-    return uRef(new DynprogDepSolver(archGraph));
+    return uRef(new DynprogQAllocator(archGraph));
 }
