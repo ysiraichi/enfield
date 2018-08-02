@@ -16,6 +16,7 @@ add_library (EfdTransform
     Pass.cpp
     PassCache.cpp
     QModule.cpp
+    QModuleQualityEvalPass.cpp
     RenameQbitsPass.cpp
     ReverseEdgesPass.cpp
     SemanticVerifierPass.cpp
