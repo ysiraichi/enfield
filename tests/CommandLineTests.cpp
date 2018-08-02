@@ -107,32 +107,91 @@ namespace efd {
         return str;
     }
 
-    template <> void Opt<std::vector<int>>::parseImpl(std::vector<std::string> args) {
-        std::string sVector = args[0];
-        std::istringstream iVector(sVector);
-
-        for (std::string val; iVector >> val;)
-            mVal.push_back(std::stoi(val));
+    template <> struct ParseOptTrait<std::vector<int>> {
+        static void Run(Opt<std::vector<int>>* opt,
+                        std::vector<std::string> args) {
+            std::string sVector = args[0];
+            std::istringstream iVector(sVector);
+            for (std::string val; iVector >> val;)
+                opt->mVal.push_back(std::stoi(val));
+        }
+    };
+    
+    template <> std::string Opt<std::map<std::string, uint32_t>>::getStringVal() {
+        std::string str;
+        for (auto& pair : mVal)
+            str += pair.first + ":" + std::to_string(pair.second) + " ";
+        return str;
     }
+
+    template <> struct ParseOptTrait<std::map<std::string, uint32_t>> {
+        static void Run(Opt<std::map<std::string, uint32_t>>* opt,
+                        std::vector<std::string> args) {
+            std::string sVector = args[0];
+            std::istringstream iVector(sVector);
+
+            for (std::string str; iVector >> str;) {
+                std::size_t i = str.find(':');
+                int32_t l = i, r = i;
+
+                if (i != std::string::npos) {
+                    while (l >= 0 && !isspace(str[l])) --l;
+                    while (r < (int32_t) str.length() && !isspace(str[r])) ++r;
+                    ++l; --r;
+                }
+
+                std::string key = str.substr(l, i - l);
+                std::string val = str.substr(i + 1, r - i);
+                opt->mVal[key] = std::stoull(val);
+            }
+        }
+    };
 }
 
 TEST(CommandLineTest, ParserImplementationTest) {
-    efd::Opt<std::vector<int>> optVec("vec", "Passing a vector as argument.");
+    {
+        efd::Opt<std::vector<int>> optVec("vec", "Passing a vector as argument.");
 
-    int nArgs = 3;
-    std::vector<int> baseVal = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+        int nArgs = 3;
+        std::vector<int> baseVal = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
 
-    std::string baseStr(" ");
-    for (int i = 0, e = baseVal.size(); i < e; ++i)
-        baseStr += std::to_string(baseVal[i]) + " ";
+        std::string baseStr(" ");
+        for (int i = 0, e = baseVal.size(); i < e; ++i)
+            baseStr += std::to_string(baseVal[i]) + " ";
 
 
-    CREATE_ARGS(nArgs, "RequiredAssertTest",
-            "-vec", baseStr);
+        CREATE_ARGS(nArgs, "RequiredAssertTest",
+                "-vec", baseStr);
 
-    efd::ParseArguments(nArgs, argv);
+        efd::ParseArguments(nArgs, argv);
 
-    const std::vector<int>& val = optVec.getVal();
-    for (int i = 0, e = val.size(); i < e; ++i)
-        ASSERT_EQ(val[i], baseVal[i]);
+        const std::vector<int>& val = optVec.getVal();
+        for (int i = 0, e = val.size(); i < e; ++i)
+            ASSERT_EQ(val[i], baseVal[i]);
+    }
+    {
+        efd::Opt<std::map<std::string, uint32_t>>
+            optMap("map", "Passing a map as argument.");
+
+        int nArgs = 3;
+        std::map<std::string, uint32_t> baseVal {
+            {"h", 20}, {"hh", 40},{"hhh", 80},{"hhhh", 160}
+        };
+
+        std::string baseStr;
+        for (auto& pair : baseVal)
+            baseStr += pair.first + ":" + std::to_string(pair.second) + " ";
+
+
+        CREATE_ARGS(nArgs, "RequiredAssertTest",
+                "-map", baseStr);
+
+        efd::ParseArguments(nArgs, argv);
+
+        const std::map<std::string, uint32_t>& val = optMap.getVal();
+        for (auto& pair : val) {
+            ASSERT_TRUE(baseVal.find(pair.first) != baseVal.end());
+            ASSERT_EQ(pair.second, baseVal[pair.first]);
+        }
+    }
 }
