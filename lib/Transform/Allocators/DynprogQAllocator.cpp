@@ -1,4 +1,5 @@
 #include "enfield/Transform/Allocators/DynprogQAllocator.h"
+#include "enfield/Transform/PassCache.h"
 #include "enfield/Support/BFSPathFinder.h"
 #include "enfield/Support/CommandLine.h"
 #include "enfield/Support/ExpTSFinder.h"
@@ -226,7 +227,7 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
 }
 
 efd::DynprogQAllocator::DynprogQAllocator(ArchGraph::sRef pGraph) 
-    : DepSolverQAllocator(pGraph) {
+    : StdSolutionQAllocator(pGraph) {
 }
 
 efd::DynprogQAllocator::uRef efd::DynprogQAllocator::Create

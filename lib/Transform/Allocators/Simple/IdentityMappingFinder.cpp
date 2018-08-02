@@ -1,6 +1,6 @@
 #include "enfield/Transform/Allocators/Simple/IdentityMappingFinder.h"
 
-efd::QbitAllocator::Mapping
+efd::Mapping
 efd::IdentityMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
     uint32_t qbits = g->size();
     Mapping mapping(qbits, 0);

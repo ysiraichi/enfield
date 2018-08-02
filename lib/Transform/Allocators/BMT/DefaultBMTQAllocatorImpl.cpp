@@ -1,4 +1,4 @@
-#include "enfield/Transform/Allocators/DefaultBMTQAllocatorImpl.h"
+#include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
 
 using namespace efd;
 using namespace bmt;

@@ -2,7 +2,7 @@
 #include "enfield/Support/WeightedSIFinder.h"
 #include "enfield/Support/uRefCast.h"
 
-efd::WeightedSIMappingFinder::Mapping
+efd::Mapping
 efd::WeightedSIMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
     uint32_t qbits = g->size();
 

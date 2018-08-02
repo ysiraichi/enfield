@@ -1,7 +1,8 @@
 #include "enfield/Transform/Allocators/SimpleQAllocator.h"
+#include "enfield/Transform/PassCache.h"
 
 efd::SimpleQAllocator::SimpleQAllocator(ArchGraph::sRef agraph) :
-    DepSolverQAllocator(agraph) {
+    StdSolutionQAllocator(agraph) {
 }
 
 efd::StdSolution efd::SimpleQAllocator::buildStdSolution(QModule::Ref qmod) {

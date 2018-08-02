@@ -1,9 +1,9 @@
 
 #include "gtest/gtest.h"
 
-#include "enfield/Transform/Allocators/SimpleDepSolver.h"
-#include "enfield/Transform/Allocators/IdentityMappingFinder.h"
-#include "enfield/Transform/Allocators/QbitterSolBuilder.h"
+#include "enfield/Transform/Allocators/SimpleQAllocator.h"
+#include "enfield/Transform/Allocators/Simple/IdentityMappingFinder.h"
+#include "enfield/Transform/Allocators/Simple/QbitterSolBuilder.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
@@ -49,7 +49,7 @@ CX q[0], q[1];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleDepSolver::Create(graph);
+        auto allocator = SimpleQAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
 
@@ -87,7 +87,7 @@ intrinsic_lcx__ q[3], q[2], q[0];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleDepSolver::Create(graph);
+        auto allocator = SimpleQAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
 
@@ -117,7 +117,7 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleDepSolver::Create(graph);
+        auto allocator = SimpleQAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
 
@@ -149,7 +149,7 @@ CX q[4], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleDepSolver::Create(graph);
+        auto allocator = SimpleQAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
 
@@ -186,7 +186,7 @@ intrinsic_rev_cx__ q[1], q[0];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleDepSolver::Create(graph);
+        auto allocator = SimpleQAllocator::Create(graph);
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
 

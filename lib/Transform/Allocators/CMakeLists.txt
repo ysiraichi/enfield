@@ -5,7 +5,6 @@ add_library (EfdAllocator
     Allocators.cpp
     QbitAllocator.cpp
     StdSolutionQAllocator.cpp
-    DepSolverQAllocator.cpp
     DynprogQAllocator.cpp
     SimpleQAllocator.cpp
     GreedyCktQAllocator.cpp

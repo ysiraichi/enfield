@@ -1,5 +1,5 @@
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
-#include "enfield/Transform/Allocators/DefaultBMTQAllocatorImpl.h"
+#include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Support/ApproxTSFinder.h"
 #include "enfield/Support/CommandLine.h"
@@ -21,7 +21,7 @@ static Opt<uint32_t> MaxPartialSolutions
  std::numeric_limits<uint32_t>::max(), false);
 
 BoundedMappingTreeQAllocator::BoundedMappingTreeQAllocator(ArchGraph::sRef ag)
-    : QbitAllocator(ag) {}
+    : StdSolutionQAllocator(ag) {}
 
 CandidateVector
 BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,

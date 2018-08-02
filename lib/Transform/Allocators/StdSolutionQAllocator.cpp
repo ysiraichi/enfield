@@ -2,6 +2,7 @@
 #include "enfield/Transform/RenameQbitsPass.h"
 #include "enfield/Transform/InlineAllPass.h"
 #include "enfield/Transform/PassCache.h"
+#include "enfield/Transform/Utils.h"
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
@@ -10,9 +11,9 @@ using namespace efd;
 
 // ------------------ StdSolution Implementer ----------------------
 namespace efd {
-    class SolutionImplPass : public PassT<void>, public NodeVisitor {
+    class StdSolutionImplPass : public PassT<void>, public NodeVisitor {
         private:
-            Solution& mData;
+            StdSolution& mData;
 
             XbitToNumber mXbitToNumber;
             std::vector<Node::Ref> mMap;
@@ -29,7 +30,7 @@ namespace efd {
             void applyOperations(NDQOp::Ref ref, NDIfStmt::Ref ifstmt = nullptr);
 
         public:
-            SolutionImplPass(Solution& sol) : mData(sol) {}
+            StdSolutionImplPass(StdSolution& sol) : mData(sol) {}
 
             bool run(QModule::Ref qmod) override;
             void visit(NDQOpMeasure::Ref ref) override;
@@ -43,12 +44,12 @@ namespace efd {
     };
 }
 
-efd::Node::uRef efd::SolutionImplPass::getMappedNode(Node::Ref ref) {
+efd::Node::uRef efd::StdSolutionImplPass::getMappedNode(Node::Ref ref) {
     uint32_t id = mXbitToNumber.getQUId(ref->toString());
     return mMap[id]->clone();
 }
 
-efd::Node::uRef efd::SolutionImplPass::wrapWithIfNode
+efd::Node::uRef efd::StdSolutionImplPass::wrapWithIfNode
 (Node::uRef ref, NDIfStmt::Ref ifstmt) {
 
     if (ifstmt != nullptr) {
@@ -60,7 +61,7 @@ efd::Node::uRef efd::SolutionImplPass::wrapWithIfNode
     return ref;
 }
 
-void efd::SolutionImplPass::applyOperations(NDQOp::Ref qop, NDIfStmt::Ref ifstmt) {
+void efd::StdSolutionImplPass::applyOperations(NDQOp::Ref qop, NDIfStmt::Ref ifstmt) {
     bool stillHasOpSeqs = mDepIdx < mData.mOpSeqs.size();
     bool isIfStmtAndHasOp = ifstmt && stillHasOpSeqs && ifstmt == mData.mOpSeqs[mDepIdx].first;
     bool isQOpAndHasOp = !ifstmt && stillHasOpSeqs && qop == mData.mOpSeqs[mDepIdx].first;
@@ -119,7 +120,7 @@ void efd::SolutionImplPass::applyOperations(NDQOp::Ref qop, NDIfStmt::Ref ifstmt
     }
 }
 
-bool efd::SolutionImplPass::run(QModule::Ref qmod) {
+bool efd::StdSolutionImplPass::run(QModule::Ref qmod) {
     INF << "Initial Configuration: " << MappingToString(mData.mInitial) << std::endl;
     auto xtonpass = PassCache::Get<XbitToNumberWrapperPass>(qmod);
 
@@ -143,37 +144,37 @@ bool efd::SolutionImplPass::run(QModule::Ref qmod) {
     return true;
 }
 
-void efd::SolutionImplPass::visit(NDQOpMeasure::Ref ref) {
+void efd::StdSolutionImplPass::visit(NDQOpMeasure::Ref ref) {
     applyOperations(ref);
 }
 
-void efd::SolutionImplPass::visit(NDQOpReset::Ref ref) {
+void efd::StdSolutionImplPass::visit(NDQOpReset::Ref ref) {
     applyOperations(ref);
 }
 
-void efd::SolutionImplPass::visit(NDQOpU::Ref ref) {
+void efd::StdSolutionImplPass::visit(NDQOpU::Ref ref) {
     applyOperations(ref);
 }
 
-void efd::SolutionImplPass::visit(NDQOpBarrier::Ref ref) {
+void efd::StdSolutionImplPass::visit(NDQOpBarrier::Ref ref) {
     applyOperations(ref);
 }
 
-void efd::SolutionImplPass::visit(NDIfStmt::Ref ref) {
+void efd::StdSolutionImplPass::visit(NDIfStmt::Ref ref) {
     applyOperations(ref->getQOp(), ref);
 }
 
-void efd::SolutionImplPass::visit(NDList::Ref ref) {
+void efd::StdSolutionImplPass::visit(NDList::Ref ref) {
     for (uint32_t i = 0, e = ref->getChildNumber(); i < e; ++i) {
         ref->setChild(i, getMappedNode(ref->getChild(i)));
     }
 }
 
-void efd::SolutionImplPass::visit(NDQOpCX::Ref ref) {
+void efd::StdSolutionImplPass::visit(NDQOpCX::Ref ref) {
     applyOperations(ref);
 }
 
-void efd::SolutionImplPass::visit(NDQOpGen::Ref ref) {
+void efd::StdSolutionImplPass::visit(NDQOpGen::Ref ref) {
     applyOperations(ref);
 }
 
@@ -183,7 +184,7 @@ StdSolutionQAllocator::StdSolutionQAllocator(ArchGraph::sRef archGraph)
 
 Mapping StdSolutionQAllocator::allocate(QModule::Ref qmod) {
     auto stdSolution = buildStdSolution(qmod);
-    SolutionImplPass pass(stdSolution);
+    StdSolutionImplPass pass(stdSolution);
     PassCache::Run(mMod, &pass);
     return stdSolution.mInitial;
 }

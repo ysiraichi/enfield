@@ -104,24 +104,21 @@ efd_test (CircuitGraphTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 # ==-------- Allocator ----------==
-efd_test (DynprogDepSolverTests
-    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
-
-efd_test (WeightedSIMappingFinderTests
-    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
-
-efd_test (QbitterQbitAllocatorTests
-    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
-
-efd_test (GreedyCktQAllocatorTests
+efd_test (DynprogQAllocatorTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 efd_test (IBMQAllocatorTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
-efd_test (BoundedSIDepSolverTests
-    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
-
 efd_test (BoundedMappingTreeQAllocatorTests
-    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+    EfdAllocator EfdBMTImpl EfdTransform EfdArch EfdAnalysis EfdSupport)
+
+efd_test (GreedyCktQAllocatorTests
+    EfdAllocator EfdSimpleImpl EfdTransform EfdArch EfdAnalysis EfdSupport)
+
+efd_test (WeightedSIMappingFinderTests
+    EfdAllocator EfdSimpleImpl EfdTransform EfdArch EfdAnalysis EfdSupport)
+
+efd_test (QbitterQbitAllocatorTests
+    EfdAllocator EfdSimpleImpl EfdTransform EfdArch EfdAnalysis EfdSupport)
 

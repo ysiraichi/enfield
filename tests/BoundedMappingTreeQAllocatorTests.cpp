@@ -42,7 +42,7 @@ void TestAllocation(const std::string program) {
     allocator->setInlineAll({ "cx" });
     allocator->run(qmod.get());
 
-    auto mapping = allocator->getData().mInitial;
+    auto mapping = allocator->getData();
 
     qmod->print(std::cout, true);
     qmodCopy->print(std::cout, true);

@@ -1,5 +1,5 @@
 #include "enfield/Transform/Allocators/GreedyCktQAllocator.h"
-#include "enfield/Transform/Allocators/WeightedSIMappingFinder.h"
+#include "enfield/Transform/Allocators/Simple/WeightedSIMappingFinder.h"
 #include "enfield/Transform/CircuitGraphBuilderPass.h"
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Support/BFSPathFinder.h"
@@ -29,7 +29,7 @@ struct AllocProps {
     } u;
 };
 
-GreedyCktQAllocator::GreedyCktQAllocator(ArchGraph::sRef ag) : QbitAllocator(ag) {}
+GreedyCktQAllocator::GreedyCktQAllocator(ArchGraph::sRef ag) : StdSolutionQAllocator(ag) {}
 
 StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
     auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(mMod);

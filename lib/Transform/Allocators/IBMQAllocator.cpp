@@ -2,15 +2,18 @@
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Support/BFSPathFinder.h"
 
+#include <chrono>
 #include <random>
 
 using namespace efd;
 
-extern Opt<uint32_t> Seed;
+static Opt<uint32_t> Seed
+("seed", "Seed to be used in random algorithms.",
+std::chrono::system_clock::now().time_since_epoch().count(), false);
 static Opt<uint32_t> Trials
 ("trials", "Number of times that IBMQAllocator should try.", 20, false);
 
-IBMQAllocator::IBMQAllocator(ArchGraph::sRef archGraph) : QbitAllocator(archGraph) {}
+IBMQAllocator::IBMQAllocator(ArchGraph::sRef archGraph) : StdSolutionQAllocator(archGraph) {}
 
 IBMQAllocator::uRef IBMQAllocator::Create(ArchGraph::sRef archGraph) {
     return uRef(new IBMQAllocator(archGraph));
