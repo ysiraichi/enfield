@@ -1,13 +1,13 @@
-#include "enfield/Transform/Allocators/QbitterSolBuilder.h"
+#include "enfield/Transform/Allocators/Simple/QbitterSolBuilder.h"
 #include "enfield/Support/BFSPathFinder.h"
 
-efd::Solution efd::QbitterSolBuilder::build
-(Mapping initial, DepsSet& deps, ArchGraph::Ref g) {
+efd::StdSolution efd::QbitterSolBuilder::build
+(Mapping initial, DepsVector& deps, ArchGraph::Ref g) {
     auto mapping = initial;
     auto assign = GenAssignment(g->size(), mapping);
     auto finder = BFSPathFinder::Create();
 
-    Solution solution { initial, Solution::OpSequences(deps.size()), 0 };
+    StdSolution solution { initial, StdSolution::OpSequences(deps.size()), 0 };
 
     for (uint32_t i = 0, e = deps.size(); i < e; ++i) {
         auto dep = deps[i][0];
@@ -30,7 +30,13 @@ efd::Solution efd::QbitterSolBuilder::build
             operation = { Operation::K_OP_LCNOT, a, b };
 
             auto path = finder->find(g, u, v);
-            assert(path.size() == 3 && "Can't apply a long cnot.");
+
+            if (path.size() != 3) {
+                ERR << "Can't apply a long cnot. Path size: `"
+                    << path.size() << "`." << std::endl;
+                ExitWith(ExitCode::EXIT_unreachable);
+            }
+
             operation.mW = assign[path[1]];
         }
         ops.second.push_back(operation);

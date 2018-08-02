@@ -5,7 +5,6 @@
 
 #include <string>
 #include <vector>
-#include <cassert>
 #include <memory>
 
 namespace efd {
@@ -137,7 +136,7 @@ namespace efd {
 template <typename T>
 void efd::ParseOptTrait<T>::Run(Opt<T>* opt, std::vector<std::string> args) {
     ERR << "Parse method not implemented for '" << typeid(T).name() << "'." << std::endl;
-    assert(false && "Option with 'parse' function not implemented.");
+    ExitWith(ExitCode::EXIT_unreachable);
 }
 
 template <typename T, T first, T last>

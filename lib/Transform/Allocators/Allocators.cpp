@@ -1,14 +1,15 @@
 #include "enfield/Transform/Allocators/Allocators.h"
-#include "enfield/Transform/Allocators/DynprogDepSolver.h"
+#include "enfield/Transform/Allocators/DynprogQAllocator.h"
 #include "enfield/Transform/Allocators/GreedyCktQAllocator.h"
 #include "enfield/Transform/Allocators/IBMQAllocator.h"
-#include "enfield/Transform/Allocators/SimpleDepSolver.h"
-#include "enfield/Transform/Allocators/BoundedSIDepSolver.h"
-#include "enfield/Transform/Allocators/WeightedSIMappingFinder.h"
-#include "enfield/Transform/Allocators/RandomMappingFinder.h"
-#include "enfield/Transform/Allocators/IdentityMappingFinder.h"
-#include "enfield/Transform/Allocators/PathGuidedSolBuilder.h"
-#include "enfield/Transform/Allocators/QbitterSolBuilder.h"
+#include "enfield/Transform/Allocators/SimpleQAllocator.h"
+#include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
+
+#include "enfield/Transform/Allocators/Simple/WeightedSIMappingFinder.h"
+#include "enfield/Transform/Allocators/Simple/RandomMappingFinder.h"
+#include "enfield/Transform/Allocators/Simple/IdentityMappingFinder.h"
+#include "enfield/Transform/Allocators/Simple/PathGuidedSolBuilder.h"
+#include "enfield/Transform/Allocators/Simple/QbitterSolBuilder.h"
 
 #include <unordered_map>
 #include <functional>
@@ -73,7 +74,7 @@ efd::CreateQbitAllocator(EnumAllocator key, AllocatorRegistry::ArgTy arg) {
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
     efd::AllocatorRegistry::RetTy\
     efd::Create##_Finder_##With##_Builder_(AllocatorRegistry::ArgTy arg) {\
-        auto allocator = SimpleDepSolver::Create(arg);\
+        auto allocator = SimpleQAllocator::Create(arg);\
         allocator->setMapFinder(_Finder_::Create());\
         allocator->setSolBuilder(_Builder_::Create());\
         return std::move(allocator);\

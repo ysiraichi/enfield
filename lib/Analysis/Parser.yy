@@ -5,6 +5,7 @@
     #include "enfield/Analysis/Driver.h"
     #include "enfield/Support/WrapperVal.h"
     #include "enfield/Support/RTTI.h"
+    #include "enfield/Support/Defs.h"
     #include "enfield/Support/CommandLine.h"
 
     namespace efd {
@@ -408,7 +409,7 @@ static int Parse(std::istream& istr, efd::ASTWrapper& ast, bool forceStdLib) {
             // One should not be able to reach this point.
             // This means that the first node of the AST is neither a
             // statements list nor a qasm version node.
-            assert(false && "Unreacheable.");
+            efd::ExitWith(efd::ExitCode::EXIT_unreachable);
         }
 
         for (auto pair : StdLib) {

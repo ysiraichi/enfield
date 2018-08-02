@@ -1,11 +1,11 @@
-#include "enfield/Transform/Allocators/RandomMappingFinder.h"
+#include "enfield/Transform/Allocators/Simple/RandomMappingFinder.h"
 
 #include <ctime>
 #include <algorithm>
 #include <chrono>
 #include <random>
 
-efd::Opt<uint32_t> Seed ("seed", "Seed to be used in the RandomQbitAllocator.",
+efd::Opt<uint32_t> Seed ("seed", "Seed to be used in random algorithms.",
 std::chrono::system_clock::now().time_since_epoch().count(), false);
 efd::Stat<uint32_t> SeedStat
 ("seed", "Seed used in the random allocator.");
@@ -16,8 +16,8 @@ int rnd(int i) {
     return distribution(generator);
 }
 
-efd::MappingFinder::Mapping
-efd::RandomMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
+efd::Mapping
+efd::RandomMappingFinder::find(ArchGraph::Ref g, DepsVector& deps) {
     uint32_t qbits = g->size();
     Mapping mapping(qbits);
 

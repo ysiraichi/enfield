@@ -1,7 +1,7 @@
 #ifndef __EFD_PATH_GUIDED_SOL_BUILDER_H__
 #define __EFD_PATH_GUIDED_SOL_BUILDER_H__
 
-#include "enfield/Transform/Allocators/SolutionBuilder.h"
+#include "enfield/Transform/Allocators/SimpleQAllocator.h"
 #include "enfield/Support/PathFinder.h"
 
 namespace efd {
@@ -15,7 +15,7 @@ namespace efd {
             PathFinder::sRef mPathFinder;
 
         public:
-            Solution build(Mapping initial, DepsSet& deps, ArchGraph::Ref g) override;
+            StdSolution build(Mapping initial, DepsVector& deps, ArchGraph::Ref g) override;
 
             /// \brief Sets the path finder to be used.
             void setPathFinder(PathFinder::sRef finder);

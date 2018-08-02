@@ -4,8 +4,8 @@
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
+#include "enfield/Support/Defs.h"
 
-#include <cassert>
 #include <unordered_set>
 #include <iterator>
 
@@ -52,7 +52,13 @@ void efd::QModule::removeAllQRegs() {
 
 efd::QModule::Iterator efd::QModule::findStatement(Node::Ref ref) {
     auto it = mStatements->findChild(ref);
-    assert(it != mStatements->end() && "Node not in the main statement list.");
+
+    if (it == mStatements->end()) {
+        std::string nodeStr = (ref == nullptr) ? "nullptr" : ref->toString(false);
+        ERR << "Node not in the main statement list: `" << nodeStr << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     return it;
 }
 
@@ -61,7 +67,11 @@ void efd::QModule::removeStatement(Iterator it) {
 }
 
 efd::QModule::Iterator efd::QModule::inlineCall(NDQOp::Ref call) {
-    assert(call->isGeneric() && "Trying to inline a non-generic call.");
+    if (!call->isGeneric()) {
+        ERR << "Trying to inline a non-generic call: `" << call->toString(false)
+            << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
 
     Node::Ref stmt = call;
     auto parent = call->getParent();
@@ -102,8 +112,12 @@ efd::QModule::Iterator efd::QModule::insertStatementLast(Node::uRef ref) {
 efd::QModule::Iterator efd::QModule::replaceStatement
 (Node::Ref stmt, std::vector<Node::uRef> stmts) {
     auto it = mStatements->findChild(stmt);
-    assert(it != mStatements->end() &&
-            "Trying to replace a non-existing statement.");
+
+    if (it == mStatements->end()) {
+        std::string stmtStr = (stmt == nullptr) ? "nullptr" : stmt->toString(false);
+        ERR << "Trying to replace a non-existing statement: `" << stmtStr << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
 
     uint32_t stmtsSize = stmts.size();
     if (!stmts.empty()) {
@@ -119,13 +133,24 @@ void efd::QModule::clearStatements() {
 }
 
 efd::Node::Ref efd::QModule::getStatement(uint32_t i) {
-    assert(i < mStatements->getChildNumber() && "Out of bounds access.");
+    if (i >= mStatements->getChildNumber()) {
+        ERR << "Out of bounds access (of `" << mStatements->getChildNumber()
+            << "`): `" << i << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
     return mStatements->getChild(i);
 }
 
 void efd::QModule::insertGate(NDGateSign::uRef gate) {
-    assert(gate.get() != nullptr && "Trying to insert a 'nullptr' gate.");
-    assert(gate->getId() != nullptr && "Trying to insert a gate with 'nullptr' id.");
+    if (gate.get() == nullptr) {
+        ERR << "Trying to insert a 'nullptr' gate." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
+    if (gate->getId() == nullptr) {
+        ERR << "Trying to insert a gate with 'nullptr' id." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
 
     std::string id = gate->getId()->getVal();
 
@@ -274,10 +299,17 @@ std::string efd::QModule::toString(bool pretty, bool printGates) const {
 
 efd::Node::Ref efd::QModule::getQVar(std::string id, NDGateDecl::Ref gate) const {
     if (gate != nullptr) {
-        assert(mGateIdMap.find(gate) != mGateIdMap.end() && "No such gate found.");
+        if (mGateIdMap.find(gate) == mGateIdMap.end()) {
+            ERR << "No such gate found: `" << gate->getId()->getVal() << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_unknown_resource);
+        }
 
         const IdMap& idMap = mGateIdMap.at(gate);
-        assert(idMap.find(id) != idMap.end() && "No such id inside this gate.");
+        if (idMap.find(id) == idMap.end()) {
+            ERR << "No such id inside this gate (`" << gate->getId()->getVal()
+                << "`): `" << id << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_unknown_resource);
+        }
 
         return idMap.at(id);
     }
@@ -302,7 +334,10 @@ bool efd::QModule::hasQVar(std::string id, NDGateDecl::Ref gate) const {
 }
 
 efd::NDGateSign::Ref efd::QModule::getQGate(std::string id) const {
-    assert(mGatesMap.find(id) != mGatesMap.end() && "Gate not found.");
+    if (mGatesMap.find(id) == mGatesMap.end()) {
+        ERR << "Gate not found: `" << id << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unknown_resource);
+    }
     return mGatesMap.at(id).get();
 }
 

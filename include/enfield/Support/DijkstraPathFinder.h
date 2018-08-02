@@ -4,9 +4,9 @@
 #include "enfield/Support/PathFinder.h"
 #include "enfield/Support/WeightedGraph.h"
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/Defs.h"
 
 #include <queue>
-#include <cassert>
 #include <limits>
 
 namespace efd {
@@ -40,7 +40,11 @@ template <typename T>
 std::vector<uint32_t>
 efd::DijkstraPathFinder<T>::find(Graph::Ref g, uint32_t u, uint32_t v) {
     auto wg = dynCast<WeightedGraph<T>>(g);
-    assert(wg != nullptr && "Invalid weighted graph for this Dijkstra implementation.");
+
+    if (wg == nullptr) {
+        ERR << "Invalid weighted graph for this Dijkstra implementation." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
 
     uint32_t size = wg->size();
     uint32_t from = u;
@@ -74,7 +78,10 @@ efd::DijkstraPathFinder<T>::find(Graph::Ref g, uint32_t u, uint32_t v) {
     }
 
     // Reconstructing the path
-    assert(!equal(dist[to], infw) && "No existing path in this graph.");
+    if (equal(dist[to], infw)) {
+        ERR << "No existing path in this graph." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
 
     std::vector<uint32_t> path;
 

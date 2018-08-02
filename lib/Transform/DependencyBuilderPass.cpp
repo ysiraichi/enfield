@@ -2,8 +2,8 @@
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/Defs.h"
 
-#include <cassert>
 #include <algorithm>
 
 // --------------------- Dependencies ------------------------
@@ -48,23 +48,27 @@ uint32_t efd::DependencyBuilder::getUId(Node::Ref ref, NDGateDecl::Ref gate) {
     return mXbitToNumber.getQUId(_id, gate);
 }
 
-const efd::DependencyBuilder::DepsSet* efd::DependencyBuilder::getDepsSet
+const efd::DependencyBuilder::DepsVector* efd::DependencyBuilder::getDepsVector
 (NDGateDecl::Ref gate) const {
-    const DepsSet* deps = &mGDeps;
+    const DepsVector* deps = &mGDeps;
 
     if (gate != nullptr) {
-        assert(mLDeps.find(gate) != mLDeps.end() && \
-                "No dependencies for this gate.");
+        if (mLDeps.find(gate) == mLDeps.end()) {
+            efd::ERR << "No dependencies for this gate: `"
+                << gate->getId()->getVal() << "`." << std::endl;
+            efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
+        }
+
         deps = &mLDeps.at(gate);
     }
 
     return deps;
 }
 
-efd::DependencyBuilder::DepsSet* efd::DependencyBuilder::getDepsSet
+efd::DependencyBuilder::DepsVector* efd::DependencyBuilder::getDepsVector
 (NDGateDecl::Ref gate) {
-    return const_cast<DepsSet*>(static_cast<const DependencyBuilder*>
-            (this)->getDepsSet(gate));
+    return const_cast<DepsVector*>(static_cast<const DependencyBuilder*>
+            (this)->getDepsVector(gate));
 }
 
 efd::XbitToNumber& efd::DependencyBuilder::getXbitToNumber() {
@@ -75,19 +79,24 @@ void efd::DependencyBuilder::setXbitToNumber(efd::XbitToNumber& xtn) {
     mXbitToNumber = xtn;
 }
 
-const efd::DependencyBuilder::DepsSet& efd::DependencyBuilder::getDependencies
+const efd::DependencyBuilder::DepsVector& efd::DependencyBuilder::getDependencies
 (NDGateDecl::Ref ref) const {
-    const DepsSet* deps = const_cast<DepsSet*>(getDepsSet(ref));
+    const DepsVector* deps = const_cast<DepsVector*>(getDepsVector(ref));
     return *deps;
 }
 
-efd::DependencyBuilder::DepsSet& efd::DependencyBuilder::getDependencies
+efd::DependencyBuilder::DepsVector& efd::DependencyBuilder::getDependencies
 (NDGateDecl::Ref ref) {
-    return *getDepsSet(ref);
+    return *getDepsVector(ref);
 }
 
 const efd::Dependencies efd::DependencyBuilder::getDeps(Node* ref) const {
-    assert(mIDeps.find(ref) != mIDeps.end() && "Instruction never seen before.");
+    if (mIDeps.find(ref) == mIDeps.end()) {
+        std::string refStr = (ref == nullptr) ? "nullptr" : ref->toString(false);
+        efd::ERR << "Instruction never seen before: `" << refStr << "`." << std::endl;
+        efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
+    }
+
     return mIDeps.at(ref);
 }
 
@@ -136,18 +145,23 @@ efd::NDGateDecl::Ref efd::DependencyBuilderVisitor::getParentGate(Node::Ref ref)
     }
 
     auto gate = dynCast<NDGateDecl>(goplist->getParent());
-    assert(gate != nullptr && "NDGOpList is owned by a non-gate node.");
+
+    if (gate == nullptr) {
+        efd::ERR << "NDGOpList is owned by a no node." << std::endl;
+        efd::ExitWith(efd::ExitCode::EXIT_unreachable);
+    }
+
     return gate;
 }
 
 void efd::DependencyBuilderVisitor::visit(NDGateDecl::Ref ref) {
-    mDepBuilder.mLDeps[ref] = DependencyBuilder::DepsSet();
+    mDepBuilder.mLDeps[ref] = DependencyBuilder::DepsVector();
     visitChildren(ref);
 }
 
 void efd::DependencyBuilderVisitor::visit(NDQOpCX::Ref ref) {
     auto gate = getParentGate(ref);
-    auto deps = mDepBuilder.getDepsSet(gate);
+    auto deps = mDepBuilder.getDepsVector(gate);
 
     // CX controlQ, invertQ;
     uint32_t controlQ = mDepBuilder.getUId(ref->getLhs(), gate);
@@ -164,7 +178,7 @@ void efd::DependencyBuilderVisitor::visit(NDQOpGen::Ref ref) {
     if (ref->getQArgs()->getChildNumber() == 1) return;
 
     auto gate = getParentGate(ref);
-    auto deps = mDepBuilder.getDepsSet(gate);
+    auto deps = mDepBuilder.getDepsVector(gate);
 
     // Getting the qargs uint32_t representations.
     std::vector<uint32_t> uidVector;
@@ -174,7 +188,12 @@ void efd::DependencyBuilderVisitor::visit(NDQOpGen::Ref ref) {
     // Getting the gate declaration node.
     Node::Ref node = mMod.getQGate(ref->getId()->getVal());
     NDGateDecl::Ref gRef = dynCast<NDGateDecl>(node);
-    assert(gRef != nullptr && "There is no quantum gate with this id.");
+
+    if (gRef == nullptr) {
+        std::string nodeStr = (node == nullptr) ? "nullptr" : node->toString(false);
+        efd::ERR << "There is no quantum gate with this id: `" << nodeStr << "`." << std::endl;
+        efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
+    }
 
     auto& gDeps = mDepBuilder.mLDeps[gRef];
     Dependencies thisDeps { {}, ref };

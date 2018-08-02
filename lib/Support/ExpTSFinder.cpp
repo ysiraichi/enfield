@@ -1,8 +1,8 @@
 #include "enfield/Support/ExpTSFinder.h"
+#include "enfield/Support/Defs.h"
 
 #include <algorithm>
 #include <queue>
-#include <cassert>
 
 void efd::ExpTSFinder::genAllAssigns(uint32_t n) {
     efd::Assign assign(n, 0);
@@ -16,7 +16,11 @@ void efd::ExpTSFinder::genAllAssigns(uint32_t n) {
 }
 
 uint32_t efd::ExpTSFinder::getTargetId(Assign source, Assign target) {
-    assert(source.size() == target.size() && "The assignment map must be of same size.");
+    if (source.size() != target.size()) {
+        ERR << "The assignment map must be of same size: `"
+            << source.size() << "` and `" << target.size() << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
 
     int size = source.size();
 
@@ -95,7 +99,11 @@ efd::ExpTSFinder::ExpTSFinder(Graph::sRef graph) : TokenSwapFinder(graph) {
 }
 
 efd::SwapSeq efd::ExpTSFinder::find(Assign from, Assign to) {
-    assert(mG.get() != nullptr && "Trying to find a swap seq. but no graph given.");
+    if (mG.get() == nullptr) {
+        ERR << "Trying to find a swap seq. but no graph given." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     return mSwaps[getTargetId(from, to)];
 }
 

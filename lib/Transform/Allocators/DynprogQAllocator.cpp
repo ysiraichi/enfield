@@ -1,4 +1,5 @@
-#include "enfield/Transform/Allocators/DynprogDepSolver.h"
+#include "enfield/Transform/Allocators/DynprogQAllocator.h"
+#include "enfield/Transform/PassCache.h"
 #include "enfield/Support/BFSPathFinder.h"
 #include "enfield/Support/CommandLine.h"
 #include "enfield/Support/ExpTSFinder.h"
@@ -38,7 +39,7 @@ static inline Val minVal(Val& a, Val& b) {
     else return b;
 }
 
-uint32_t efd::DynprogDepSolver::getIntermediateV(uint32_t u, uint32_t v) {
+uint32_t efd::DynprogQAllocator::getIntermediateV(uint32_t u, uint32_t v) {
     auto& succ = mArchGraph->succ(u);
 
     for (auto& w : succ) {
@@ -51,7 +52,11 @@ uint32_t efd::DynprogDepSolver::getIntermediateV(uint32_t u, uint32_t v) {
     return UNREACH;
 }
 
-efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
+efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
+    auto &deps = PassCache::Get<DependencyBuilderWrapperPass>(mMod)
+        ->getData()
+        .getDependencies();
+
     ExpTSFinder tsp(mArchGraph);
     auto permutations = tsp.mAssigns;
 
@@ -80,8 +85,12 @@ efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
             vals[i][j] = { i, nullptr, UNREACH };
 
     for (uint32_t i = 1; i <= depN; ++i) {
-        assert(deps[i-1].getSize() == 1 &&
-                "Trying to allocate qbits to a gate with more than one dependency.");
+        if (deps[i-1].getSize() > 1) {
+            ERR << "Trying to allocate qbits to a gate with more than one dependency."
+                << " Gate: `" << deps[i-1].mCallPoint->toString(false) << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_multi_deps);
+        }
+
         efd::Dep dep = deps[i-1].mDeps[0];
 
         for (uint32_t tgt = 0; tgt < permN; ++tgt) {
@@ -138,15 +147,19 @@ efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
         val = (minCost == val->cost) ? val : &vals[i][depN];
     }
 
-    Solution solution;
+    StdSolution solution;
     solution.mCost = val->cost;
-    solution.mOpSeqs.assign(depN, std::pair<Node::Ref, Solution::OpVector>());
+    solution.mOpSeqs.assign(depN, std::pair<Node::Ref, StdSolution::OpVector>());
 
     // Get the target mappings for each dependency (with its id).
     std::vector<std::pair<uint32_t, Mapping>> mappings(depN);
 
     for (int i = depN-1; i >= 0; --i) {
-        assert(val->parent != nullptr && "Nullptr reached too soon.");
+        if (val->parent == nullptr) {
+            ERR << "Nullptr reached too soon." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
+        }
+
         mappings[i] = std::make_pair(val->pId, permutations[val->pId]);
         val = val->parent;
     }
@@ -194,7 +207,13 @@ efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
                 operation = { Operation::K_OP_REV, a, b };
             else {
                 auto path = finder->find(mArchGraph.get(), u, v);
-                assert(path.size() == 3 && "Can't apply a long cnot.");
+
+                if (path.size() != 3) {
+                    ERR << "Can't apply a long cnot. Actual path size: `"
+                        << path.size() << "`." << std::endl;
+                    ExitWith(ExitCode::EXIT_unreachable);
+                }
+
                 operation = { Operation::K_OP_LCNOT, a, b };
                 operation.mW = assign[path[1]];
             }
@@ -207,11 +226,11 @@ efd::Solution efd::DynprogDepSolver::solve(DepsSet& deps) {
     return solution;
 }
 
-efd::DynprogDepSolver::DynprogDepSolver(ArchGraph::sRef pGraph) 
-    : DepSolverQAllocator(pGraph) {
+efd::DynprogQAllocator::DynprogQAllocator(ArchGraph::sRef pGraph) 
+    : StdSolutionQAllocator(pGraph) {
 }
 
-efd::DynprogDepSolver::uRef efd::DynprogDepSolver::Create
+efd::DynprogQAllocator::uRef efd::DynprogQAllocator::Create
 (ArchGraph::sRef archGraph) {
-    return uRef(new DynprogDepSolver(archGraph));
+    return uRef(new DynprogQAllocator(archGraph));
 }

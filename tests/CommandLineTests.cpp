@@ -2,10 +2,13 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Support/CommandLine.h"
+#include "enfield/Support/Defs.h"
 
 #include <vector>
 #include <string>
 #include <sstream>
+
+using namespace efd;
 
 #define CREATE_ARGS(nArgs, ...)                         \
     std::vector<std::string> argsStr = { __VA_ARGS__ }; \
@@ -70,8 +73,9 @@ TEST(CommandLineTest, NotEnoughArgumentsTest) {
 
     CREATE_ARGS(nArgs, "RequiredAssertTest",
             "-bool", "-int");
-    ASSERT_DEATH({ efd::ParseArguments(nArgs, argv); }, 
-            "Not enough command line arguments.");
+    ASSERT_EXIT({ efd::ParseArguments(nArgs, argv); },
+                ::testing::ExitedWithCode(static_cast<uint32_t>(ExitCode::EXIT_unreachable)),
+                "");
 }
 
 namespace efd {
@@ -89,8 +93,9 @@ TEST(CommandLineTest, NoParserImplementedTest) {
 
     CREATE_ARGS(nArgs, "RequiredAssertTest",
             "-vec", "true false false true");
-    ASSERT_DEATH({ efd::ParseArguments(nArgs, argv); }, 
-            "Option with 'parse' function not implemented.");
+    ASSERT_EXIT({ efd::ParseArguments(nArgs, argv); },
+                ::testing::ExitedWithCode(static_cast<uint32_t>(ExitCode::EXIT_unreachable)),
+                "");
 }
 
 namespace efd {

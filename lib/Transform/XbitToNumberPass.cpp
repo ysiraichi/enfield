@@ -1,32 +1,48 @@
 #include "enfield/Transform/XbitToNumberPass.h"
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/Defs.h"
 #include "enfield/Support/uRefCast.h"
 
-#include <cassert>
 #include <algorithm>
 
 // --------------------- XbitToNumber ------------------------
 const efd::XbitToNumber::XbitMap&
 efd::XbitToNumber::getQbitMap(NDGateDecl::Ref gate) const {
-    assert((gate == nullptr || lidQMap.find(gate) != lidQMap.end()) &&
-            "Trying to get an unknown gate information.");
+    if (gate != nullptr && lidQMap.find(gate) == lidQMap.end()) {
+        ERR << "Trying to get an unknown gate information: `" << gate->getId()->getVal()
+            << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unknown_resource);
+    }
+
     return (gate == nullptr) ? gidQMap : lidQMap.at(gate);
 }
 
 std::vector<uint32_t> efd::XbitToNumber::getRegUIds(std::string id) const {
-    assert(gidRegMap.find(id) != gidRegMap.end() && "Register not found.");
+    if (gidRegMap.find(id) == gidRegMap.end()) {
+        ERR << "Register not found: `" << id << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unknown_resource);
+    }
+
     return gidRegMap.at(id);
 }
 
 uint32_t efd::XbitToNumber::getQUId(std::string id, NDGateDecl::Ref gate) const {
     auto& map = getQbitMap(gate);
-    assert(map.find(id) != map.end() && "Qubit id not found.");
+    if (map.find(id) == map.end()) {
+        std::string gateId = (gate == nullptr) ? "nullptr" : gate->getId()->getVal();
+        ERR << "Qubit id not found inside gate (`" << gateId << "`): `" << id << "`." << std::endl;
+        std::exit(12);
+        // ExitWith(ExitCode::EXIT_unknown_resource);
+    }
     return map.at(id).key;
 }
 
 uint32_t efd::XbitToNumber::getCUId(std::string id) const {
-    assert(gidCMap.find(id) != gidCMap.end() && "Classical bit id not found.");
+    if (gidCMap.find(id) == gidCMap.end()) {
+        ERR << "Classical bit id not found: `" << id << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unknown_resource);
+    }
     return gidCMap.at(id).key;
 }
 
@@ -41,23 +57,33 @@ uint32_t efd::XbitToNumber::getCSize() const {
 
 std::string efd::XbitToNumber::getQStrId(uint32_t id, NDGateDecl::Ref gate) const {
     auto& map = getQbitMap(gate);
-    assert(id < map.size() && "Id trying to access out of bounds value.");
+    if (id >= map.size()) {
+        ERR << "Id trying to access out of bounds value (of `" << map.size() << "`): `"
+            << id << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unknown_resource);
+    }
 
     for (auto it = map.begin(), end = map.end(); it != end; ++it) {
         if (it->second.key == id) return it->first;
     }
 
-    assert(false && "UId not found.");
+    std::string gateId = (gate == nullptr) ? "nullptr" : gate->getId()->getVal();
+    ERR << "UId not found inside gate (`" << gateId << "`): `" << id << "`." << std::endl;
+    ExitWith(ExitCode::EXIT_unknown_resource);
 }
 
 std::string efd::XbitToNumber::getCStrId(uint32_t id) const {
-    assert(id < gidCMap.size() && "Id trying to access out of bounds value.");
+    if (id >= gidCMap.size()) {
+        ERR << "Classical bit id not found: `" << id << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unknown_resource);
+    }
 
     for (auto it = gidCMap.begin(), end = gidCMap.end(); it != end; ++it) {
         if (it->second.key == id) return it->first;
     }
 
-    assert(false && "UId not found.");
+    ERR << "UId not found: `" << id << "`." << std::endl;
+    ExitWith(ExitCode::EXIT_unknown_resource);
 }
 
 efd::Node::Ref efd::XbitToNumber::getQNode(uint32_t id, NDGateDecl::Ref gate) const {

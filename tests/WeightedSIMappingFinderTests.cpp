@@ -1,9 +1,9 @@
 
 #include "gtest/gtest.h"
 
-#include "enfield/Transform/Allocators/SimpleDepSolver.h"
-#include "enfield/Transform/Allocators/WeightedSIMappingFinder.h"
-#include "enfield/Transform/Allocators/PathGuidedSolBuilder.h"
+#include "enfield/Transform/Allocators/SimpleQAllocator.h"
+#include "enfield/Transform/Allocators/Simple/WeightedSIMappingFinder.h"
+#include "enfield/Transform/Allocators/Simple/PathGuidedSolBuilder.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
@@ -49,7 +49,7 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleDepSolver::Create(graph);
+        auto allocator = SimpleQAllocator::Create(graph);
         allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
@@ -85,7 +85,7 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleDepSolver::Create(graph);
+        auto allocator = SimpleQAllocator::Create(graph);
         allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
@@ -115,7 +115,7 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleDepSolver::Create(graph);
+        auto allocator = SimpleQAllocator::Create(graph);
         allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
@@ -147,7 +147,7 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleDepSolver::Create(graph);
+        auto allocator = SimpleQAllocator::Create(graph);
         allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
@@ -186,7 +186,7 @@ intrinsic_rev_cx__ q[2], q[1];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        auto allocator = SimpleDepSolver::Create(graph);
+        auto allocator = SimpleQAllocator::Create(graph);
         allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 

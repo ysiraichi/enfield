@@ -1,7 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include "enfield/Transform/Allocators/DynprogDepSolver.h"
+#include "enfield/Transform/Allocators/DynprogQAllocator.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
@@ -30,7 +30,7 @@ q[3] q[4]\n\
     return g;
 }
 
-TEST(DynProgQbitAllocatorTests, SimpleNoSwapProgram) {
+TEST(DynprogQAllocatorTests, SimpleNoSwapProgram) {
     {
         const std::string program =
 "\
@@ -47,7 +47,7 @@ CX q[0], q[1];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        DynprogDepSolver::uRef allocator = DynprogDepSolver::Create(graph);
+        DynprogQAllocator::uRef allocator = DynprogQAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -81,7 +81,7 @@ CX q[4], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        DynprogDepSolver::uRef allocator = DynprogDepSolver::Create(graph);
+        DynprogQAllocator::uRef allocator = DynprogQAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -89,7 +89,7 @@ CX q[4], q[2];\
     }
 }
 
-TEST(DynProgQbitAllocatorTests, GatesTest) {
+TEST(DynprogQAllocatorTests, GatesTest) {
     {
         const std::string program =
 "\
@@ -109,7 +109,7 @@ CX q[1], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        DynprogDepSolver::uRef allocator = DynprogDepSolver::Create(graph);
+        DynprogQAllocator::uRef allocator = DynprogQAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -139,7 +139,7 @@ CX q[4], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        DynprogDepSolver::uRef allocator = DynprogDepSolver::Create(graph);
+        DynprogQAllocator::uRef allocator = DynprogQAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
@@ -147,7 +147,7 @@ CX q[4], q[2];\
     }
 }
 
-TEST(DynProgQbitAllocatorTests, GatesSwapTest) {
+TEST(DynprogQAllocatorTests, GatesSwapTest) {
     {
         const std::string program =
 "\
@@ -175,7 +175,7 @@ CX q[0], q[2];\
         ArchGraph::sRef graph = getGraph();
 
         auto qmod = toShared(QModule::ParseString(program));
-        DynprogDepSolver::uRef allocator = DynprogDepSolver::Create(graph);
+        DynprogQAllocator::uRef allocator = DynprogQAllocator::Create(graph);
 
         allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());

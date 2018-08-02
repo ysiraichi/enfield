@@ -1,6 +1,6 @@
 #include "enfield/Support/Timer.h"
+#include "enfield/Support/Defs.h"
 
-#include <cassert>
 
 efd::Timer efd::Timer::_Timer = efd::Timer();
 
@@ -19,22 +19,38 @@ void efd::Timer::stop() {
 }
 
 uint64_t efd::Timer::getNanoseconds() {
-    assert(mTimed && "Trying to get elapsed time from dataless timer.");
+    if (!mTimed) {
+        ERR << "Trying to get elapsed time from dataless timer." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     return mDuration.count();
 }
 
 uint64_t efd::Timer::getMicroseconds() {
-    assert(mTimed && "Trying to get elapsed time from dataless timer.");
+    if (!mTimed) {
+        ERR << "Trying to get elapsed time from dataless timer." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     return std::chrono::duration_cast<std::chrono::microseconds>(mDuration).count();
 }
 
 uint64_t efd::Timer::getMilliseconds() {
-    assert(mTimed && "Trying to get elapsed time from dataless timer.");
+    if (!mTimed) {
+        ERR << "Trying to get elapsed time from dataless timer." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     return std::chrono::duration_cast<std::chrono::milliseconds>(mDuration).count();
 }
 
 uint64_t efd::Timer::getSeconds() {
-    assert(mTimed && "Trying to get elapsed time from dataless timer.");
+    if (!mTimed) {
+        ERR << "Trying to get elapsed time from dataless timer." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
     return std::chrono::duration_cast<std::chrono::seconds>(mDuration).count();
 }
 

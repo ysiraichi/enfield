@@ -1,7 +1,7 @@
 #ifndef __EFD_QBITTER_SOL_BUILDER_H__
 #define __EFD_QBITTER_SOL_BUILDER_H__
 
-#include "enfield/Transform/Allocators/SolutionBuilder.h"
+#include "enfield/Transform/Allocators/SimpleQAllocator.h"
 
 namespace efd {
     /// \brief Solves the dependencies using the 'long-cnot' gates.
@@ -13,7 +13,7 @@ namespace efd {
             typedef QbitterSolBuilder* Ref;
             typedef std::unique_ptr<QbitterSolBuilder> uRef;
 
-            Solution build(Mapping initial, DepsSet& deps, ArchGraph::Ref g) override;
+            StdSolution build(Mapping initial, DepsVector& deps, ArchGraph::Ref g) override;
 
             /// \brief Creates an instance of this class.
             static uRef Create();

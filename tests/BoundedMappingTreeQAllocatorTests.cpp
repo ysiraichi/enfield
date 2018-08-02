@@ -1,7 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include "enfield/Transform/Allocators/BoundedSIDepSolver.h"
+#include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
 #include "enfield/Transform/SemanticVerifierPass.h"
 #include "enfield/Transform/ArchVerifierPass.h"
 #include "enfield/Transform/PassCache.h"
@@ -38,11 +38,11 @@ void TestAllocation(const std::string program) {
     auto qmod = QModule::ParseString(program);
     auto qmodCopy = qmod->clone();
 
-    auto allocator = BoundedSIDepSolver::Create(g);
+    auto allocator = BoundedMappingTreeQAllocator::Create(g);
     allocator->setInlineAll({ "cx" });
     allocator->run(qmod.get());
 
-    auto mapping = allocator->getData().mInitial;
+    auto mapping = allocator->getData();
 
     qmod->print(std::cout, true);
     qmodCopy->print(std::cout, true);
@@ -57,7 +57,7 @@ void TestAllocation(const std::string program) {
     EXPECT_TRUE(sVerifierPass->getData());
 }
 
-TEST(BoundedSIDepSolverTests, SimpleNoSwapProgram) {
+TEST(BoundedMappingTreeQAllocatorTests, SimpleNoSwapProgram) {
     {
         const std::string program =
 "\
@@ -83,7 +83,7 @@ CX q[3], q[0];\
     }
 }
 
-TEST(BoundedSIDepSolverTests, GatesTest) {
+TEST(BoundedMappingTreeQAllocatorTests, GatesTest) {
     {
         const std::string program =
 "\
@@ -106,7 +106,7 @@ test q[3], q[4], q[2];\
     }
 }
 
-TEST(BoundedSIDepSolverTests, GatesSwapTest) {
+TEST(BoundedMappingTreeQAllocatorTests, GatesSwapTest) {
     {
         const std::string program =
 "\

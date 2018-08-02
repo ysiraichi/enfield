@@ -6,6 +6,7 @@
 #include "enfield/Transform/XbitToNumberPass.h"
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/Defs.h"
 #include "enfield/Support/uRefCast.h"
 
 #include <string>
@@ -25,7 +26,9 @@ qreg q[5];\
         pass->run(qmod.get());
 
         auto data = pass->getData();
-        ASSERT_DEATH({ data.getQUId("q"); }, "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("q"); },
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)), "");
         ASSERT_TRUE(data.getQUId("q[0]") == 0);
         ASSERT_TRUE(data.getQUId("q[1]") == 1);
         ASSERT_TRUE(data.getQUId("q[2]") == 2);
@@ -51,10 +54,22 @@ gate mygate(a, b, c) x, y, z {\
         ASSERT_FALSE(sign == nullptr);
 
         auto data = pass->getData();
-        ASSERT_DEATH({ data.getQUId("mygate"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("x"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("y"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("z"); }, "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("mygate"); },
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("x"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("y"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("z"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
 
         NDGateDecl::Ref gate = dynCast<NDGateDecl>(sign);
         ASSERT_FALSE(gate == nullptr);
@@ -101,17 +116,50 @@ measure q[4] -> c[4];\
         NDGateDecl::Ref cnotGate = dynCast<NDGateDecl>(cnotSign);
         ASSERT_FALSE(cnotGate == nullptr);
 
-        ASSERT_DEATH({ data.getQUId("id"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("cnot"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("a"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("b"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("q"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("c"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("c[0]"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("c[1]"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("c[2]"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("c[3]"); }, "Qubit id not found");
-        ASSERT_DEATH({ data.getQUId("c[4]"); }, "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("id"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("cnot"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("a"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("b"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("q"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("c"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("c[0]"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("c[1]"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("c[2]"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("c[3]"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
+        ASSERT_EXIT({ data.getQUId("c[4]"); }, 
+                    ::testing::ExitedWithCode(static_cast<uint32_t>
+                        (ExitCode::EXIT_unknown_resource)),
+                    "Qubit id not found");
 
         ASSERT_TRUE(data.getQUId("a", idGate) == 0);
         ASSERT_TRUE(data.getQUId("a", cnotGate) == 0);

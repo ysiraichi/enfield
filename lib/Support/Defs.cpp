@@ -41,3 +41,7 @@ std::ostream& efd::InfoLog(std::string file, uint32_t line) {
     PrintMessage(out, "INFO", file, line);
     return out;
 }
+
+void efd::ExitWith(ExitCode e) {
+    std::exit(static_cast<uint32_t>(e));
+}

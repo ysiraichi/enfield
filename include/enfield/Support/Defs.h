@@ -33,15 +33,19 @@ namespace efd {
     /// this enum in order to exit with errors.
     enum class ExitCode {
         EXIT_multi_deps = 11,
+        EXIT_unknown_resource,
+        EXIT_out_of_bounds,
         EXIT_unreachable
     };
+
+    void ExitWith(ExitCode e);
 }
 
 #ifndef EFD_MESSAGE_LOG
 #define EFD_MESSAGE_LOG
-#define ERR efd::ErrorLog(__FILE__, __LINE__)
-#define WAR efd::WarningLog(__FILE__, __LINE__)
-#define INF efd::InfoLog(__FILE__, __LINE__)
+#define ERR ErrorLog(__FILE__, __LINE__)
+#define WAR WarningLog(__FILE__, __LINE__)
+#define INF InfoLog(__FILE__, __LINE__)
 #endif
 
 #endif

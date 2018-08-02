@@ -1,13 +1,13 @@
 #ifndef __EFD_IBM_QALLOCATOR_H__
 #define __EFD_IBM_QALLOCATOR_H__
 
-#include "enfield/Transform/Allocators/QbitAllocator.h"
+#include "enfield/Transform/Allocators/StdSolutionQAllocator.h"
 #include "enfield/Transform/LayersBuilderPass.h"
 #include "enfield/Support/Defs.h"
 
 namespace efd {
     /// \brief Port of IBM's allocator.
-    class IBMQAllocator : public QbitAllocator {
+    class IBMQAllocator : public StdSolutionQAllocator {
         public:
             typedef IBMQAllocator* Ref;
             typedef std::unique_ptr<IBMQAllocator> uRef;
@@ -16,7 +16,7 @@ namespace efd {
             struct AllocationResult {
                 Mapping map;
                 bool success;
-                Solution::OpVector opv;
+                StdSolution::OpVector opv;
                 bool isTrivialLayer;
             };
 
@@ -31,7 +31,7 @@ namespace efd {
         public:
             IBMQAllocator(ArchGraph::sRef archGraph);
 
-            Solution executeAllocation(QModule::Ref qmod) override;
+            StdSolution buildStdSolution(QModule::Ref qmod) override;
             static uRef Create(ArchGraph::sRef archGraph);
     };
 }

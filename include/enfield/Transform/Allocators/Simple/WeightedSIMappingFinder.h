@@ -1,7 +1,7 @@
 #ifndef __EFD_WEIGHTED_SI_MAPPING_FINDER_H__
 #define __EFD_WEIGHTED_SI_MAPPING_FINDER_H__
 
-#include "enfield/Transform/Allocators/MappingFinder.h"
+#include "enfield/Transform/Allocators/SimpleQAllocator.h"
 #include "enfield/Support/SIFinder.h"
 #include "enfield/Support/WeightedGraph.h"
 
@@ -19,7 +19,7 @@ namespace efd {
             SIFinder::sRef mSIFinder;
 
         public:
-            Mapping find(ArchGraph::Ref g, DepsSet& deps) override;
+            Mapping find(ArchGraph::Ref g, DepsVector& deps) override;
 
             /// \brief Sets the subgraph isomorphism finder to \p finder.
             void setSIFinder(SIFinder::sRef finder);

@@ -8,7 +8,6 @@
 #include <map>
 #include <functional>
 #include <string>
-#include <cassert>
 
 namespace efd {
     /// \brief Base registry class for sets.
@@ -60,7 +59,11 @@ bool efd::Registry<RetTy, ArgTy, KeyTy, CmpTy>::hasObj(KeyTy key) const {
 
 template <typename RetTy, typename ArgTy, typename KeyTy, typename CmpTy>
 RetTy efd::Registry<RetTy, ArgTy, KeyTy, CmpTy>::createObj(KeyTy key, ArgTy arg) const {
-    assert(hasObj(key) && "Trying to create an object not registered.");
+    if (!hasObj(key)) {
+        ERR << "Trying to create an object not registered." << std::endl; 
+        ExitWith(ExitCode::EXIT_unknown_resource);
+    }
+
     return mCtorMap.at(key)(arg);
 }
 

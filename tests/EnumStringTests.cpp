@@ -10,27 +10,33 @@ using namespace efd;
 
 #define TEST_INIT_T(Ty, Ety, Val) \
     {\
-        EXPECT_DEATH(\
+        EXPECT_EXIT(\
                 {\
                     Ty ty = static_cast<Ety>(Val);\
                     std::cout << (uint32_t) ty.getValue() << std::endl;\
-                }, "Invalid init value.");\
+                },\
+                ::testing::ExitedWithCode(static_cast<uint32_t>(ExitCode::EXIT_unreachable)),\
+                "");\
     }
 
 #define TEST_INIT_STR(Ty, Val) \
     {\
-        EXPECT_DEATH(\
+        EXPECT_EXIT(\
                 {\
                     Ty ty = Val;\
                     std::cout << (uint32_t) ty.getValue() << std::endl;\
-                }, "Invalid init string.");\
+                },\
+                ::testing::ExitedWithCode(static_cast<uint32_t>(ExitCode::EXIT_unreachable)),\
+                "");\
     }
 
 #define TEST_ENUM_FAIL(Ty, Ety, E) \
     {\
         Ty ty = Ety::E;\
         EXPECT_EQ(ty.getValue(), Ety::E);\
-        EXPECT_DEATH({ std::cout << ty.getStringValue(); }, "Broken enum value.");\
+        EXPECT_EXIT({ std::cout << ty.getStringValue(); },\
+                    ::testing::ExitedWithCode(static_cast<uint32_t>(ExitCode::EXIT_unreachable)),\
+                    "");\
     }
 
 #define TEST_ENUM(Ty, Ety, E) \

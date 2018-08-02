@@ -1,5 +1,4 @@
-#include "enfield/Transform/Allocators/PathGuidedSolBuilder.h"
-#include "enfield/Transform/Allocators/QbitAllocator.h"
+#include "enfield/Transform/Allocators/Simple/PathGuidedSolBuilder.h"
 #include "enfield/Support/BFSPathFinder.h"
 #include "enfield/Support/Stats.h"
 
@@ -20,8 +19,8 @@ struct DepComp {
     }
 };
 
-efd::Solution efd::PathGuidedSolBuilder::build(Mapping initial,
-                                               DepsSet& deps,
+efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
+                                               DepsVector& deps,
                                                ArchGraph::Ref g) {
     if (mPathFinder.get() == nullptr)
         mPathFinder = BFSPathFinder::Create();
@@ -30,7 +29,7 @@ efd::Solution efd::PathGuidedSolBuilder::build(Mapping initial,
     bool improveInitialMapping = get(SolutionBuilderOptions::ImproveInitial);
 
     Mapping match = initial;
-    Solution solution { initial, Solution::OpSequences(deps.size()), 0 };
+    StdSolution solution { initial, StdSolution::OpSequences(deps.size()), 0 };
 
     std::map<Dep, uint32_t, DepComp> freq;
     for (uint32_t i = 0, e = deps.size(); i < e; ++i) {

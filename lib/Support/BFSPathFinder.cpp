@@ -1,6 +1,5 @@
 #include "enfield/Support/BFSPathFinder.h"
 
-#include <cassert>
 #include <algorithm>
 #include <queue>
 #include <set>

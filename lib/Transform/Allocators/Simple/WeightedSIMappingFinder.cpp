@@ -1,9 +1,9 @@
-#include "enfield/Transform/Allocators/WeightedSIMappingFinder.h"
+#include "enfield/Transform/Allocators/Simple/WeightedSIMappingFinder.h"
 #include "enfield/Support/WeightedSIFinder.h"
 #include "enfield/Support/uRefCast.h"
 
-efd::WeightedSIMappingFinder::Mapping
-efd::WeightedSIMappingFinder::find(ArchGraph::Ref g, DepsSet& deps) {
+efd::Mapping
+efd::WeightedSIMappingFinder::find(ArchGraph::Ref g, DepsVector& deps) {
     uint32_t qbits = g->size();
 
     if (mSIFinder.get() == nullptr)

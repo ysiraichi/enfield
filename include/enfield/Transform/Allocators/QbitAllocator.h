@@ -7,51 +7,16 @@
 #include "enfield/Support/Stats.h"
 
 namespace efd {
-    /// \brief Struct used to describe the operation chosen for each solving each
-    /// dependency.
-    ///
-    /// Probably we should construct an union for all operations. For the time being,
-    /// only the lcnot uses more than one property.
-    struct Operation {
-        /// \brief Kinds of operations available.
-        enum Kind {
-            K_OP_CNOT,
-            K_OP_REV,
-            K_OP_LCNOT,
-            K_OP_SWAP
-        };
-
-        Kind mK;
-        uint32_t mU, mV;
-        /// \brief The intermediate vertex for using the long cnot.
-        uint32_t mW;
-    };
-
-    /// \brief The solution for the allocation problem.
-    ///
-    /// It consists in an initial mapping L:P->V (\em mInitial), a sequence of sequences
-    /// of operations previously defined (\em mOpSeqs) and the final cost (\em mCost).
-    struct Solution {
-        typedef std::vector<Operation> OpVector;
-        typedef std::vector<std::pair<Node::Ref, OpVector>> OpSequences;
-        typedef std::vector<uint32_t> Mapping;
-
-        Mapping mInitial;
-        OpSequences mOpSeqs;
-        uint32_t mCost;
-    };
-
     /// \brief Base abstract class that allocates the qbits used in the program to
     /// the qbits that are in the physical architecture.
-    class QbitAllocator : public PassT<Solution> {
+    class QbitAllocator : public PassT<Mapping> {
         public:
             typedef QbitAllocator* Ref;
             typedef std::unique_ptr<QbitAllocator> uRef;
 
-            typedef Solution::Mapping Mapping;
             typedef std::vector<std::string> BasisVector;
-            typedef DependencyBuilder::DepsSet DepsSet;
-            typedef DependencyBuilder::DepsSet::iterator Iterator;
+            typedef DependencyBuilder::DepsVector DepsVector;
+            typedef DependencyBuilder::DepsVector::iterator Iterator;
 
         private:
             /// \brief Inlines all gates, but those flagged.
@@ -76,7 +41,7 @@ namespace efd {
             QbitAllocator(ArchGraph::sRef archGraph);
 
             /// \brief Executes the allocation algorithm after the preprocessing.
-            virtual Solution executeAllocation(QModule::Ref qmod) = 0;
+            virtual Mapping allocate(QModule::Ref qmod) = 0;
 
         public:
             bool run(QModule::Ref qmod) override;

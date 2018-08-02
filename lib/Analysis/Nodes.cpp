@@ -2,9 +2,9 @@
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
+#include "enfield/Support/Defs.h"
 
 #include <algorithm>
-#include <cassert>
 
 efd::Node::Node(Kind k, bool empty) : mK(k), mIsEmpty(empty), mWasGenerated(false),
     mInInclude(false) {
@@ -236,7 +236,9 @@ std::string efd::NDRegDecl::getOperation() const {
     switch (mT) {
         case CONCRETE: return "creg";
         case QUANTUM:  return "qreg";
-        default: assert(false && "Unknown register type.");
+        default: 
+                       efd::ERR << "Unknown register type." << std::endl;
+                       efd::ExitWith(efd::ExitCode::EXIT_unreachable);
     }
 }
 
@@ -394,7 +396,11 @@ void efd::NDList::clear() {
 
 void efd::NDList::removeChild(Node::Ref ref) {
     auto it = findChild(ref);
-    assert(it != end() && "Can't remove inexistent child.");
+
+    if (it == end()) {
+		efd::ERR << "Can't remove inexistent child." << std::endl;
+		efd::ExitWith(efd::ExitCode::EXIT_unreachable);
+	}
 
     removeChild(it);
     if (mChild.empty())
@@ -430,7 +436,6 @@ bool efd::NDList::ClassOf(const Node* node) {
 
 efd::NDList::uRef efd::NDList::Create(Kind k) {
     auto list = uRef(new NDList(k));
-    assert(efd::instanceOf<NDList>(list.get()) && "Invalid NDList kind.");
     return list;
 }
 
@@ -1141,7 +1146,11 @@ void efd::NDQOpGen::apply(NodeVisitor::Ref visitor) {
 }
 
 efd::NDQOpGen::IntrinsicKind efd::NDQOpGen::getIntrinsicKind() const {
-    assert(mIsIntrinsic && "Trying to get IntrinsicKind of non-intrinsic node.");
+    if (!mIsIntrinsic) {
+		efd::ERR << "Trying to get IntrinsicKind of non-intrinsic node." << std::endl;
+		efd::ExitWith(efd::ExitCode::EXIT_unreachable);
+	}
+
     return mIK;
 }
 
@@ -1227,7 +1236,9 @@ std::string efd::NDBinOp::getOperation() const {
         case OP_MUL: return "*";
         case OP_DIV: return "/";
         case OP_POW: return "^";
-        default: assert(false && "Unknown binary operation.");
+        default:
+                     efd::ERR << "Unknown binary operation." << std::endl;
+                     efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
     }
 }
 
@@ -1337,7 +1348,9 @@ std::string efd::NDUnaryOp::getOperation() const {
         case UOP_LN:    return "ln";
         case UOP_SQRT:  return "sqrt";
         case UOP_NEG:   return "-";
-        default: assert(false && "Unknown unary operation.");
+        default:
+                        efd::ERR << "Unknown unary operation." << std::endl;
+                        efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
     }
 }
 

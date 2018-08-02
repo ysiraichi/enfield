@@ -1,7 +1,6 @@
 #include "enfield/Transform/CircuitGraph.h"
 #include "enfield/Support/Defs.h"
 
-#include <cassert>
 
 using namespace efd;
 
@@ -19,7 +18,7 @@ uint32_t Xbit::getRealId(uint32_t qubits, uint32_t cbits) {
             if (id >= qubits) {
                 ERR <<  "Qubit with id `" << id << "`, but max `"
                     << qubits - 1 << "`." << std::endl;
-                std::exit(static_cast<uint32_t>(ExitCode::EXIT_unreachable));
+                ExitWith(ExitCode::EXIT_unreachable);
             }
             break;
 
@@ -28,7 +27,7 @@ uint32_t Xbit::getRealId(uint32_t qubits, uint32_t cbits) {
             if (id >= qubits + cbits) {
                 ERR <<  "Classical bit with id `" << id << "`, but max `"
                     << qubits + cbits - 1 << "`." << std::endl;
-                std::exit(static_cast<uint32_t>(ExitCode::EXIT_unreachable));
+                ExitWith(ExitCode::EXIT_unreachable);
             }
             break;
     }
@@ -162,7 +161,7 @@ void CircuitGraph::init(uint32_t qubits, uint32_t cbits) {
 void CircuitGraph::checkInitialized() {
     if (!mInit) {
         ERR << "Trying to append a node to an uninitialized CircuitGraph." << std::endl;
-        std::exit(static_cast<uint32_t>(ExitCode::EXIT_unreachable));
+        ExitWith(ExitCode::EXIT_unreachable);
     }
 }
 

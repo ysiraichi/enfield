@@ -2,9 +2,10 @@
 #define __EFD_U_REF_CAST_H__
 
 #include "enfield/Support/RTTI.h"
+#include "enfield/Support/Defs.h"
 
-#include <cassert>
 #include <memory>
+#include <typeinfo>
 
 namespace efd {
     /// \brief Uses the RTTI framework to cast backwardly an unique_ptr.
@@ -22,7 +23,10 @@ namespace efd {
                 return std::unique_ptr<T>(toRef);
             }
 
-            assert(false && "Failed when casting a std::unique_ptr. Not a base class.");
+            ERR << "Failed when casting a std::unique_ptr. `"
+                << typeid(T).name() << "` not a base class of `" << typeid(U).name()
+                << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
         }
 
     /// \brief Uses the RTTI framework to cast forwardly an unique_ptr.
@@ -38,7 +42,10 @@ namespace efd {
             if (auto toRef = dynCast<T>(fromRef))
                 return std::unique_ptr<T>(toRef);
 
-            assert(false && "Failed when casting a std::unique_ptr.");
+            ERR << "Failed when casting a std::unique_ptr: from `"
+                << typeid(U).name() << "` to `" << typeid(T).name()
+                << "`." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
         }
 
     /// \brief Wrapper function that "transforms" a \em std::unique_ptr
