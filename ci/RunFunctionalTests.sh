@@ -6,8 +6,8 @@
 ##     - EFD_HOME
 ##
 
-ALGS_QX2="Q_dynprog Q_bsi Q_grdy Q_ibm Q_wpm Q_random Q_qubiter Q_wqubiter"
-ALGS_QX3="Q_bsi Q_grdy Q_ibm Q_wpm Q_random"
+ALGS_QX2="Q_dynprog Q_bmt Q_grdy Q_ibm Q_wpm Q_random Q_qubiter Q_wqubiter"
+ALGS_QX3="Q_bmt Q_grdy Q_ibm Q_wpm Q_random"
 
 ARCH_QX2="A_ibmqx2"
 ARCH_QX3="A_ibmqx3"
@@ -15,8 +15,8 @@ ARCH_QX3="A_ibmqx3"
 FAIL_QX2="adder.qasm bigadder.qasm"
 FAIL_QX3="bigadder.qasm"
 
-BSI_CHILDREN=3
-BSI_PARTIAL=40
+BMT_CHILDREN=3
+BMT_PARTIAL=40
 
 EXECUTION_TIMES=1
 OUTPUT="/dev/null"
@@ -36,8 +36,8 @@ for i in `seq 1 $EXECUTION_TIMES`; do
 
             ## Executing EFD
             $EFD_EXE -i $f -o $OUTPUT -alloc $alg -arch $ARCH_QX2 -stats -ord \
-                --bsi-max-children $BSI_CHILDREN \
-                --bsi-max-partial $BSI_PARTIAL > $LOG 2>&1
+                --bsi-max-children $BMT_CHILDREN \
+                --bsi-max-partial $BMT_PARTIAL > $LOG 2>&1
             ret=$?
 
             if echo "$FAIL_QX2" | grep -q "\<$filename\>"; then
@@ -69,8 +69,8 @@ for i in `seq 1 $EXECUTION_TIMES`; do
 
             ## Executing EFD
             $EFD_EXE -i $f -o $OUTPUT -alloc $alg -arch $ARCH_QX3 -stats -ord \
-                --bsi-max-children $BSI_CHILDREN \
-                --bsi-max-partial $BSI_PARTIAL > $LOG 2>&1
+                --bsi-max-children $BMT_CHILDREN \
+                --bsi-max-partial $BMT_PARTIAL > $LOG 2>&1
             ret=$?
 
             if echo "$FAIL_QX3" | grep -q "\<$filename\>"; then
