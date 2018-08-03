@@ -7,12 +7,17 @@
 #include <map>
 
 namespace efd {
+    /// \brief Holds the evaluation metrics for an allocation.
     struct QModuleQuality {
         uint32_t mDepth;
         uint32_t mGates;
         uint32_t mWeightedCost;
     };
 
+    /// \brief Evaluates a `QModule`.
+    ///
+    /// Computes the depth of the circuit, the number of gates, and
+    /// a weighted sum for each gate.
     class QModuleQualityEvalPass : public PassT<QModuleQuality> {
         public:
             typedef QModuleQualityEvalPass* Ref;
