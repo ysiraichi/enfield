@@ -5,6 +5,10 @@
 #include "enfield/Transform/Pass.h"
 
 namespace efd {
+    /// \brief Sums the cost of the intrinsics inserted in the allocation.
+    ///
+    /// It uses fixed intrinsic cost, and iterates every instruction, summing
+    /// them all.
     class IntrinsicGateCostPass : public PassT<uint32_t> {
         public:
             typedef IntrinsicGateCostPass* Ref;
