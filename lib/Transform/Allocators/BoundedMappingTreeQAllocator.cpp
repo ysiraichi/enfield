@@ -431,6 +431,41 @@ StdSolution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
     return sol;
 }
 
+void BoundedMappingTreeQAllocator::setNodeCandidateIterator
+(NodeCandidateIterator::uRef it) {
+    mNCIterator = std::move(it);
+}
+
+void BoundedMappingTreeQAllocator::setChildrenSelector
+(CandidateSelector::uRef sel) {
+    mChildrenCSelector = std::move(sel);
+}
+
+void BoundedMappingTreeQAllocator::setPartialSolutionSelector
+(CandidateSelector::uRef sel) {
+    mPartialSolutionCSelector = std::move(sel);
+}
+
+void BoundedMappingTreeQAllocator::setSwapCostEstimator
+(SwapCostEstimator::uRef est) {
+    mCostEstimator = std::move(est);
+}
+
+void BoundedMappingTreeQAllocator::setLiveQubitsPreProcessor
+(LiveQubitsPreProcessor::uRef proc) {
+    mLQPProcessor = std::move(proc);
+}
+
+void BoundedMappingTreeQAllocator::setMapSeqSelector
+(MapSeqSelector::uRef sel) {
+    mMSSelector = std::move(sel);
+}
+
+void BoundedMappingTreeQAllocator::setTokenSwapFinder
+(TokenSwapFinder::uRef finder) {
+    mTSFinder = std::move(finder);
+}
+
 BoundedMappingTreeQAllocator::uRef
 BoundedMappingTreeQAllocator::Create(ArchGraph::sRef ag) {
     return uRef(new BoundedMappingTreeQAllocator(ag));
