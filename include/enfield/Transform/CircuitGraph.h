@@ -116,11 +116,11 @@ namespace efd {
             /// \brief Checks if the CircuitGraph is initialized. Exits with error if not.
             void checkInitialized();
 
-            /// \breif Returns the number of qubits.
+            /// \brief Returns the number of qubits.
             uint32_t getQSize() const;
-            /// \breif Returns the number of cbits.
+            /// \brief Returns the number of cbits.
             uint32_t getCSize() const;
-            /// \breif Returns the number of bits.
+            /// \brief Returns the number of bits.
             uint32_t size() const;
 
             /// \brief Appends a node to the bits \p xbits.
