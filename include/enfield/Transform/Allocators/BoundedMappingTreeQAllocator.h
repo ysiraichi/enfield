@@ -56,10 +56,23 @@ namespace efd {
     struct NodeCandidateIterator {
         typedef NodeCandidateIterator* Ref;
         typedef std::unique_ptr<NodeCandidateIterator> uRef;
+
+        NodeCandidateIterator();
+
+        /// \brief Sets the `QModule` to be iterated.
+        void setQModule(QModule::Ref qmod);
         /// \brief Returns the next `Node`.
-        virtual Node::Ref next() = 0;
+        Node::Ref next();
         /// \brief Returns whether there are still `Node`s to be processed.
-        virtual bool hasNext() = 0;
+        bool hasNext();
+
+        protected:
+            QModule::Ref mMod;
+            bool isFirst;
+
+            void checkQModuleSet();
+            virtual Node::Ref nextImpl() = 0;
+            virtual bool hasNextImpl() = 0;
     };
 
     /// \brief Interface for selecting candidates (if they are greater than
@@ -76,10 +89,21 @@ namespace efd {
     struct SwapCostEstimator {
         typedef SwapCostEstimator* Ref;
         typedef std::unique_ptr<SwapCostEstimator> uRef;
-        /// \brief Fixes the graph for preprocessing purposes.
-        virtual void fixGraph(Graph::Ref g) = 0;
+
+        SwapCostEstimator();
+
+        /// \brief Sets the `Graph`.
+        void setGraph(Graph::Ref g);
         /// \brief Estimates the number of swaps to go from \em fromM to \toM.
-        virtual uint32_t estimate(const Mapping& fromM, const Mapping& toM) = 0;
+        uint32_t estimate(const Mapping& fromM, const Mapping& toM);
+
+        protected:
+            Graph::Ref mG;
+
+            void checkGraphSet();
+            virtual void preprocess() = 0;
+            virtual uint32_t estimateImpl(const Mapping& fromM,
+                                          const Mapping& toM) = 0;
     };
 
     /// \brief Interface for preparing the `Mapping`s for fixing the Live

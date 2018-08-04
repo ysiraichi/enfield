@@ -1,8 +1,13 @@
-EFD_FIRSTLAST(dynprog, wqubiter)
 EFD_ALLOCATOR(dynprog, DynprogQAllocator)
 EFD_ALLOCATOR(grdy, GreedyCktQAllocator)
 EFD_ALLOCATOR(ibm, IBMQAllocator)
-EFD_ALLOCATOR(bmt, BoundedMappingTreeQAllocator)
+EFD_ALLOCATOR_BMT(bmt, SeqNCandidateIterator,
+                       FirstCandidateSelector,
+                       FirstCandidateSelector,
+                       GeoDistanceSwapCEstimator,
+                       GeoNearestLQPProcessor,
+                       BestMSSelector,
+                       ApproxTSFinder)
 EFD_ALLOCATOR_SIMPLE(wpm, WeightedSIMappingFinder, PathGuidedSolBuilder)
 EFD_ALLOCATOR_SIMPLE(random, RandomMappingFinder, PathGuidedSolBuilder)
 EFD_ALLOCATOR_SIMPLE(qubiter, IdentityMappingFinder, QbitterSolBuilder)

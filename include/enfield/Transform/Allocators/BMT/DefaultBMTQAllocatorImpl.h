@@ -10,19 +10,28 @@ namespace efd {
     class SeqNCandidateIterator : public NodeCandidateIterator {
         private:
             Node::Iterator mIt;
-            Node::Iterator mEnd;
+
+        protected:
+            Node::Ref nextImpl() override;
+            bool hasNextImpl() override;
 
         public:
-            SeqNCandidateIterator(const Node::Iterator& it, const Node::Iterator& end);
-            Node::Ref next() override;
-            bool hasNext() override;
+            typedef SeqNCandidateIterator* Ref;
+            typedef std::unique_ptr<SeqNCandidateIterator> uRef;
+
+            static uRef Create();
     };
 
     /// \brief Gets the first \em maxCandidates from \em candidates.
     class FirstCandidateSelector : public CandidateSelector {
         public:
+            typedef FirstCandidateSelector* Ref;
+            typedef std::unique_ptr<FirstCandidateSelector> uRef;
+
             bmt::CandidateVector select(uint32_t maxCandidates,
                                         const bmt::CandidateVector& candidates) override;
+
+            static uRef Create();
     };
 
     /// \brief The estimation is the sum of all distances.
@@ -34,9 +43,15 @@ namespace efd {
             bmt::Matrix mDist;
             bmt::Vector distanceFrom(Graph::Ref g, uint32_t u);
 
+        protected:
+            void preprocess() override;
+            uint32_t estimateImpl(const Mapping& fromM, const Mapping& toM) override;
+
         public:
-            void fixGraph(Graph::Ref g) override;
-            uint32_t estimate(const Mapping& fromM, const Mapping& toM) override;
+            typedef GeoDistanceSwapCEstimator* Ref;
+            typedef std::unique_ptr<GeoDistanceSwapCEstimator> uRef;
+
+            static uRef Create();
     };
 
     /// \brief Forces \em toM to map all qubits mapped in \em fromM.
@@ -48,13 +63,23 @@ namespace efd {
             uint32_t getNearest(const Graph::Ref g, uint32_t u, const Assign& assign);
 
         public:
+            typedef GeoNearestLQPProcessor* Ref;
+            typedef std::unique_ptr<GeoNearestLQPProcessor> uRef;
+
             void process(const Graph::Ref g, Mapping& fromM, Mapping& toM) override;
+
+            static uRef Create();
     };
 
     /// \brief Selects the line that yielded the best cost.
     class BestMSSelector : public MapSeqSelector {
         public:
+            typedef BestMSSelector* Ref;
+            typedef std::unique_ptr<BestMSSelector> uRef;
+
             bmt::Vector select(const bmt::TIMatrix& mem) override;
+
+            static uRef Create();
     };
 }
 
