@@ -21,7 +21,8 @@ static const std::string graphstr =
 static Graph::sRef GetGraph() {
     if (graph.get() == nullptr) {
         graph = Graph::ReadString(graphstr);
-        expfinder = ExpTSFinder::Create(graph);
+        expfinder = ExpTSFinder::Create();
+        expfinder->setGraph(graph.get());
     }
 
     return graph;
@@ -29,7 +30,8 @@ static Graph::sRef GetGraph() {
 
 static void CheckSwapSeq(Graph::sRef graph, Assign from, Assign to, bool usingundef) {
     Timer::Start();
-    ApproxTSFinder approxfinder(graph);
+    ApproxTSFinder approxfinder;
+    approxfinder.setGraph(graph.get());
 
     auto approxseq = approxfinder.find(from, to);
 
