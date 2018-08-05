@@ -1,7 +1,7 @@
 #ifndef __EFD_BOUNDED_MAPPING_TREE_QALLOCATOR_H__
 #define __EFD_BOUNDED_MAPPING_TREE_QALLOCATOR_H__
 
-#include "enfield/Transform/Allocators/StdSolutionQAllocator.h"
+#include "enfield/Transform/Allocators/QbitAllocator.h"
 #include "enfield/Support/TokenSwapFinder.h"
 
 namespace efd {
@@ -135,7 +135,7 @@ namespace efd {
     ///         together;
     ///     3. Reconstructs the selected sequence of subgraph isomorphisms
     ///         into a program.
-    class BoundedMappingTreeQAllocator : public StdSolutionQAllocator {
+    class BoundedMappingTreeQAllocator : public QbitAllocator {
         public:
             typedef BoundedMappingTreeQAllocator* Ref;
             typedef std::unique_ptr<BoundedMappingTreeQAllocator> uRef;
@@ -156,7 +156,7 @@ namespace efd {
 
             bmt::CandidateVCollection phase1();
             bmt::MappingSwapSequence phase2(const bmt::CandidateVCollection& collection);
-            StdSolution phase3(const bmt::MappingSwapSequence& mss);
+            Mapping phase3(const bmt::MappingSwapSequence& mss);
 
             bmt::CandidateVector extendCandidates(Dep& dep,
                                                   const std::vector<bool>& mapped,
@@ -167,7 +167,7 @@ namespace efd {
             SwapSeq getTransformingSwapsFor(const Mapping& fromM, Mapping toM);
 
             BoundedMappingTreeQAllocator(ArchGraph::sRef ag);
-            StdSolution buildStdSolution(QModule::Ref qmod) override;
+            Mapping allocate(QModule::Ref qmod) override;
 
         public:
             /// \brief Sets the implementation for iterating the `Node`s in phase 1.

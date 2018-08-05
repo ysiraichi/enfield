@@ -65,6 +65,77 @@ void SwapCostEstimator::checkGraphSet() {
 }
 
 // --------------------- BoundedMappingTreeQAllocator ------------------------
+namespace efd {
+    class NodeRenameVisitor : public NodeVisitor {
+        private:
+            Mapping& mMap;
+            XbitToNumer& mXtoN;
+            ArchGraph::Ref mArchGraph;
+
+        public:
+            NodeRenameVisitor(Mapping& m,
+                              XbitToNumer& xtoN,
+                              ArchGraph::Ref archGraph);
+
+            void visitNDQOp(NDQOp::Ref qop);
+
+            void visit(NDQOpMeasure::Ref ref) override;
+            void visit(NDQOpReset::Ref ref) override;
+            void visit(NDQOpU::Ref ref) override;
+            void visit(NDQOpCX::Ref ref) override;
+            void visit(NDQOpBarrier::Ref ref) override;
+            void visit(NDQOpGen::Ref ref) override;
+            void visit(NDIfStmt::Ref ref) override;
+    };
+}
+
+NodeRenameVisitor::NodeRenameVisitor(Mapping& m,
+                                     XbitToNumer& xtoN,
+                                     ArchGraph::Ref archGraph)
+    : mMap(m), mXtoN(xtoN), mArchGraph(archGraph) {}
+
+void NodeRenameVisitor::visitNDQOp(NDQOp::Ref qop) {
+    auto qargs = qop->getQArgs();
+    NDList::uRef newQArgs = NDList::Create();
+
+    for (auto& qarg : *qargs) {
+        uint32_t pseudoQUId = mXtoN.getQUId(qarg->toString(false));
+        uint32_t physicalQUId = mMap[pseudoQUId];
+        newQArgs.push_back(mArchGraph->getNode(physicalQUId)->clone());
+    }
+
+    return newQArgs;
+}
+
+void NodeRenameVisitor::visit(NDQOpMeasure::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDQOpReset::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDQOpU::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDQOpCX::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDQOpBarrier::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDQOpGen::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDIfStmt::Ref ref) {
+    ref->getQOp()->apply(this);
+}
+
+// --------------------- BoundedMappingTreeQAllocator ------------------------
 BoundedMappingTreeQAllocator::BoundedMappingTreeQAllocator(ArchGraph::sRef ag)
     : StdSolutionQAllocator(ag),
       mNCIterator(nullptr),
@@ -322,17 +393,16 @@ BoundedMappingTreeQAllocator::phase2(const CandidateVCollection& collection) {
 }
 
 
-StdSolution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss) {
+Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwapSequence& mss) {
     // Third Phase:
     //     build the operations vector by tracebacking from the solution we have
     //     found. For this, we have to go through every dependency again.
-    StdSolution sol;
-
-    sol.mCost = 0;
-    sol.mInitial.assign(mVQubits, 0);
-
     uint32_t idx = 0;
-    auto mapping = mss.mappingV[idx];
+    auto initial = mss.mappingV[idx];
+    auto mapping = initial;
+
+    NodeRenameVisitor renameVisitor(mapping, mXtoN, mArchGraph.get());
+    std::vector<Node::uRef> issuedInstructions;
 
     Mapping realToDummy = mapping;
     Mapping dummyToPhys = IdentityMapping(mPQubits);
@@ -343,8 +413,13 @@ StdSolution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss)
             // We are sure that there are no instruction dependency that has more than
             // one dependency.
             auto iDependencies = mDBuilder.getDeps(node);
-            if (iDependencies.getSize() < 1)
+
+            if (iDependencies.getSize() < 1) {
+                auto cloned = node->clone();
+                cloned->apply(&renameVisitor);
+                issuedInstructions.push_back(std::move(cloned));
                 continue;
+            }
 
             auto dep = iDependencies[0];
 
@@ -432,7 +507,7 @@ StdSolution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss)
     return sol;
 }
 
-StdSolution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
+Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
     if (mNCIterator.get() == nullptr ||
                 mChildrenCSelector.get() == nullptr ||
                 mPartialSolutionCSelector.get() == nullptr ||
@@ -461,18 +536,15 @@ StdSolution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
     mDBuilder = PassCache::Get<DependencyBuilderWrapperPass>(qmod)->getData();
     uint32_t nofDeps = mDBuilder.getDependencies().size();
 
-    StdSolution sol;
-
-    sol.mCost = 0;
-    sol.mInitial = IdentityMapping(mPQubits);
+    auto initialMapping = IdentityMapping(mPQubits);
 
     if (nofDeps > 0) {
         auto phase1Output = phase1();
         auto phase2Output = phase2(phase1Output);
-        sol = phase3(phase2Output);
+        initialMapping = phase3(phase2Output);
     }
 
-    return sol;
+    return initialMapping;
 }
 
 void BoundedMappingTreeQAllocator::setNodeCandidateIterator
