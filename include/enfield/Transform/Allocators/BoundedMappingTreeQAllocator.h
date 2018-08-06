@@ -2,6 +2,7 @@
 #define __EFD_BOUNDED_MAPPING_TREE_QALLOCATOR_H__
 
 #include "enfield/Transform/Allocators/QbitAllocator.h"
+#include "enfield/Transform/XbitToNumberPass.h"
 #include "enfield/Support/TokenSwapFinder.h"
 
 namespace efd {
@@ -38,13 +39,12 @@ namespace efd {
             uint32_t mappingCost;
         };
 
-        typedef std::vector<MappingSeq> MapSeqCollection;
-        typedef std::vector<SwapSeq> SwapSeqCollection;
+        typedef std::vector<SwapSeq> SwapSeqVector;
 
         /// \brief Holds the sequence of `Mapping`s and `Swaps`to be executed.
         struct MappingSwapSequence {
             MappingVector mappingV;
-            SwapSeqCollection swapSeqCollection;
+            SwapSeqVector swapSeqCollection;
             uint32_t cost;
         };
 
@@ -144,6 +144,7 @@ namespace efd {
             uint32_t mMaxChildren;
             uint32_t mMaxPartial;
             DependencyBuilder mDBuilder;
+            XbitToNumber mXtoN;
             bmt::PPartitionCollection mPP;
 
             NodeCandidateIterator::uRef mNCIterator;
@@ -156,7 +157,7 @@ namespace efd {
 
             bmt::CandidateVCollection phase1();
             bmt::MappingSwapSequence phase2(const bmt::CandidateVCollection& collection);
-            Mapping phase3(const bmt::MappingSwapSequence& mss);
+            Mapping phase3(QModule::Ref qmod, const bmt::MappingSwapSequence& mss);
 
             bmt::CandidateVector extendCandidates(Dep& dep,
                                                   const std::vector<bool>& mapped,
@@ -165,6 +166,7 @@ namespace efd {
 
             bmt::MappingSeq tracebackPath(const bmt::TIMatrix& mem, uint32_t idx);
             SwapSeq getTransformingSwapsFor(const Mapping& fromM, Mapping toM);
+            void normalize(bmt::MappingSwapSequence& mss);
 
             BoundedMappingTreeQAllocator(ArchGraph::sRef ag);
             Mapping allocate(QModule::Ref qmod) override;

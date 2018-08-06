@@ -1,6 +1,8 @@
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
 #include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
 #include "enfield/Transform/PassCache.h"
+#include "enfield/Transform/Utils.h"
+#include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/ApproxTSFinder.h"
 #include "enfield/Support/CommandLine.h"
 #include "enfield/Support/Defs.h"
@@ -69,12 +71,12 @@ namespace efd {
     class NodeRenameVisitor : public NodeVisitor {
         private:
             Mapping& mMap;
-            XbitToNumer& mXtoN;
+            XbitToNumber& mXtoN;
             ArchGraph::Ref mArchGraph;
 
         public:
             NodeRenameVisitor(Mapping& m,
-                              XbitToNumer& xtoN,
+                              XbitToNumber& xtoN,
                               ArchGraph::Ref archGraph);
 
             void visitNDQOp(NDQOp::Ref qop);
@@ -90,7 +92,7 @@ namespace efd {
 }
 
 NodeRenameVisitor::NodeRenameVisitor(Mapping& m,
-                                     XbitToNumer& xtoN,
+                                     XbitToNumber& xtoN,
                                      ArchGraph::Ref archGraph)
     : mMap(m), mXtoN(xtoN), mArchGraph(archGraph) {}
 
@@ -101,10 +103,10 @@ void NodeRenameVisitor::visitNDQOp(NDQOp::Ref qop) {
     for (auto& qarg : *qargs) {
         uint32_t pseudoQUId = mXtoN.getQUId(qarg->toString(false));
         uint32_t physicalQUId = mMap[pseudoQUId];
-        newQArgs.push_back(mArchGraph->getNode(physicalQUId)->clone());
+        newQArgs->addChild(mArchGraph->getNode(physicalQUId)->clone());
     }
 
-    return newQArgs;
+    qop->setQArgs(std::move(newQArgs));
 }
 
 void NodeRenameVisitor::visit(NDQOpMeasure::Ref ref) {
@@ -137,7 +139,7 @@ void NodeRenameVisitor::visit(NDIfStmt::Ref ref) {
 
 // --------------------- BoundedMappingTreeQAllocator ------------------------
 BoundedMappingTreeQAllocator::BoundedMappingTreeQAllocator(ArchGraph::sRef ag)
-    : StdSolutionQAllocator(ag),
+    : QbitAllocator(ag),
       mNCIterator(nullptr),
       mChildrenCSelector(nullptr),
       mPartialSolutionCSelector(nullptr),
@@ -306,6 +308,30 @@ SwapSeq BoundedMappingTreeQAllocator::getTransformingSwapsFor(const Mapping& fro
     return mTSFinder->find(fromInv, toInv);
 }
 
+void BoundedMappingTreeQAllocator::normalize(MappingSwapSequence& mss) {
+    uint32_t mappingVSize = mss.mappingV.size();
+
+    // Fill the last mapping, so that all qubits are mapped in
+    // the end.
+    auto &lastMapping = mss.mappingV.back();
+    auto inv = InvertMapping(mPQubits, lastMapping);
+    Fill(mPQubits, lastMapping);
+
+    for (uint32_t i = mappingVSize - 1; i > 0; --i) {
+        mss.mappingV[i - 1] = mss.mappingV[i];
+        Mapping& mapping = mss.mappingV[i - 1];
+        auto swaps = mss.swapSeqCollection[i - 1];
+
+        for (auto it = swaps.rbegin(), end = swaps.rend(); it != end; ++it) {
+            uint32_t u = it->u, v = it->v;
+            uint32_t a = inv[u], b = inv[v];
+            if (a < mVQubits) mapping[a] = v;
+            if (b < mVQubits) mapping[b] = u;
+            std::swap(inv[u], inv[v]);
+        }
+    }
+}
+
 MappingSwapSequence
 BoundedMappingTreeQAllocator::phase2(const CandidateVCollection& collection) {
     // Second Phase:
@@ -370,7 +396,7 @@ BoundedMappingTreeQAllocator::phase2(const CandidateVCollection& collection) {
 
     for (uint32_t idx : mapSequenceIndexes) {
         // mapSCollection.push_back(tracebackPath(mem, idx));
-        SwapSeqCollection swapSeqCollection;
+        SwapSeqVector swapSeqCollection;
         auto seq = tracebackPath(mem, idx);
 
         uint32_t swapCost = 0;
@@ -389,6 +415,7 @@ BoundedMappingTreeQAllocator::phase2(const CandidateVCollection& collection) {
         }
     }
 
+    normalize(best);
     return best;
 }
 
@@ -403,9 +430,6 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
 
     NodeRenameVisitor renameVisitor(mapping, mXtoN, mArchGraph.get());
     std::vector<Node::uRef> issuedInstructions;
-
-    Mapping realToDummy = mapping;
-    Mapping dummyToPhys = IdentityMapping(mPQubits);
 
     for (auto& partition : mPP) {
         for (auto& node : partition) {
@@ -426,8 +450,6 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
             uint32_t a = dep.mFrom, b = dep.mTo;
             uint32_t u = mapping[a], v = mapping[b];
 
-            StdSolution::OpVector opVector;
-
             // If we can't satisfy (u, v) with the current mapping, it can only mean
             // that we must go to the next one.
             if ((u == _undef || v == _undef) ||
@@ -441,70 +463,45 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
                 }
 
                 mapping = mss.mappingV[idx];
-
                 auto swaps = mss.swapSeqCollection[idx - 1];
-                auto physToDummy = InvertMapping(mPQubits, dummyToPhys);
 
                 for (auto swp : swaps) {
-                    uint32_t a = physToDummy[swp.u], b = physToDummy[swp.v];
-
-                    if (!mArchGraph->hasEdge(swp.u, swp.v)) {
-                        std::swap(a, b);
+                    uint32_t u = swp.u, v = swp.v;
+                    if (!mArchGraph->hasEdge(u, v)) {
+                        std::swap(u, v);
                     }
-
-                    std::swap(physToDummy[swp.u], physToDummy[swp.v]);
-                    std::swap(dummyToPhys[a], dummyToPhys[b]);
-                    opVector.push_back({ Operation::K_OP_SWAP, a, b });
-                }
-
-                sol.mCost += swaps.size() * SwapCost.getVal();
-
-                for (uint32_t i = 0; i < mVQubits; ++i) {
-                    if (realToDummy[i] == _undef && mapping[i] != _undef) {
-                        realToDummy[i] = physToDummy[mapping[i]];
-                    }
+                    issuedInstructions.push_back(CreateISwap(mArchGraph->getNode(u)->clone(),
+                                                             mArchGraph->getNode(v)->clone()));
                 }
 
                 u = mapping[a];
                 v = mapping[b];
             }
 
-            Operation op;
-            op.mU = a;
-            op.mV = b;
+            Node::uRef newNode;
 
             if (mArchGraph->hasEdge(u, v)) {
-                op.mK = Operation::K_OP_CNOT;
+                newNode = node->clone();
+                newNode->apply(&renameVisitor);
             } else if (mArchGraph->hasEdge(v, u)) {
-                sol.mCost += RevCost.getVal();
-                op.mK = Operation::K_OP_REV;
+                newNode = CreateIRevCX(mArchGraph->getNode(u)->clone(),
+                                       mArchGraph->getNode(v)->clone());
             } else {
                 ERR << "Mapping " << MappingToString(mapping) << " not able to satisfy dependency "
                     << "(" << a << "{" << u << "}, " << b << "{" << v << "})" << std::endl;
                 ExitWith(ExitCode::EXIT_unreachable);
             }
 
-            opVector.push_back(op);
-            sol.mOpSeqs.push_back(std::make_pair(node, opVector));
+            issuedInstructions.push_back(std::move(newNode));
         }
     }
 
-    Fill(mVQubits, realToDummy);
-    sol.mInitial = realToDummy;
-
-    auto dummyToReal = InvertMapping(mVQubits, realToDummy, false);
-
-    // Transforming swaps from dummy to real.
-    for (auto& pair : sol.mOpSeqs) {
-        for (auto& op : pair.second) {
-            if (op.mK == Operation::K_OP_SWAP) {
-                op.mU = dummyToReal[op.mU];
-                op.mV = dummyToReal[op.mV];
-            }
-        }
+    qmod->clearStatements();
+    for (auto& instr : issuedInstructions) {
+        qmod->insertStatementLast(std::move(instr));
     }
 
-    return sol;
+    return initial;
 }
 
 Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
@@ -534,14 +531,15 @@ Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
     mMaxPartial = MaxPartialSolutions.getVal();
 
     mDBuilder = PassCache::Get<DependencyBuilderWrapperPass>(qmod)->getData();
-    uint32_t nofDeps = mDBuilder.getDependencies().size();
+    mXtoN = PassCache::Get<XbitToNumberWrapperPass>(qmod)->getData();
 
+    uint32_t nofDeps = mDBuilder.getDependencies().size();
     auto initialMapping = IdentityMapping(mPQubits);
 
     if (nofDeps > 0) {
         auto phase1Output = phase1();
         auto phase2Output = phase2(phase1Output);
-        initialMapping = phase3(phase2Output);
+        initialMapping = phase3(qmod, phase2Output);
     }
 
     return initialMapping;
