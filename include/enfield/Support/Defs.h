@@ -9,7 +9,7 @@
 namespace efd {
     /// \brief Defines the type used for mapping the qubits.
     typedef std::vector<uint32_t> Mapping;
-    typedef std::vector<uint32_t> Assign;
+    typedef std::vector<uint32_t> InverseMap;
 
     /// \brief Constant should be used as an undefined in a mapping.
     static const uint32_t _undef = std::numeric_limits<uint32_t>::max();

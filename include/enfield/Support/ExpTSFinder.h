@@ -19,17 +19,17 @@ namespace efd {
             typedef std::unique_ptr<ExpTSFinder> uRef;
 
         private:
-            std::map<Assign, uint32_t> mMapId;
+            std::map<InverseMap, uint32_t> mMapId;
             std::vector<SwapSeq> mSwaps;
 
             void genAllAssigns(uint32_t n);
-            uint32_t getTargetId(const Assign& source, const Assign& target);
+            uint32_t getTargetId(const InverseMap& source, const InverseMap& target);
 
             void preprocess() override;
-            SwapSeq findImpl(const Assign& from, const Assign& to) override;
+            SwapSeq findImpl(const InverseMap& from, const InverseMap& to) override;
 
         public:
-            std::vector<Assign> mAssigns;
+            std::vector<InverseMap> mInverseMaps;
 
             /// \brief Creates an instance of this class.
             static uRef Create();

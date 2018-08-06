@@ -96,7 +96,7 @@ GeoDistanceSwapCEstimator::uRef GeoDistanceSwapCEstimator::Create() {
 }
 
 // --------------------- GeoNearestLQPProcessor ------------------------
-uint32_t GeoNearestLQPProcessor::getNearest(const Graph::Ref g, uint32_t u, const Assign& assign) {
+uint32_t GeoNearestLQPProcessor::getNearest(const Graph::Ref g, uint32_t u, const InverseMap& inv) {
     std::vector<bool> visited(mPQubits, false);
     std::queue<uint32_t> q;
     q.push(u);
@@ -106,7 +106,7 @@ uint32_t GeoNearestLQPProcessor::getNearest(const Graph::Ref g, uint32_t u, cons
         uint32_t v = q.front();
         q.pop();
 
-        if (assign[v] == _undef) return v;
+        if (inv[v] == _undef) return v;
 
         for (uint32_t w : g->adj(v))
             if (!visited[w]) {
@@ -124,18 +124,18 @@ void GeoNearestLQPProcessor::process(const Graph::Ref g, Mapping& fromM, Mapping
     mPQubits = g->size();
     mVQubits = fromM.size();
 
-    auto fromA = InvertMapping(mPQubits, fromM, false);
-    auto toA = InvertMapping(mPQubits, toM, false);
+    auto fromInv = InvertMapping(mPQubits, fromM, false);
+    auto toInv = InvertMapping(mPQubits, toM, false);
 
     for (uint32_t i = 0; i < mVQubits; ++i) {
         if (toM[i] == _undef && fromM[i] != _undef) {
-            if (toA[fromM[i]] == _undef) {
+            if (toInv[fromM[i]] == _undef) {
                 toM[i] = fromM[i];
             } else {
-                toM[i] = getNearest(g, fromM[i], toA);
+                toM[i] = getNearest(g, fromM[i], toInv);
             }
 
-            toA[toM[i]] = i;
+            toInv[toM[i]] = i;
         }
     }
 }

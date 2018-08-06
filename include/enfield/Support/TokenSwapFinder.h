@@ -17,13 +17,13 @@ namespace efd {
 
             void checkGraphSet();
             virtual void preprocess() = 0;
-            virtual SwapSeq findImpl(const Assign& from, const Assign& to) = 0;
+            virtual SwapSeq findImpl(const InverseMap& from, const InverseMap& to) = 0;
 
         public:
             /// \brief Sets the `Graph`.
             void setGraph(Graph::Ref graph);
             /// \brief Finds a swap sequence to reach \p to from \p from.
-            SwapSeq find(const Assign& from, const Assign& to);
+            SwapSeq find(const InverseMap& from, const InverseMap& to);
     };
 }
 

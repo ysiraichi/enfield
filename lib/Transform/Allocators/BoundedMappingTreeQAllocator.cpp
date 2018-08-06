@@ -161,7 +161,7 @@ BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
     for (auto cand : candidates) {
         PairVector pairV;
         CandidateVector localCandidates;
-        auto assign = InvertMapping(mPQubits, cand.m, false);
+        auto inv = InvertMapping(mPQubits, cand.m, false);
 
         if (mapped[a] && mapped[b]) {
             uint32_t u = cand.m[a], v = cand.m[b];
@@ -169,9 +169,9 @@ BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
                 pairV.push_back(Pair(u, v));
         } else if (!mapped[a] && !mapped[b]) {
             for (uint32_t u = 0; u < mPQubits; ++u) {
-                if (assign[u] != _undef) continue;
+                if (inv[u] != _undef) continue;
                 for (uint32_t v : mArchGraph->adj(u)) {
-                    if (assign[v] != _undef) continue;
+                    if (inv[v] != _undef) continue;
                     pairV.push_back(Pair(u, v));
                 }
             }
@@ -186,7 +186,7 @@ BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
 
             uint32_t u = cand.m[mappedV];
             for (uint32_t v : mArchGraph->adj(u)) {
-                if (assign[v] == _undef) {
+                if (inv[v] == _undef) {
                     if (mappedV == a) {
                         pairV.push_back(Pair(u, v));
                     } else {
@@ -300,10 +300,10 @@ SwapSeq BoundedMappingTreeQAllocator::getTransformingSwapsFor(const Mapping& fro
         }
     }
 
-    auto fromA = InvertMapping(mPQubits, fromM, false);
-    auto toA = InvertMapping(mPQubits, toM, false);
+    auto fromInv = InvertMapping(mPQubits, fromM, false);
+    auto toInv = InvertMapping(mPQubits, toM, false);
 
-    return mTSFinder->find(fromA, toA);
+    return mTSFinder->find(fromInv, toInv);
 }
 
 MappingSwapSequence

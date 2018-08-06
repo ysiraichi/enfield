@@ -16,7 +16,7 @@ void TokenSwapFinder::setGraph(Graph::Ref graph) {
     preprocess();
 }
 
-SwapSeq TokenSwapFinder::find(const Assign& from, const Assign& to) {
+SwapSeq TokenSwapFinder::find(const InverseMap& from, const InverseMap& to) {
     checkGraphSet();
     return findImpl(from, to);
 }

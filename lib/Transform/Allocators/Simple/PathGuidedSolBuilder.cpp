@@ -53,15 +53,15 @@ efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
         // Physical qubits (u, v)
         uint32_t u = match[a], v = match[b];
 
-        auto assign = InvertMapping(g->size(), match);
+        auto inv = InvertMapping(g->size(), match);
         auto path = mPathFinder->find(g, u, v);
 
         if (path.size() > 2) {
             for (auto u : path) {
                 // In case qubit 'u' has'n been assigned to no one, we just change
-                // the initial mapping here (we already filled the 'assign' in line 57)
-                if (solution.mInitial[assign[u]] == _undef) {
-                    solution.mInitial[assign[u]] = u;
+                // the initial mapping here (we already filled the 'inv' in line 57)
+                if (solution.mInitial[inv[u]] == _undef) {
+                    solution.mInitial[inv[u]] = u;
                 }
 
                 if (frozen[u]) changeInitialMapping = false;
@@ -74,7 +74,7 @@ efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
                 if (g->isReverseEdge(u, v))
                     std::swap(u, v);
     
-                uint32_t a = assign[u], b = assign[v];
+                uint32_t a = inv[u], b = inv[v];
                 ops.second.push_back({ Operation::K_OP_SWAP, a, b });
     
                 if (changeInitialMapping) {
@@ -82,7 +82,7 @@ efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
                 }
 
                 std::swap(match[a], match[b]);
-                std::swap(assign[u], assign[v]);
+                std::swap(inv[u], inv[v]);
             }
 
             // If this is the first mapping

@@ -60,7 +60,7 @@ namespace efd {
             uint32_t mPQubits;
             uint32_t mVQubits;
 
-            uint32_t getNearest(const Graph::Ref g, uint32_t u, const Assign& assign);
+            uint32_t getNearest(const Graph::Ref g, uint32_t u, const InverseMap& inv);
 
         public:
             typedef GeoNearestLQPProcessor* Ref;

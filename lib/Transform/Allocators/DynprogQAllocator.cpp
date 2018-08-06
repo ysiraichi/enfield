@@ -60,7 +60,7 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
     ExpTSFinder tsp;
     tsp.setGraph(mArchGraph.get());
 
-    auto permutations = tsp.mAssigns;
+    auto permutations = tsp.mInverseMaps;
     uint32_t archQ = mArchGraph->size();
     const uint32_t SWAP_COST = SwapCost.getVal();
     const uint32_t REV_COST = RevCost.getVal();
@@ -119,9 +119,9 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
                 uint32_t finalCost = srcVal.cost;
 
                 if (tgt != src) {
-                    auto srcAssign = InvertMapping(archQ, permutations[src]);
-                    auto tgtAssign = InvertMapping(archQ, tgtPerm);
-                    finalCost += tsp.find(srcAssign, tgtAssign).size() * SWAP_COST;
+                    auto srcInverseMap = InvertMapping(archQ, permutations[src]);
+                    auto tgtInverseMap = InvertMapping(archQ, tgtPerm);
+                    finalCost += tsp.find(srcInverseMap, tgtInverseMap).size() * SWAP_COST;
                 }
 
                 if (!hasEdge) {
@@ -180,25 +180,25 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
             auto& tgt = mappings[i].second;
 
             if (srcId != tgtId) {
-                auto srcAssign = InvertMapping(archQ, src);
-                auto tgtAssign = InvertMapping(archQ, tgt);
+                auto srcInverseMap = InvertMapping(archQ, src);
+                auto tgtInverseMap = InvertMapping(archQ, tgt);
 
-                auto swaps = tsp.find(srcAssign, tgtAssign);
+                auto swaps = tsp.find(srcInverseMap, tgtInverseMap);
                 for (auto swp : swaps) {
                     uint32_t u = swp.u, v = swp.v;
 
                     if (mArchGraph->isReverseEdge(u, v))
                         std::swap(u, v);
 
-                    ops.second.push_back({ Operation::K_OP_SWAP, srcAssign[u], srcAssign[v] });
-                    std::swap(srcAssign[u], srcAssign[v]);
+                    ops.second.push_back({ Operation::K_OP_SWAP, srcInverseMap[u], srcInverseMap[v] });
+                    std::swap(srcInverseMap[u], srcInverseMap[v]);
                 }
             }
 
             auto dep = deps[i][0];
             uint32_t a = dep.mFrom, b = dep.mTo;
             uint32_t u = tgt[a], v = tgt[b];
-            auto assign = InvertMapping(mArchGraph->size(), tgt);
+            auto inv = InvertMapping(mArchGraph->size(), tgt);
 
             Operation operation;
 
@@ -216,7 +216,7 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
                 }
 
                 operation = { Operation::K_OP_LCNOT, a, b };
-                operation.mW = assign[path[1]];
+                operation.mW = inv[path[1]];
             }
 
             ops.first = deps[i].mCallPoint;

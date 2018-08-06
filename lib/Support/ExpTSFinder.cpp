@@ -5,18 +5,18 @@
 #include <queue>
 
 void efd::ExpTSFinder::genAllAssigns(uint32_t n) {
-    efd::Assign assign(n, 0);
-    for (uint32_t i = 0; i < n; ++i) assign[i] = i;
+    efd::InverseMap inv(n, 0);
+    for (uint32_t i = 0; i < n; ++i) inv[i] = i;
 
-    mAssigns.clear();
+    mInverseMaps.clear();
 
     do {
-        mAssigns.push_back(assign);
-    } while (std::next_permutation(assign.begin(), assign.end()));
+        mInverseMaps.push_back(inv);
+    } while (std::next_permutation(inv.begin(), inv.end()));
 }
 
-uint32_t efd::ExpTSFinder::getTargetId(const Assign& source,
-                                       const Assign& target) {
+uint32_t efd::ExpTSFinder::getTargetId(const InverseMap& source,
+                                       const InverseMap& target) {
     if (source.size() != target.size()) {
         ERR << "The assignment map must be of same size: `"
             << source.size() << "` and `" << target.size() << "`." << std::endl;
@@ -25,8 +25,8 @@ uint32_t efd::ExpTSFinder::getTargetId(const Assign& source,
 
     int size = source.size();
 
-    Assign translator(size, 0);
-    Assign realtgt(size, 0);
+    InverseMap translator(size, 0);
+    InverseMap realtgt(size, 0);
 
     for (int i = 0; i < size; ++i) {
         translator[source[i]] = i;
@@ -46,12 +46,12 @@ void efd::ExpTSFinder::preprocess() {
     genAllAssigns(size);
 
     mMapId.clear();
-    for (uint32_t i = 0, e = mAssigns.size(); i < e; ++i) {
-        mMapId.insert(std::make_pair(mAssigns[i], i));
+    for (uint32_t i = 0, e = mInverseMaps.size(); i < e; ++i) {
+        mMapId.insert(std::make_pair(mInverseMaps[i], i));
     }
 
-    std::vector<bool> inserted(mAssigns.size(), false);
-    mSwaps.assign(mAssigns.size(), SwapSeq());
+    std::vector<bool> inserted(mInverseMaps.size(), false);
+    mSwaps.assign(mInverseMaps.size(), SwapSeq());
 
     std::vector<uint32_t> cur;
     std::queue<uint32_t> q;
@@ -63,7 +63,7 @@ void efd::ExpTSFinder::preprocess() {
         auto aId = q.front();
         q.pop();
 
-        auto cur = mAssigns[aId];
+        auto cur = mInverseMaps[aId];
 
         for (uint32_t u = 0; u < size; ++u) {
             for (uint32_t v : mG->adj(u)) {
@@ -82,7 +82,7 @@ void efd::ExpTSFinder::preprocess() {
     }
 }
 
-efd::SwapSeq efd::ExpTSFinder::findImpl(const Assign& from, const Assign& to) {
+efd::SwapSeq efd::ExpTSFinder::findImpl(const InverseMap& from, const InverseMap& to) {
     return mSwaps[getTargetId(from, to)];
 }
 

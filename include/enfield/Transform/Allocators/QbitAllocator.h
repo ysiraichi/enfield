@@ -55,11 +55,11 @@ namespace efd {
 
     /// \brief Generates an assignment mapping (maps the architecture's qubits
     /// to the logical ones) of size \p archQ.
-    Assign InvertMapping(uint32_t archQ, Mapping mapping, bool fill = true);
+    InverseMap InvertMapping(uint32_t archQ, Mapping mapping, bool fill = true);
 
     /// \brief Fills the unmapped qubits with the ones missing.
     void Fill(uint32_t archQ, Mapping& mapping);
-    void Fill(Mapping& mapping, Assign& assign);
+    void Fill(Mapping& mapping, InverseMap& inv);
 
     /// \brief Returns an identity mapping.
     Mapping IdentityMapping(uint32_t progQ);
