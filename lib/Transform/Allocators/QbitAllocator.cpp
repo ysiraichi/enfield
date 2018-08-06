@@ -22,7 +22,7 @@ static efd::Stat<double> ReplaceTime
 static efd::Stat<double> RenameTime
 ("RenameTime", "Time to rename all qubits to the mapped qubits.");
 
-efd::Assign efd::GenAssignment(uint32_t archQ, Mapping mapping, bool fill) {
+efd::Assign efd::InvertMapping(uint32_t archQ, Mapping mapping, bool fill) {
     uint32_t progQ = mapping.size();
     // 'archQ' is the number of qubits from the architecture.
     std::vector<uint32_t> assign(archQ, _undef);
@@ -60,7 +60,7 @@ void efd::Fill(Mapping& mapping, Assign& assign) {
 }
 
 void efd::Fill(uint32_t archQ, Mapping& mapping) {
-    auto assign = GenAssignment(archQ, mapping, false);
+    auto assign = InvertMapping(archQ, mapping, false);
     Fill(mapping, assign);
 }
 

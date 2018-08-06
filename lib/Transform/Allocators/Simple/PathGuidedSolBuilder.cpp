@@ -53,7 +53,7 @@ efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
         // Physical qubits (u, v)
         uint32_t u = match[a], v = match[b];
 
-        auto assign = GenAssignment(g->size(), match);
+        auto assign = InvertMapping(g->size(), match);
         auto path = mPathFinder->find(g, u, v);
 
         if (path.size() > 2) {

@@ -161,7 +161,7 @@ BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
     for (auto cand : candidates) {
         PairVector pairV;
         CandidateVector localCandidates;
-        auto assign = GenAssignment(mPQubits, cand.m, false);
+        auto assign = InvertMapping(mPQubits, cand.m, false);
 
         if (mapped[a] && mapped[b]) {
             uint32_t u = cand.m[a], v = cand.m[b];
@@ -300,8 +300,8 @@ SwapSeq BoundedMappingTreeQAllocator::getTransformingSwapsFor(const Mapping& fro
         }
     }
 
-    auto fromA = GenAssignment(mPQubits, fromM, false);
-    auto toA = GenAssignment(mPQubits, toM, false);
+    auto fromA = InvertMapping(mPQubits, fromM, false);
+    auto toA = InvertMapping(mPQubits, toM, false);
 
     return mTSFinder->find(fromA, toA);
 }
@@ -443,7 +443,7 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
                 mapping = mss.mappingV[idx];
 
                 auto swaps = mss.swapSeqCollection[idx - 1];
-                auto physToDummy = GenAssignment(mPQubits, dummyToPhys);
+                auto physToDummy = InvertMapping(mPQubits, dummyToPhys);
 
                 for (auto swp : swaps) {
                     uint32_t a = physToDummy[swp.u], b = physToDummy[swp.v];
@@ -492,7 +492,7 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
     Fill(mVQubits, realToDummy);
     sol.mInitial = realToDummy;
 
-    auto dummyToReal = GenAssignment(mVQubits, realToDummy, false);
+    auto dummyToReal = InvertMapping(mVQubits, realToDummy, false);
 
     // Transforming swaps from dummy to real.
     for (auto& pair : sol.mOpSeqs) {

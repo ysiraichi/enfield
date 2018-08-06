@@ -119,8 +119,8 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
                 uint32_t finalCost = srcVal.cost;
 
                 if (tgt != src) {
-                    auto srcAssign = GenAssignment(archQ, permutations[src]);
-                    auto tgtAssign = GenAssignment(archQ, tgtPerm);
+                    auto srcAssign = InvertMapping(archQ, permutations[src]);
+                    auto tgtAssign = InvertMapping(archQ, tgtPerm);
                     finalCost += tsp.find(srcAssign, tgtAssign).size() * SWAP_COST;
                 }
 
@@ -180,8 +180,8 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
             auto& tgt = mappings[i].second;
 
             if (srcId != tgtId) {
-                auto srcAssign = GenAssignment(archQ, src);
-                auto tgtAssign = GenAssignment(archQ, tgt);
+                auto srcAssign = InvertMapping(archQ, src);
+                auto tgtAssign = InvertMapping(archQ, tgt);
 
                 auto swaps = tsp.find(srcAssign, tgtAssign);
                 for (auto swp : swaps) {
@@ -198,7 +198,7 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
             auto dep = deps[i][0];
             uint32_t a = dep.mFrom, b = dep.mTo;
             uint32_t u = tgt[a], v = tgt[b];
-            auto assign = GenAssignment(mArchGraph->size(), tgt);
+            auto assign = InvertMapping(mArchGraph->size(), tgt);
 
             Operation operation;
 

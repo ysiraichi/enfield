@@ -124,8 +124,8 @@ void GeoNearestLQPProcessor::process(const Graph::Ref g, Mapping& fromM, Mapping
     mPQubits = g->size();
     mVQubits = fromM.size();
 
-    auto fromA = GenAssignment(mPQubits, fromM, false);
-    auto toA = GenAssignment(mPQubits, toM, false);
+    auto fromA = InvertMapping(mPQubits, fromM, false);
+    auto toA = InvertMapping(mPQubits, toM, false);
 
     for (uint32_t i = 0; i < mVQubits; ++i) {
         if (toM[i] == _undef && fromM[i] != _undef) {

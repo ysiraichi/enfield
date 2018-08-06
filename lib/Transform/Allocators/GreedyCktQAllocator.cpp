@@ -47,7 +47,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
 
     auto mapfinder = WeightedSIMappingFinder::Create();
     auto mapping = mapfinder->find(mArchGraph.get(), depsVector);
-    auto assign = GenAssignment(mArchGraph->size(), mapping);
+    auto assign = InvertMapping(mArchGraph->size(), mapping);
 
     StdSolution sol { mapping, StdSolution::OpSequences(depsVector.size()), 0 };
 

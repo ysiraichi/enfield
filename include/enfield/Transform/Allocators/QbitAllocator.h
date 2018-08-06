@@ -55,7 +55,7 @@ namespace efd {
 
     /// \brief Generates an assignment mapping (maps the architecture's qubits
     /// to the logical ones) of size \p archQ.
-    Assign GenAssignment(uint32_t archQ, Mapping mapping, bool fill = true);
+    Assign InvertMapping(uint32_t archQ, Mapping mapping, bool fill = true);
 
     /// \brief Fills the unmapped qubits with the ones missing.
     void Fill(uint32_t archQ, Mapping& mapping);

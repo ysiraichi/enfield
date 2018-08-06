@@ -22,7 +22,7 @@ IBMQAllocator::uRef IBMQAllocator::Create(ArchGraph::sRef archGraph) {
 IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
 (Layer& layer, Mapping current, std::set<uint32_t> qubitsSet, DependencyBuilder& depData) {
     AllocationResult result { current, true, {}, false };
-    Assign assign = GenAssignment(mPQubits, current);
+    Assign assign = InvertMapping(mPQubits, current);
 
     std::default_random_engine generator(Seed.getVal());
     std::normal_distribution<double> distribution(0.0, (double) (1 / (double) mPQubits));
