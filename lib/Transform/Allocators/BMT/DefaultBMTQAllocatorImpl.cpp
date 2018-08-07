@@ -11,41 +11,32 @@ void SeqNCandidatesGenerator::initialize() {
 }
 
 std::vector<Node::Ref> SeqNCandidatesGenerator::generateImpl() {
-    Node::Ref node = nullptr;
-
-    if (hasNext()) {
-        node = mIt->get();
-        ++mIt;
-    }
-
-    return { node };
+    return { mIt->get() };
 }
 
 bool SeqNCandidatesGenerator::finishedImpl() {
-    return mIt != mMod->stmt_end();
+    return mIt == mMod->stmt_end();
+}
+
+void SeqNCandidatesGenerator::signalProcessed(Node::Ref node) {
+    if (node != mIt->get()) {
+        ERR << "Node `" << node->toString(false) << "` not the one processed. "
+            << "Actual: `" << (*mIt)->toString(false) << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
+    ++mIt;
 }
 
 SeqNCandidatesGenerator::uRef SeqNCandidatesGenerator::Create() {
     return uRef(new SeqNCandidatesGenerator());
 }
 
-// --------------------- SameOrderNCRanker ------------------------
-NCPQueue SameOrderNCRanker::rank(std::vector<Node::Ref> nodeCandidates,
-                                 std::vector<bool> mapped,
-                                 std::vector<std::set<uint32_t>> neighbors) {
-    NCPQueue q;
-    return q;
-}
-
-SameOrderNCRanker::uRef SameOrderNCRanker::Create() {
-    return uRef(new SameOrderNCRanker());
-}
-
 // --------------------- FirstCandidateSelector ------------------------
-CandidateVector FirstCandidateSelector::select(uint32_t maxCandidates,
-                                               const CandidateVector& candidates) {
+MCandidateVector FirstCandidateSelector::select(uint32_t maxCandidates,
+                                                const MCandidateVector& candidates) {
     uint32_t selectedSize = std::min((uint32_t) candidates.size(), maxCandidates);
-    CandidateVector selected(candidates.begin(), candidates.begin() + selectedSize);
+    MCandidateVector selected(candidates.begin(), candidates.begin() + selectedSize);
     return selected;
 }
 

@@ -9,7 +9,6 @@
 #include "enfield/Support/Timer.h"
 
 #include <algorithm>
-#include <queue>
 
 using namespace efd;
 using namespace bmt;
@@ -22,42 +21,47 @@ static Opt<uint32_t> MaxPartialSolutions
 ("-bmt-max-partial", "Limits the max number of partial solutions per step.",
  std::numeric_limits<uint32_t>::max(), false);
 
+bool efd::bmt::operator<(const NodeCandidate& lhs, const NodeCandidate& rhs) {
+    if (lhs.mWeight != rhs.mWeight) return lhs.mWeight < rhs.mWeight;
+    return lhs.mNode < rhs.mNode;
+}
+
 // --------------------- NodeCandidatesGenerator ------------------------
-NodeCandidatesGenerator::NodeCandidatesGenerator() : mMod(nullptr), mG(nullptr), isFirst(true) {}
+NodeCandidatesGenerator::NodeCandidatesGenerator() : isFirst(true), mMod(nullptr) {}
 
 void NodeCandidatesGenerator::setQModule(QModule::Ref qmod) {
     mMod = qmod;
 }
 
-void NodeCandidatesGenerator::setGraph(ArchGraph::Ref graph) {
-    mG = graph;
-}
-
-Node::Ref NodeCandidatesGenerator::next() {
-    checkSet();
+std::vector<Node::Ref> NodeCandidatesGenerator::generate() {
+    checkQModuleSet();
 
     if (isFirst) {
         isFirst = false;
         initialize();
     }
 
-    return nextImpl();
+    if (finished()) {
+        return {};
+    }
+
+    return generateImpl();
 }
 
-bool NodeCandidatesGenerator::hasNext() {
-    checkSet();
-    return hasNextImpl();
+bool NodeCandidatesGenerator::finished() {
+    checkQModuleSet();
+    return finishedImpl();
 }
 
-void NodeCandidatesGenerator::checkSet() {
-    if (mMod == nullptr || mG == nullptr) {
+void NodeCandidatesGenerator::checkQModuleSet() {
+    if (mMod == nullptr) {
         ERR << "Set the `QModule` for NodeCandidatesGenerator." << std::endl;
         ExitWith(ExitCode::EXIT_unreachable);
     }
 }
 
 void NodeCandidatesGenerator::initialize() {}
-void NodeCandidatesGenerator::signalProcessed(uint32_t idx) {}
+void NodeCandidatesGenerator::signalProcessed(Node::Ref node) {}
 
 // --------------------- SwapCostEstimator ------------------------
 SwapCostEstimator::SwapCostEstimator() : mG(nullptr) {}
@@ -230,6 +234,51 @@ BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
     return mPartialSolutionCSelector->select(mMaxPartial, newCandidates);
 }
 
+std::priority_queue<NodeCandidate>
+BoundedMappingTreeQAllocator::rankCandidates(const std::vector<Node::Ref>& nodeCandidates,
+                                             const std::vector<bool>& mapped,
+                                             const std::vector<std::set<uint32_t>>& neighbors) {
+    std::priority_queue<NodeCandidate> queue;
+
+    for (auto node : nodeCandidates) {
+        NodeCandidate nCand;
+
+        nCand.mNode = node;
+        nCand.mDeps = mDBuilder.getDeps(node);
+
+        auto depsSize = nCand.mDeps.size();
+        if (depsSize == 0) {
+            nCand.mWeight = 0;
+        } else if (depsSize == 1) {
+            uint32_t a = nCand.mDeps[0].mFrom;
+            uint32_t b = nCand.mDeps[0].mTo;
+
+            if (mapped[a] && mapped[b] && neighbors[a].find(b) != neighbors[a].end()) {
+                nCand.mWeight = 1;
+            } else if (!mapped[a] && !mapped[b]) {
+                nCand.mWeight = 3;
+            } else if (!mapped[a] || !mapped[b]) {
+                nCand.mWeight = 2;
+            } else {
+                nCand.mWeight = 4;
+            }
+        } else {
+            ERR << "Instructions with more than one dependency not supported "
+                << "(" << node->toString(false) << ")" << std::endl;
+            ExitWith(ExitCode::EXIT_multi_deps);
+        }
+
+        queue.push(nCand);
+    }
+
+    if (queue.empty()) {
+        ERR << "`pQueue` empty." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
+    return queue;
+}
+
 MCandidateVCollection BoundedMappingTreeQAllocator::phase1() {
     // First Phase:
     //     in this phase, we divide the program in layers, such that each layer is satisfied
@@ -248,51 +297,32 @@ MCandidateVCollection BoundedMappingTreeQAllocator::phase1() {
 
     while (!mNCGenerator->finished()) {
         auto nodeCandidates = mNCGenerator->generate();
-        auto ncPQueue = mNCRanker->rank(nodeCandidates, mapped, neighbors);
+        auto pQueue = rankCandidates(nodeCandidates, mapped, neighbors);
 
-        struct {
-            MCandidateVector candidates;
-            Node::Ref node;
-            Dependencies ideps;
-        } selected;
+        NodeCandidate nCand;
+        MCandidateVector newCandidates;
 
-        if (ncPQueue.empty()) {
-            ERR << "`ncPQueue` empty." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
-        }
+        while (!pQueue.empty()) {
+            nCand = pQueue.top();
+            pQueue.pop();
 
-        bool keepLooking = true;
-        while (!ncPQueue.empty() && keepLooking) {
-            selected.node = ncPQueue.top().second;
-            ncPQueue.pop();
+            auto depsSize = nCand.mDeps.size();
 
-            selected.ideps = mDBuilder.getDeps(selected.node);
-            auto depSize = selected.ideps.size();
-
-            switch (depSize) {
-                case 0:
-                    selected.candidates = candidates;
-                    keepLooking = false;
-                    break;
-
-                case 1:
-                    selected.candidates = extendCandidates(selected.ideps[0],
-                                                           mapped,
-                                                           candidates,
-                                                           first);
-                    first = false;
-                    if (!selected.candidates.empty()) keepLooking = false;
-                    break;
-
-                default:
-                    ERR << "Instructions with more than one dependency not supported "
-                        << "(" << selected.mNode->toString(false) << ")" << std::endl;
-                    ExitWith(ExitCode::EXIT_multi_deps);
+            if (depsSize == 0) {
+                newCandidates = candidates;
+                break;
+            } else if (depsSize == 1) {
+                newCandidates = extendCandidates(nCand.mDeps[0],
+                                                 mapped,
+                                                 candidates,
+                                                 first);
+                first = false;
+                if (!newCandidates.empty())
                     break;
             }
         }
 
-        if (selected.candidates.empty()) {
+        if (newCandidates.empty()) {
             collection.push_back(candidates);
             // Reseting all data from the last partition.
             candidates = { { Mapping(mVQubits, _undef), 0 } };
@@ -301,17 +331,20 @@ MCandidateVCollection BoundedMappingTreeQAllocator::phase1() {
             first = true;
 
         } else {
-            if (!selected.ideps.empty()) {
-                auto dep = selected.ideps[0];
+            if (!nCand.mDeps.empty()) {
+                auto dep = nCand.mDeps[0];
+                uint32_t a = dep.mFrom, b = dep.mTo;
 
-                mapped[dep.mFrom] = true;
-                mapped[dep.mTo] = true;
+                mapped[a] = true;
+                mapped[b] = true;
+                neighbors[a].insert(b);
+                neighbors[b].insert(a);
 
-                candidates = selected.candidates;
+                candidates = newCandidates;
             }
 
-            mPP.back().push_back(selected.node);
-            mNCGenerator->signalProcessed(selected.node);
+            mPP.back().push_back(nCand.mNode);
+            mNCGenerator->signalProcessed(nCand.mNode);
         }
     }
 
@@ -361,8 +394,9 @@ void BoundedMappingTreeQAllocator::normalize(MappingSwapSequence& mss) {
     // Fill the last mapping, so that all qubits are mapped in
     // the end.
     auto &lastMapping = mss.mappingV.back();
-    auto inv = InvertMapping(mPQubits, lastMapping);
     Fill(mPQubits, lastMapping);
+
+    auto inv = InvertMapping(mPQubits, lastMapping);
 
     for (uint32_t i = mappingVSize - 1; i > 0; --i) {
         mss.mappingV[i - 1] = mss.mappingV[i];
@@ -595,11 +629,6 @@ Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
 void BoundedMappingTreeQAllocator::setNodeCandidatesGenerator
 (NodeCandidatesGenerator::uRef gen) {
     mNCGenerator = std::move(gen);
-}
-
-void BoundedMappingTreeQAllocator::setNodeCandidatesRanker
-(NodeCandidatesRanker::uRef r) {
-    mNCRanker = std::move(r);
 }
 
 void BoundedMappingTreeQAllocator::setChildrenSelector

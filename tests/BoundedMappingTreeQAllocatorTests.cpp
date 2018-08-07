@@ -41,7 +41,7 @@ void TestAllocation(const std::string program) {
     auto qmodCopy = qmod->clone();
 
     auto allocator = BoundedMappingTreeQAllocator::Create(g);
-    allocator->setNodeCandidateIterator(SeqNCandidateIterator::Create());\
+    allocator->setNodeCandidatesGenerator(SeqNCandidatesGenerator::Create());\
     allocator->setChildrenSelector(FirstCandidateSelector::Create());\
     allocator->setPartialSolutionSelector(FirstCandidateSelector::Create());\
     allocator->setSwapCostEstimator(GeoDistanceSwapCEstimator::Create());\

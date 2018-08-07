@@ -13,7 +13,7 @@ namespace efd {
         Q_##_Name_,
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_)\
         Q_##_Name_,
-#define EFD_ALLOCATOR_BMT(_Name_, _NCI_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_)\
+#define EFD_ALLOCATOR_BMT(_Name_, _NCG_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_)\
         Q_##_Name_,
 #include "enfield/Transform/Allocators/Allocators.def"
 #undef EFD_ALLOCATOR
@@ -43,8 +43,8 @@ namespace efd {
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
     AllocatorRegistry::RetTy Create##_Finder_##With##_Builder_\
     (AllocatorRegistry::ArgTy arg);
-#define EFD_ALLOCATOR_BMT(_Name_, _NCI_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_) \
-    AllocatorRegistry::RetTy CreateBMT##_NCI_##_CS_##_PSS_##_SCE_##_LQPP_##_MSS_##_TSF_\
+#define EFD_ALLOCATOR_BMT(_Name_, _NCG_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_) \
+    AllocatorRegistry::RetTy CreateBMT##_NCG_##_CS_##_PSS_##_SCE_##_LQPP_##_MSS_##_TSF_\
     (AllocatorRegistry::ArgTy arg);
 #include "enfield/Transform/Allocators/Allocators.def"
 #undef EFD_ALLOCATOR

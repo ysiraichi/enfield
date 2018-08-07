@@ -20,17 +20,10 @@ namespace efd {
             typedef SeqNCandidatesGenerator* Ref;
             typedef std::unique_ptr<SeqNCandidatesGenerator> uRef;
 
+            void signalProcessed(Node::Ref node) override;
+
             static uRef Create();
     };
-
-    class SameOrderNCRanker : public NodeCandidatesRanker {
-        NCPQueue rank(std::vector<Node::Ref> nodeCandidates,
-                      std::vector<bool> mapped,
-                      std::vector<std::set<uint32_t>> neighbors) override;
-
-        static uRef Create();
-    };
-
 
     /// \brief Gets the first \em maxCandidates from \em candidates.
     class FirstCandidateSelector : public CandidateSelector {
@@ -38,8 +31,8 @@ namespace efd {
             typedef FirstCandidateSelector* Ref;
             typedef std::unique_ptr<FirstCandidateSelector> uRef;
 
-            bmt::CandidateVector select(uint32_t maxCandidates,
-                                        const bmt::CandidateVector& candidates) override;
+            bmt::MCandidateVector select(uint32_t maxCandidates,
+                                         const bmt::MCandidateVector& candidates) override;
 
             static uRef Create();
     };

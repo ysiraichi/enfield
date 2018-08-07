@@ -5,10 +5,16 @@
 #include "enfield/Transform/XbitToNumberPass.h"
 #include "enfield/Support/TokenSwapFinder.h"
 
+#include <queue>
+
 namespace efd {
     namespace bmt {
-        typedef std::pair<uint32_t, Node::Ref> UIntNodePair;
-        typedef std::priority_queue<UIntNodePair> NCPQueue;
+        struct NodeCandidate {
+            uint32_t mWeight;
+            Node::Ref mNode;
+            Dependencies mDeps;
+        };
+        bool operator<(const NodeCandidate& lhs, const NodeCandidate& rhs);
 
         /// \brief Composition of each candidate in phase 1.
         struct MappingCandidate {
@@ -28,7 +34,7 @@ namespace efd {
         typedef std::vector<Vector> Matrix;
 
         typedef std::vector<MappingCandidate> MCandidateVector;
-        typedef std::vector<MCandidateVector> MMCandidateVCollection;
+        typedef std::vector<MCandidateVector> MCandidateVCollection;
 
         typedef std::vector<TracebackInfo> TIVector;
         typedef std::vector<TIVector> TIMatrix;
@@ -67,26 +73,20 @@ namespace efd {
         std::vector<Node::Ref> generate();
         /// \brief Returns whether we have finished processing the nodes.
         bool finished();
+        /// \brief Signals the generator which node has been selected.
+        virtual void signalProcessed(Node::Ref node);
 
         private:
             bool isFirst;
 
         protected:
             QModule::Ref mMod;
-            ArchGraph::Ref mG;
 
             void checkQModuleSet();
             virtual void initialize();
-            virtual void signalProcessed(uint32_t idx);
 
             virtual std::vector<Node::Ref> generateImpl() = 0;
             virtual bool finishedImpl() = 0;
-    };
-
-    struct NodeCandidatesRanker {
-        virtual NCPQueue rank(std::vector<Node::Ref> nodeCandidates,
-                              std::vector<bool> mapped,
-                              std::vector<std::set<uint32_t>> neighbors) = 0;
     };
 
     /// \brief Interface for selecting candidates (if they are greater than
@@ -162,7 +162,6 @@ namespace efd {
             bmt::PPartitionCollection mPP;
 
             NodeCandidatesGenerator::uRef mNCGenerator;
-            NodeCandidatesRanker::uRef mNCRanker;
             CandidateSelector::uRef mChildrenCSelector;
             CandidateSelector::uRef mPartialSolutionCSelector;
             SwapCostEstimator::uRef mCostEstimator;
@@ -170,14 +169,21 @@ namespace efd {
             MapSeqSelector::uRef mMSSelector;
             TokenSwapFinder::uRef mTSFinder;
 
+        private:
             bmt::MCandidateVCollection phase1();
             bmt::MappingSwapSequence phase2(const bmt::MCandidateVCollection& collection);
             Mapping phase3(QModule::Ref qmod, const bmt::MappingSwapSequence& mss);
 
-            bmt::MCandidateVector extendCandidates(Dep& dep,
-                                                  const std::vector<bool>& mapped,
-                                                  const bmt::MCandidateVector& candidates,
-                                                  bool ignoreChildrenLimit);
+            bmt::MCandidateVector
+                extendCandidates(Dep& dep,
+                                 const std::vector<bool>& mapped,
+                                 const bmt::MCandidateVector& candidates,
+                                 bool ignoreChildrenLimit);
+
+            std::priority_queue<bmt::NodeCandidate>
+                rankCandidates(const std::vector<Node::Ref>& nodeCandidates,
+                               const std::vector<bool>& mapped,
+                               const std::vector<std::set<uint32_t>>& neighbors);
 
             bmt::MappingSeq tracebackPath(const bmt::TIMatrix& mem, uint32_t idx);
             SwapSeq getTransformingSwapsFor(const Mapping& fromM, Mapping toM);
@@ -189,8 +195,6 @@ namespace efd {
         public:
             /// \brief Sets the implementation for iterating the `Node`s in phase 1.
             void setNodeCandidatesGenerator(NodeCandidatesGenerator::uRef gen);
-            /// \brief Sets the implementation for ranking the `Node`s in phase 1.
-            void setNodeCandidatesRanker(NodeCandidatesRanker::uRef r);
             /// \brief Sets the implementation for selecting the children in phase 1.
             void setChildrenSelector(CandidateSelector::uRef sel);
             /// \brief Sets the implementation for selecting the partial solutions in phase 1.

@@ -27,7 +27,7 @@ template <> std::vector<std::string> efd::EnumAllocator::mStrVal {
     "Q_"#_Name_,
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
     "Q_"#_Name_,
-#define EFD_ALLOCATOR_BMT(_Name_, _NCI_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_) \
+#define EFD_ALLOCATOR_BMT(_Name_, _NCG_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_) \
     "Q_"#_Name_,
 #include "enfield/Transform/Allocators/Allocators.def"
 #undef EFD_ALLOCATOR
@@ -51,9 +51,9 @@ void efd::InitializeAllQbitAllocators() {
     RegisterQbitAllocator(Allocator::Q_##_Name_, Create##_Class_);
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
     RegisterQbitAllocator(Allocator::Q_##_Name_, Create##_Finder_##With##_Builder_);
-#define EFD_ALLOCATOR_BMT(_Name_, _NCI_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_) \
+#define EFD_ALLOCATOR_BMT(_Name_, _NCG_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_) \
     RegisterQbitAllocator(Allocator::Q_##_Name_,\
-                          CreateBMT##_NCI_##_CS_##_PSS_##_SCE_##_LQPP_##_MSS_##_TSF_);
+                          CreateBMT##_NCG_##_CS_##_PSS_##_SCE_##_LQPP_##_MSS_##_TSF_);
 #include "enfield/Transform/Allocators/Allocators.def"
 #undef EFD_ALLOCATOR
 #undef EFD_ALLOCATOR_SIMPLE
@@ -86,11 +86,11 @@ efd::CreateQbitAllocator(EnumAllocator key, AllocatorRegistry::ArgTy arg) {
         allocator->setSolBuilder(_Builder_::Create());\
         return std::move(allocator);\
     }
-#define EFD_ALLOCATOR_BMT(_Name_, _NCI_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_) \
+#define EFD_ALLOCATOR_BMT(_Name_, _NCG_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_) \
     efd::AllocatorRegistry::RetTy\
-    efd::CreateBMT##_NCI_##_CS_##_PSS_##_SCE_##_LQPP_##_MSS_##_TSF_(AllocatorRegistry::ArgTy arg) {\
+    efd::CreateBMT##_NCG_##_CS_##_PSS_##_SCE_##_LQPP_##_MSS_##_TSF_(AllocatorRegistry::ArgTy arg) {\
         auto allocator = BoundedMappingTreeQAllocator::Create(arg);\
-        allocator->setNodeCandidateIterator(_NCI_::Create());\
+        allocator->setNodeCandidatesGenerator(_NCG_::Create());\
         allocator->setChildrenSelector(_CS_::Create());\
         allocator->setPartialSolutionSelector(_PSS_::Create());\
         allocator->setSwapCostEstimator(_SCE_::Create());\
