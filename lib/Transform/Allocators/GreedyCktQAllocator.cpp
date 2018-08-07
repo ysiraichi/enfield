@@ -120,7 +120,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             auto node = cnode->node();
             auto dep = depBuilder.getDeps(node);
 
-            if (dep.getSize() == 0) {
+            if (dep.size() == 0) {
                 redo = true;
                 allocatedStatements.push_back(node->clone());
 
@@ -150,7 +150,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             auto node = cnode->node();
             auto dep = depBuilder.getDeps(node);
 
-            if (dep.getSize() > 1) {
+            if (dep.size() > 1) {
                 ERR << "Can only allocate gates with at most one depenency."
                     << " Gate: `" << dep.mCallPoint->toString(false) << "`." << std::endl;
                 ExitWith(ExitCode::EXIT_unreachable);

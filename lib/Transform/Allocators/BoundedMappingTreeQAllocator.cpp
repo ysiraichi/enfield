@@ -438,7 +438,7 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
             // one dependency.
             auto iDependencies = mDBuilder.getDeps(node);
 
-            if (iDependencies.getSize() < 1) {
+            if (iDependencies.size() < 1) {
                 auto cloned = node->clone();
                 cloned->apply(&renameVisitor);
                 issuedInstructions.push_back(std::move(cloned));

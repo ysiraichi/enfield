@@ -31,11 +31,11 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
     for (auto node : layer) {
         auto _deps = depData.getDeps(node);
 
-        if (_deps.getSize() > 1) {
+        if (_deps.size() > 1) {
             ERR << "Not suporting gates with more than 1 dependency ("
                 << node->toString(false) << ")." << std::endl;
             ExitWith(ExitCode::EXIT_unreachable);
-        } else if (_deps.getSize() == 1) {
+        } else if (_deps.size() == 1) {
             deps.push_back(_deps[0]);
         }
     }
@@ -232,7 +232,7 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
 
                 auto clone = node->clone();
 
-                if (deps.getSize() == 1) {
+                if (deps.size() == 1) {
                     auto dep = deps[0];
                     uint32_t u = result.map[dep.mFrom], v = result.map[dep.mTo];
 
@@ -294,7 +294,7 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                     opVector = result.opv;
                 }
 
-                if (deps.getSize() == 1) {
+                if (deps.size() == 1) {
                     auto dep = deps[0];
                     uint32_t u = result.map[dep.mFrom], v = result.map[dep.mTo];
 
