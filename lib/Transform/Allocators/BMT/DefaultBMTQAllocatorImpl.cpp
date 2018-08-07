@@ -5,29 +5,40 @@ using namespace bmt;
 
 #include <queue>
 
-// --------------------- SeqNCandidateIterator ------------------------
-Node::Ref SeqNCandidateIterator::nextImpl() {
-    Node::Ref node = nullptr;
+// --------------------- SeqNCandidatesGenerator ------------------------
+void SeqNCandidatesGenerator::initialize() {
+    mIt = mMod->stmt_begin();
+}
 
-    if (isFirst) {
-        isFirst = false;
-        mIt = mMod->stmt_begin();
-    }
+std::vector<Node::Ref> SeqNCandidatesGenerator::generateImpl() {
+    Node::Ref node = nullptr;
 
     if (hasNext()) {
         node = mIt->get();
         ++mIt;
     }
 
-    return node;
+    return { node };
 }
 
-bool SeqNCandidateIterator::hasNextImpl() {
+bool SeqNCandidatesGenerator::finishedImpl() {
     return mIt != mMod->stmt_end();
 }
 
-SeqNCandidateIterator::uRef SeqNCandidateIterator::Create() {
-    return uRef(new SeqNCandidateIterator());
+SeqNCandidatesGenerator::uRef SeqNCandidatesGenerator::Create() {
+    return uRef(new SeqNCandidatesGenerator());
+}
+
+// --------------------- SameOrderNCRanker ------------------------
+NCPQueue SameOrderNCRanker::rank(std::vector<Node::Ref> nodeCandidates,
+                                 std::vector<bool> mapped,
+                                 std::vector<std::set<uint32_t>> neighbors) {
+    NCPQueue q;
+    return q;
+}
+
+SameOrderNCRanker::uRef SameOrderNCRanker::Create() {
+    return uRef(new SameOrderNCRanker());
 }
 
 // --------------------- FirstCandidateSelector ------------------------

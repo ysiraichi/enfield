@@ -7,20 +7,30 @@ namespace efd {
     /// \brief Sequential iterator.
     ///
     /// It follows the order of the instructions given by the iterators.
-    class SeqNCandidateIterator : public NodeCandidateIterator {
+    class SeqNCandidatesGenerator : public NodeCandidatesGenerator {
         private:
             Node::Iterator mIt;
 
         protected:
-            Node::Ref nextImpl() override;
-            bool hasNextImpl() override;
+            void initialize() override;
+            std::vector<Node::Ref> generateImpl() override;
+            bool finishedImpl() override;
 
         public:
-            typedef SeqNCandidateIterator* Ref;
-            typedef std::unique_ptr<SeqNCandidateIterator> uRef;
+            typedef SeqNCandidatesGenerator* Ref;
+            typedef std::unique_ptr<SeqNCandidatesGenerator> uRef;
 
             static uRef Create();
     };
+
+    class SameOrderNCRanker : public NodeCandidatesRanker {
+        NCPQueue rank(std::vector<Node::Ref> nodeCandidates,
+                      std::vector<bool> mapped,
+                      std::vector<std::set<uint32_t>> neighbors) override;
+
+        static uRef Create();
+    };
+
 
     /// \brief Gets the first \em maxCandidates from \em candidates.
     class FirstCandidateSelector : public CandidateSelector {

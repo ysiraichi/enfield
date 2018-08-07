@@ -7,8 +7,11 @@
 
 namespace efd {
     namespace bmt {
+        typedef std::pair<uint32_t, Node::Ref> UIntNodePair;
+        typedef std::priority_queue<UIntNodePair> NCPQueue;
+
         /// \brief Composition of each candidate in phase 1.
-        struct Candidate {
+        struct MappingCandidate {
             Mapping m;
             uint32_t cost;
         };
@@ -24,8 +27,8 @@ namespace efd {
         typedef std::vector<uint32_t> Vector;
         typedef std::vector<Vector> Matrix;
 
-        typedef std::vector<Candidate> CandidateVector;
-        typedef std::vector<CandidateVector> CandidateVCollection;
+        typedef std::vector<MappingCandidate> MCandidateVector;
+        typedef std::vector<MCandidateVector> MMCandidateVCollection;
 
         typedef std::vector<TracebackInfo> TIVector;
         typedef std::vector<TIVector> TIMatrix;
@@ -52,27 +55,38 @@ namespace efd {
         typedef std::vector<PPartition> PPartitionCollection;
     }
 
-    /// \brief Interface for getting the next `Node` to be processed in phase 1.
-    struct NodeCandidateIterator {
-        typedef NodeCandidateIterator* Ref;
-        typedef std::unique_ptr<NodeCandidateIterator> uRef;
+    struct NodeCandidatesGenerator {
+        typedef NodeCandidatesGenerator* Ref;
+        typedef std::unique_ptr<NodeCandidatesGenerator> uRef;
 
-        NodeCandidateIterator();
+        NodeCandidatesGenerator();
 
         /// \brief Sets the `QModule` to be iterated.
         void setQModule(QModule::Ref qmod);
-        /// \brief Returns the next `Node`.
-        Node::Ref next();
-        /// \brief Returns whether there are still `Node`s to be processed.
-        bool hasNext();
+        /// \brief Returns the next collection of candidates.
+        std::vector<Node::Ref> generate();
+        /// \brief Returns whether we have finished processing the nodes.
+        bool finished();
+
+        private:
+            bool isFirst;
 
         protected:
             QModule::Ref mMod;
-            bool isFirst;
+            ArchGraph::Ref mG;
 
             void checkQModuleSet();
-            virtual Node::Ref nextImpl() = 0;
-            virtual bool hasNextImpl() = 0;
+            virtual void initialize();
+            virtual void signalProcessed(uint32_t idx);
+
+            virtual std::vector<Node::Ref> generateImpl() = 0;
+            virtual bool finishedImpl() = 0;
+    };
+
+    struct NodeCandidatesRanker {
+        virtual NCPQueue rank(std::vector<Node::Ref> nodeCandidates,
+                              std::vector<bool> mapped,
+                              std::vector<std::set<uint32_t>> neighbors) = 0;
     };
 
     /// \brief Interface for selecting candidates (if they are greater than
@@ -81,8 +95,8 @@ namespace efd {
         typedef CandidateSelector* Ref;
         typedef std::unique_ptr<CandidateSelector> uRef;
         /// \brief Selects \em maxCandidates from \em candidates.
-        virtual bmt::CandidateVector select(uint32_t maxCandidates,
-                                            const bmt::CandidateVector& candidates) = 0;
+        virtual bmt::MCandidateVector select(uint32_t maxCandidates,
+                                            const bmt::MCandidateVector& candidates) = 0;
     };
 
     /// \brief Interface for estimating the number of swaps in phase 2.
@@ -147,7 +161,8 @@ namespace efd {
             XbitToNumber mXtoN;
             bmt::PPartitionCollection mPP;
 
-            NodeCandidateIterator::uRef mNCIterator;
+            NodeCandidatesGenerator::uRef mNCGenerator;
+            NodeCandidatesRanker::uRef mNCRanker;
             CandidateSelector::uRef mChildrenCSelector;
             CandidateSelector::uRef mPartialSolutionCSelector;
             SwapCostEstimator::uRef mCostEstimator;
@@ -155,13 +170,13 @@ namespace efd {
             MapSeqSelector::uRef mMSSelector;
             TokenSwapFinder::uRef mTSFinder;
 
-            bmt::CandidateVCollection phase1();
-            bmt::MappingSwapSequence phase2(const bmt::CandidateVCollection& collection);
+            bmt::MCandidateVCollection phase1();
+            bmt::MappingSwapSequence phase2(const bmt::MCandidateVCollection& collection);
             Mapping phase3(QModule::Ref qmod, const bmt::MappingSwapSequence& mss);
 
-            bmt::CandidateVector extendCandidates(Dep& dep,
+            bmt::MCandidateVector extendCandidates(Dep& dep,
                                                   const std::vector<bool>& mapped,
-                                                  const bmt::CandidateVector& candidates,
+                                                  const bmt::MCandidateVector& candidates,
                                                   bool ignoreChildrenLimit);
 
             bmt::MappingSeq tracebackPath(const bmt::TIMatrix& mem, uint32_t idx);
@@ -173,7 +188,9 @@ namespace efd {
 
         public:
             /// \brief Sets the implementation for iterating the `Node`s in phase 1.
-            void setNodeCandidateIterator(NodeCandidateIterator::uRef it);
+            void setNodeCandidatesGenerator(NodeCandidatesGenerator::uRef gen);
+            /// \brief Sets the implementation for ranking the `Node`s in phase 1.
+            void setNodeCandidatesRanker(NodeCandidatesRanker::uRef r);
             /// \brief Sets the implementation for selecting the children in phase 1.
             void setChildrenSelector(CandidateSelector::uRef sel);
             /// \brief Sets the implementation for selecting the partial solutions in phase 1.

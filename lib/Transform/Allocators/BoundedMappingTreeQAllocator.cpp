@@ -22,29 +22,42 @@ static Opt<uint32_t> MaxPartialSolutions
 ("-bmt-max-partial", "Limits the max number of partial solutions per step.",
  std::numeric_limits<uint32_t>::max(), false);
 
-// --------------------- NodeCandidateIterator ------------------------
-NodeCandidateIterator::NodeCandidateIterator() : mMod(nullptr), isFirst(true) {}
+// --------------------- NodeCandidatesGenerator ------------------------
+NodeCandidatesGenerator::NodeCandidatesGenerator() : mMod(nullptr), mG(nullptr), isFirst(true) {}
 
-void NodeCandidateIterator::setQModule(QModule::Ref qmod) {
+void NodeCandidatesGenerator::setQModule(QModule::Ref qmod) {
     mMod = qmod;
 }
 
-Node::Ref NodeCandidateIterator::next() {
-    checkQModuleSet();
+void NodeCandidatesGenerator::setGraph(ArchGraph::Ref graph) {
+    mG = graph;
+}
+
+Node::Ref NodeCandidatesGenerator::next() {
+    checkSet();
+
+    if (isFirst) {
+        isFirst = false;
+        initialize();
+    }
+
     return nextImpl();
 }
 
-bool NodeCandidateIterator::hasNext() {
-    checkQModuleSet();
+bool NodeCandidatesGenerator::hasNext() {
+    checkSet();
     return hasNextImpl();
 }
 
-void NodeCandidateIterator::checkQModuleSet() {
-    if (mMod == nullptr) {
-        ERR << "Set the `QModule` for NodeCandidateIterator." << std::endl;
+void NodeCandidatesGenerator::checkSet() {
+    if (mMod == nullptr || mG == nullptr) {
+        ERR << "Set the `QModule` for NodeCandidatesGenerator." << std::endl;
         ExitWith(ExitCode::EXIT_unreachable);
     }
 }
+
+void NodeCandidatesGenerator::initialize() {}
+void NodeCandidatesGenerator::signalProcessed(uint32_t idx) {}
 
 // --------------------- SwapCostEstimator ------------------------
 SwapCostEstimator::SwapCostEstimator() : mG(nullptr) {}
@@ -140,7 +153,7 @@ void NodeRenameVisitor::visit(NDIfStmt::Ref ref) {
 // --------------------- BoundedMappingTreeQAllocator ------------------------
 BoundedMappingTreeQAllocator::BoundedMappingTreeQAllocator(ArchGraph::sRef ag)
     : QbitAllocator(ag),
-      mNCIterator(nullptr),
+      mNCGenerator(nullptr),
       mChildrenCSelector(nullptr),
       mPartialSolutionCSelector(nullptr),
       mCostEstimator(nullptr),
@@ -148,21 +161,21 @@ BoundedMappingTreeQAllocator::BoundedMappingTreeQAllocator(ArchGraph::sRef ag)
       mMSSelector(nullptr),
       mTSFinder(nullptr) {}
 
-CandidateVector
+MCandidateVector
 BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
                                                const std::vector<bool>& mapped,
-                                               const CandidateVector& candidates,
+                                               const MCandidateVector& candidates,
                                                bool ignoreChildrenLimit) {
     typedef std::pair<uint32_t, uint32_t> Pair;
     typedef std::vector<Pair> PairVector;
 
     uint32_t a = dep.mFrom, b = dep.mTo;
     uint32_t childrenBound = (ignoreChildrenLimit) ? _undef : mMaxChildren;
-    CandidateVector newCandidates;
+    MCandidateVector newCandidates;
 
     for (auto cand : candidates) {
         PairVector pairV;
-        CandidateVector localCandidates;
+        MCandidateVector localCandidates;
         auto inv = InvertMapping(mPQubits, cand.m, false);
 
         if (mapped[a] && mapped[b]) {
@@ -210,62 +223,96 @@ BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
             localCandidates.push_back(cpy);
         }
 
-        CandidateVector selected = mChildrenCSelector->select(childrenBound, localCandidates);
+        MCandidateVector selected = mChildrenCSelector->select(childrenBound, localCandidates);
         newCandidates.insert(newCandidates.end(), selected.begin(), selected.end());
     }
 
     return mPartialSolutionCSelector->select(mMaxPartial, newCandidates);
 }
 
-CandidateVCollection BoundedMappingTreeQAllocator::phase1() {
+MCandidateVCollection BoundedMappingTreeQAllocator::phase1() {
     // First Phase:
     //     in this phase, we divide the program in layers, such that each layer is satisfied
     //     by any of the mappings inside 'candidates'.
     //
     mPP.push_back(PPartition());
-    CandidateVector candidates { { Mapping(mVQubits, _undef), 0 } };
-    CandidateVCollection collection;
+    MCandidateVector candidates { { Mapping(mVQubits, _undef), 0 } };
+    MCandidateVCollection collection;
+
     std::vector<bool> mapped(mVQubits, false);
+    std::vector<std::set<uint32_t>> neighbors(mVQubits);
 
     INF << "PHASE 1 >>>> Solving SIP Instances" << std::endl;
 
     bool first = true;
 
-    while (mNCIterator->hasNext()) {
-        auto node = mNCIterator->next();
-        auto iDependencies = mDBuilder.getDeps(node);
-        auto nofIDeps = iDependencies.getSize();
+    while (!mNCGenerator->finished()) {
+        auto nodeCandidates = mNCGenerator->generate();
+        auto ncPQueue = mNCRanker->rank(nodeCandidates, mapped, neighbors);
 
-        if (nofIDeps > 1) {
-            ERR << "Instructions with more than one dependency not supported "
-                << "(" << iDependencies.mCallPoint->toString(false) << ")" << std::endl;
-            ExitWith(ExitCode::EXIT_multi_deps);
-        } else if (nofIDeps < 1) {
-            continue;
+        struct {
+            MCandidateVector candidates;
+            Node::Ref node;
+            Dependencies ideps;
+        } selected;
+
+        if (ncPQueue.empty()) {
+            ERR << "`ncPQueue` empty." << std::endl;
+            ExitWith(ExitCode::EXIT_unreachable);
         }
 
-        auto dep = iDependencies[0];
-        auto newCandidates = extendCandidates(dep, mapped, candidates, first);
-        first = false;
+        bool keepLooking = true;
+        while (!ncPQueue.empty() && keepLooking) {
+            selected.node = ncPQueue.top().second;
+            ncPQueue.pop();
 
-        if (newCandidates.empty()) {
-            mPP.push_back(PPartition());
-            // Save candidates and reset!
+            selected.ideps = mDBuilder.getDeps(selected.node);
+            auto depSize = selected.ideps.size();
+
+            switch (depSize) {
+                case 0:
+                    selected.candidates = candidates;
+                    keepLooking = false;
+                    break;
+
+                case 1:
+                    selected.candidates = extendCandidates(selected.ideps[0],
+                                                           mapped,
+                                                           candidates,
+                                                           first);
+                    first = false;
+                    if (!selected.candidates.empty()) keepLooking = false;
+                    break;
+
+                default:
+                    ERR << "Instructions with more than one dependency not supported "
+                        << "(" << selected.mNode->toString(false) << ")" << std::endl;
+                    ExitWith(ExitCode::EXIT_multi_deps);
+                    break;
+            }
+        }
+
+        if (selected.candidates.empty()) {
             collection.push_back(candidates);
-            // Process this dependency again.
+            // Reseting all data from the last partition.
             candidates = { { Mapping(mVQubits, _undef), 0 } };
             mapped.assign(mVQubits, false);
-            newCandidates = extendCandidates(dep, mapped, candidates, true);
+            mPP.push_back(PPartition());
+            first = true;
+
+        } else {
+            if (!selected.ideps.empty()) {
+                auto dep = selected.ideps[0];
+
+                mapped[dep.mFrom] = true;
+                mapped[dep.mTo] = true;
+
+                candidates = selected.candidates;
+            }
+
+            mPP.back().push_back(selected.node);
+            mNCGenerator->signalProcessed(selected.node);
         }
-
-        mPP.back().push_back(node);
-
-        mapped[dep.mFrom] = true;
-        mapped[dep.mTo] = true;
-        candidates = newCandidates;
-
-        INF << "Dep (" << dep.mFrom << ", " << dep.mTo << ")" << std::endl;
-        INF << "Candidate number: " << candidates.size() << std::endl;
     }
 
     collection.push_back(candidates);
@@ -333,7 +380,7 @@ void BoundedMappingTreeQAllocator::normalize(MappingSwapSequence& mss) {
 }
 
 MappingSwapSequence
-BoundedMappingTreeQAllocator::phase2(const CandidateVCollection& collection) {
+BoundedMappingTreeQAllocator::phase2(const MCandidateVCollection& collection) {
     // Second Phase:
     //     here, the idea is to use, perhaps, dynamic programming to test all possibilities
     //     for 'glueing' the sequence of collection together.
@@ -505,7 +552,7 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
 }
 
 Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
-    if (mNCIterator.get() == nullptr ||
+    if (mNCGenerator.get() == nullptr ||
                 mChildrenCSelector.get() == nullptr ||
                 mPartialSolutionCSelector.get() == nullptr ||
                 mCostEstimator.get() == nullptr ||
@@ -513,7 +560,7 @@ Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
                 mMSSelector.get() == nullptr ||
                 mTSFinder.get() == nullptr) {
         ERR << "Define the `BoundedMappingTreeQAllocator` interfaces:" << std::endl;
-        ERR << "    NodeCandidateIterator: " << mNCIterator.get() << std::endl;
+        ERR << "    NodeCandidatesGenerator: " << mNCGenerator.get() << std::endl;
         ERR << "    mChildrenCSelector: " << mChildrenCSelector.get() << std::endl;
         ERR << "    mPartialSolutionCSelector: " << mPartialSolutionCSelector.get() << std::endl;
         ERR << "    mCostEstimator: " << mCostEstimator.get() << std::endl;
@@ -523,7 +570,7 @@ Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
         ExitWith(ExitCode::EXIT_unreachable);
     }
 
-    mNCIterator->setQModule(qmod);
+    mNCGenerator->setQModule(qmod);
     mCostEstimator->setGraph(mArchGraph.get());
     mTSFinder->setGraph(mArchGraph.get());
 
@@ -545,9 +592,14 @@ Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
     return initialMapping;
 }
 
-void BoundedMappingTreeQAllocator::setNodeCandidateIterator
-(NodeCandidateIterator::uRef it) {
-    mNCIterator = std::move(it);
+void BoundedMappingTreeQAllocator::setNodeCandidatesGenerator
+(NodeCandidatesGenerator::uRef gen) {
+    mNCGenerator = std::move(gen);
+}
+
+void BoundedMappingTreeQAllocator::setNodeCandidatesRanker
+(NodeCandidatesRanker::uRef r) {
+    mNCRanker = std::move(r);
 }
 
 void BoundedMappingTreeQAllocator::setChildrenSelector
