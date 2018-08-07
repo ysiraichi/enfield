@@ -1,6 +1,8 @@
 #include "enfield/Support/CommandLine.h"
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/Driver.h"
+#include "enfield/Transform/PassCache.h"
+#include "enfield/Transform/IntrinsicGateCostPass.h"
 #include "enfield/Transform/Allocators/Allocators.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/Stats.h"
@@ -40,10 +42,18 @@ static Opt<std::string> PrintDepGraphFile
 static Opt<std::string> PrintArchGraphFile
 ("-print-archgraph", "Choose a file to print the architecture graph.", "", false);
 
-static void DumpToOutFile(QModule* qmod) {
+static efd::Stat<uint32_t> TotalCost
+("TotalCost", "Total cost after allocating the qubits.");
+
+static void DumpToOutFile(QModule::Ref qmod) {
     std::ofstream O(OutFilepath.getVal());
     PrintToStream(qmod, O, !NoPretty.getVal());
     O.close();
+}
+
+static void ComputeStats(QModule::Ref qmod) {
+    TotalCost = PassCache::Get<IntrinsicGateCostPass>(qmod)
+                    ->getData();
 }
 
 int main(int argc, char** argv) {
@@ -95,6 +105,7 @@ int main(int argc, char** argv) {
         };
 
         qmod.reset(Compile(std::move(qmod), settings).release());
+        ComputeStats(qmod.get());
 
         if (qmod.get() != nullptr)
             DumpToOutFile(qmod.get());

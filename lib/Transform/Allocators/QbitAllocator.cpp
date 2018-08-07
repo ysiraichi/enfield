@@ -21,15 +21,6 @@ static efd::Stat<double> ReplaceTime
 ("ReplaceTime", "Time to replace all qubits to the corresponding architechture ones.");
 static efd::Stat<double> RenameTime
 ("RenameTime", "Time to rename all qubits to the mapped qubits.");
-efd::Stat<uint32_t> TotalCost
-("TotalCost", "Total cost after allocating the qubits.");
-
-efd::Opt<uint32_t> SwapCost
-("-swap-cost", "Cost of using a swap function.", 7, false);
-efd::Opt<uint32_t> RevCost
-("-rev-cost", "Cost of using a reverse edge.", 4, false);
-efd::Opt<uint32_t> LCXCost
-("-lcx-cost", "Cost of using long cnot gate.", 10, false);
 
 efd::Assign efd::GenAssignment(uint32_t archQ, Mapping mapping, bool fill) {
     uint32_t progQ = mapping.size();

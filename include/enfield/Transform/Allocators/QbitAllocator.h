@@ -68,7 +68,6 @@ namespace efd {
     std::string MappingToString(Mapping m);
 }
 
-extern efd::Stat<uint32_t> TotalCost;
 extern efd::Opt<uint32_t> SwapCost;
 extern efd::Opt<uint32_t> RevCost;
 extern efd::Opt<uint32_t> LCXCost;
