@@ -372,10 +372,13 @@ findGoodVerticesBFS(efd::Graph::Ref graph, uint32_t src, uint32_t tgt) {
     return goodv;
 }
 
-efd::SwapSeq efd::ApproxTSFinder::find(Graph::Ref graph, Assign from, Assign to) {
-    fixUndefAssignments(graph, from, to);
+efd::SwapSeq efd::ApproxTSFinder::findImpl(const Assign& from, const Assign& to) {
+    auto fromA = from;
+    auto toA = to;
 
-    uint32_t size = graph->size();
+    fixUndefAssignments(mG, fromA, toA);
+
+    uint32_t size = mG->size();
     std::vector<std::vector<uint32_t>> gprime(size, std::vector<uint32_t>());
     std::vector<bool> inplace(size, false);
     SwapSeq swapseq;
@@ -383,13 +386,13 @@ efd::SwapSeq efd::ApproxTSFinder::find(Graph::Ref graph, Assign from, Assign to)
     // Constructing the inverse for 'to' -----------------------
     Mapping toinv(size, 0);
     for (uint32_t i = 0; i < size; ++i)
-        toinv[to[i]] = i;
+        toinv[toA[i]] = i;
     // ---------------------------------------------------------
 
     // Initializing data ---------------------------------------
     // 1. Checking which vertices are inplace.
     for (uint32_t i = 0; i < size; ++i)
-        if (from[i] == to[i]) inplace[i] = true;
+        if (fromA[i] == toA[i]) inplace[i] = true;
         else inplace[i] = false;
 
     // 2. Constructing the graph with the good neighbors.
@@ -398,7 +401,7 @@ efd::SwapSeq efd::ApproxTSFinder::find(Graph::Ref graph, Assign from, Assign to)
             // For each vertex 'i' in 'graph', we want to find good vertices
             // from 'i' to the vertex that should hold the label that is
             // currently in 'i' ('from[i]').
-            gprime[i] = findGoodVerticesBFS(graph, i, toinv[from[i]]);
+            gprime[i] = findGoodVerticesBFS(mG, i, toinv[fromA[i]]);
         else
             gprime[i].clear();
     // ---------------------------------------------------------
@@ -439,7 +442,7 @@ efd::SwapSeq efd::ApproxTSFinder::find(Graph::Ref graph, Assign from, Assign to)
             for (uint32_t i = 1, e = swappath.size(); i < e; ++i) {
                 auto u = swappath[i-1], v = swappath[i];
                 swapseq.push_back({ u, v });
-                std::swap(from[u], from[v]);
+                std::swap(fromA[u], fromA[v]);
             }
 
             // Updating those vertices that were swapped.
@@ -449,10 +452,10 @@ efd::SwapSeq efd::ApproxTSFinder::find(Graph::Ref graph, Assign from, Assign to)
                 // Updating vertex u.
                 auto u = swappath[i];
 
-                if (from[u] == to[u]) inplace[u] = true;
+                if (fromA[u] == toA[u]) inplace[u] = true;
                 else inplace[u] = false;
 
-                if (!inplace[u]) gprime[u] = findGoodVerticesBFS(graph, u, toinv[from[u]]);
+                if (!inplace[u]) gprime[u] = findGoodVerticesBFS(mG, u, toinv[fromA[u]]);
                 else gprime[u].clear();
             }
         } else {
@@ -464,13 +467,8 @@ efd::SwapSeq efd::ApproxTSFinder::find(Graph::Ref graph, Assign from, Assign to)
     return swapseq;
 }
 
-efd::SwapSeq efd::ApproxTSFinder::find(Assign from, Assign to) {
-    return find(mG.get(), from, to);
-}
+void efd::ApproxTSFinder::preprocess() {}
 
-efd::ApproxTSFinder::ApproxTSFinder(Graph::sRef graph) : TokenSwapFinder(graph) {
-}
-
-efd::ApproxTSFinder::uRef efd::ApproxTSFinder::Create(Graph::sRef graph) {
-    return uRef(new ApproxTSFinder(graph));
+efd::ApproxTSFinder::uRef efd::ApproxTSFinder::Create() {
+    return uRef(new ApproxTSFinder());
 }

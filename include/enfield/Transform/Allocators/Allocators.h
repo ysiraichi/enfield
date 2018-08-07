@@ -8,30 +8,25 @@
 
 namespace efd {
     enum class Allocator {
-#define EFD_FIRSTLAST(_First_, _Last_)
+        first,
 #define EFD_ALLOCATOR(_Name_, _Class_)\
         Q_##_Name_,
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_)\
         Q_##_Name_,
+#define EFD_ALLOCATOR_BMT(_Name_, _NCI_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_)\
+        Q_##_Name_,
 #include "enfield/Transform/Allocators/Allocators.def"
-#undef EFD_FIRSTLAST
 #undef EFD_ALLOCATOR
 #undef EFD_ALLOCATOR_SIMPLE
+#undef EFD_ALLOCATOR_BMT
+        last
     };
 
-#define EFD_FIRSTLAST(_First_, _Last_)\
-    typedef EnumString<Allocator,\
-                       Allocator::Q_##_First_,\
-                       Allocator::Q_##_Last_>\
+    typedef EnumString<Allocator, Allocator::first, Allocator::last>
             EnumAllocator;
-#define EFD_ALLOCATOR(_Name_, _Class_)
-#define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_)
-#include "enfield/Transform/Allocators/Allocators.def"
-#undef EFD_FIRSTLAST
-#undef EFD_ALLOCATOR
-#undef EFD_ALLOCATOR_SIMPLE
 
-    typedef Registry<QbitAllocator::uRef, ArchGraph::sRef, EnumAllocator> AllocatorRegistry;
+    typedef Registry<QbitAllocator::uRef, ArchGraph::sRef, EnumAllocator>
+            AllocatorRegistry;
 
     void InitializeAllQbitAllocators();
     /// \brief Returns true if there is an allocator mapped by \p key;
@@ -43,16 +38,18 @@ namespace efd {
             AllocatorRegistry::ArgTy arg);
 
 
-#define EFD_FIRSTLAST(_First_, _Last_)
 #define EFD_ALLOCATOR(_Name_, _Class_) \
     AllocatorRegistry::RetTy Create##_Class_(AllocatorRegistry::ArgTy arg);
 #define EFD_ALLOCATOR_SIMPLE(_Name_, _Finder_, _Builder_) \
     AllocatorRegistry::RetTy Create##_Finder_##With##_Builder_\
     (AllocatorRegistry::ArgTy arg);
+#define EFD_ALLOCATOR_BMT(_Name_, _NCI_, _CS_, _PSS_, _SCE_, _LQPP_, _MSS_, _TSF_) \
+    AllocatorRegistry::RetTy CreateBMT##_NCI_##_CS_##_PSS_##_SCE_##_LQPP_##_MSS_##_TSF_\
+    (AllocatorRegistry::ArgTy arg);
 #include "enfield/Transform/Allocators/Allocators.def"
-#undef EFD_FIRSTLAST
 #undef EFD_ALLOCATOR
 #undef EFD_ALLOCATOR_SIMPLE
+#undef EFD_ALLOCATOR_BMT
 }
 
 #endif

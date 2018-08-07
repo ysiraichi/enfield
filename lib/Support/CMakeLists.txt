@@ -7,4 +7,5 @@ add_library (EfdSupport
     Stats.cpp
     ExpTSFinder.cpp
     ApproxTSFinder.cpp
-    Defs.cpp)
+    Defs.cpp
+    TokenSwapFinder.cpp)

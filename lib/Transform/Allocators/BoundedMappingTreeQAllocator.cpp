@@ -20,8 +20,60 @@ static Opt<uint32_t> MaxPartialSolutions
 ("-bmt-max-partial", "Limits the max number of partial solutions per step.",
  std::numeric_limits<uint32_t>::max(), false);
 
+// --------------------- NodeCandidateIterator ------------------------
+NodeCandidateIterator::NodeCandidateIterator() : mMod(nullptr), isFirst(true) {}
+
+void NodeCandidateIterator::setQModule(QModule::Ref qmod) {
+    mMod = qmod;
+}
+
+Node::Ref NodeCandidateIterator::next() {
+    checkQModuleSet();
+    return nextImpl();
+}
+
+bool NodeCandidateIterator::hasNext() {
+    checkQModuleSet();
+    return hasNextImpl();
+}
+
+void NodeCandidateIterator::checkQModuleSet() {
+    if (mMod == nullptr) {
+        ERR << "Set the `QModule` for NodeCandidateIterator." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+}
+
+// --------------------- SwapCostEstimator ------------------------
+SwapCostEstimator::SwapCostEstimator() : mG(nullptr) {}
+
+void SwapCostEstimator::setGraph(Graph::Ref g) {
+    mG = g;
+    preprocess();
+}
+
+uint32_t SwapCostEstimator::estimate(const Mapping& fromM, const Mapping& toM) {
+    checkGraphSet();
+    return estimateImpl(fromM, toM);
+}
+
+void SwapCostEstimator::checkGraphSet() {
+    if (mG == nullptr) {
+        ERR << "Set the `Graph` for SwapCostEstimator." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+}
+
+// --------------------- BoundedMappingTreeQAllocator ------------------------
 BoundedMappingTreeQAllocator::BoundedMappingTreeQAllocator(ArchGraph::sRef ag)
-    : StdSolutionQAllocator(ag) {}
+    : StdSolutionQAllocator(ag),
+      mNCIterator(nullptr),
+      mChildrenCSelector(nullptr),
+      mPartialSolutionCSelector(nullptr),
+      mCostEstimator(nullptr),
+      mLQPProcessor(nullptr),
+      mMSSelector(nullptr),
+      mTSFinder(nullptr) {}
 
 CandidateVector
 BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
@@ -381,35 +433,27 @@ StdSolution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss)
 }
 
 StdSolution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
-    if (mNCIterator.get() == nullptr) {
-        mNCIterator.reset(new SeqNCandidateIterator(qmod->stmt_begin(), qmod->stmt_end()));
+    if (mNCIterator.get() == nullptr ||
+                mChildrenCSelector.get() == nullptr ||
+                mPartialSolutionCSelector.get() == nullptr ||
+                mCostEstimator.get() == nullptr ||
+                mLQPProcessor.get() == nullptr ||
+                mMSSelector.get() == nullptr ||
+                mTSFinder.get() == nullptr) {
+        ERR << "Define the `BoundedMappingTreeQAllocator` interfaces:" << std::endl;
+        ERR << "    NodeCandidateIterator: " << mNCIterator.get() << std::endl;
+        ERR << "    mChildrenCSelector: " << mChildrenCSelector.get() << std::endl;
+        ERR << "    mPartialSolutionCSelector: " << mPartialSolutionCSelector.get() << std::endl;
+        ERR << "    mCostEstimator: " << mCostEstimator.get() << std::endl;
+        ERR << "    mLQPProcessor: " << mLQPProcessor.get() << std::endl;
+        ERR << "    mMSSelector: " << mMSSelector.get() << std::endl;
+        ERR << "    mTSFinder: " << mTSFinder.get() << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
     }
 
-    if (mChildrenCSelector.get() == nullptr) {
-        mChildrenCSelector.reset(new FirstCandidateSelector());
-    }
-
-    if (mPartialSolutionCSelector.get() == nullptr) {
-        mPartialSolutionCSelector.reset(new FirstCandidateSelector());
-    }
-
-    if (mCostEstimator.get() == nullptr) {
-        mCostEstimator.reset(new GeoDistanceSwapCEstimator());
-    }
-
-    if (mLQPProcessor.get() == nullptr) {
-        mLQPProcessor.reset(new GeoNearestLQPProcessor());
-    }
-
-    if (mMSSelector.get() == nullptr) {
-        mMSSelector.reset(new BestMSSelector());
-    }
-
-    if (mTSFinder.get() == nullptr) {
-        mTSFinder.reset(new ApproxTSFinder(mArchGraph));
-    }
-
-    mCostEstimator->fixGraph(mArchGraph.get());
+    mNCIterator->setQModule(qmod);
+    mCostEstimator->setGraph(mArchGraph.get());
+    mTSFinder->setGraph(mArchGraph.get());
 
     mMaxChildren = MaxChildren.getVal();
     mMaxPartial = MaxPartialSolutions.getVal();
@@ -429,6 +473,41 @@ StdSolution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
     }
 
     return sol;
+}
+
+void BoundedMappingTreeQAllocator::setNodeCandidateIterator
+(NodeCandidateIterator::uRef it) {
+    mNCIterator = std::move(it);
+}
+
+void BoundedMappingTreeQAllocator::setChildrenSelector
+(CandidateSelector::uRef sel) {
+    mChildrenCSelector = std::move(sel);
+}
+
+void BoundedMappingTreeQAllocator::setPartialSolutionSelector
+(CandidateSelector::uRef sel) {
+    mPartialSolutionCSelector = std::move(sel);
+}
+
+void BoundedMappingTreeQAllocator::setSwapCostEstimator
+(SwapCostEstimator::uRef est) {
+    mCostEstimator = std::move(est);
+}
+
+void BoundedMappingTreeQAllocator::setLiveQubitsPreProcessor
+(LiveQubitsPreProcessor::uRef proc) {
+    mLQPProcessor = std::move(proc);
+}
+
+void BoundedMappingTreeQAllocator::setMapSeqSelector
+(MapSeqSelector::uRef sel) {
+    mMSSelector = std::move(sel);
+}
+
+void BoundedMappingTreeQAllocator::setTokenSwapFinder
+(TokenSwapFinder::uRef finder) {
+    mTSFinder = std::move(finder);
 }
 
 BoundedMappingTreeQAllocator::uRef

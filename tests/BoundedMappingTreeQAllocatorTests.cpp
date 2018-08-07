@@ -2,12 +2,14 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
+#include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
 #include "enfield/Transform/SemanticVerifierPass.h"
 #include "enfield/Transform/ArchVerifierPass.h"
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/RTTI.h"
 #include "enfield/Support/uRefCast.h"
+#include "enfield/Support/ApproxTSFinder.h"
 
 #include <string>
 
@@ -39,6 +41,13 @@ void TestAllocation(const std::string program) {
     auto qmodCopy = qmod->clone();
 
     auto allocator = BoundedMappingTreeQAllocator::Create(g);
+    allocator->setNodeCandidateIterator(SeqNCandidateIterator::Create());\
+    allocator->setChildrenSelector(FirstCandidateSelector::Create());\
+    allocator->setPartialSolutionSelector(FirstCandidateSelector::Create());\
+    allocator->setSwapCostEstimator(GeoDistanceSwapCEstimator::Create());\
+    allocator->setLiveQubitsPreProcessor(GeoNearestLQPProcessor::Create());\
+    allocator->setMapSeqSelector(BestMSSelector::Create());\
+    allocator->setTokenSwapFinder(ApproxTSFinder::Create());\
     allocator->setInlineAll({ "cx" });
     allocator->run(qmod.get());
 

@@ -4,18 +4,22 @@
 #include "enfield/Support/TokenSwapFinder.h"
 
 namespace efd {
+    /// \brief 4-Approximative polynomial algorithm.
+    ///
+    /// Miltzow et al.
+    /// DOI: 10.4230/LIPIcs.ESA.2016.66
     class ApproxTSFinder : public TokenSwapFinder {
         public:
             typedef ApproxTSFinder* Ref;
             typedef std::unique_ptr<ApproxTSFinder> uRef;
 
-            ApproxTSFinder(Graph::sRef graph);
+        protected:
+            void preprocess() override;
+            SwapSeq findImpl(const Assign& from, const Assign& to) override;
 
-            SwapSeq find(Assign from, Assign to) override;
-            SwapSeq find(Graph::Ref graph, Assign from, Assign to) override;
-
+        public:
             /// \brief Creates an instance of this class.
-            static uRef Create(Graph::sRef graph = nullptr);
+            static uRef Create();
     };
 }
 

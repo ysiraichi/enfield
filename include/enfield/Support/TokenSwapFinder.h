@@ -5,20 +5,25 @@
 #include "enfield/Support/Defs.h"
 
 namespace efd {
+    /// \brief Interface for solving the Token Swap Problem.
     class TokenSwapFinder {
         public:
             typedef TokenSwapFinder* Ref;
             typedef std::unique_ptr<TokenSwapFinder> uRef;
 
         protected:
-            Graph::sRef mG;
-            TokenSwapFinder(Graph::sRef graph) : mG(graph) {}
+            Graph::Ref mG;
+            TokenSwapFinder();
+
+            void checkGraphSet();
+            virtual void preprocess() = 0;
+            virtual SwapSeq findImpl(const Assign& from, const Assign& to) = 0;
 
         public:
+            /// \brief Sets the `Graph`.
+            void setGraph(Graph::Ref graph);
             /// \brief Finds a swap sequence to reach \p to from \p from.
-            virtual SwapSeq find(Assign from, Assign to) = 0;
-            /// \brief Finds a swap sequence to reach \p to from \p from in \p graph.
-            virtual SwapSeq find(Graph::Ref graph, Assign from, Assign to) = 0;
+            SwapSeq find(const Assign& from, const Assign& to);
     };
 }
 

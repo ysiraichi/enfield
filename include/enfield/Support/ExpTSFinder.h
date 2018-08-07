@@ -5,6 +5,15 @@
 #include <map>
 
 namespace efd {
+    /// \brief Brute force solution to the Token Swap Finder.
+    ///
+    /// It first preprocesses the given graph, generating all permutations
+    /// from one starting point. This is the expensive part of the process.
+    /// It takes O(|Q|!).
+    ///
+    /// At each query, it renames the qubits and finds the swaps needed to
+    /// solve that query.
+    /// Each query only takes O(|Q|).
     class ExpTSFinder : public TokenSwapFinder {
         public:
             typedef std::unique_ptr<ExpTSFinder> uRef;
@@ -14,19 +23,16 @@ namespace efd {
             std::vector<SwapSeq> mSwaps;
 
             void genAllAssigns(uint32_t n);
-            void preprocess(Graph::Ref graph);
-            uint32_t getTargetId(Assign source, Assign target);
+            uint32_t getTargetId(const Assign& source, const Assign& target);
+
+            void preprocess() override;
+            SwapSeq findImpl(const Assign& from, const Assign& to) override;
 
         public:
             std::vector<Assign> mAssigns;
 
-            ExpTSFinder(Graph::sRef graph);
-
-            SwapSeq find(Assign from, Assign to) override;
-            SwapSeq find(Graph::Ref graph, Assign from, Assign to) override;
-
             /// \brief Creates an instance of this class.
-            static uRef Create(Graph::sRef graph = nullptr);
+            static uRef Create();
     };
 }
 

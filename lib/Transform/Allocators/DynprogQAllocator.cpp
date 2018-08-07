@@ -57,9 +57,10 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
         ->getData()
         .getDependencies();
 
-    ExpTSFinder tsp(mArchGraph);
-    auto permutations = tsp.mAssigns;
+    ExpTSFinder tsp;
+    tsp.setGraph(mArchGraph.get());
 
+    auto permutations = tsp.mAssigns;
     uint32_t archQ = mArchGraph->size();
     const uint32_t SWAP_COST = SwapCost.getVal();
     const uint32_t REV_COST = RevCost.getVal();
