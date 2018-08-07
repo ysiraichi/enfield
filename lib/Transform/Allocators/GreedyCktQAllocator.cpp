@@ -124,17 +124,11 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
                 redo = true;
                 allocatedStatements.push_back(node->clone());
 
-                // for (uint32_t q : cnode->qargsid) {
-                for (uint32_t i : cnode->getXbitsIds()) {
+                for (uint32_t i : cnode->getXbitsId()) {
                     if (i < qubitNumber) frozen[i] = true;
                     marked[i] = false;
                     it.next(i);
                 }
-
-                // for (uint32_t c : cnode->cargsid) {
-                //     marked[c] = false;
-                //     cgraph[c] = cgraph[c]->child[c];
-                // }
             }
         }
 
@@ -294,7 +288,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             ops.second.push_back({ Operation::K_OP_REV, a, b });
         }
 
-        for (uint32_t i : best.cnode->getXbitsIds()) {
+        for (uint32_t i : best.cnode->getXbitsId()) {
             marked[i] = false;
             it.next(i);
         }
