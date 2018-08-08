@@ -1,2 +1,3 @@
 add_library (EfdBMTImpl
-    DefaultBMTQAllocatorImpl.cpp)
+    DefaultBMTQAllocatorImpl.cpp
+    ImprovedBMTQAllocatorImpl.cpp)

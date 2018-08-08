@@ -2,6 +2,7 @@
 #define __EFD_IMPROVED_BMT_QALLOCATOR_IMPL_H__
 
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
+#include "enfield/Transform/CircuitGraph.h"
 
 #include <set>
 #include <unordered_map>
@@ -10,7 +11,7 @@ namespace efd {
     class CircuitCandidatesGenerator : public NodeCandidatesGenerator {
         private:
             typedef std::set<uint32_t> AdjSet;
-            typedef std::vector<Adj> AdjList;
+            typedef std::vector<AdjSet> AdjList;
             typedef std::unordered_map<Node::Ref, uint32_t> NodeUIntMap;
             typedef std::unordered_map<Node::Ref, CircuitGraph::CircuitNode::Ref> NodeCNodeMap;
 
@@ -18,19 +19,21 @@ namespace efd {
             CircuitGraph::Iterator mIt;
             NodeCNodeMap mNCNMap;
             NodeUIntMap mReached;
+            uint32_t mXbitSize;
 
             void advanceXbitId(uint32_t i);
             void advanceCNode(CircuitGraph::CircuitNode::Ref cnode);
 
         protected:
-            void initialize() override;
-            void signalProcessed(uint32_t idx) override;
-            std::vector<Node::Ref> generateImpl() override;
+            void initializeImpl() override;
             bool finishedImpl() override;
+            std::vector<Node::Ref> generateImpl() override;
 
         public:
             typedef CircuitCandidatesGenerator* Ref;
             typedef std::unique_ptr<CircuitCandidatesGenerator> uRef;
+
+            void signalProcessed(Node::Ref node) override;
 
             static uRef Create();
     };

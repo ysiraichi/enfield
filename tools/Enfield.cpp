@@ -174,10 +174,11 @@ int main(int argc, char** argv) {
         };
 
         qmod.reset(Compile(std::move(qmod), settings).release());
-        ComputeStats(qmod.get(), archGraph);
 
         if (qmod.get() != nullptr)
             DumpToOutFile(qmod.get());
+
+        ComputeStats(qmod.get(), archGraph);
     }
 
     if (ShowStats.getVal())

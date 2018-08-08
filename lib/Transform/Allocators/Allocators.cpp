@@ -6,6 +6,7 @@
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
 
 #include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
+#include "enfield/Transform/Allocators/BMT/ImprovedBMTQAllocatorImpl.h"
 #include "enfield/Support/ApproxTSFinder.h"
 
 #include "enfield/Transform/Allocators/Simple/WeightedSIMappingFinder.h"
