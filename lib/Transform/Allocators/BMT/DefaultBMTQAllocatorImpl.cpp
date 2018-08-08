@@ -5,6 +5,9 @@ using namespace bmt;
 
 #include <queue>
 
+static Opt<uint32_t> MaxMapSeqCandidates
+("-bmt-max-mapseq", "Select the best N mapping sequences from phase 2.", 1, false);
+
 // --------------------- SeqNCandidatesGenerator ------------------------
 void SeqNCandidatesGenerator::initializeImpl() {
     mIt = mMod->stmt_begin();
@@ -146,25 +149,30 @@ GeoNearestLQPProcessor::uRef GeoNearestLQPProcessor::Create() {
     return uRef(new GeoNearestLQPProcessor());
 }
 
-// --------------------- BestMSSelector ------------------------
-Vector BestMSSelector::select(const TIMatrix& mem) {
-    Vector selected;
+// --------------------- BestNMSSelector ------------------------
+Vector BestNMSSelector::select(const TIMatrix& mem) {
+    typedef std::pair<uint32_t, uint32_t> UIntPair;
 
-    uint32_t bestCost = _undef;
-    uint32_t bestIdx = _undef;
+    Vector selected;
+    uint32_t maxMapSeq = MaxMapSeqCandidates.getVal();
     uint32_t lastLayer = mem.size() - 1;
+    std::priority_queue<UIntPair,
+                        std::vector<UIntPair>,
+                        std::less<UIntPair>> pQueue;
 
     for (uint32_t i = 0, e = mem[lastLayer].size(); i < e; ++i) {
-        auto info = mem[lastLayer][i];
-        if (info.mappingCost + info.swapEstimatedCost < bestCost) {
-            bestCost = info.mappingCost + info.swapEstimatedCost;
-            bestIdx = i;
-        }
+        const auto &info = mem[lastLayer][i];
+        pQueue.push(std::make_pair(info.mappingCost + info.swapEstimatedCost, i));
     }
 
-    return { bestIdx };
+    while (!pQueue.empty() || selected.size() < maxMapSeq) {
+        selected.push_back(pQueue.top().second);
+        pQueue.pop();
+    }
+
+    return selected;
 }
 
-BestMSSelector::uRef BestMSSelector::Create() {
-    return uRef(new BestMSSelector());
+BestNMSSelector::uRef BestNMSSelector::Create() {
+    return uRef(new BestNMSSelector());
 }

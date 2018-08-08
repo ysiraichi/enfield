@@ -75,10 +75,10 @@ namespace efd {
     };
 
     /// \brief Selects the line that yielded the best cost.
-    class BestMSSelector : public MapSeqSelector {
+    class BestNMSSelector : public MapSeqSelector {
         public:
-            typedef BestMSSelector* Ref;
-            typedef std::unique_ptr<BestMSSelector> uRef;
+            typedef BestNMSSelector* Ref;
+            typedef std::unique_ptr<BestNMSSelector> uRef;
 
             bmt::Vector select(const bmt::TIMatrix& mem) override;
 
