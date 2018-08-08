@@ -1,4 +1,4 @@
 <map id="efd::WeightedGraph::edgeToString" name="efd::WeightedGraph::edgeToString">
-<area shape="rect" id="node2" href="$d2/d54/classefd_1_1WeightedGraph.xhtml#a44a294b52142aaaa321c520be2ac93ab" title="Gets the weight of an edge (i, j). " alt="" coords="211,5,349,47"/>
-<area shape="rect" id="node3" href="$db/db3/classefd_1_1Graph.xhtml#ab47a77bae3a7ad42e41b1b255cf65d0a" title="efd::Graph::vertexToString" alt="" coords="192,71,368,98"/>
+<area shape="rect" id="node2" href="$d8/dcc/namespacestd.xhtml#a76fb98cd4a35566d53c2f0513c5d12d1" title="std::to_string" alt="" coords="205,13,312,39"/>
+<area shape="rect" id="node3" href="$dc/d5d/classefd_1_1EnumString.xhtml#a39d129d188c7746b7f8b65308d7d7b53" title="Returns the string value of the enum. " alt="" coords="360,5,553,47"/>
 </map>

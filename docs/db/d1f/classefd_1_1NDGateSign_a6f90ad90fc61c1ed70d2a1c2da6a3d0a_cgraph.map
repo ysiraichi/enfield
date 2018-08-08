@@ -1,12 +1,4 @@
 <map id="efd::NDGateSign::toString" name="efd::NDGateSign::toString">
-<area shape="rect" id="node2" href="$db/d1f/classefd_1_1NDGateSign.xhtml#a0be5984f118128bc3e2bf64a8a390071" title="Gets the args node. " alt="" coords="243,5,417,32"/>
-<area shape="rect" id="node4" href="$d0/d9e/classefd_1_1NDDecl.xhtml#a34957c2122c38cebf80a264d5fa3863f" title="Gets the id node. " alt="" coords="264,56,396,83"/>
-<area shape="rect" id="node5" href="$db/d1f/classefd_1_1NDGateSign.xhtml#aeed807d0af0556f34747b69cc1bc4d00" title="Returns a std::string representation of the operation. " alt="" coords="228,107,432,133"/>
-<area shape="rect" id="node6" href="$db/d1f/classefd_1_1NDGateSign.xhtml#a081605b4c294930734e9d93b34ef85d0" title="Gets the qargs node. " alt="" coords="237,157,423,184"/>
-<area shape="rect" id="node7" href="$d6/d6a/classefd_1_1Node.xhtml#a3f8e26eafae005e4befadedeab9b6df4" title="Returns whether this node has any information. " alt="" coords="263,208,397,235"/>
-<area shape="rect" id="node8" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="481,284,613,311"/>
-<area shape="rect" id="node9" href="$df/d1b/classefd_1_1NDValue.xhtml#a9ded6b0d00e7ea4d748be60c5cc3632b" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="253,309,407,336"/>
-<area shape="rect" id="node10" href="$da/ddd/classefd_1_1NDList.xhtml#acfa25f299fc8d811fcada96273aa8550" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="259,360,401,387"/>
-<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="499,56,596,83"/>
-<area shape="rect" id="node11" href="$d6/d6a/classefd_1_1Node.xhtml#a63e30243eca03b0c85d8c4856e91c79d" title="Gets the i&#45;th child. " alt="" coords="480,360,615,387"/>
+<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#a3f8e26eafae005e4befadedeab9b6df4" title="Returns whether this node has any information. " alt="" coords="243,5,389,32"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="244,56,388,83"/>
 </map>

@@ -1,4 +1,5 @@
 <map id="include/enfield/Support/ApproxTSFinder.h" name="include/enfield/Support/ApproxTSFinder.h">
-<area shape="rect" id="node2" href="$dd/d0b/ApproxTSFinder_8cpp.xhtml" title="lib/Support/ApproxTSFinder.cpp" alt="" coords="5,102,212,129"/>
-<area shape="rect" id="node3" href="$d5/d8f/BoundedSIDepSolver_8cpp.xhtml" title="lib/Transform/Allocators\l/BoundedSIDepSolver.cpp" alt="" coords="237,95,413,136"/>
+<area shape="rect" id="node2" href="$dd/d0b/ApproxTSFinder_8cpp.xhtml" title="lib/Support/ApproxTSFinder.cpp" alt="" coords="5,102,231,129"/>
+<area shape="rect" id="node3" href="$dc/dea/Allocators_8cpp.xhtml" title="lib/Transform/Allocators\l/Allocators.cpp" alt="" coords="255,95,434,136"/>
+<area shape="rect" id="node4" href="$d6/dab/BoundedMappingTreeQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/BoundedMappingTreeQAllocator.cpp" alt="" coords="459,95,721,136"/>
 </map>

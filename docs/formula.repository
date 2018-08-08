@@ -1,0 +1,2 @@
+\form#0:\[ w_i = \sum_{j}{c_j^2} - c_i^2 \]
+\form#1:\[ p_i = w_i / \sum_{j}{w_j} \]

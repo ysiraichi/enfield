@@ -1,15 +1,3 @@
 <map id="efd::QModule::Create" name="efd::QModule::Create">
-<area shape="rect" id="node2" href="$dd/d52/classefd_1_1QModule.xhtml#a1acae6e0a197d578c8e5987863443dd7" title="Process the AST in order to obtain the QModule. " alt="" coords="200,148,385,175"/>
-<area shape="rect" id="node14" href="$d4/deb/namespaceefd.xhtml#a93709641ce1593c2f8143206beb0a699" title="Parse the string program. " alt="" coords="235,199,351,225"/>
-<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#a5b8442e2de32a9529d7a4fcd5829ef62" title="Processes the root node, and transform the entire AST into a QModule. " alt="" coords="456,64,579,91"/>
-<area shape="rect" id="node6" href="$d4/deb/namespaceefd.xhtml#a194305909125a1398a1f0e00fbae1cf5" title="Returns a vector with the intrinsic gates implementation. " alt="" coords="442,148,593,175"/>
-<area shape="rect" id="node10" href="$dd/d52/classefd_1_1QModule.xhtml#a7a0b91ad23bdaf49e197692f453808b8" title="Inserts a gate to the QModule. " alt="" coords="433,224,601,251"/>
-<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml#ab813c60af1717cf50e92a28b274c24ef" title="Used by visitor classes. " alt="" coords="671,5,789,32"/>
-<area shape="rect" id="node5" href="$de/d71/classefd_1_1QModulefyVisitor.xhtml#abb023fa145e1e3b6c9f55493781ea874" title="efd::QModulefyVisitor\l::QModulefyVisitor" alt="" coords="656,57,804,98"/>
-<area shape="rect" id="node7" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="671,123,789,149"/>
-<area shape="rect" id="node9" href="$d4/deb/namespaceefd.xhtml#ad7adca0e4de58074aa3f91827469a491" title="Uses the RTTI framework to cast forwardly an unique_ptr. " alt="" coords="649,173,811,200"/>
-<area shape="rect" id="node8" href="$d6/d6a/classefd_1_1Node.xhtml#ac078ce64eb404cfdc24b9288908536e4" title="Clones the current node (deep copy). " alt="" coords="859,123,1001,149"/>
-<area shape="rect" id="node11" href="$d0/d9e/classefd_1_1NDDecl.xhtml#a34957c2122c38cebf80a264d5fa3863f" title="Gets the id node. " alt="" coords="664,224,796,251"/>
-<area shape="rect" id="node13" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="657,275,803,301"/>
-<area shape="rect" id="node12" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="881,224,979,251"/>
+<area shape="rect" id="node2" href="$d4/deb/namespaceefd.xhtml#a93709641ce1593c2f8143206beb0a699" title="Parse the string program. " alt="" coords="212,5,337,32"/>
 </map>

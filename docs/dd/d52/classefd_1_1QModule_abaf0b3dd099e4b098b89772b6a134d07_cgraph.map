@@ -1,7 +1,4 @@
 <map id="efd::QModule::replaceStatement" name="efd::QModule::replaceStatement">
-<area shape="rect" id="node2" href="$da/ddd/classefd_1_1NDList.xhtml#aa407fd205c6c9841cf866fa023337ece" title="Inserts children in the iterator it. The iterator goes to the first new inserted element. " alt="" coords="266,5,433,32"/>
-<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml#a335606078a1d727de214982453c9dd1b" title="Returns a iterator to the end of the vector. " alt="" coords="295,56,403,83"/>
-<area shape="rect" id="node5" href="$d6/d6a/classefd_1_1Node.xhtml#ae80bbf9487f0e43317c29c63a414ff34" title="Returns a iterator pointing to the given child. " alt="" coords="280,107,419,133"/>
-<area shape="rect" id="node6" href="$da/ddd/classefd_1_1NDList.xhtml#ae7c4d5c8dcb0a7439b62e3f662cbb85f" title="Removes the child in the iterator it. The iterator moves to the next element. " alt="" coords="264,157,435,184"/>
-<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#a48e9d49d994b9023b8400316e2782e2b" title="Sets the parent node of the current node. " alt="" coords="483,5,625,32"/>
+<area shape="rect" id="node2" href="$d4/deb/namespaceefd.xhtml#af3487901a239a99750dc5dcdc3a8c868" title="efd::ExitWith" alt="" coords="304,5,411,32"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="285,56,429,83"/>
 </map>

@@ -1,0 +1,10 @@
+<map id="efd::DynprogQAllocator::buildStdSolution" name="efd::DynprogQAllocator::buildStdSolution">
+<area shape="rect" id="node2" href="$d8/d45/classefd_1_1BFSPathFinder.xhtml#a795602a2f10b312f8917cf0ed4122834" title="Creates one instance of this finder. " alt="" coords="239,5,383,47"/>
+<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#af3487901a239a99750dc5dcdc3a8c868" title="efd::ExitWith" alt="" coords="657,101,764,127"/>
+<area shape="rect" id="node4" href="$d1/dad/classefd_1_1TokenSwapFinder.xhtml#a032fb3829d5f2625dc44f1cd5fe8d6c6" title="Finds a swap sequence to reach to from from. " alt="" coords="228,123,395,164"/>
+<area shape="rect" id="node7" href="$d4/deb/namespaceefd.xhtml#adb4ffc373d7273aefb15d2f9dcd4aeb4" title="Generates an assignment mapping (maps the architecture&#39;s qubits to the logical ones) of size archQ..." alt="" coords="239,189,383,215"/>
+<area shape="rect" id="node8" href="$d1/dad/classefd_1_1TokenSwapFinder.xhtml#aaaa4a52dc3dcc0d13112c784d89cd8ee" title="Sets the Graph. " alt="" coords="228,247,395,288"/>
+<area shape="rect" id="node5" href="$d1/dad/classefd_1_1TokenSwapFinder.xhtml#a7afa3fe045dfa313637e482f59301c0b" title="efd::TokenSwapFinder\l::checkGraphSet" alt="" coords="443,123,609,164"/>
+<area shape="rect" id="node6" href="$d1/dad/classefd_1_1TokenSwapFinder.xhtml#aa129bab336b0cdc3de88bc6e31594c80" title="efd::TokenSwapFinder\l::findImpl" alt="" coords="443,188,609,229"/>
+<area shape="rect" id="node9" href="$d1/dad/classefd_1_1TokenSwapFinder.xhtml#a95e268a91b2b3f55d98962043a35a965" title="efd::TokenSwapFinder\l::preprocess" alt="" coords="443,253,609,295"/>
+</map>

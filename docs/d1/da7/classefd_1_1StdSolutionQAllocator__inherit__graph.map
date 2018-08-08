@@ -1,0 +1,10 @@
+<map id="efd::StdSolutionQAllocator" name="efd::StdSolutionQAllocator">
+<area shape="rect" id="node6" href="$d1/d93/classefd_1_1DynprogQAllocator.xhtml" title="Implementation of DepSolverQAllocator that uses dynamic programming to obtain an optimal solution..." alt="" coords="1059,5,1233,32"/>
+<area shape="rect" id="node7" href="$d4/d23/classefd_1_1GreedyCktQAllocator.xhtml" title="efd::GreedyCktQAllocator" alt="" coords="1052,56,1240,83"/>
+<area shape="rect" id="node8" href="$d3/d6c/classefd_1_1IBMQAllocator.xhtml" title="Port of IBM&#39;s allocator. " alt="" coords="1075,107,1217,133"/>
+<area shape="rect" id="node9" href="$da/d39/classefd_1_1SimpleQAllocator.xhtml" title="DependencySolver that allocates the logical qubits from an initial mapping. " alt="" coords="1064,157,1228,184"/>
+<area shape="rect" id="node2" href="$de/d5a/classefd_1_1QbitAllocator.xhtml" title="Base abstract class that allocates the qbits used in the program to the qbits that are in the physica..." alt="" coords="624,81,760,108"/>
+<area shape="rect" id="node3" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; Mapping \&gt;" alt="" coords="400,81,575,108"/>
+<area shape="rect" id="node4" href="$d0/d98/classefd_1_1Pass.xhtml" title="Base class for implementation of QModule passes. This information will be used when the QModule&#39;s fun..." alt="" coords="5,85,87,112"/>
+<area shape="rect" id="node5" href="$db/d56/classefd_1_1PassT.xhtml" title="Should serve as base class for classes that produces some data of type T. " alt="" coords="136,111,263,137"/>
+</map>

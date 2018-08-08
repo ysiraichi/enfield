@@ -1,33 +1,23 @@
 <map id="efd::QModule::inlineCall" name="efd::QModule::inlineCall">
-<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#ae890d36b0dcb332d82616b3180da1886" title="Returns a iterator to the beginning of the vector. " alt="" coords="235,5,353,32"/>
-<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#ae80bbf9487f0e43317c29c63a414ff34" title="Returns a iterator pointing to the given child. " alt="" coords="696,56,835,83"/>
-<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml#a7df493996977432aee05df57ae6dc375" title="Returns the parent node of the current node. " alt="" coords="455,107,598,133"/>
-<area shape="rect" id="node5" href="$d4/deb/namespaceefd.xhtml#acd4cde60c75b526798dab375aa82125c" title="If found, inlines the gate that qop calls. " alt="" coords="241,512,347,539"/>
-<area shape="rect" id="node31" href="$d4/deb/namespaceefd.xhtml#a3fd26bc2a0a0c6d9948d0d3cef2e1515" title="Returns true if the pointer src is of class TargetTy. " alt="" coords="239,563,349,589"/>
-<area shape="rect" id="node32" href="$dd/d94/classefd_1_1NDQOp.xhtml#a8700a0eb5ff3cee0e3b52c56f3cc2b3c" title="Returns true if this is a generic node. " alt="" coords="215,849,373,876"/>
-<area shape="rect" id="node6" href="$d6/d6a/classefd_1_1Node.xhtml#ab813c60af1717cf50e92a28b274c24ef" title="Used by visitor classes. " alt="" coords="467,309,586,336"/>
-<area shape="rect" id="node7" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="467,360,586,387"/>
-<area shape="rect" id="node9" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="717,664,814,691"/>
-<area shape="rect" id="node10" href="$db/d1f/classefd_1_1NDGateSign.xhtml#a0be5984f118128bc3e2bf64a8a390071" title="Gets the args node. " alt="" coords="439,461,614,488"/>
-<area shape="rect" id="node11" href="$dd/d94/classefd_1_1NDQOp.xhtml#a38dbbb3a5ca8faaeb9973512f04c6f64" title="Gets the arguments. " alt="" coords="453,512,601,539"/>
-<area shape="rect" id="node12" href="$d6/d6a/classefd_1_1Node.xhtml#a63e30243eca03b0c85d8c4856e91c79d" title="Gets the i&#45;th child. " alt="" coords="459,563,594,589"/>
-<area shape="rect" id="node13" href="$d6/d6a/classefd_1_1Node.xhtml#a11df06f4d8e590426340024cbb2db23e" title="Returns the number of childrem of this node. " alt="" coords="436,613,617,640"/>
-<area shape="rect" id="node14" href="$d1/d4b/classefd_1_1NDGateDecl.xhtml#aa45195dbaf1b921fcece3cac5caaceac" title="Gets the goplist node. " alt="" coords="428,664,625,691"/>
-<area shape="rect" id="node15" href="$dd/d94/classefd_1_1NDQOp.xhtml#aa9d90f493865fe9cdc3fecd468eaa33b" title="Gets the id. " alt="" coords="461,715,593,741"/>
-<area shape="rect" id="node16" href="$db/d1f/classefd_1_1NDGateSign.xhtml#a081605b4c294930734e9d93b34ef85d0" title="Gets the qargs node. " alt="" coords="434,765,619,792"/>
-<area shape="rect" id="node17" href="$dd/d94/classefd_1_1NDQOp.xhtml#af7ef43289355c5bb047a46419177c8ed" title="Gets the quantum arguments. " alt="" coords="447,816,606,843"/>
-<area shape="rect" id="node18" href="$dd/d52/classefd_1_1QModule.xhtml#a2cbccf2cf8dd0e4e2dc30bf12e146644" title="Gets the quantum gate mapped to id. " alt="" coords="445,867,609,893"/>
-<area shape="rect" id="node19" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="453,917,600,944"/>
-<area shape="rect" id="node20" href="$db/d1f/classefd_1_1NDGateSign.xhtml#ac0f41d3a80cca36d590d3f7bcc1b7dc2" title="Returns true if this is an opaque gate. " alt="" coords="434,968,619,995"/>
-<area shape="rect" id="node22" href="$dc/d43/classefd_1_1QArgsReplaceVisitor.xhtml#a7dfbaca5bd21d40d429c27293195818e" title="efd::QArgsReplaceVisitor\l::QArgsReplaceVisitor" alt="" coords="441,1019,612,1061"/>
-<area shape="rect" id="node23" href="$dd/d52/classefd_1_1QModule.xhtml#abaf0b3dd099e4b098b89772b6a134d07" title="Replaces the stmt by the vector stmts. " alt="" coords="421,157,632,184"/>
-<area shape="rect" id="node28" href="$dc/d9d/classefd_1_1NDIfStmt.xhtml#acf7a372c40a8d67d3d642d2bdffb9472" title="Sets the qop. " alt="" coords="448,208,605,235"/>
-<area shape="rect" id="node30" href="$d4/deb/namespaceefd.xhtml#ad7adca0e4de58074aa3f91827469a491" title="Uses the RTTI framework to cast forwardly an unique_ptr. " alt="" coords="446,259,607,285"/>
-<area shape="rect" id="node8" href="$d6/d6a/classefd_1_1Node.xhtml#ac078ce64eb404cfdc24b9288908536e4" title="Clones the current node (deep copy). " alt="" coords="694,360,837,387"/>
-<area shape="rect" id="node21" href="$d6/d6a/classefd_1_1Node.xhtml#a23e33e714f48070d9e8c090cd396d956" title="Returns the kind of this node. " alt="" coords="700,1027,831,1053"/>
-<area shape="rect" id="node24" href="$d6/d6a/classefd_1_1Node.xhtml#a335606078a1d727de214982453c9dd1b" title="Returns a iterator to the end of the vector. " alt="" coords="711,208,819,235"/>
-<area shape="rect" id="node25" href="$da/ddd/classefd_1_1NDList.xhtml#aa407fd205c6c9841cf866fa023337ece" title="Inserts children in the iterator it. The iterator goes to the first new inserted element. " alt="" coords="682,107,849,133"/>
-<area shape="rect" id="node27" href="$da/ddd/classefd_1_1NDList.xhtml#ae7c4d5c8dcb0a7439b62e3f662cbb85f" title="Removes the child in the iterator it. The iterator moves to the next element. " alt="" coords="680,157,851,184"/>
-<area shape="rect" id="node26" href="$d6/d6a/classefd_1_1Node.xhtml#a48e9d49d994b9023b8400316e2782e2b" title="Sets the parent node of the current node. " alt="" coords="899,183,1041,209"/>
-<area shape="rect" id="node29" href="$d6/d6a/classefd_1_1Node.xhtml#aad4510814ff15bd26fe2f95f9d2a2279" title="Sets the i&#45;th child. " alt="" coords="698,259,833,285"/>
+<area shape="rect" id="node2" href="$d4/deb/namespaceefd.xhtml#af3487901a239a99750dc5dcdc3a8c868" title="efd::ExitWith" alt="" coords="745,383,852,410"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#ae80bbf9487f0e43317c29c63a414ff34" title="Returns a iterator pointing to the given child. " alt="" coords="239,307,390,334"/>
+<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml#a7df493996977432aee05df57ae6dc375" title="Returns the parent node of the current node. " alt="" coords="485,54,641,81"/>
+<area shape="rect" id="node5" href="$d4/deb/namespaceefd.xhtml#acd4cde60c75b526798dab375aa82125c" title="If found, inlines the gate that qop calls. " alt="" coords="255,409,374,435"/>
+<area shape="rect" id="node20" href="$dd/d94/classefd_1_1NDQOp.xhtml#a8700a0eb5ff3cee0e3b52c56f3cc2b3c" title="Returns true if this is a generic node. " alt="" coords="231,459,399,486"/>
+<area shape="rect" id="node21" href="$dd/d94/classefd_1_1NDQOp.xhtml#ad05708f36f7c1c126e9f0fbba80a4b0f" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="235,865,394,891"/>
+<area shape="rect" id="node6" href="$d6/d6a/classefd_1_1Node.xhtml#ab813c60af1717cf50e92a28b274c24ef" title="Used by visitor classes. " alt="" coords="498,155,627,182"/>
+<area shape="rect" id="node7" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="499,206,627,233"/>
+<area shape="rect" id="node8" href="$db/d1f/classefd_1_1NDGateSign.xhtml#a0be5984f118128bc3e2bf64a8a390071" title="Gets the args node. " alt="" coords="469,257,657,283"/>
+<area shape="rect" id="node9" href="$dd/d94/classefd_1_1NDQOp.xhtml#a38dbbb3a5ca8faaeb9973512f04c6f64" title="Gets the arguments. " alt="" coords="484,307,641,334"/>
+<area shape="rect" id="node10" href="$d6/d6a/classefd_1_1Node.xhtml#a63e30243eca03b0c85d8c4856e91c79d" title="Gets the i&#45;th child. " alt="" coords="489,358,636,385"/>
+<area shape="rect" id="node11" href="$d6/d6a/classefd_1_1Node.xhtml#a11df06f4d8e590426340024cbb2db23e" title="Returns the number of childrem of this node. " alt="" coords="463,409,662,435"/>
+<area shape="rect" id="node12" href="$d1/d4b/classefd_1_1NDGateDecl.xhtml#aa45195dbaf1b921fcece3cac5caaceac" title="Gets the goplist node. " alt="" coords="457,459,668,486"/>
+<area shape="rect" id="node13" href="$dd/d94/classefd_1_1NDQOp.xhtml#aa9d90f493865fe9cdc3fecd468eaa33b" title="Gets the id. " alt="" coords="493,510,633,537"/>
+<area shape="rect" id="node14" href="$db/d1f/classefd_1_1NDGateSign.xhtml#a081605b4c294930734e9d93b34ef85d0" title="Gets the qargs node. " alt="" coords="463,561,662,587"/>
+<area shape="rect" id="node15" href="$dd/d94/classefd_1_1NDQOp.xhtml#af7ef43289355c5bb047a46419177c8ed" title="Gets the quantum arguments. " alt="" coords="479,611,646,638"/>
+<area shape="rect" id="node16" href="$dd/d52/classefd_1_1QModule.xhtml#a2cbccf2cf8dd0e4e2dc30bf12e146644" title="Gets the quantum gate mapped to id. " alt="" coords="473,662,652,689"/>
+<area shape="rect" id="node17" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="483,713,642,739"/>
+<area shape="rect" id="node18" href="$dd/d52/classefd_1_1QModule.xhtml#abaf0b3dd099e4b098b89772b6a134d07" title="Replaces the stmt by the vector stmts. " alt="" coords="447,763,679,790"/>
+<area shape="rect" id="node19" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="727,814,871,841"/>
+<area shape="rect" id="node22" href="$d6/d6a/classefd_1_1Node.xhtml#a3f8e26eafae005e4befadedeab9b6df4" title="Returns whether this node has any information. " alt="" coords="489,915,636,942"/>
 </map>

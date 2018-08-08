@@ -1,0 +1,6 @@
+<map id="efd::BoundedMappingTreeQAllocator" name="efd::BoundedMappingTreeQAllocator">
+<area shape="rect" id="node2" href="$de/d5a/classefd_1_1QbitAllocator.xhtml" title="Base abstract class that allocates the qbits used in the program to the qbits that are in the physica..." alt="" coords="67,247,203,273"/>
+<area shape="rect" id="node3" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; Mapping \&gt;" alt="" coords="48,171,223,197"/>
+<area shape="rect" id="node4" href="$d0/d98/classefd_1_1Pass.xhtml" title="Base class for implementation of QModule passes. This information will be used when the QModule&#39;s fun..." alt="" coords="89,5,171,32"/>
+<area shape="rect" id="node5" href="$db/d56/classefd_1_1PassT.xhtml" title="Should serve as base class for classes that produces some data of type T. " alt="" coords="152,81,279,108"/>
+</map>

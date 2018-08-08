@@ -1,12 +1,12 @@
 var searchData=
 [
-  ['randommappingfinder_2ecpp',['RandomMappingFinder.cpp',['../d2/dd0/RandomMappingFinder_8cpp.xhtml',1,'']]],
-  ['randommappingfinder_2eh',['RandomMappingFinder.h',['../da/d43/RandomMappingFinder_8h.xhtml',1,'']]],
-  ['readme_2emd',['README.md',['../da/ddd/README_8md.xhtml',1,'']]],
-  ['registry_2eh',['Registry.h',['../da/d66/Registry_8h.xhtml',1,'']]],
-  ['renameqbitspass_2ecpp',['RenameQbitsPass.cpp',['../d4/d2f/RenameQbitsPass_8cpp.xhtml',1,'']]],
-  ['renameqbitspass_2eh',['RenameQbitsPass.h',['../d1/df0/RenameQbitsPass_8h.xhtml',1,'']]],
-  ['reverseedgespass_2ecpp',['ReverseEdgesPass.cpp',['../db/d17/ReverseEdgesPass_8cpp.xhtml',1,'']]],
-  ['reverseedgespass_2eh',['ReverseEdgesPass.h',['../d6/dff/ReverseEdgesPass_8h.xhtml',1,'']]],
-  ['rtti_2eh',['RTTI.h',['../d5/dfc/RTTI_8h.xhtml',1,'']]]
+  ['semanticverifierpass_2ecpp',['SemanticVerifierPass.cpp',['../dd/d49/SemanticVerifierPass_8cpp.xhtml',1,'']]],
+  ['semanticverifierpass_2eh',['SemanticVerifierPass.h',['../d7/d69/SemanticVerifierPass_8h.xhtml',1,'']]],
+  ['sifinder_2eh',['SIFinder.h',['../d7/dd6/SIFinder_8h.xhtml',1,'']]],
+  ['simpleqallocator_2ecpp',['SimpleQAllocator.cpp',['../d2/d79/SimpleQAllocator_8cpp.xhtml',1,'']]],
+  ['simpleqallocator_2eh',['SimpleQAllocator.h',['../d1/d5d/SimpleQAllocator_8h.xhtml',1,'']]],
+  ['stats_2ecpp',['Stats.cpp',['../d6/d1f/Stats_8cpp.xhtml',1,'']]],
+  ['stats_2eh',['Stats.h',['../dc/d09/Stats_8h.xhtml',1,'']]],
+  ['stdsolutionqallocator_2ecpp',['StdSolutionQAllocator.cpp',['../dd/d13/StdSolutionQAllocator_8cpp.xhtml',1,'']]],
+  ['stdsolutionqallocator_2eh',['StdSolutionQAllocator.h',['../d2/dc7/StdSolutionQAllocator_8h.xhtml',1,'']]]
 ];

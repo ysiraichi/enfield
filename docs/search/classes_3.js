@@ -7,7 +7,6 @@ var searchData=
   ['dependencybuildervisitor',['DependencyBuilderVisitor',['../df/de5/classefd_1_1DependencyBuilderVisitor.xhtml',1,'efd']]],
   ['dependencybuilderwrapperpass',['DependencyBuilderWrapperPass',['../d1/d06/classefd_1_1DependencyBuilderWrapperPass.xhtml',1,'efd']]],
   ['dependencygraphbuilderpass',['DependencyGraphBuilderPass',['../d6/d27/classefd_1_1DependencyGraphBuilderPass.xhtml',1,'efd']]],
-  ['depsolverqallocator',['DepSolverQAllocator',['../da/d6e/classefd_1_1DepSolverQAllocator.xhtml',1,'efd']]],
   ['dijkstrapathfinder',['DijkstraPathFinder',['../d3/dc3/classefd_1_1DijkstraPathFinder.xhtml',1,'efd']]],
-  ['dynprogdepsolver',['DynprogDepSolver',['../df/d73/classefd_1_1DynprogDepSolver.xhtml',1,'efd']]]
+  ['dynprogqallocator',['DynprogQAllocator',['../d1/d93/classefd_1_1DynprogQAllocator.xhtml',1,'efd']]]
 ];

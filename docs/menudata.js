@@ -1,3 +1,26 @@
+/*
+@ @licstart  The following is the entire license notice for the
+JavaScript code in this file.
+
+Copyright (C) 1997-2017 by Dimitri van Heesch
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+@licend  The above is the entire license notice
+for the JavaScript code in this file
+*/
 var menudata={children:[
 {text:"Main Page",url:"index.xhtml"},
 {text:"Namespaces",url:"namespaces.xhtml",children:[
@@ -21,6 +44,7 @@ var menudata={children:[
 {text:"s",url:"namespacemembers.xhtml#index_s"},
 {text:"t",url:"namespacemembers.xhtml#index_t"},
 {text:"u",url:"namespacemembers.xhtml#index_u"},
+{text:"v",url:"namespacemembers.xhtml#index_v"},
 {text:"w",url:"namespacemembers.xhtml#index_w"}]},
 {text:"Functions",url:"namespacemembers_func.xhtml",children:[
 {text:"c",url:"namespacemembers_func.xhtml#index_c"},
@@ -31,13 +55,27 @@ var menudata={children:[
 {text:"h",url:"namespacemembers_func.xhtml#index_h"},
 {text:"i",url:"namespacemembers_func.xhtml#index_i"},
 {text:"m",url:"namespacemembers_func.xhtml#index_m"},
+{text:"o",url:"namespacemembers_func.xhtml#index_o"},
 {text:"p",url:"namespacemembers_func.xhtml#index_p"},
 {text:"r",url:"namespacemembers_func.xhtml#index_r"},
 {text:"t",url:"namespacemembers_func.xhtml#index_t"},
 {text:"u",url:"namespacemembers_func.xhtml#index_u"},
 {text:"w",url:"namespacemembers_func.xhtml#index_w"}]},
 {text:"Variables",url:"namespacemembers_vars.xhtml"},
-{text:"Typedefs",url:"namespacemembers_type.xhtml"},
+{text:"Typedefs",url:"namespacemembers_type.xhtml",children:[
+{text:"a",url:"namespacemembers_type.xhtml#index_a"},
+{text:"d",url:"namespacemembers_type.xhtml#index_d"},
+{text:"e",url:"namespacemembers_type.xhtml#index_e"},
+{text:"i",url:"namespacemembers_type.xhtml#index_i"},
+{text:"l",url:"namespacemembers_type.xhtml#index_l"},
+{text:"m",url:"namespacemembers_type.xhtml#index_m"},
+{text:"n",url:"namespacemembers_type.xhtml#index_n"},
+{text:"o",url:"namespacemembers_type.xhtml#index_o"},
+{text:"p",url:"namespacemembers_type.xhtml#index_p"},
+{text:"r",url:"namespacemembers_type.xhtml#index_r"},
+{text:"s",url:"namespacemembers_type.xhtml#index_s"},
+{text:"t",url:"namespacemembers_type.xhtml#index_t"},
+{text:"v",url:"namespacemembers_type.xhtml#index_v"}]},
 {text:"Enumerations",url:"namespacemembers_enum.xhtml"}]}]},
 {text:"Classes",url:"annotated.xhtml",children:[
 {text:"Class List",url:"annotated.xhtml"},
@@ -112,22 +150,22 @@ var menudata={children:[
 {text:"v",url:"functions_vars.xhtml#index_v"}]},
 {text:"Typedefs",url:"functions_type.xhtml",children:[
 {text:"a",url:"functions_type.xhtml#index_a"},
-{text:"b",url:"functions_type.xhtml#index_b"},
-{text:"c",url:"functions_type.xhtml#index_c"},
-{text:"d",url:"functions_type.xhtml#index_d"},
-{text:"g",url:"functions_type.xhtml#index_g"},
-{text:"i",url:"functions_type.xhtml#index_i"},
-{text:"k",url:"functions_type.xhtml#index_k"},
-{text:"m",url:"functions_type.xhtml#index_m"},
-{text:"n",url:"functions_type.xhtml#index_n"},
-{text:"o",url:"functions_type.xhtml#index_o"},
-{text:"p",url:"functions_type.xhtml#index_p"},
-{text:"q",url:"functions_type.xhtml#index_q"},
-{text:"r",url:"functions_type.xhtml#index_r"},
-{text:"s",url:"functions_type.xhtml#index_s"},
-{text:"u",url:"functions_type.xhtml#index_u"},
-{text:"w",url:"functions_type.xhtml#index_w"},
-{text:"x",url:"functions_type.xhtml#index_x"}]},
+{text:"b",url:"functions_type_b.xhtml#index_b"},
+{text:"c",url:"functions_type_c.xhtml#index_c"},
+{text:"d",url:"functions_type_d.xhtml#index_d"},
+{text:"g",url:"functions_type_g.xhtml#index_g"},
+{text:"i",url:"functions_type_i.xhtml#index_i"},
+{text:"k",url:"functions_type_k.xhtml#index_k"},
+{text:"m",url:"functions_type_m.xhtml#index_m"},
+{text:"n",url:"functions_type_n.xhtml#index_n"},
+{text:"o",url:"functions_type_o.xhtml#index_o"},
+{text:"p",url:"functions_type_p.xhtml#index_p"},
+{text:"q",url:"functions_type_q.xhtml#index_q"},
+{text:"r",url:"functions_type_r.xhtml#index_r"},
+{text:"s",url:"functions_type_s.xhtml#index_s"},
+{text:"u",url:"functions_type_u.xhtml#index_u"},
+{text:"w",url:"functions_type_w.xhtml#index_w"},
+{text:"x",url:"functions_type_x.xhtml#index_x"}]},
 {text:"Enumerations",url:"functions_enum.xhtml"},
 {text:"Enumerator",url:"functions_eval.xhtml",children:[
 {text:"c",url:"functions_eval.xhtml#index_c"},
@@ -142,7 +180,10 @@ var menudata={children:[
 {text:"File List",url:"files.xhtml"},
 {text:"File Members",url:"globals.xhtml",children:[
 {text:"All",url:"globals.xhtml",children:[
+{text:"b",url:"globals.xhtml#index_b"},
+{text:"c",url:"globals.xhtml#index_c"},
 {text:"e",url:"globals.xhtml#index_e"},
+{text:"g",url:"globals.xhtml#index_g"},
 {text:"i",url:"globals.xhtml#index_i"},
 {text:"k",url:"globals.xhtml#index_k"},
 {text:"l",url:"globals.xhtml#index_l"},

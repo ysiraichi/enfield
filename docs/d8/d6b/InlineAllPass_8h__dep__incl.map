@@ -1,6 +1,7 @@
 <map id="include/enfield/Transform/InlineAllPass.h" name="include/enfield/Transform/InlineAllPass.h">
-<area shape="rect" id="node2" href="$d0/d91/QbitAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/QbitAllocator.cpp" alt="" coords="5,95,165,136"/>
-<area shape="rect" id="node3" href="$dd/d93/InlineAllPass_8cpp.xhtml" title="lib/Transform/InlineAllPass.cpp" alt="" coords="189,102,392,129"/>
-<area shape="rect" id="node4" href="$dd/d49/SemanticVerifierPass_8cpp.xhtml" title="lib/Transform/SemanticVerifier\lPass.cpp" alt="" coords="417,95,615,136"/>
-<area shape="rect" id="node5" href="$de/d8e/Enfield_8cpp.xhtml" title="tools/Enfield.cpp" alt="" coords="639,102,758,129"/>
+<area shape="rect" id="node2" href="$d0/d91/QbitAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/QbitAllocator.cpp" alt="" coords="5,95,184,136"/>
+<area shape="rect" id="node3" href="$dd/d13/StdSolutionQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/StdSolutionQAllocator.cpp" alt="" coords="208,95,403,136"/>
+<area shape="rect" id="node4" href="$dd/d93/InlineAllPass_8cpp.xhtml" title="lib/Transform/InlineAllPass.cpp" alt="" coords="427,102,650,129"/>
+<area shape="rect" id="node5" href="$dd/d49/SemanticVerifierPass_8cpp.xhtml" title="lib/Transform/SemanticVerifier\lPass.cpp" alt="" coords="674,95,897,136"/>
+<area shape="rect" id="node6" href="$de/d8e/Enfield_8cpp.xhtml" title="tools/Enfield.cpp" alt="" coords="921,102,1052,129"/>
 </map>

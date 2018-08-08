@@ -1,9 +1,7 @@
 <map id="efd::RenameQbitVisitor::visit" name="efd::RenameQbitVisitor::visit">
-<area shape="rect" id="node2" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#aebb2d70f1197065d1b127c2925dd33e6" title="Gets the left hand side of the gate. " alt="" coords="213,5,375,32"/>
-<area shape="rect" id="node4" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#a7b526a26be080f963c70e7001b7e9ff5" title="Gets the right hand side of the gate. " alt="" coords="212,56,376,83"/>
-<area shape="rect" id="node5" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#a78a4447b7eebbca4ce27c1a3d34fb402" title="Sets the left hand side of the gate. " alt="" coords="213,107,375,133"/>
-<area shape="rect" id="node8" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#ad3e6eee14fad4c750688c2d8d81d8d48" title="Sets the right hand side of the gate. " alt="" coords="212,157,376,184"/>
-<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#a63e30243eca03b0c85d8c4856e91c79d" title="Gets the i&#45;th child. " alt="" coords="424,44,559,71"/>
-<area shape="rect" id="node6" href="$d6/d6a/classefd_1_1Node.xhtml#aad4510814ff15bd26fe2f95f9d2a2279" title="Sets the i&#45;th child. " alt="" coords="424,120,559,147"/>
-<area shape="rect" id="node7" href="$d6/d6a/classefd_1_1Node.xhtml#a48e9d49d994b9023b8400316e2782e2b" title="Sets the parent node of the current node. " alt="" coords="607,120,749,147"/>
+<area shape="rect" id="node2" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#aebb2d70f1197065d1b127c2925dd33e6" title="Gets the left hand side of the gate. " alt="" coords="229,5,397,32"/>
+<area shape="rect" id="node4" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#a7b526a26be080f963c70e7001b7e9ff5" title="Gets the right hand side of the gate. " alt="" coords="228,56,399,83"/>
+<area shape="rect" id="node5" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#a78a4447b7eebbca4ce27c1a3d34fb402" title="Sets the left hand side of the gate. " alt="" coords="230,107,397,133"/>
+<area shape="rect" id="node6" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#ad3e6eee14fad4c750688c2d8d81d8d48" title="Sets the right hand side of the gate. " alt="" coords="229,157,398,184"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#a63e30243eca03b0c85d8c4856e91c79d" title="Gets the i&#45;th child. " alt="" coords="447,31,593,57"/>
 </map>

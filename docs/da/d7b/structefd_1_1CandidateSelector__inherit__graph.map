@@ -1,0 +1,4 @@
+<map id="efd::CandidateSelector" name="efd::CandidateSelector">
+<area shape="rect" id="node2" href="$d9/ddc/classefd_1_1FirstCandidateSelector.xhtml" title="Gets the first maxCandidates from candidates. " alt="" coords="5,87,204,114"/>
+<area shape="rect" id="node3" href="$d1/ddf/classefd_1_1WeightedRouletteCandidateSelector.xhtml" title="Selects the candidates randomly, based on their cost. " alt="" coords="229,80,463,121"/>
+</map>

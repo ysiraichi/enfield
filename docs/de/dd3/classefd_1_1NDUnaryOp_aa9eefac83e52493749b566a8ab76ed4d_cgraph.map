@@ -1,5 +1,3 @@
 <map id="efd::NDUnaryOp::toString" name="efd::NDUnaryOp::toString">
-<area shape="rect" id="node2" href="$de/dd3/classefd_1_1NDUnaryOp.xhtml#a49458be3821071e4a2b9b06f360269d7" title="Gets the only operand. " alt="" coords="231,5,425,32"/>
-<area shape="rect" id="node3" href="$de/dd3/classefd_1_1NDUnaryOp.xhtml#a0f0a6031794efd079f9feabd3158d8ec" title="Returns a std::string representation of the operation. " alt="" coords="227,56,429,83"/>
-<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="262,107,394,133"/>
+<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="240,5,384,32"/>
 </map>

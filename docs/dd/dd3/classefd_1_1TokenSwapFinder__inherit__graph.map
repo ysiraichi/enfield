@@ -1,4 +1,4 @@
 <map id="efd::TokenSwapFinder" name="efd::TokenSwapFinder">
-<area shape="rect" id="node2" href="$d4/dfd/classefd_1_1ApproxTSFinder.xhtml" title="efd::ApproxTSFinder" alt="" coords="5,80,148,107"/>
-<area shape="rect" id="node3" href="$d1/d42/classefd_1_1ExpTSFinder.xhtml" title="efd::ExpTSFinder" alt="" coords="172,80,296,107"/>
+<area shape="rect" id="node2" href="$d4/dfd/classefd_1_1ApproxTSFinder.xhtml" title="4&#45;Approximative polynomial algorithm. " alt="" coords="5,80,159,107"/>
+<area shape="rect" id="node3" href="$d1/d42/classefd_1_1ExpTSFinder.xhtml" title="Brute force solution to the Token Swap Finder. " alt="" coords="183,80,314,107"/>
 </map>

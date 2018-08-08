@@ -1,29 +1,10 @@
 <map id="efd::Compile" name="efd::Compile">
-<area shape="rect" id="node2" href="$dd/d52/classefd_1_1QModule.xhtml#acdc9505ab3feada8dbffb1f0d3321559" title="Clones the current qmodule. " alt="" coords="167,132,306,159"/>
-<area shape="rect" id="node12" href="$d0/de6/classefd_1_1ArchVerifierPass.xhtml#a806a4ec08ce14ad199c30fb30cbaf1ff" title="Create a dynamic instance of this class. " alt="" coords="163,226,310,267"/>
-<area shape="rect" id="node14" href="$d2/ddc/classefd_1_1ReverseEdgesPass.xhtml#a2ded6319bd54320a9fa099df78a04dc6" title="Create an instance of this class. " alt="" coords="155,291,319,333"/>
-<area shape="rect" id="node15" href="$d6/dd7/classefd_1_1SemanticVerifierPass.xhtml#ab98adda73b3133ef1fed5952a350ca15" title="Create a dynamic instance of this class. " alt="" coords="149,357,324,398"/>
-<area shape="rect" id="node17" href="$d4/deb/namespaceefd.xhtml#a68293834a9b09cd376067ab0d3b27a92" title="Creates an allocator referenced by name with arguments arg. " alt="" coords="155,423,318,449"/>
-<area shape="rect" id="node20" href="$d1/df9/classefd_1_1PassCache.xhtml#a8c54d0a438f35de5629ae78c886687a8" title="Gets a shared pointer to the pass T run in qmod. If it does not exist, it tries to run..." alt="" coords="164,473,309,500"/>
-<area shape="rect" id="node21" href="$db/d56/classefd_1_1PassT.xhtml#aae3442c1486bcec7622a64451262d684" title="efd::PassT::getData" alt="" coords="167,524,307,551"/>
-<area shape="rect" id="node22" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ab395508705fe60ed3bd0cfb28eb5ffc6" title="Returns the number of qbits in a given gate (if any). " alt="" coords="167,575,307,617"/>
-<area shape="rect" id="node24" href="$d1/df9/classefd_1_1PassCache.xhtml#acb82213b8e43f26fdca8266be3cc4c7c" title="Runs the pass T in qmod. " alt="" coords="163,641,311,668"/>
-<area shape="rect" id="node26" href="$d6/dd7/classefd_1_1SemanticVerifierPass.xhtml#a6fb9f958bc8fa5cd2f89c5d55063ddaa" title="Flags the verifier to inline all gates, but those inside the basis vector, before mapping..." alt="" coords="149,693,324,734"/>
-<area shape="rect" id="node27" href="$de/d5a/classefd_1_1QbitAllocator.xhtml#a997aa1c89bcfbcd5d5d796537c71c99a" title="Flags the QbitAllocator to inline all gates, but those inside the basis vector, before mapping..." alt="" coords="175,758,298,799"/>
-<area shape="rect" id="node28" href="$db/db3/classefd_1_1Graph.xhtml#aa85ea20ad74d6a7df7a52c13a9fabe2d" title="Return the number of vertices. " alt="" coords="179,824,294,851"/>
-<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#ad7adca0e4de58074aa3f91827469a491" title="Uses the RTTI framework to cast forwardly an unique_ptr. " alt="" coords="383,5,544,32"/>
-<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="404,56,523,83"/>
-<area shape="rect" id="node6" href="$dd/d52/classefd_1_1QModule.xhtml#a02a5efc8ed6d6e6645576b948a18fe19" title="Inserts an include node. " alt="" coords="372,107,555,133"/>
-<area shape="rect" id="node7" href="$dd/d52/classefd_1_1QModule.xhtml#a13a3c3e6d3455ff05f837fbd5fc4a06e" title="Inserts a register declaration node. " alt="" coords="381,157,545,184"/>
-<area shape="rect" id="node11" href="$dd/d52/classefd_1_1QModule.xhtml#a7a0b91ad23bdaf49e197692f453808b8" title="Inserts a gate to the QModule. " alt="" coords="379,208,547,235"/>
-<area shape="rect" id="node5" href="$d6/d6a/classefd_1_1Node.xhtml#ac078ce64eb404cfdc24b9288908536e4" title="Clones the current node (deep copy). " alt="" coords="605,56,747,83"/>
-<area shape="rect" id="node8" href="$d0/d9e/classefd_1_1NDDecl.xhtml#a34957c2122c38cebf80a264d5fa3863f" title="Gets the id node. " alt="" coords="610,157,742,184"/>
-<area shape="rect" id="node10" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="603,208,749,235"/>
-<area shape="rect" id="node9" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="797,157,895,184"/>
-<area shape="rect" id="node13" href="$d0/de6/classefd_1_1ArchVerifierPass.xhtml#a53dd78189ee7781f5327a5f1c7d2070f" title="efd::ArchVerifierPass\l::ArchVerifierPass" alt="" coords="390,259,537,301"/>
-<area shape="rect" id="node16" href="$d6/dd7/classefd_1_1SemanticVerifierPass.xhtml#a9405f056dece69c89fd116d2870e5808" title="Constructs a verifier from a clone of the original semantics (the src QModule). " alt="" coords="376,357,551,398"/>
-<area shape="rect" id="node18" href="$dc/dd0/classefd_1_1Registry.xhtml#af46d8fc9d6740ffdd21cab91e8d417b7" title="Creates an object instance by calling the constructor mapped by key, with arg. " alt="" coords="383,423,544,449"/>
-<area shape="rect" id="node19" href="$dc/dd0/classefd_1_1Registry.xhtml#acbc4d1970bfb864501536a764bcce3fe" title="Returns true if key exists inside mCtorMap. " alt="" coords="603,423,749,449"/>
-<area shape="rect" id="node23" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#a7d9474b325920d98f5832d5f1923ba2b" title="Gets a constant reference to the mapping of qubtis of a gate. " alt="" coords="393,575,533,617"/>
-<area shape="rect" id="node25" href="$d0/d98/classefd_1_1Pass.xhtml#af58908c0fa0da625abd3d3588d7dd666" title="Runs the pass in the given QModule and returns true if it has modified qmod. " alt="" coords="411,641,515,668"/>
+<area shape="rect" id="node2" href="$d2/ddc/classefd_1_1ReverseEdgesPass.xhtml#a2ded6319bd54320a9fa099df78a04dc6" title="Create an instance of this class. " alt="" coords="167,5,341,47"/>
+<area shape="rect" id="node3" href="$d0/de6/classefd_1_1ArchVerifierPass.xhtml#a806a4ec08ce14ad199c30fb30cbaf1ff" title="Create a dynamic instance of this class. " alt="" coords="175,71,333,112"/>
+<area shape="rect" id="node5" href="$d6/dd7/classefd_1_1SemanticVerifierPass.xhtml#ab98adda73b3133ef1fed5952a350ca15" title="Create a dynamic instance of this class. " alt="" coords="159,136,349,177"/>
+<area shape="rect" id="node7" href="$d4/deb/namespaceefd.xhtml#a68293834a9b09cd376067ab0d3b27a92" title="Creates an allocator referenced by name with arguments arg. " alt="" coords="165,202,343,229"/>
+<area shape="rect" id="node8" href="$d4/deb/namespaceefd.xhtml#af3487901a239a99750dc5dcdc3a8c868" title="efd::ExitWith" alt="" coords="201,253,307,279"/>
+<area shape="rect" id="node9" href="$d1/df9/classefd_1_1PassCache.xhtml#acb82213b8e43f26fdca8266be3cc4c7c" title="Runs the pass T in qmod. " alt="" coords="177,303,331,330"/>
+<area shape="rect" id="node4" href="$d0/de6/classefd_1_1ArchVerifierPass.xhtml#a53dd78189ee7781f5327a5f1c7d2070f" title="efd::ArchVerifierPass\l::ArchVerifierPass" alt="" coords="413,71,572,112"/>
+<area shape="rect" id="node6" href="$d6/dd7/classefd_1_1SemanticVerifierPass.xhtml#a9405f056dece69c89fd116d2870e5808" title="Constructs a verifier from a clone of the original semantics (the src QModule). " alt="" coords="397,136,588,177"/>
 </map>

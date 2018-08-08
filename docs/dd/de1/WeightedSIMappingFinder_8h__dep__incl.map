@@ -1,5 +1,5 @@
-<map id="include/enfield/Transform/Allocators/WeightedSIMappingFinder.h" name="include/enfield/Transform/Allocators/WeightedSIMappingFinder.h">
-<area shape="rect" id="node2" href="$dc/dea/Allocators_8cpp.xhtml" title="lib/Transform/Allocators\l/Allocators.cpp" alt="" coords="5,95,165,136"/>
-<area shape="rect" id="node3" href="$d4/dd0/GreedyCktQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/GreedyCktQAllocator.cpp" alt="" coords="190,95,365,136"/>
-<area shape="rect" id="node4" href="$d9/ddd/WeightedSIMappingFinder_8cpp.xhtml" title="lib/Transform/Allocators\l/WeightedSIMappingFinder.cpp" alt="" coords="389,95,593,136"/>
+<map id="include/enfield/Transform/Allocators/Simple/WeightedSIMappingFinder.h" name="include/enfield/Transform/Allocators/Simple/WeightedSIMappingFinder.h">
+<area shape="rect" id="node2" href="$dc/dea/Allocators_8cpp.xhtml" title="lib/Transform/Allocators\l/Allocators.cpp" alt="" coords="5,109,184,151"/>
+<area shape="rect" id="node3" href="$d4/dd0/GreedyCktQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/GreedyCktQAllocator.cpp" alt="" coords="209,109,399,151"/>
+<area shape="rect" id="node4" href="$d9/ddd/WeightedSIMappingFinder_8cpp.xhtml" title="lib/Transform/Allocators\l/Simple/WeightedSIMappingFinder.cpp" alt="" coords="423,109,694,151"/>
 </map>

@@ -1,3 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$db/da9/structefd_1_1ParseOptTrait_3_01float_01_4.xhtml" title="efd::ParseOptTrait\l\&lt; float \&gt;" alt="" coords="5,5,135,47"/>
+<area shape="rect" id="node1" href="$d6/d8e/structefd_1_1MapSeqSelector.xhtml" title="Selects a number of line numbers from the memoized matrix. " alt="" coords="5,5,160,32"/>
+<area shape="rect" id="node2" href="$d0/dd1/classefd_1_1BestNMSSelector.xhtml" title="Selects the line that yielded the best cost. " alt="" coords="208,5,371,32"/>
 </map>

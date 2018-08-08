@@ -1,3 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$da/d77/structefd_1_1ParseOptTrait_3_01long_01long_01_4.xhtml" title="efd::ParseOptTrait\l\&lt; long long \&gt;" alt="" coords="5,5,135,47"/>
+<area shape="rect" id="node1" href="$d1/d29/structefd_1_1NodeCandidatesGenerator.xhtml" title="Generates a vector with the Nodes that can be chosen as the next instruction. " alt="" coords="5,31,228,57"/>
+<area shape="rect" id="node2" href="$d1/d88/classefd_1_1CircuitCandidatesGenerator.xhtml" title="Generates a vector with the nodes that it can reach using the CircuitGraph. " alt="" coords="276,5,507,32"/>
+<area shape="rect" id="node3" href="$d0/dfc/classefd_1_1SeqNCandidatesGenerator.xhtml" title="Sequential generator. " alt="" coords="280,56,503,83"/>
 </map>

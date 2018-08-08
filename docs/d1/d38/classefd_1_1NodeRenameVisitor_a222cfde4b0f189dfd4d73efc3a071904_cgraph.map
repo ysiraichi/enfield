@@ -1,0 +1,11 @@
+<map id="efd::NodeRenameVisitor::visitNDQOp" name="efd::NodeRenameVisitor::visitNDQOp">
+<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="262,5,390,32"/>
+<area shape="rect" id="node3" href="$da/ddd/classefd_1_1NDList.xhtml#a5e3e2ab6234caa816599eb51766210b7" title="Creates a new instance of this node with the kind K_LIST. " alt="" coords="253,56,399,83"/>
+<area shape="rect" id="node4" href="$d5/dae/classefd_1_1ArchGraph.xhtml#a1388225779727295176780b9a68aedf2" title="Gets the node corresponding to the uid. " alt="" coords="235,107,417,133"/>
+<area shape="rect" id="node6" href="$dd/d94/classefd_1_1NDQOp.xhtml#af7ef43289355c5bb047a46419177c8ed" title="Gets the quantum arguments. " alt="" coords="243,157,409,184"/>
+<area shape="rect" id="node7" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ae645e4b0ccb9c25c534883843484f06a" title="Returns an uint32_t number representing the qubit in this specific gate (if any). ..." alt="" coords="249,209,403,250"/>
+<area shape="rect" id="node10" href="$dd/d94/classefd_1_1NDQOp.xhtml#af66ad886623f70ee24c756d424694dae" title="Sets the quantum arguments. " alt="" coords="243,275,409,301"/>
+<area shape="rect" id="node5" href="$d4/deb/namespaceefd.xhtml#af3487901a239a99750dc5dcdc3a8c868" title="efd::ExitWith" alt="" coords="491,107,598,133"/>
+<area shape="rect" id="node8" href="$d0/d9e/classefd_1_1NDDecl.xhtml#a34957c2122c38cebf80a264d5fa3863f" title="Gets the id node. " alt="" coords="474,191,615,217"/>
+<area shape="rect" id="node9" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="465,241,624,268"/>
+</map>

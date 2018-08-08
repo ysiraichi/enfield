@@ -1,5 +1,7 @@
 var searchData=
 [
+  ['defaultbmtqallocatorimpl_2ecpp',['DefaultBMTQAllocatorImpl.cpp',['../d3/d95/DefaultBMTQAllocatorImpl_8cpp.xhtml',1,'']]],
+  ['defaultbmtqallocatorimpl_2eh',['DefaultBMTQAllocatorImpl.h',['../db/d1c/DefaultBMTQAllocatorImpl_8h.xhtml',1,'']]],
   ['defs_2ecpp',['Defs.cpp',['../d0/d72/Defs_8cpp.xhtml',1,'']]],
   ['defs_2eh',['Defs.h',['../d1/d73/Defs_8h.xhtml',1,'']]],
   ['delopt',['delOpt',['../d8/d9c/classefd_1_1ArgsParser.xhtml#ab6f5326548208fc577be9c14a9f2d5b6',1,'efd::ArgsParser']]],
@@ -15,10 +17,7 @@ var searchData=
   ['dependencygraphbuilderpass',['DependencyGraphBuilderPass',['../d6/d27/classefd_1_1DependencyGraphBuilderPass.xhtml',1,'efd']]],
   ['dependencygraphbuilderpass_2ecpp',['DependencyGraphBuilderPass.cpp',['../dd/dcb/DependencyGraphBuilderPass_8cpp.xhtml',1,'']]],
   ['dependencygraphbuilderpass_2eh',['DependencyGraphBuilderPass.h',['../d9/d58/DependencyGraphBuilderPass_8h.xhtml',1,'']]],
-  ['depsolverqallocator',['DepSolverQAllocator',['../da/d6e/classefd_1_1DepSolverQAllocator.xhtml',1,'efd::DepSolverQAllocator'],['../da/d6e/classefd_1_1DepSolverQAllocator.xhtml#a4ab0f7fa706eec4610c520607831092f',1,'efd::DepSolverQAllocator::DepSolverQAllocator()']]],
-  ['depsolverqallocator_2ecpp',['DepSolverQAllocator.cpp',['../d4/d91/DepSolverQAllocator_8cpp.xhtml',1,'']]],
-  ['depsolverqallocator_2eh',['DepSolverQAllocator.h',['../d5/db1/DepSolverQAllocator_8h.xhtml',1,'']]],
-  ['depsset',['DepsSet',['../de/d5a/classefd_1_1QbitAllocator.xhtml#aff52a216fcdc439b26646d35e7a694f9',1,'efd::QbitAllocator::DepsSet()'],['../d1/d76/structefd_1_1DependencyBuilder.xhtml#a496003abd20c67b24d040ebacbc1f09b',1,'efd::DependencyBuilder::DepsSet()'],['../db/dde/classefd_1_1MappingFinder.xhtml#ad254005ec8486578fd2710f23b08232e',1,'efd::MappingFinder::DepsSet()'],['../d7/d30/classefd_1_1SolutionBuilder.xhtml#aefe4c20f85c63b5e8318df4ca7c51a16',1,'efd::SolutionBuilder::DepsSet()']]],
+  ['depsvector',['DepsVector',['../de/d5a/classefd_1_1QbitAllocator.xhtml#a21975b5f126068170a3bd11a911c1b82',1,'efd::QbitAllocator::DepsVector()'],['../db/dde/classefd_1_1MappingFinder.xhtml#a742e41e5752f10d40fa163f24b6ac057',1,'efd::MappingFinder::DepsVector()'],['../d7/d30/classefd_1_1SolutionBuilder.xhtml#a9efd344d1f90a92a4c03a96615423097',1,'efd::SolutionBuilder::DepsVector()'],['../d1/d76/structefd_1_1DependencyBuilder.xhtml#a64a1362f6fe60ee5a90c58d9f3143681',1,'efd::DependencyBuilder::DepsVector()']]],
   ['dijkstrapathfinder',['DijkstraPathFinder',['../d3/dc3/classefd_1_1DijkstraPathFinder.xhtml',1,'efd']]],
   ['dijkstrapathfinder_2eh',['DijkstraPathFinder.h',['../d4/dd0/DijkstraPathFinder_8h.xhtml',1,'']]],
   ['directed',['Directed',['../db/db3/classefd_1_1Graph.xhtml#ab6f268ad08bb51da9462e3157a3e5414a73af5541b5af71d41925a9bc55e5d09f',1,'efd::Graph']]],
@@ -26,7 +25,7 @@ var searchData=
   ['driver_2ecpp',['Driver.cpp',['../df/dd9/Driver_8cpp.xhtml',1,'']]],
   ['driver_2eh',['Driver.h',['../d0/d5c/Analysis_2Driver_8h.xhtml',1,'(Global Namespace)'],['../d6/d91/Transform_2Driver_8h.xhtml',1,'(Global Namespace)']]],
   ['dyncast',['dynCast',['../d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909',1,'efd']]],
-  ['dynprogdepsolver',['DynprogDepSolver',['../df/d73/classefd_1_1DynprogDepSolver.xhtml',1,'efd::DynprogDepSolver'],['../df/d73/classefd_1_1DynprogDepSolver.xhtml#ad5f8cdf48a8efcfac642ff5ac83feba9',1,'efd::DynprogDepSolver::DynprogDepSolver()']]],
-  ['dynprogdepsolver_2ecpp',['DynprogDepSolver.cpp',['../d1/d31/DynprogDepSolver_8cpp.xhtml',1,'']]],
-  ['dynprogdepsolver_2eh',['DynprogDepSolver.h',['../d7/db4/DynprogDepSolver_8h.xhtml',1,'']]]
+  ['dynprogqallocator',['DynprogQAllocator',['../d1/d93/classefd_1_1DynprogQAllocator.xhtml',1,'efd::DynprogQAllocator'],['../d1/d93/classefd_1_1DynprogQAllocator.xhtml#ad6d4854485eda9f77f95171f9bc1abc7',1,'efd::DynprogQAllocator::DynprogQAllocator()']]],
+  ['dynprogqallocator_2ecpp',['DynprogQAllocator.cpp',['../d4/d00/DynprogQAllocator_8cpp.xhtml',1,'']]],
+  ['dynprogqallocator_2eh',['DynprogQAllocator.h',['../d4/da3/DynprogQAllocator_8h.xhtml',1,'']]]
 ];

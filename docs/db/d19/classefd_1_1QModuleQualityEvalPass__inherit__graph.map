@@ -1,0 +1,5 @@
+<map id="efd::QModuleQualityEvalPass" name="efd::QModuleQualityEvalPass">
+<area shape="rect" id="node2" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; QModuleQuality \&gt;" alt="" coords="5,171,228,197"/>
+<area shape="rect" id="node3" href="$d0/d98/classefd_1_1Pass.xhtml" title="Base class for implementation of QModule passes. This information will be used when the QModule&#39;s fun..." alt="" coords="71,5,152,32"/>
+<area shape="rect" id="node4" href="$db/d56/classefd_1_1PassT.xhtml" title="Should serve as base class for classes that produces some data of type T. " alt="" coords="133,81,260,108"/>
+</map>

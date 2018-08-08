@@ -5,6 +5,7 @@ var searchData=
   ['wasgenerated',['wasGenerated',['../d6/d6a/classefd_1_1Node.xhtml#a2bc1ab74f5bde4a10ad5c2fd41bc640d',1,'efd::Node']]],
   ['weightedgraph',['WeightedGraph',['../d2/d54/classefd_1_1WeightedGraph.xhtml',1,'efd::WeightedGraph&lt; T &gt;'],['../d2/d54/classefd_1_1WeightedGraph.xhtml#aa817daebe252faecae602146169d1536',1,'efd::WeightedGraph::WeightedGraph()']]],
   ['weightedgraph_2eh',['WeightedGraph.h',['../d6/df7/WeightedGraph_8h.xhtml',1,'']]],
+  ['weightedroulettecandidateselector',['WeightedRouletteCandidateSelector',['../d1/ddf/classefd_1_1WeightedRouletteCandidateSelector.xhtml',1,'efd::WeightedRouletteCandidateSelector'],['../d1/d9a/Allocators_8def.xhtml#af984c869fc991c8ba3a2ffe262d927d2',1,'WeightedRouletteCandidateSelector():&#160;Allocators.def']]],
   ['weightedsifinder',['WeightedSIFinder',['../d5/db6/classefd_1_1WeightedSIFinder.xhtml',1,'efd::WeightedSIFinder&lt; T &gt;'],['../d5/db6/classefd_1_1WeightedSIFinder.xhtml#a42a95ca00ac274099901c7addf9f0f0e',1,'efd::WeightedSIFinder::WeightedSIFinder()']]],
   ['weightedsifinder_2eh',['WeightedSIFinder.h',['../da/dd9/WeightedSIFinder_8h.xhtml',1,'']]],
   ['weightedsimappingfinder',['WeightedSIMappingFinder',['../d3/d4f/classefd_1_1WeightedSIMappingFinder.xhtml',1,'efd']]],

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['opsequences',['OpSequences',['../d3/d2a/structefd_1_1Solution.xhtml#ac443c48f28061d0debfc64c66d80945b',1,'efd::Solution']]],
-  ['opvector',['OpVector',['../d3/d2a/structefd_1_1Solution.xhtml#aece8d5b7bc71b4f518d0e32b3ab1ec2c',1,'efd::Solution']]],
+  ['opsequences',['OpSequences',['../db/d36/structefd_1_1StdSolution.xhtml#a93e644d8ca0ea8e13989dd0e8dae5e57',1,'efd::StdSolution']]],
+  ['opvector',['OpVector',['../db/d36/structefd_1_1StdSolution.xhtml#a34cc9c5a785980981ec56b06c3105b31',1,'efd::StdSolution']]],
   ['ordering',['Ordering',['../d4/deb/namespaceefd.xhtml#a0f9170fd3a6f78d50afc01229e241d61',1,'efd']]]
 ];

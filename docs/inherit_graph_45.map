@@ -1,3 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$d8/d51/classefd_1_1StatsPool.xhtml" title="efd::StatsPool" alt="" coords="5,5,111,32"/>
+<area shape="rect" id="node1" href="$d1/df1/classefd_1_1PathFinder.xhtml" title="Interface for finding the path between two vertices. " alt="" coords="5,31,125,57"/>
+<area shape="rect" id="node2" href="$d8/d45/classefd_1_1BFSPathFinder.xhtml" title="Finds swaps for one restriction only. " alt="" coords="206,5,350,32"/>
+<area shape="rect" id="node3" href="$d3/dc3/classefd_1_1DijkstraPathFinder.xhtml" title="Dijkstra algorithm for finding a swap sequence in a weighted graph. " alt="" coords="173,56,383,83"/>
 </map>
