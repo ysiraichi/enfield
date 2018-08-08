@@ -4,9 +4,10 @@
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
 
 namespace efd {
-    /// \brief Sequential iterator.
+    /// \brief Sequential generator.
     ///
-    /// It follows the order of the instructions given by the iterators.
+    /// It follows the order of the instructions given by the iterators,
+    /// and generates always a vector with one `Node`.
     class SeqNCandidatesGenerator : public NodeCandidatesGenerator {
         private:
             Node::Iterator mIt;

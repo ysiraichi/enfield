@@ -9,11 +9,17 @@
 
 namespace efd {
     namespace bmt {
+        /// \brief Used for ordering the nodes based on some weight.
         struct NodeCandidate {
             uint32_t mWeight;
             Node::Ref mNode;
             Dependencies mDeps;
         };
+
+        /// \brief `LessThan` operator that orders `NodeCandidate`s.
+        ///
+        /// It compares the weights and the `Node` pointer only, since the
+        /// `mDeps` depends on it.
         bool operator<(const NodeCandidate& lhs, const NodeCandidate& rhs);
 
         /// \brief Composition of each candidate in phase 1.
@@ -61,6 +67,8 @@ namespace efd {
         typedef std::vector<PPartition> PPartitionCollection;
     }
 
+    /// \brief Generates a vector with the `Node`s that can be chosen as the
+    /// next instruction.
     struct NodeCandidatesGenerator {
         typedef NodeCandidatesGenerator* Ref;
         typedef std::unique_ptr<NodeCandidatesGenerator> uRef;
