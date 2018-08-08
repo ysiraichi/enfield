@@ -73,20 +73,21 @@ namespace efd {
         std::vector<Node::Ref> generate();
         /// \brief Returns whether we have finished processing the nodes.
         bool finished();
+        /// \brief Initializes the generator.
+        void initialize();
         /// \brief Signals the generator which node has been selected.
         virtual void signalProcessed(Node::Ref node);
 
         private:
-            bool isFirst;
+            bool mInitialized;
+            void checkInitialized();
 
         protected:
             QModule::Ref mMod;
 
-            void checkQModuleSet();
-            virtual void initialize();
-
-            virtual std::vector<Node::Ref> generateImpl() = 0;
+            virtual void initializeImpl() = 0;
             virtual bool finishedImpl() = 0;
+            virtual std::vector<Node::Ref> generateImpl() = 0;
     };
 
     /// \brief Interface for selecting candidates (if they are greater than

@@ -6,16 +6,16 @@ using namespace bmt;
 #include <queue>
 
 // --------------------- SeqNCandidatesGenerator ------------------------
-void SeqNCandidatesGenerator::initialize() {
+void SeqNCandidatesGenerator::initializeImpl() {
     mIt = mMod->stmt_begin();
-}
-
-std::vector<Node::Ref> SeqNCandidatesGenerator::generateImpl() {
-    return { mIt->get() };
 }
 
 bool SeqNCandidatesGenerator::finishedImpl() {
     return mIt == mMod->stmt_end();
+}
+
+std::vector<Node::Ref> SeqNCandidatesGenerator::generateImpl() {
+    return { mIt->get() };
 }
 
 void SeqNCandidatesGenerator::signalProcessed(Node::Ref node) {

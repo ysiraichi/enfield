@@ -12,9 +12,9 @@ namespace efd {
             Node::Iterator mIt;
 
         protected:
-            void initialize() override;
-            std::vector<Node::Ref> generateImpl() override;
+            void initializeImpl() override;
             bool finishedImpl() override;
+            std::vector<Node::Ref> generateImpl() override;
 
         public:
             typedef SeqNCandidatesGenerator* Ref;

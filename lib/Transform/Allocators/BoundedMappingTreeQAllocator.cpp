@@ -27,40 +27,41 @@ bool efd::bmt::operator<(const NodeCandidate& lhs, const NodeCandidate& rhs) {
 }
 
 // --------------------- NodeCandidatesGenerator ------------------------
-NodeCandidatesGenerator::NodeCandidatesGenerator() : isFirst(true), mMod(nullptr) {}
+NodeCandidatesGenerator::NodeCandidatesGenerator() : mInitialized(false), mMod(nullptr) {}
 
 void NodeCandidatesGenerator::setQModule(QModule::Ref qmod) {
     mMod = qmod;
 }
 
 std::vector<Node::Ref> NodeCandidatesGenerator::generate() {
-    checkQModuleSet();
-
-    if (isFirst) {
-        isFirst = false;
-        initialize();
-    }
-
-    if (finished()) {
-        return {};
-    }
-
+    checkInitialized();
+    if (finished()) return {};
     return generateImpl();
 }
 
 bool NodeCandidatesGenerator::finished() {
-    checkQModuleSet();
+    checkInitialized();
     return finishedImpl();
 }
 
-void NodeCandidatesGenerator::checkQModuleSet() {
-    if (mMod == nullptr) {
-        ERR << "Set the `QModule` for NodeCandidatesGenerator." << std::endl;
+void NodeCandidatesGenerator::checkInitialized() {
+    if (!mInitialized) {
+        ERR << "`NodeCandidatesGenerator` not initialized." << std::endl;
         ExitWith(ExitCode::EXIT_unreachable);
     }
 }
 
-void NodeCandidatesGenerator::initialize() {}
+void NodeCandidatesGenerator::initialize() {
+    mInitialized = true;
+
+    if (mMod == nullptr) {
+        ERR << "Set the `QModule` for NodeCandidatesGenerator." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
+    initializeImpl();
+}
+
 void NodeCandidatesGenerator::signalProcessed(Node::Ref node) {}
 
 // --------------------- SwapCostEstimator ------------------------
@@ -605,6 +606,8 @@ Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
     }
 
     mNCGenerator->setQModule(qmod);
+    mNCGenerator->initialize();
+
     mCostEstimator->setGraph(mArchGraph.get());
     mTSFinder->setGraph(mArchGraph.get());
 
