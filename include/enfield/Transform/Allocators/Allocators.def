@@ -6,14 +6,14 @@ EFD_ALLOCATOR_BMT(bmt, SeqNCandidatesGenerator,
                        FirstCandidateSelector,
                        GeoDistanceSwapCEstimator,
                        GeoNearestLQPProcessor,
-                       BestMSSelector,
+                       BestNMSSelector,
                        ApproxTSFinder)
 EFD_ALLOCATOR_BMT(ibmt, CircuitCandidatesGenerator,
-                        FirstCandidateSelector,
-                        FirstCandidateSelector,
+                        WeightedRouletteCandidateSelector,
+                        WeightedRouletteCandidateSelector,
                         GeoDistanceSwapCEstimator,
                         GeoNearestLQPProcessor,
-                        BestMSSelector,
+                        BestNMSSelector,
                         ApproxTSFinder)
 EFD_ALLOCATOR_SIMPLE(wpm, WeightedSIMappingFinder, PathGuidedSolBuilder)
 EFD_ALLOCATOR_SIMPLE(random, RandomMappingFinder, PathGuidedSolBuilder)
