@@ -5,7 +5,8 @@ find_library (JSONCPP_MAIN "jsoncpp"
         ENV JSONCPP_ROOT
         ${JSONCPP_ROOT}
     PATH_SUFFIXES
-        lib64)
+        lib64
+        lib)
 
 find_path (JSONCPP_INCLUDE "json/json.h"
     HINTS

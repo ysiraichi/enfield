@@ -1,6 +1,8 @@
 #ifndef __EFD_GRAPH_H__
 #define __EFD_GRAPH_H__
 
+#include "enfield/Support/JsonParser.h"
+
 #include <set>
 #include <vector>
 #include <unordered_map>
@@ -78,6 +80,21 @@ namespace efd {
             static uRef Read(std::string filepath, Type ty = Undirected);
             /// \brief Parses the string \p graphStr into a Graph representation.
             static uRef ReadString(std::string graphStr, Type ty = Undirected);
+    };
+
+    template <> struct JsonFields<Graph> {
+        static const std::string _VerticesLabel_;
+        static const std::string _AdjListLabel_;
+        static const std::string _TypeLabel_;
+        static const std::string _VLabel_;
+    };
+
+    template <> struct JsonInputParser<Graph> {
+        static Json::Value Parse(std::istream& in);
+    };
+
+    template <> struct FromJsonGetter<Graph> {
+        static std::unique_ptr<Graph> Get(const Json::Value& root);
     };
 }
 

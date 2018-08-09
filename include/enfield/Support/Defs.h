@@ -35,6 +35,7 @@ namespace efd {
         EXIT_multi_deps = 11,
         EXIT_unknown_resource,
         EXIT_out_of_bounds,
+        EXIT_json_parsing_error,
         EXIT_unreachable
     };
 
