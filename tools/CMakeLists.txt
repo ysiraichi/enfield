@@ -1,9 +1,11 @@
 add_executable (efd Enfield.cpp)
 target_link_libraries (efd
     EfdArch EfdAllocator EfdBMTImpl EfdSimpleImpl
-    EfdTransform EfdAnalysis EfdSupport)
+    EfdTransform EfdAnalysis EfdSupport
+    ${JSONCPP_MAIN})
 
 add_executable (gen-prog Generator.cpp)
 target_link_libraries (gen-prog
     EfdArch EfdAllocator EfdBMTImpl EfdSimpleImpl
-    EfdTransform EfdAnalysis EfdSupport)
+    EfdTransform EfdAnalysis EfdSupport
+    ${JSONCPP_MAIN})
