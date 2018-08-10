@@ -22,8 +22,6 @@ namespace efd {
 
         private:
             std::map<std::pair<uint32_t, uint32_t>, T> mW;
-            static std::unique_ptr<WeightedGraph<T>> ReadFromIn(std::istream& in,
-                                                                Type ty = Undirected);
 
         public:
             WeightedGraph(uint32_t n, Type ty = Undirected);
@@ -41,11 +39,31 @@ namespace efd {
     
             /// \brief Encapsulates the creation of a new Graph.
             static uRef Create(uint32_t n, Type ty = Undirected);
-            /// \brief Parses the file \p filename into a Graph representation.
-            static uRef Read(std::string filepath, Type ty = Undirected);
-            /// \brief Parses the string \p graphStr into a Graph representation.
-            static uRef ReadString(std::string graphStr, Type ty = Undirected);
     };
+
+    template <class T> struct JsonFields<WeightedGraph<T>> {
+        static std::string _WeightLabel_;
+    };
+
+    template <class T> struct JsonBackendParser<WeightedGraph<T>> {
+        static T ParseWeight(const Json::Value& v);
+        static std::vector<Json::ValueType> GetTysForT();
+        static std::unique_ptr<WeightedGraph<T>> Parse(const Json::Value& root);
+    };
+
+    template <> int32_t JsonBackendParser<WeightedGraph<int32_t>>::
+        ParseWeight(const Json::Value& v);
+    template <> uint32_t JsonBackendParser<WeightedGraph<uint32_t>>::
+        ParseWeight(const Json::Value& v);
+    template <> double JsonBackendParser<WeightedGraph<double>>::
+        ParseWeight(const Json::Value& v);
+
+    template <> std::vector<Json::ValueType>
+        JsonBackendParser<WeightedGraph<int32_t>>::GetTysForT();
+    template <> std::vector<Json::ValueType>
+        JsonBackendParser<WeightedGraph<uint32_t>>::GetTysForT();
+    template <> std::vector<Json::ValueType>
+        JsonBackendParser<WeightedGraph<double>>::GetTysForT();
 }
 
 template <typename T>
@@ -102,31 +120,72 @@ typename efd::WeightedGraph<T>::uRef efd::WeightedGraph<T>::Create(uint32_t n, T
     return std::unique_ptr<WeightedGraph<T>>(new WeightedGraph<T>(n, ty));
 }
 
-template <typename T> typename efd::WeightedGraph<T>::uRef
-efd::WeightedGraph<T>::ReadFromIn(std::istream& in, Type ty) {
-    uint32_t n;
-    in >> n;
+// ----------------------------- JsonFields -------------------------------
+template <class T>
+std::string efd::JsonFields<efd::WeightedGraph<T>>::_WeightLabel_ = "w";
 
-    std::unique_ptr<efd::WeightedGraph<T>> graph(efd::WeightedGraph<T>::Create(n, ty));
-
-    T w;
-    for (uint32_t u, v; in >> u >> v >> w;)
-        graph->putEdge(u, v, w);
-
-    return graph;
+// ----------------------------- JsonBackendParser -------------------------------
+template <class T>
+T efd::JsonBackendParser<efd::WeightedGraph<T>>::ParseWeight(const Json::Value& v) {
+    ERR << "ParseWeight not implemented for `" << typeid(T).name() << "`."
+        << std::endl;
+    ExitWith(ExitCode::EXIT_unreachable);
 }
 
-template <typename T> typename efd::WeightedGraph<T>::uRef
-efd::WeightedGraph<T>::Read(std::string filepath, Type ty) {
-    std::ifstream in(filepath.c_str());
-    return ReadFromIn(in, ty);
+template <class T>
+std::vector<Json::ValueType>
+efd::JsonBackendParser<efd::WeightedGraph<T>>::GetTysForT() {
+    ERR << "ParseWeight not implemented for `" << typeid(T).name() << "`."
+        << std::endl;
+    ExitWith(ExitCode::EXIT_unreachable);
 }
 
-template <typename T> typename efd::WeightedGraph<T>::uRef
-efd::WeightedGraph<T>::ReadString(std::string graphStr, Type ty) {
-    std::stringstream in(graphStr);
-    return ReadFromIn(in, ty);
-}
+template <class T>
+std::unique_ptr<efd::WeightedGraph<T>>
+efd::JsonBackendParser<efd::WeightedGraph<T>>::Parse(const Json::Value& root) {
+    typedef Json::ValueType Ty;
+    const std::string _WGraphErrorPrefix_ = "WeightedGraph parsing error";
 
+    JsonCheckTypeError(_WGraphErrorPrefix_, root, JsonFields<Graph>::_VerticesLabel_,
+                       { Ty::intValue, Ty::uintValue });
+    JsonCheckTypeError(_WGraphErrorPrefix_, root, JsonFields<Graph>::_AdjListLabel_,
+                       { Ty::arrayValue });
+    JsonCheckTypeError(_WGraphErrorPrefix_, root, JsonFields<Graph>::_TypeLabel_,
+                       { Ty::stringValue });
+
+    auto vertices = root[JsonFields<Graph>::_VerticesLabel_].asUInt();
+    auto typeStr = root[JsonFields<Graph>::_TypeLabel_].asString();
+    auto ty = Graph::Type::Undirected;
+
+    if (typeStr == "Directed") {
+        ty = Graph::Type::Directed;
+    } else if (typeStr != "Undirected") {
+        WAR << "Graph parsing warning: defaulting to `Undirected type`." << std::endl;
+    }
+
+    auto graph = WeightedGraph<T>::Create(vertices, ty);
+    auto &adj = root[JsonFields<Graph>::_AdjListLabel_];
+
+    for (uint32_t i = 0; i < vertices; ++i) {
+        JsonCheckTypeError(_WGraphErrorPrefix_, adj, i, { Ty::arrayValue });
+        auto &iList = adj[i];
+        
+        for (uint32_t j = 0, f = iList.size(); j < f; ++j) {
+            JsonCheckTypeError(_WGraphErrorPrefix_, iList, j, { Ty::objectValue });
+            auto &jElem = iList[j];
+            JsonCheckTypeError(_WGraphErrorPrefix_, jElem, JsonFields<Graph>::_VLabel_,
+                               { Ty::intValue, Ty::uintValue });
+            JsonCheckTypeError(_WGraphErrorPrefix_, jElem,
+                               JsonFields<WeightedGraph<T>>::_WeightLabel_,
+                               JsonBackendParser<WeightedGraph<T>>::GetTysForT());
+            auto v = jElem[JsonFields<Graph>::_VLabel_].asUInt();
+            auto w = JsonBackendParser<WeightedGraph<T>>::ParseWeight
+                (jElem[JsonFields<WeightedGraph<T>>::_WeightLabel_]);
+            graph->putEdge(i, v, w);
+        }
+    }
+
+    return std::move(graph);
+}
 
 #endif
