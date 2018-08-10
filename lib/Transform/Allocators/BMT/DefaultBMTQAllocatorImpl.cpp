@@ -165,7 +165,7 @@ Vector BestNMSSelector::select(const TIMatrix& mem) {
         pQueue.push(std::make_pair(info.mappingCost + info.swapEstimatedCost, i));
     }
 
-    while (!pQueue.empty() || selected.size() < maxMapSeq) {
+    while (!pQueue.empty() && selected.size() < maxMapSeq) {
         selected.push_back(pQueue.top().second);
         pQueue.pop();
     }

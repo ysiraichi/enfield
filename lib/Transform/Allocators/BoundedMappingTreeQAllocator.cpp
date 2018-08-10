@@ -436,12 +436,12 @@ BoundedMappingTreeQAllocator::phase2(const MCandidateVCollection& collection) {
     }
 
     for (uint32_t i = 1; i < nofLayers; ++i) {
-        INF << "Beginning: " << i << " of " << nofLayers << " layers." << std::endl;
+        // INF << "Beginning: " << i << " of " << nofLayers << " layers." << std::endl;
 
         uint32_t jLayerSize = collection[i].size();
         for (uint32_t j = 0; j < jLayerSize; ++j) {
-            Timer jt;
-            jt.start();
+            // Timer jt;
+            // jt.start();
 
             TracebackInfo best = { {}, _undef, _undef, 0 };
             uint32_t kLayerSize = collection[i - 1].size();
@@ -465,9 +465,9 @@ BoundedMappingTreeQAllocator::phase2(const MCandidateVCollection& collection) {
 
             mem[i].push_back(best);
 
-            jt.stop();
-            INF << "(i:" << i << ", j:" << j << "): "
-                << ((double) jt.getMilliseconds()) / 1000.0 << std::endl;
+            // jt.stop();
+            // INF << "(i:" << i << ", j:" << j << "): "
+            //     << ((double) jt.getMilliseconds()) / 1000.0 << std::endl;
         }
 
         INF << "End: " << i << " of " << nofLayers << " layers." << std::endl;
@@ -621,9 +621,23 @@ Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
     auto initialMapping = IdentityMapping(mPQubits);
 
     if (nofDeps > 0) {
+        Timer tPhase1, tPhase2, tPhase3;
+
+        tPhase1.start();
         auto phase1Output = phase1();
+        tPhase1.stop();
+
+        tPhase2.start();
         auto phase2Output = phase2(phase1Output);
+        tPhase2.stop();
+
+        tPhase3.start();
         initialMapping = phase3(qmod, phase2Output);
+        tPhase3.stop();
+
+        INF << "Phase1 took: " << tPhase1.getMilliseconds() / 1000.0 << std::endl;
+        INF << "Phase2 took: " << tPhase2.getMilliseconds() / 1000.0 << std::endl;
+        INF << "Phase3 took: " << tPhase3.getMilliseconds() / 1000.0 << std::endl;
     }
 
     return initialMapping;
