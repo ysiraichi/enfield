@@ -16,14 +16,19 @@ void PathEqual(const std::vector<uint32_t>& lhs, const std::vector<uint32_t>& rh
 
 TEST(BFSPathFinderTests, NoSwapPathTest) {
     const std::string gStr =
-"\
-5\n\
-0 1\n\
-0 2\n\
-1 3\n\
-1 4\n\
-";
-    auto graph = efd::toShared(efd::Graph::ReadString(gStr));
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1}, {\"v\": 2} ],\
+        [ {\"v\": 3}, {\"v\": 4} ],\
+        [],\
+        [],\
+        []\
+    ]\
+}";
+
+    auto graph = JsonParser<Graph>::ParseString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     auto finder = BFSPathFinder::Create();
@@ -33,14 +38,19 @@ TEST(BFSPathFinderTests, NoSwapPathTest) {
 
 TEST(BFSPathFinderTests, ReverseEdgeNoSwapPathTest) {
     const std::string gStr =
-"\
-5\n\
-0 1\n\
-0 2\n\
-1 3\n\
-1 4\n\
-";
-    auto graph = efd::toShared(efd::Graph::ReadString(gStr));
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Undirected\",\
+    \"adj\": [\
+        [ {\"v\": 1}, {\"v\": 2} ],\
+        [ {\"v\": 3}, {\"v\": 4} ],\
+        [],\
+        [],\
+        []\
+    ]\
+}";
+
+    auto graph = JsonParser<Graph>::ParseString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     auto finder = BFSPathFinder::Create();
@@ -51,14 +61,19 @@ TEST(BFSPathFinderTests, ReverseEdgeNoSwapPathTest) {
 TEST(BFSPathFinderTests, SwapTests) {
     {
         const std::string gStr =
-"\
-5\n\
-0 1\n\
-0 2\n\
-1 3\n\
-1 4\n\
-";
-        auto graph = efd::toShared(efd::Graph::ReadString(gStr));
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1}, {\"v\": 2} ],\
+        [ {\"v\": 3}, {\"v\": 4} ],\
+        [],\
+        [],\
+        []\
+    ]\
+}";
+
+        auto graph = JsonParser<Graph>::ParseString(gStr);
         ASSERT_FALSE(graph.get() == nullptr);
 
         auto finder = BFSPathFinder::Create();
@@ -69,14 +84,19 @@ TEST(BFSPathFinderTests, SwapTests) {
 
     {
         const std::string gStr =
-"\
-5\n\
-0 1\n\
-1 2\n\
-2 3\n\
-3 4\n\
-";
-        auto graph = efd::toShared(efd::Graph::ReadString(gStr));
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Undirected\",\
+    \"adj\": [\
+        [ {\"v\": 1} ],\
+        [ {\"v\": 2}],\
+        [ {\"v\": 3}],\
+        [ {\"v\": 4}],\
+        []\
+    ]\
+}";
+
+        auto graph = JsonParser<Graph>::ParseString(gStr);
         ASSERT_FALSE(graph.get() == nullptr);
 
         auto finder = BFSPathFinder::Create();

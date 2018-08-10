@@ -8,7 +8,7 @@
 using namespace efd;
 
 static void check(const std::string gS, const std::string wGS) {
-    Graph::sRef graph = Graph::ReadString(gS);
+    Graph::sRef graph = JsonParser<efd::Graph>::ParseString(gS);
     auto wGraph = WeightedGraph<int>::ReadString(wGS);
     auto matcher = WeightedSIFinder<int>::Create();
     

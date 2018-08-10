@@ -10,7 +10,7 @@ using namespace efd;
 template <typename T = efd::Graph>
 void TestDotifyTrue(std::string gstr, std::string result,
                     Graph::Type ty = Graph::Undirected) {
-    auto graph = T::ReadString(gstr, ty);
+    auto graph = JsonParser<T>::ParseString(gstr);
     ASSERT_FALSE(graph.get() == nullptr);
     ASSERT_EQ(graph->dotify(), result);
 }
@@ -18,7 +18,7 @@ void TestDotifyTrue(std::string gstr, std::string result,
 template <typename T = efd::Graph>
 void TestDotifyFalse(std::string gstr, std::string result,
                      Graph::Type ty = Graph::Undirected) {
-    auto graph = T::ReadString(gstr, ty);
+    auto graph = JsonParser<T>::ParseString(gstr);
     ASSERT_FALSE(graph.get() == nullptr);
     ASSERT_NE(graph->dotify(), result);
 }

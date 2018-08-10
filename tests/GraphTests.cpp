@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Support/Graph.h"
+#include "enfield/Support/JsonParser.h"
 
 #include <string>
 
@@ -9,14 +10,18 @@ using namespace efd;
 
 TEST(GraphTests, TreeCreationTest) {
     const std::string gStr =
-"\
-5\n\
-0 1\n\
-0 2\n\
-1 3\n\
-1 4\n\
-";
-    auto graph = efd::Graph::ReadString(gStr);
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1}, {\"v\": 2} ],\
+        [ {\"v\": 3}, {\"v\": 4} ],\
+        [],\
+        [],\
+        []\
+    ]\
+}";
+    auto graph = efd::JsonParser<efd::Graph>::ParseString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), (uint32_t) 5);
@@ -28,17 +33,18 @@ TEST(GraphTests, TreeCreationTest) {
 
 TEST(GraphTests, SomeReverseEdgesTest) {
     const std::string gStr =
-"\
-5\n\
-0 1\n\
-1 0\n\
-0 2\n\
-1 2\n\
-1 3\n\
-1 4\n\
-4 1\n\
-";
-    auto graph = efd::Graph::ReadString(gStr);
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1}, {\"v\": 2} ],\
+        [ {\"v\": 0}, {\"v\": 2}, {\"v\": 3}, {\"v\": 4} ],\
+        [],\
+        [],\
+        [ {\"v\": 1} ]\
+    ]\
+}";
+    auto graph = efd::JsonParser<efd::Graph>::ParseString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), (uint32_t) 5);
