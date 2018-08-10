@@ -6,17 +6,6 @@
 
 using namespace efd;
 
-// ----------------------------- Static -------------------------------
-static const std::string _VerticesLabel_ = JsonFields<Graph>::_VerticesLabel_;
-static const std::string _AdjListLabel_ = JsonFields<Graph>::_AdjListLabel_;
-static const std::string _TypeLabel_ = JsonFields<Graph>::_TypeLabel_;
-static const std::string _VLabel_ = JsonFields<Graph>::_VLabel_;
-
-static Graph::uRef ReadFromIn(std::istream& in, Graph::Type ty) {
-    auto root = JsonInputParser<Graph>::Parse(in);
-    return FromJsonGetter<Graph>::Get(root);
-}
-
 // ----------------------------- Graph -------------------------------
 Graph::Graph(Kind k, uint32_t n, Type ty) : mK(k), mN(n), mTy(ty) {
     mSuccessors.assign(n, std::set<uint32_t>());
@@ -125,98 +114,49 @@ Graph::uRef Graph::Create(uint32_t n, Type ty) {
     return std::unique_ptr<Graph>(new Graph(K_GRAPH, n, ty));
 }
 
-Graph::uRef Graph::Read(std::string filepath, Type ty) {
-    std::ifstream in(filepath.c_str());
-    return ReadFromIn(in, ty);
-}
-
-Graph::uRef Graph::ReadString(std::string graphStr, Type ty) {
-    std::stringstream in(graphStr);
-    return ReadFromIn(in, ty);
-}
-
 // ----------------------------- JsonFields -------------------------------
 const std::string JsonFields<Graph>::_VerticesLabel_ = "vertices";
 const std::string JsonFields<Graph>::_AdjListLabel_ = "adj";
 const std::string JsonFields<Graph>::_TypeLabel_ = "type";
 const std::string JsonFields<Graph>::_VLabel_ = "v";
 
-// ----------------------------- JsonInputParser -------------------------------
-Json::Value JsonInputParser<Graph>::Parse(std::istream& in) {
-    Json::Value root;
-    in >> root;
+// ----------------------------- JsonBackendParser -------------------------------
+std::unique_ptr<Graph> JsonBackendParser<Graph>::Parse(const Json::Value& root) {
+    typedef Json::ValueType Ty;
+    const std::string _GraphErrorPrefix_ = "Graph parsing error";
 
-    if (!root[_VerticesLabel_].isInt()) {
-        ERR << "Graph parsing error: field `" << _VerticesLabel_
-            << "` not found or not an int." << std::endl;
-        ExitWith(ExitCode::EXIT_json_parsing_error);
+    JsonCheckTypeError(_GraphErrorPrefix_, root, JsonFields<Graph>::_VerticesLabel_,
+                       { Ty::intValue, Ty::uintValue });
+    JsonCheckTypeError(_GraphErrorPrefix_, root, JsonFields<Graph>::_AdjListLabel_,
+                       { Ty::arrayValue });
+    JsonCheckTypeError(_GraphErrorPrefix_, root, JsonFields<Graph>::_TypeLabel_,
+                       { Ty::stringValue });
+
+    auto vertices = root[JsonFields<Graph>::_VerticesLabel_].asUInt();
+    auto typeStr = root[JsonFields<Graph>::_TypeLabel_].asString();
+    auto ty = Graph::Type::Undirected;
+
+    if (typeStr == "Directed") {
+        ty = Graph::Type::Directed;
+    } else if (typeStr != "Undirected") {
+        WAR << "Graph parsing warning: defaulting to `Undirected type`." << std::endl;
     }
-
-    if (!root[_AdjListLabel_].isArray()) {
-        ERR << "Graph parsing error: field `" << _AdjListLabel_
-            << "` not found or not an array." << std::endl;
-        ExitWith(ExitCode::EXIT_json_parsing_error);
-    }
-
-    if (!root[_TypeLabel_].isString()) {
-        ERR << "Graph parsing error: field `" << _TypeLabel_
-            << "` not found or not a string." << std::endl;
-        ExitWith(ExitCode::EXIT_json_parsing_error);
-    }
-
-    auto type = root[_TypeLabel_].asString();
-    if (type != "D" && type != "U") {
-        ERR << "Graph parsing error: field `" << _TypeLabel_
-            << "` should be `U` (undirected) or `D` (directed)." << std::endl;
-        ExitWith(ExitCode::EXIT_json_parsing_error);
-    }
-
-    for (uint32_t i = 0, e = root[_AdjListLabel_].size(); i < e; ++i) {
-        auto &iList = root[_AdjListLabel_][i];
-
-        if (!iList.isArray()) {
-            ERR << "Graph parsing error: `" << _AdjListLabel_
-                << "`[" << i << "] is not an array." << std::endl;
-            ExitWith(ExitCode::EXIT_json_parsing_error);
-        }
-
-        for (uint32_t j = 0, f = root[_AdjListLabel_][i].size(); j < f; ++j) {
-            auto &jElem = iList[j];
-
-            if (!jElem.isObject()) {
-                ERR << "Graph parsing error: `" << _AdjListLabel_
-                    << "`[" << i << "][" << j << "] is not an object." << std::endl;
-                ExitWith(ExitCode::EXIT_json_parsing_error);
-            }
-        }
-    }
-}
-
-// ----------------------------- FromJsonGetter -------------------------------
-std::unique_ptr<Graph> FromJsonGetter<Graph>::Get(const Json::Value& root) {
-    auto vertices = root[_VerticesLabel_].asUInt();
-    auto tyString = root[_TypeLabel_].asString();
-    Graph::Type ty;
-
-    if (tyString == "D") ty = Graph::Type::Directed;
-    else ty = Graph::Type::Undirected;
 
     auto graph = Graph::Create(vertices, ty);
+    auto &adj = root[JsonFields<Graph>::_AdjListLabel_];
 
-    for (uint32_t i = 0, e = root[_AdjListLabel_].size(); i < e; ++i) {
-        auto &iList = root[_AdjListLabel_][i];
+    for (uint32_t i = 0; i < vertices; ++i) {
+        JsonCheckTypeError(_GraphErrorPrefix_, adj, i, { Ty::arrayValue });
+        auto &iList = adj[i];
         
         for (uint32_t j = 0, f = iList.size(); j < f; ++j) {
+            JsonCheckTypeError(_GraphErrorPrefix_, iList, j, { Ty::objectValue });
             auto &jElem = iList[j];
-
-            if (!jElem[_VLabel_].isUInt()) {
-                ERR << "Graph parsing error: `" << _AdjListLabel_
-                    << "`[" << i << "][" << j << "][`" << _VLabel_ << "`] is not an uint."
-                    << std::endl;
-                ExitWith(ExitCode::EXIT_json_parsing_error);
-            }
-
-            graph->putEdge(i, jElem[_VLabel_].asUInt());
+            JsonCheckTypeError(_GraphErrorPrefix_, jElem, JsonFields<Graph>::_VLabel_,
+                               { Ty::intValue, Ty::uintValue });
+            graph->putEdge(i, jElem[JsonFields<Graph>::_VLabel_].asUInt());
         }
     }
+
+    return std::move(graph);
 }

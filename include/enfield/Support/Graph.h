@@ -76,10 +76,6 @@ namespace efd {
     
             /// \brief Encapsulates the creation of a new Graph.
             static uRef Create(uint32_t n, Type ty = Undirected);
-            /// \brief Parses the file \p filename into a Graph representation.
-            static uRef Read(std::string filepath, Type ty = Undirected);
-            /// \brief Parses the string \p graphStr into a Graph representation.
-            static uRef ReadString(std::string graphStr, Type ty = Undirected);
     };
 
     template <> struct JsonFields<Graph> {
@@ -89,12 +85,8 @@ namespace efd {
         static const std::string _VLabel_;
     };
 
-    template <> struct JsonInputParser<Graph> {
-        static Json::Value Parse(std::istream& in);
-    };
-
-    template <> struct FromJsonGetter<Graph> {
-        static std::unique_ptr<Graph> Get(const Json::Value& root);
+    template <> struct JsonBackendParser<Graph> {
+        static std::unique_ptr<Graph> Parse(const Json::Value& root);
     };
 }
 
