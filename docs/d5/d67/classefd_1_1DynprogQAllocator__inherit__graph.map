@@ -1,0 +1,7 @@
+<map id="efd::DynprogQAllocator" name="efd::DynprogQAllocator">
+<area shape="rect" id="node2" href="$d6/d8e/classefd_1_1StdSolutionQAllocator.xhtml" title="An abstract allocator that builds the solution based on a StdSolution. " alt="" coords="5,323,199,349"/>
+<area shape="rect" id="node3" href="$de/d5a/classefd_1_1QbitAllocator.xhtml" title="Base abstract class that allocates the qbits used in the program to the qbits that are in the physica..." alt="" coords="34,247,170,273"/>
+<area shape="rect" id="node4" href="$db/d56/classefd_1_1PassT.xhtml" title="efd::PassT\&lt; Mapping \&gt;" alt="" coords="15,171,189,197"/>
+<area shape="rect" id="node5" href="$d0/d98/classefd_1_1Pass.xhtml" title="Base class for implementation of QModule passes. This information will be used when the QModule&#39;s fun..." alt="" coords="56,5,137,32"/>
+<area shape="rect" id="node6" href="$db/d56/classefd_1_1PassT.xhtml" title="Should serve as base class for classes that produces some data of type T. " alt="" coords="119,81,245,108"/>
+</map>

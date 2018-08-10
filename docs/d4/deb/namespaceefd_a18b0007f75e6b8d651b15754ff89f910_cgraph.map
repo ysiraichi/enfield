@@ -1,4 +1,3 @@
 <map id="efd::Fill" name="efd::Fill">
-<area shape="rect" id="node2" href="$d4/deb/namespaceefd.xhtml#a35884a2adaf86bf35e7e3f1f65acc522" title="efd::Fill" alt="" coords="308,5,373,32"/>
-<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#a5b9a652c9403e0dbe7115d9d7f5e7d62" title="Generates an assignment mapping (maps the architecture&#39;s qubits to the logical ones) of size archQ..." alt="" coords="119,31,260,57"/>
+<area shape="rect" id="node2" href="$d4/deb/namespaceefd.xhtml#adb4ffc373d7273aefb15d2f9dcd4aeb4" title="Generates an assignment mapping (maps the architecture&#39;s qubits to the logical ones) of size archQ..." alt="" coords="124,5,268,32"/>
 </map>

@@ -39,7 +39,7 @@ namespace efd {
             XbitToNumber& mXtoNTgt;
             CircuitGraph::Iterator& mIt;
             Mapping mMap;
-            Assign mAssign;
+            InverseMap mInverseMap;
 
             std::map<Node::Ref, uint32_t> mReached;
             std::vector<bool> mMarked;
@@ -87,9 +87,9 @@ SemanticVerifierVisitor::SemanticVerifierVisitor(XbitToNumber& xtonsrc,
     mSuccess(true) {
     
 
-    mAssign.assign(mQubitsTgt, 0);
+    mInverseMap.assign(mQubitsTgt, 0);
     for (uint32_t i = 0; i < mQubitsTgt; ++i) {
-        mAssign[mMap[i]] = i;
+        mInverseMap[mMap[i]] = i;
     }
 
     for (uint32_t i = 0; i < mXbitsSrc; ++i) {
@@ -113,7 +113,7 @@ uint32_t SemanticVerifierVisitor::getTgtUId(uint32_t srcUId) {
 }
 
 uint32_t SemanticVerifierVisitor::getSrcUId(uint32_t tgtUId) {
-    if (tgtUId < mQubitsTgt) return mAssign[tgtUId];
+    if (tgtUId < mQubitsTgt) return mInverseMap[tgtUId];
     return (tgtUId - mQubitsTgt) + mQubitsSrc;
 }
 
@@ -330,11 +330,11 @@ void SemanticVerifierVisitor::visit(NDQOpGen::Ref ref) {
         uint32_t u = mXtoNTgt.getQUId(qargs->getChild(0)->toString(false));
         uint32_t v = mXtoNTgt.getQUId(qargs->getChild(1)->toString(false));
 
-        uint32_t a = mAssign[u];
-        uint32_t b = mAssign[v];
+        uint32_t a = mInverseMap[u];
+        uint32_t b = mInverseMap[v];
 
         std::swap(mMap[a], mMap[b]);
-        std::swap(mAssign[u], mAssign[v]);
+        std::swap(mInverseMap[u], mInverseMap[v]);
     } else {
         visitNDQOp(ref);
     }

@@ -22,7 +22,7 @@ IBMQAllocator::uRef IBMQAllocator::Create(ArchGraph::sRef archGraph) {
 IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
 (Layer& layer, Mapping current, std::set<uint32_t> qubitsSet, DependencyBuilder& depData) {
     AllocationResult result { current, true, {}, false };
-    Assign assign = GenAssignment(mPQubits, current);
+    InverseMap inv = InvertMapping(mPQubits, current);
 
     std::default_random_engine generator(Seed.getVal());
     std::normal_distribution<double> distribution(0.0, (double) (1 / (double) mPQubits));
@@ -31,11 +31,11 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
     for (auto node : layer) {
         auto _deps = depData.getDeps(node);
 
-        if (_deps.getSize() > 1) {
+        if (_deps.size() > 1) {
             ERR << "Not suporting gates with more than 1 dependency ("
                 << node->toString(false) << ")." << std::endl;
             ExitWith(ExitCode::EXIT_unreachable);
-        } else if (_deps.getSize() == 1) {
+        } else if (_deps.size() == 1) {
             deps.push_back(_deps[0]);
         }
     }
@@ -61,7 +61,7 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
     for (uint32_t i = 0; i < trials; ++i) {
 
         auto trialMap = current;
-        auto trialAssign = assign;
+        auto trialAssign = inv;
         StdSolution::OpVector trialOpv;
 
         std::vector<std::vector<double>> rDist(mPQubits, std::vector<double>(mPQubits, _undef));
@@ -78,7 +78,7 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
             std::set<uint32_t> qubitSet = qubitsSet;
 
             auto optMap = trialMap;
-            auto optAssign = trialAssign;
+            auto optInverseMap = trialAssign;
             Operation optOp;
             std::pair<uint32_t, uint32_t> optEdge;
 
@@ -97,9 +97,9 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
                         if (hasU && hasV) {
                             // 1. Try a swap on (u, v)
                             auto _map = trialMap;
-                            auto _assign = trialAssign;
-                            std::swap(_map[_assign[u]], _map[_assign[v]]);
-                            std::swap(_assign[u], _assign[v]);
+                            auto _inv = trialAssign;
+                            std::swap(_map[_inv[u]], _map[_inv[v]]);
+                            std::swap(_inv[u], _inv[v]);
                             // 2. Compute cost again
                             double _cost = 0;
                             for (auto dep : deps) {
@@ -111,9 +111,9 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
                                 progress = true;
                                 minCost = _cost;
                                 optMap = _map;
-                                optAssign = _assign;
+                                optInverseMap = _inv;
                                 optEdge = std::make_pair(u, v);
-                                optOp = { Operation::K_OP_SWAP, _assign[u], _assign[v] };
+                                optOp = { Operation::K_OP_SWAP, _inv[u], _inv[v] };
                             }
                         }
                     }
@@ -123,7 +123,7 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
                     qubitSet.erase(optEdge.first);
                     qubitSet.erase(optEdge.second);
                     trialMap = optMap;
-                    trialAssign = optAssign;
+                    trialAssign = optInverseMap;
                     trialOpv.push_back(optOp);
                 } else {
                     break;
@@ -232,7 +232,7 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
 
                 auto clone = node->clone();
 
-                if (deps.getSize() == 1) {
+                if (deps.size() == 1) {
                     auto dep = deps[0];
                     uint32_t u = result.map[dep.mFrom], v = result.map[dep.mTo];
 
@@ -294,7 +294,7 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                     opVector = result.opv;
                 }
 
-                if (deps.getSize() == 1) {
+                if (deps.size() == 1) {
                     auto dep = deps[0];
                     uint32_t u = result.map[dep.mFrom], v = result.map[dep.mTo];
 

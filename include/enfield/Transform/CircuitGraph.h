@@ -18,6 +18,11 @@ namespace efd {
             Xbit(Type t, uint32_t id);
 
         public:
+            Xbit(uint32_t realId, uint32_t qubits, uint32_t cbits);
+
+            bool isQuantum();
+            bool isClassic();
+
             /// \brief Gets the real id for this bit.
             ///
             /// If it is a classical bit, we sum \p qubits to it. 
@@ -64,8 +69,10 @@ namespace efd {
                     /// \brief True if this node is in the middle (gate node).
                     bool isGateNode();
 
-                    /// \brief Returns the \p Xbit ID's in this node.
-                    std::vector<uint32_t> getXbitsIds();
+                    /// \brief Returns the \p Xbits in this node.
+                    std::vector<Xbit> getXbits(uint32_t qubits, uint32_t cbits);
+                    /// \brief Returns the \p Xbit ids in this node.
+                    std::vector<uint32_t> getXbitsId();
 
                     friend class CircuitGraph;
             };
@@ -116,11 +123,11 @@ namespace efd {
             /// \brief Checks if the CircuitGraph is initialized. Exits with error if not.
             void checkInitialized();
 
-            /// \breif Returns the number of qubits.
+            /// \brief Returns the number of qubits.
             uint32_t getQSize() const;
-            /// \breif Returns the number of cbits.
+            /// \brief Returns the number of cbits.
             uint32_t getCSize() const;
-            /// \breif Returns the number of bits.
+            /// \brief Returns the number of bits.
             uint32_t size() const;
 
             /// \brief Appends a node to the bits \p xbits.

@@ -1,11 +1,5 @@
 <map id="efd::DependencyBuilderVisitor::visit" name="efd::DependencyBuilderVisitor::visit">
-<area shape="rect" id="node2" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#ad18a762f3acc821e6e05541cc3670a73" title="efd::DependencyBuilder\l::getDepsSet" alt="" coords="253,5,415,47"/>
-<area shape="rect" id="node4" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#aebb2d70f1197065d1b127c2925dd33e6" title="Gets the left hand side of the gate. " alt="" coords="253,71,415,98"/>
-<area shape="rect" id="node6" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#a7b526a26be080f963c70e7001b7e9ff5" title="Gets the right hand side of the gate. " alt="" coords="252,122,416,149"/>
-<area shape="rect" id="node7" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a270909cecb1317ad9cafa912aa4c34aa" title="Gets an unsingned id for ref. " alt="" coords="253,173,415,215"/>
-<area shape="rect" id="node3" href="$d1/d76/structefd_1_1DependencyBuilder.xhtml#a39689f940b3544a042ff0f1968068d53" title="Gets the DepsSet corresponding to the current quantum gate, or the global (if current gate is null)..." alt="" coords="464,5,625,47"/>
-<area shape="rect" id="node5" href="$d6/d6a/classefd_1_1Node.xhtml#a63e30243eca03b0c85d8c4856e91c79d" title="Gets the i&#45;th child. " alt="" coords="477,83,612,110"/>
-<area shape="rect" id="node8" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ae645e4b0ccb9c25c534883843484f06a" title="Returns an uint32_t number representing the qubit in this specific gate (if any). ..." alt="" coords="475,160,615,201"/>
-<area shape="rect" id="node10" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="479,226,611,253"/>
-<area shape="rect" id="node9" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#a7d9474b325920d98f5832d5f1923ba2b" title="Gets a constant reference to the mapping of qubtis of a gate. " alt="" coords="673,160,813,201"/>
+<area shape="rect" id="node2" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#aebb2d70f1197065d1b127c2925dd33e6" title="Gets the left hand side of the gate. " alt="" coords="275,5,443,32"/>
+<area shape="rect" id="node4" href="$d3/d14/classefd_1_1NDQOpCX.xhtml#a7b526a26be080f963c70e7001b7e9ff5" title="Gets the right hand side of the gate. " alt="" coords="273,56,444,83"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#a63e30243eca03b0c85d8c4856e91c79d" title="Gets the i&#45;th child. " alt="" coords="492,31,639,57"/>
 </map>

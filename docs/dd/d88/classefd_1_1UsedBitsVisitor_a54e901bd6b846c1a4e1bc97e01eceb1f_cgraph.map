@@ -1,8 +1,7 @@
 <map id="efd::UsedBitsVisitor::visit" name="efd::UsedBitsVisitor::visit">
-<area shape="rect" id="node2" href="$dd/d88/classefd_1_1UsedBitsVisitor.xhtml#ac19c5380f0f028c48017ef544be8ed85" title="efd::UsedBitsVisitor\l::visitQOp" alt="" coords="192,57,331,98"/>
-<area shape="rect" id="node3" href="$dd/d94/classefd_1_1NDQOp.xhtml#af7ef43289355c5bb047a46419177c8ed" title="Gets the quantum arguments. " alt="" coords="379,5,537,32"/>
-<area shape="rect" id="node5" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ae645e4b0ccb9c25c534883843484f06a" title="Returns an uint32_t number representing the qubit in this specific gate (if any). ..." alt="" coords="388,57,528,98"/>
-<area shape="rect" id="node7" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="392,123,524,149"/>
-<area shape="rect" id="node4" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="607,5,704,32"/>
-<area shape="rect" id="node6" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#a7d9474b325920d98f5832d5f1923ba2b" title="Gets a constant reference to the mapping of qubtis of a gate. " alt="" coords="585,57,725,98"/>
+<area shape="rect" id="node2" href="$dd/d88/classefd_1_1UsedBitsVisitor.xhtml#ac19c5380f0f028c48017ef544be8ed85" title="efd::UsedBitsVisitor\l::visitQOp" alt="" coords="204,27,355,69"/>
+<area shape="rect" id="node3" href="$dd/d94/classefd_1_1NDQOp.xhtml#af7ef43289355c5bb047a46419177c8ed" title="Gets the quantum arguments. " alt="" coords="403,5,569,32"/>
+<area shape="rect" id="node4" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ae645e4b0ccb9c25c534883843484f06a" title="Returns an uint32_t number representing the qubit in this specific gate (if any). ..." alt="" coords="409,57,563,98"/>
+<area shape="rect" id="node5" href="$d0/d9e/classefd_1_1NDDecl.xhtml#a34957c2122c38cebf80a264d5fa3863f" title="Gets the id node. " alt="" coords="626,39,767,65"/>
+<area shape="rect" id="node6" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="617,89,776,116"/>
 </map>

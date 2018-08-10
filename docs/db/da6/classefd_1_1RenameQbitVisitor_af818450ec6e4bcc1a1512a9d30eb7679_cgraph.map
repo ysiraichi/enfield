@@ -1,6 +1,5 @@
 <map id="efd::RenameQbitVisitor::visit" name="efd::RenameQbitVisitor::visit">
-<area shape="rect" id="node2" href="$da/ddd/classefd_1_1NDList.xhtml#a0c627fa9aac8afe1562eae8f64830bff" title="Used by visitor classes. " alt="" coords="227,5,355,32"/>
-<area shape="rect" id="node4" href="$dd/d94/classefd_1_1NDQOp.xhtml#af7ef43289355c5bb047a46419177c8ed" title="Gets the quantum arguments. " alt="" coords="212,56,371,83"/>
-<area shape="rect" id="node3" href="$d8/d5d/classefd_1_1NodeVisitor.xhtml#a64eff19ec07d296a22511e8e4b89d97a" title="efd::NodeVisitor::visit" alt="" coords="419,5,567,32"/>
-<area shape="rect" id="node5" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="444,56,541,83"/>
+<area shape="rect" id="node2" href="$da/ddd/classefd_1_1NDList.xhtml#a0c627fa9aac8afe1562eae8f64830bff" title="Used by visitor classes. " alt="" coords="242,5,381,32"/>
+<area shape="rect" id="node4" href="$dd/d94/classefd_1_1NDQOp.xhtml#af7ef43289355c5bb047a46419177c8ed" title="Gets the quantum arguments. " alt="" coords="228,56,395,83"/>
+<area shape="rect" id="node3" href="$d8/d5d/classefd_1_1NodeVisitor.xhtml#ab06816b86084fc851dfc34ca445a58f2" title="efd::NodeVisitor::visit" alt="" coords="443,5,605,32"/>
 </map>

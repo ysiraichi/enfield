@@ -1,16 +1,4 @@
 <map id="efd::ParseFile" name="efd::ParseFile">
-<area shape="rect" id="node2" href="$dd/d52/classefd_1_1QModule.xhtml#a653e47a65669dcb2e2f5b2c37d684d01" title="Parses the file filename and returns a QModule. " alt="" coords="156,122,299,149"/>
-<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#ab4181eb2261a81187a3e8800ec2782ed" title="Parse filename at path. " alt="" coords="388,97,491,123"/>
-<area shape="rect" id="node4" href="$dd/d52/classefd_1_1QModule.xhtml#a1acae6e0a197d578c8e5987863443dd7" title="Process the AST in order to obtain the QModule. " alt="" coords="347,147,532,174"/>
-<area shape="rect" id="node5" href="$d4/deb/namespaceefd.xhtml#a5b8442e2de32a9529d7a4fcd5829ef62" title="Processes the root node, and transform the entire AST into a QModule. " alt="" coords="603,71,725,98"/>
-<area shape="rect" id="node8" href="$d4/deb/namespaceefd.xhtml#a194305909125a1398a1f0e00fbae1cf5" title="Returns a vector with the intrinsic gates implementation. " alt="" coords="589,147,739,174"/>
-<area shape="rect" id="node12" href="$dd/d52/classefd_1_1QModule.xhtml#a7a0b91ad23bdaf49e197692f453808b8" title="Inserts a gate to the QModule. " alt="" coords="580,223,748,250"/>
-<area shape="rect" id="node6" href="$de/d71/classefd_1_1QModulefyVisitor.xhtml#abb023fa145e1e3b6c9f55493781ea874" title="efd::QModulefyVisitor\l::QModulefyVisitor" alt="" coords="803,5,951,47"/>
-<area shape="rect" id="node7" href="$d6/d6a/classefd_1_1Node.xhtml#ab813c60af1717cf50e92a28b274c24ef" title="Used by visitor classes. " alt="" coords="817,71,936,98"/>
-<area shape="rect" id="node9" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="817,122,936,149"/>
-<area shape="rect" id="node11" href="$d4/deb/namespaceefd.xhtml#ad7adca0e4de58074aa3f91827469a491" title="Uses the RTTI framework to cast forwardly an unique_ptr. " alt="" coords="796,173,957,199"/>
-<area shape="rect" id="node10" href="$d6/d6a/classefd_1_1Node.xhtml#ac078ce64eb404cfdc24b9288908536e4" title="Clones the current node (deep copy). " alt="" coords="1005,122,1148,149"/>
-<area shape="rect" id="node13" href="$d0/d9e/classefd_1_1NDDecl.xhtml#a34957c2122c38cebf80a264d5fa3863f" title="Gets the id node. " alt="" coords="811,223,943,250"/>
-<area shape="rect" id="node15" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="803,274,950,301"/>
-<area shape="rect" id="node14" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="1028,223,1125,250"/>
+<area shape="rect" id="node2" href="$dd/d52/classefd_1_1QModule.xhtml#a653e47a65669dcb2e2f5b2c37d684d01" title="Parses the file filename and returns a QModule. " alt="" coords="164,5,316,32"/>
+<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#ab4181eb2261a81187a3e8800ec2782ed" title="Parse filename at path. " alt="" coords="364,5,475,32"/>
 </map>

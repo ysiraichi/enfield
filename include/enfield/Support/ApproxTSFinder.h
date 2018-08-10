@@ -15,7 +15,7 @@ namespace efd {
 
         protected:
             void preprocess() override;
-            SwapSeq findImpl(const Assign& from, const Assign& to) override;
+            SwapSeq findImpl(const InverseMap& from, const InverseMap& to) override;
 
         public:
             /// \brief Creates an instance of this class.

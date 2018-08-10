@@ -1,8 +1,8 @@
 <map id="efd::PassT&lt; void &gt;" name="efd::PassT&lt; void &gt;">
-<area shape="rect" id="node3" href="$d8/df2/classefd_1_1FlattenPass.xhtml" title="Flattens the given QModule. " alt="" coords="337,5,456,32"/>
-<area shape="rect" id="node4" href="$d5/de3/classefd_1_1InlineAllPass.xhtml" title="efd::InlineAllPass" alt="" coords="335,56,459,83"/>
-<area shape="rect" id="node5" href="$d8/dd7/classefd_1_1RenameQbitPass.xhtml" title="Renames all the qbits according to the map from the constructor. " alt="" coords="321,107,472,133"/>
-<area shape="rect" id="node6" href="$d2/ddc/classefd_1_1ReverseEdgesPass.xhtml" title="Pass that reverses the edges accordingly with the architecture Graph. " alt="" coords="315,157,479,184"/>
-<area shape="rect" id="node7" href="$d4/dd6/classefd_1_1SolutionImplPass.xhtml" title="efd::SolutionImplPass" alt="" coords="321,208,472,235"/>
-<area shape="rect" id="node2" href="$d0/d98/classefd_1_1Pass.xhtml" title="Base class for implementation of QModule passes. This information will be used when the QModule&#39;s fun..." alt="" coords="5,107,84,133"/>
+<area shape="rect" id="node3" href="$d8/df2/classefd_1_1FlattenPass.xhtml" title="Flattens the given QModule. " alt="" coords="358,5,485,32"/>
+<area shape="rect" id="node4" href="$d5/de3/classefd_1_1InlineAllPass.xhtml" title="efd::InlineAllPass" alt="" coords="354,56,489,83"/>
+<area shape="rect" id="node5" href="$d8/dd7/classefd_1_1RenameQbitPass.xhtml" title="Renames all the qbits according to the map from the constructor. " alt="" coords="340,107,503,133"/>
+<area shape="rect" id="node6" href="$d2/ddc/classefd_1_1ReverseEdgesPass.xhtml" title="Pass that reverses the edges accordingly with the architecture Graph. " alt="" coords="335,157,508,184"/>
+<area shape="rect" id="node7" href="$dc/dcc/classefd_1_1StdSolutionImplPass.xhtml" title="efd::StdSolutionImplPass" alt="" coords="329,208,513,235"/>
+<area shape="rect" id="node2" href="$d0/d98/classefd_1_1Pass.xhtml" title="Base class for implementation of QModule passes. This information will be used when the QModule&#39;s fun..." alt="" coords="5,107,87,133"/>
 </map>

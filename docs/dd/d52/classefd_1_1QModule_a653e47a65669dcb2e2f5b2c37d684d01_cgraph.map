@@ -1,15 +1,3 @@
 <map id="efd::QModule::Parse" name="efd::QModule::Parse">
-<area shape="rect" id="node2" href="$dd/d52/classefd_1_1QModule.xhtml#a1acae6e0a197d578c8e5987863443dd7" title="Process the AST in order to obtain the QModule. " alt="" coords="196,132,381,159"/>
-<area shape="rect" id="node14" href="$d4/deb/namespaceefd.xhtml#ab4181eb2261a81187a3e8800ec2782ed" title="Parse filename at path. " alt="" coords="237,183,340,209"/>
-<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#a194305909125a1398a1f0e00fbae1cf5" title="Returns a vector with the intrinsic gates implementation. " alt="" coords="438,56,589,83"/>
-<area shape="rect" id="node7" href="$dd/d52/classefd_1_1QModule.xhtml#a7a0b91ad23bdaf49e197692f453808b8" title="Inserts a gate to the QModule. " alt="" coords="429,132,597,159"/>
-<area shape="rect" id="node11" href="$d4/deb/namespaceefd.xhtml#a5b8442e2de32a9529d7a4fcd5829ef62" title="Processes the root node, and transform the entire AST into a QModule. " alt="" coords="452,208,575,235"/>
-<area shape="rect" id="node4" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="667,5,785,32"/>
-<area shape="rect" id="node6" href="$d4/deb/namespaceefd.xhtml#ad7adca0e4de58074aa3f91827469a491" title="Uses the RTTI framework to cast forwardly an unique_ptr. " alt="" coords="645,56,807,83"/>
-<area shape="rect" id="node5" href="$d6/d6a/classefd_1_1Node.xhtml#ac078ce64eb404cfdc24b9288908536e4" title="Clones the current node (deep copy). " alt="" coords="855,5,997,32"/>
-<area shape="rect" id="node8" href="$d0/d9e/classefd_1_1NDDecl.xhtml#a34957c2122c38cebf80a264d5fa3863f" title="Gets the id node. " alt="" coords="660,107,792,133"/>
-<area shape="rect" id="node10" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="653,157,799,184"/>
-<area shape="rect" id="node9" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="877,107,975,133"/>
-<area shape="rect" id="node12" href="$d6/d6a/classefd_1_1Node.xhtml#ab813c60af1717cf50e92a28b274c24ef" title="Used by visitor classes. " alt="" coords="667,208,785,235"/>
-<area shape="rect" id="node13" href="$de/d71/classefd_1_1QModulefyVisitor.xhtml#abb023fa145e1e3b6c9f55493781ea874" title="efd::QModulefyVisitor\l::QModulefyVisitor" alt="" coords="652,259,800,301"/>
+<area shape="rect" id="node2" href="$d4/deb/namespaceefd.xhtml#ab4181eb2261a81187a3e8800ec2782ed" title="Parse filename at path. " alt="" coords="205,5,316,32"/>
 </map>

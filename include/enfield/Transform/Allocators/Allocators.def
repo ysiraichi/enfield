@@ -1,13 +1,20 @@
 EFD_ALLOCATOR(dynprog, DynprogQAllocator)
 EFD_ALLOCATOR(grdy, GreedyCktQAllocator)
 EFD_ALLOCATOR(ibm, IBMQAllocator)
-EFD_ALLOCATOR_BMT(bmt, SeqNCandidateIterator,
+EFD_ALLOCATOR_BMT(bmt, SeqNCandidatesGenerator,
                        FirstCandidateSelector,
                        FirstCandidateSelector,
                        GeoDistanceSwapCEstimator,
                        GeoNearestLQPProcessor,
-                       BestMSSelector,
+                       BestNMSSelector,
                        ApproxTSFinder)
+EFD_ALLOCATOR_BMT(ibmt, CircuitCandidatesGenerator,
+                        WeightedRouletteCandidateSelector,
+                        WeightedRouletteCandidateSelector,
+                        GeoDistanceSwapCEstimator,
+                        GeoNearestLQPProcessor,
+                        BestNMSSelector,
+                        ApproxTSFinder)
 EFD_ALLOCATOR_SIMPLE(wpm, WeightedSIMappingFinder, PathGuidedSolBuilder)
 EFD_ALLOCATOR_SIMPLE(random, RandomMappingFinder, PathGuidedSolBuilder)
 EFD_ALLOCATOR_SIMPLE(qubiter, IdentityMappingFinder, QbitterSolBuilder)

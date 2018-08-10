@@ -1,8 +1,8 @@
 <map id="include/enfield/Support/BFSPathFinder.h" name="include/enfield/Support/BFSPathFinder.h">
-<area shape="rect" id="node2" href="$d6/d3a/BFSPathFinder_8cpp.xhtml" title="lib/Support/BFSPathFinder.cpp" alt="" coords="5,102,208,129"/>
-<area shape="rect" id="node3" href="$d1/d31/DynprogDepSolver_8cpp.xhtml" title="lib/Transform/Allocators\l/DynprogDepSolver.cpp" alt="" coords="233,95,394,136"/>
-<area shape="rect" id="node4" href="$d4/dd0/GreedyCktQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/GreedyCktQAllocator.cpp" alt="" coords="418,95,593,136"/>
-<area shape="rect" id="node5" href="$dd/d90/IBMQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/IBMQAllocator.cpp" alt="" coords="617,95,777,136"/>
-<area shape="rect" id="node6" href="$d3/d84/PathGuidedSolBuilder_8cpp.xhtml" title="lib/Transform/Allocators\l/PathGuidedSolBuilder.cpp" alt="" coords="801,95,980,136"/>
-<area shape="rect" id="node7" href="$db/de4/QbitterSolBuilder_8cpp.xhtml" title="lib/Transform/Allocators\l/QbitterSolBuilder.cpp" alt="" coords="1004,95,1164,136"/>
+<area shape="rect" id="node2" href="$d6/d3a/BFSPathFinder_8cpp.xhtml" title="lib/Support/BFSPathFinder.cpp" alt="" coords="5,102,221,129"/>
+<area shape="rect" id="node3" href="$d4/d00/DynprogQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/DynprogQAllocator.cpp" alt="" coords="245,95,424,136"/>
+<area shape="rect" id="node4" href="$d4/dd0/GreedyCktQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/GreedyCktQAllocator.cpp" alt="" coords="449,95,639,136"/>
+<area shape="rect" id="node5" href="$dd/d90/IBMQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/IBMQAllocator.cpp" alt="" coords="664,95,843,136"/>
+<area shape="rect" id="node6" href="$d3/d84/PathGuidedSolBuilder_8cpp.xhtml" title="lib/Transform/Allocators\l/Simple/PathGuidedSolBuilder.cpp" alt="" coords="867,95,1109,136"/>
+<area shape="rect" id="node7" href="$db/de4/QbitterSolBuilder_8cpp.xhtml" title="lib/Transform/Allocators\l/Simple/QbitterSolBuilder.cpp" alt="" coords="1133,95,1347,136"/>
 </map>

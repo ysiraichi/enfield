@@ -1,3 +1,6 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$db/df0/structefd_1_1ParseOptTrait_3_01EnumString_3_01T_00_01first_00_01last_01_4_01_4.xhtml" title="efd::ParseOptTrait\l\&lt; EnumString\&lt; T, first,\l last \&gt; \&gt;" alt="" coords="5,5,161,61"/>
+<area shape="rect" id="node1" href="$db/dde/classefd_1_1MappingFinder.xhtml" title="Interface for finding a mapping from some set of dependencies. " alt="" coords="5,56,152,83"/>
+<area shape="rect" id="node2" href="$d5/d24/classefd_1_1IdentityMappingFinder.xhtml" title="Finds a mapping where the logical qubit 0 is mapped to the physical qubit 0, etc. ..." alt="" coords="212,5,408,32"/>
+<area shape="rect" id="node3" href="$dd/d03/classefd_1_1RandomMappingFinder.xhtml" title="Randomizes the mapping. " alt="" coords="210,56,410,83"/>
+<area shape="rect" id="node4" href="$d3/d4f/classefd_1_1WeightedSIMappingFinder.xhtml" title="Finds a mapping with a weighted partial matching algorithm (subgraph isomorphism). " alt="" coords="200,107,420,133"/>
 </map>

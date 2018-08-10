@@ -1,0 +1,7 @@
+<map id="efd::QbitterSolBuilder::build" name="efd::QbitterSolBuilder::build">
+<area shape="rect" id="node2" href="$d4/deb/namespaceefd.xhtml#af3487901a239a99750dc5dcdc3a8c868" title="efd::ExitWith" alt="" coords="274,5,381,32"/>
+<area shape="rect" id="node3" href="$db/db3/classefd_1_1Graph.xhtml#aace719bbdaaef0e8787f8a0032a676d8" title="Returns true whether it has an edge (i, j). " alt="" coords="251,56,404,83"/>
+<area shape="rect" id="node4" href="$d4/deb/namespaceefd.xhtml#adb4ffc373d7273aefb15d2f9dcd4aeb4" title="Generates an assignment mapping (maps the architecture&#39;s qubits to the logical ones) of size archQ..." alt="" coords="255,107,399,133"/>
+<area shape="rect" id="node5" href="$d5/dae/classefd_1_1ArchGraph.xhtml#a10786b155e3d2d397b9d94227080155a" title="Returns true if the edge (i, j) is a reverse edge. i.e.: if (i, j) is not in the graph, but (j, i) is. " alt="" coords="216,157,439,184"/>
+<area shape="rect" id="node6" href="$db/db3/classefd_1_1Graph.xhtml#aa85ea20ad74d6a7df7a52c13a9fabe2d" title="Return the number of vertices. " alt="" coords="265,208,389,235"/>
+</map>

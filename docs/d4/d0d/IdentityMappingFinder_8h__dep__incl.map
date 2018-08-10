@@ -1,4 +1,4 @@
-<map id="include/enfield/Transform/Allocators/IdentityMappingFinder.h" name="include/enfield/Transform/Allocators/IdentityMappingFinder.h">
-<area shape="rect" id="node2" href="$dc/dea/Allocators_8cpp.xhtml" title="lib/Transform/Allocators\l/Allocators.cpp" alt="" coords="5,95,165,136"/>
-<area shape="rect" id="node3" href="$d8/dcc/IdentityMappingFinder_8cpp.xhtml" title="lib/Transform/Allocators\l/IdentityMappingFinder.cpp" alt="" coords="189,95,368,136"/>
+<map id="include/enfield/Transform/Allocators/Simple/IdentityMappingFinder.h" name="include/enfield/Transform/Allocators/Simple/IdentityMappingFinder.h">
+<area shape="rect" id="node2" href="$dc/dea/Allocators_8cpp.xhtml" title="lib/Transform/Allocators\l/Allocators.cpp" alt="" coords="5,109,184,151"/>
+<area shape="rect" id="node3" href="$d8/dcc/IdentityMappingFinder_8cpp.xhtml" title="lib/Transform/Allocators\l/Simple/IdentityMappingFinder.cpp" alt="" coords="209,109,455,151"/>
 </map>

@@ -1,3 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$d7/dda/structefd_1_1ParseOptTrait_3_01double_01_4.xhtml" title="efd::ParseOptTrait\l\&lt; double \&gt;" alt="" coords="5,5,135,47"/>
+<area shape="rect" id="node1" href="$d0/d98/structefd_1_1LiveQubitsPreProcessor.xhtml" title="Interface for preparing the Mappings for fixing the Live Qubits problem. " alt="" coords="5,5,209,32"/>
+<area shape="rect" id="node2" href="$de/d30/classefd_1_1GeoNearestLQPProcessor.xhtml" title="Forces toM to map all qubits mapped in fromM. " alt="" coords="257,5,473,32"/>
 </map>

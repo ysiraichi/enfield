@@ -1,0 +1,4 @@
+<map id="efd::NodeCandidatesGenerator" name="efd::NodeCandidatesGenerator">
+<area shape="rect" id="node2" href="$d1/d88/classefd_1_1CircuitCandidatesGenerator.xhtml" title="Generates a vector with the nodes that it can reach using the CircuitGraph. " alt="" coords="5,80,236,107"/>
+<area shape="rect" id="node3" href="$d0/dfc/classefd_1_1SeqNCandidatesGenerator.xhtml" title="Sequential generator. " alt="" coords="260,80,483,107"/>
+</map>

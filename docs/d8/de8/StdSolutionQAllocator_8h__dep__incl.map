@@ -1,0 +1,22 @@
+<map id="include/enfield/Transform/Allocators/StdSolutionQAllocator.h" name="include/enfield/Transform/Allocators/StdSolutionQAllocator.h">
+<area shape="rect" id="node2" href="$d4/da3/DynprogQAllocator_8h.xhtml" title="include/enfield/Transform\l/Allocators/DynprogQAllocator.h" alt="" coords="908,95,1139,136"/>
+<area shape="rect" id="node5" href="$d0/d2e/GreedyCktQAllocator_8h.xhtml" title="include/enfield/Transform\l/Allocators/GreedyCktQAllocator.h" alt="" coords="5,191,249,233"/>
+<area shape="rect" id="node7" href="$d3/d48/IBMQAllocator_8h.xhtml" title="include/enfield/Transform\l/Allocators/IBMQAllocator.h" alt="" coords="685,95,884,136"/>
+<area shape="rect" id="node9" href="$d1/d5d/SimpleQAllocator_8h.xhtml" title="include/enfield/Transform\l/Allocators/SimpleQAllocator.h" alt="" coords="1163,95,1383,136"/>
+<area shape="rect" id="node21" href="$dd/d13/StdSolutionQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/StdSolutionQAllocator.cpp" alt="" coords="1407,95,1602,136"/>
+<area shape="rect" id="node3" href="$dc/dea/Allocators_8cpp.xhtml" title="lib/Transform/Allocators\l/Allocators.cpp" alt="" coords="965,288,1143,329"/>
+<area shape="rect" id="node4" href="$d4/d00/DynprogQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/DynprogQAllocator.cpp" alt="" coords="477,191,655,233"/>
+<area shape="rect" id="node6" href="$d4/dd0/GreedyCktQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/GreedyCktQAllocator.cpp" alt="" coords="249,288,440,329"/>
+<area shape="rect" id="node8" href="$dd/d90/IBMQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/IBMQAllocator.cpp" alt="" coords="274,191,453,233"/>
+<area shape="rect" id="node10" href="$d3/d1b/WeightedSIMappingFinder_8h.xhtml" title="include/enfield/Transform\l/Allocators/Simple/WeightedSIMapping\lFinder.h" alt="" coords="680,184,953,240"/>
+<area shape="rect" id="node12" href="$da/d43/RandomMappingFinder_8h.xhtml" title="include/enfield/Transform\l/Allocators/Simple/RandomMapping\lFinder.h" alt="" coords="2161,184,2414,240"/>
+<area shape="rect" id="node14" href="$da/d8b/IdentityMappingFinder_8h.xhtml" title="include/enfield/Transform\l/Allocators/Simple/IdentityMapping\lFinder.h" alt="" coords="1131,184,1380,240"/>
+<area shape="rect" id="node16" href="$dd/de8/PathGuidedSolBuilder_8h.xhtml" title="include/enfield/Transform\l/Allocators/Simple/PathGuidedSol\lBuilder.h" alt="" coords="1404,184,1643,240"/>
+<area shape="rect" id="node18" href="$de/d8c/QbitterSolBuilder_8h.xhtml" title="include/enfield/Transform\l/Allocators/Simple/QbitterSolBuilder.h" alt="" coords="1870,191,2137,233"/>
+<area shape="rect" id="node20" href="$d2/d79/SimpleQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/SimpleQAllocator.cpp" alt="" coords="1667,191,1846,233"/>
+<area shape="rect" id="node11" href="$d9/ddd/WeightedSIMappingFinder_8cpp.xhtml" title="lib/Transform/Allocators\l/Simple/WeightedSIMappingFinder.cpp" alt="" coords="669,288,940,329"/>
+<area shape="rect" id="node13" href="$d2/dd0/RandomMappingFinder_8cpp.xhtml" title="lib/Transform/Allocators\l/Simple/RandomMappingFinder.cpp" alt="" coords="2162,288,2413,329"/>
+<area shape="rect" id="node15" href="$d8/dcc/IdentityMappingFinder_8cpp.xhtml" title="lib/Transform/Allocators\l/Simple/IdentityMappingFinder.cpp" alt="" coords="1168,288,1415,329"/>
+<area shape="rect" id="node17" href="$d3/d84/PathGuidedSolBuilder_8cpp.xhtml" title="lib/Transform/Allocators\l/Simple/PathGuidedSolBuilder.cpp" alt="" coords="1439,288,1682,329"/>
+<area shape="rect" id="node19" href="$db/de4/QbitterSolBuilder_8cpp.xhtml" title="lib/Transform/Allocators\l/Simple/QbitterSolBuilder.cpp" alt="" coords="1897,288,2110,329"/>
+</map>

@@ -4,7 +4,7 @@
 efd::StdSolution efd::QbitterSolBuilder::build
 (Mapping initial, DepsVector& deps, ArchGraph::Ref g) {
     auto mapping = initial;
-    auto assign = GenAssignment(g->size(), mapping);
+    auto inv = InvertMapping(g->size(), mapping);
     auto finder = BFSPathFinder::Create();
 
     StdSolution solution { initial, StdSolution::OpSequences(deps.size()), 0 };
@@ -37,7 +37,7 @@ efd::StdSolution efd::QbitterSolBuilder::build
                 ExitWith(ExitCode::EXIT_unreachable);
             }
 
-            operation.mW = assign[path[1]];
+            operation.mW = inv[path[1]];
         }
         ops.second.push_back(operation);
     }

@@ -1,8 +1,6 @@
 <map id="efd::GetIntrinsicKind" name="efd::GetIntrinsicKind">
-<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#ae9f49bc3eeebb8d24af82ecaa8cc3636" title="Returns a std::string representation of the operation. " alt="" coords="195,5,356,32"/>
-<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#ac1264355b1eb1da02a2ae2c1906ce0a5" title="Returns whether ref is (or should be) an intrinsic gate. " alt="" coords="197,56,353,83"/>
-<area shape="rect" id="node4" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="832,56,929,83"/>
-<area shape="rect" id="node5" href="$dd/d94/classefd_1_1NDQOp.xhtml#a7b6a0fcfa45267ae4a005d44e6e52102" title="Returns a std::string representation of the operation. " alt="" coords="404,81,581,108"/>
-<area shape="rect" id="node6" href="$dd/d94/classefd_1_1NDQOp.xhtml#aa9d90f493865fe9cdc3fecd468eaa33b" title="Gets the id. " alt="" coords="641,81,773,108"/>
-<area shape="rect" id="node7" href="$df/d1b/classefd_1_1NDValue.xhtml#a9ded6b0d00e7ea4d748be60c5cc3632b" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="629,132,784,159"/>
+<area shape="rect" id="node2" href="$d4/deb/namespaceefd.xhtml#af3487901a239a99750dc5dcdc3a8c868" title="efd::ExitWith" alt="" coords="244,5,351,32"/>
+<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#ae9f49bc3eeebb8d24af82ecaa8cc3636" title="Returns a std::string representation of the operation. " alt="" coords="208,56,387,83"/>
+<area shape="rect" id="node4" href="$d4/deb/namespaceefd.xhtml#ac1264355b1eb1da02a2ae2c1906ce0a5" title="Returns whether ref is (or should be) an intrinsic gate. " alt="" coords="212,107,383,133"/>
+<area shape="rect" id="node5" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="225,157,369,184"/>
 </map>

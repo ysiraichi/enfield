@@ -4,20 +4,24 @@
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
 
 namespace efd {
-    /// \brief Sequential iterator.
+    /// \brief Sequential generator.
     ///
-    /// It follows the order of the instructions given by the iterators.
-    class SeqNCandidateIterator : public NodeCandidateIterator {
+    /// It follows the order of the instructions given by the iterators,
+    /// and generates always a vector with one `Node`.
+    class SeqNCandidatesGenerator : public NodeCandidatesGenerator {
         private:
             Node::Iterator mIt;
 
         protected:
-            Node::Ref nextImpl() override;
-            bool hasNextImpl() override;
+            void initializeImpl() override;
+            bool finishedImpl() override;
+            std::vector<Node::Ref> generateImpl() override;
 
         public:
-            typedef SeqNCandidateIterator* Ref;
-            typedef std::unique_ptr<SeqNCandidateIterator> uRef;
+            typedef SeqNCandidatesGenerator* Ref;
+            typedef std::unique_ptr<SeqNCandidatesGenerator> uRef;
+
+            void signalProcessed(Node::Ref node) override;
 
             static uRef Create();
     };
@@ -28,8 +32,8 @@ namespace efd {
             typedef FirstCandidateSelector* Ref;
             typedef std::unique_ptr<FirstCandidateSelector> uRef;
 
-            bmt::CandidateVector select(uint32_t maxCandidates,
-                                        const bmt::CandidateVector& candidates) override;
+            bmt::MCandidateVector select(uint32_t maxCandidates,
+                                         const bmt::MCandidateVector& candidates) override;
 
             static uRef Create();
     };
@@ -60,7 +64,7 @@ namespace efd {
             uint32_t mPQubits;
             uint32_t mVQubits;
 
-            uint32_t getNearest(const Graph::Ref g, uint32_t u, const Assign& assign);
+            uint32_t getNearest(const Graph::Ref g, uint32_t u, const InverseMap& inv);
 
         public:
             typedef GeoNearestLQPProcessor* Ref;
@@ -72,10 +76,10 @@ namespace efd {
     };
 
     /// \brief Selects the line that yielded the best cost.
-    class BestMSSelector : public MapSeqSelector {
+    class BestNMSSelector : public MapSeqSelector {
         public:
-            typedef BestMSSelector* Ref;
-            typedef std::unique_ptr<BestMSSelector> uRef;
+            typedef BestNMSSelector* Ref;
+            typedef std::unique_ptr<BestNMSSelector> uRef;
 
             bmt::Vector select(const bmt::TIMatrix& mem) override;
 

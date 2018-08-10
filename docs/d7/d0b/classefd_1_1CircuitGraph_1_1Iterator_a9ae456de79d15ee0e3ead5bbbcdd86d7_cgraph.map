@@ -1,5 +1,4 @@
 <map id="efd::CircuitGraph::Iterator::back" name="efd::CircuitGraph::Iterator::back">
-<area shape="rect" id="node2" href="$d7/d0b/classefd_1_1CircuitGraph_1_1Iterator.xhtml#a2683f5b8000598f30388af47fe5b41f8" title="efd::CircuitGraph::\lIterator::back" alt="" coords="185,5,315,47"/>
-<area shape="rect" id="node4" href="$d9/d6b/classefd_1_1Xbit.xhtml#ad18f73714ed4aa4fe239a210280e7519" title="Gets the real id for this bit. " alt="" coords="183,71,317,98"/>
-<area shape="rect" id="node3" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#a08725ecabe57a0f5aa58ca11f1b9fce6" title="True if this node is in the beginning (input node). " alt="" coords="365,5,535,47"/>
+<area shape="rect" id="node2" href="$d9/d6b/classefd_1_1Xbit.xhtml#ad18f73714ed4aa4fe239a210280e7519" title="Gets the real id for this bit. " alt="" coords="193,13,340,39"/>
+<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#af3487901a239a99750dc5dcdc3a8c868" title="efd::ExitWith" alt="" coords="388,13,495,39"/>
 </map>

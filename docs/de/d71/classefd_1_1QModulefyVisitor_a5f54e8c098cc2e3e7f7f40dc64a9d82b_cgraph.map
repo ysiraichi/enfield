@@ -1,19 +1,6 @@
 <map id="efd::QModulefyVisitor::visit" name="efd::QModulefyVisitor::visit">
-<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="240,5,359,32"/>
-<area shape="rect" id="node4" href="$da/d7f/classefd_1_1NDStmtList.xhtml#a015cefabf53b2666c442b01b86c2b7cd" title="Creates a new instance of this node. " alt="" coords="217,56,381,83"/>
-<area shape="rect" id="node8" href="$d3/d29/classefd_1_1NDInclude.xhtml#a81d54827a61c546040dad4f57e34c318" title="Creates a new instance of this node. " alt="" coords="221,107,378,133"/>
-<area shape="rect" id="node12" href="$d3/d29/classefd_1_1NDInclude.xhtml#a08ec207974cdeaf086c7978dc23b9a30" title="Gets the node that holds the filename. " alt="" coords="205,157,394,184"/>
-<area shape="rect" id="node14" href="$dd/d52/classefd_1_1QModule.xhtml#a02a5efc8ed6d6e6645576b948a18fe19" title="Inserts an include node. " alt="" coords="208,208,391,235"/>
-<area shape="rect" id="node15" href="$d4/deb/namespaceefd.xhtml#aa119fd70b5ec5d99dd8682d63d2e9a92" title="Uses the RTTI framework to cast backwardly an unique_ptr. " alt="" coords="213,259,385,285"/>
-<area shape="rect" id="node16" href="$d4/deb/namespaceefd.xhtml#ad7adca0e4de58074aa3f91827469a491" title="Uses the RTTI framework to cast forwardly an unique_ptr. " alt="" coords="219,309,380,336"/>
-<area shape="rect" id="node17" href="$d8/d5d/classefd_1_1NodeVisitor.xhtml#ab909f7961825bd91e6382911632a5ef8" title="Visits the children of ref. " alt="" coords="201,360,397,387"/>
-<area shape="rect" id="node3" href="$d6/d6a/classefd_1_1Node.xhtml#ac078ce64eb404cfdc24b9288908536e4" title="Clones the current node (deep copy). " alt="" coords="471,5,614,32"/>
-<area shape="rect" id="node5" href="$da/d7f/classefd_1_1NDStmtList.xhtml#a7d05021fdea4c254514856a9f126ce7a" title="efd::NDStmtList::NDStmtList" alt="" coords="445,56,640,83"/>
-<area shape="rect" id="node6" href="$da/ddd/classefd_1_1NDList.xhtml#a2642c91fda9d33512d1aa1aa7851b6bd" title="efd::NDList::NDList" alt="" coords="703,56,841,83"/>
-<area shape="rect" id="node7" href="$d6/d6a/classefd_1_1Node.xhtml#a09ac8cdf7898a3d17293d92ae956eece" title="Constructs the node, initially empty (with no information). " alt="" coords="916,81,1035,108"/>
-<area shape="rect" id="node9" href="$d3/d29/classefd_1_1NDInclude.xhtml#aeadcf3e4d57fbd7ffb56dab4b8c34e5b" title="efd::NDInclude::NDInclude" alt="" coords="453,107,633,133"/>
-<area shape="rect" id="node10" href="$d6/d6a/classefd_1_1Node.xhtml#a8ac8c3206c6f6817a8c8e515ac830f61" title="Adds a child to this node. It should be used only for construction of each derived class..." alt="" coords="688,157,856,184"/>
-<area shape="rect" id="node11" href="$d6/d6a/classefd_1_1Node.xhtml#a48e9d49d994b9023b8400316e2782e2b" title="Sets the parent node of the current node. " alt="" coords="904,157,1047,184"/>
-<area shape="rect" id="node13" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="494,157,591,184"/>
-<area shape="rect" id="node18" href="$d6/d6a/classefd_1_1Node.xhtml#ab813c60af1717cf50e92a28b274c24ef" title="Used by visitor classes. " alt="" coords="483,360,602,387"/>
+<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#a6c85c9bd21014b73497de741cc75f706" title="Clones the current node (deep copy). " alt="" coords="255,5,383,32"/>
+<area shape="rect" id="node3" href="$da/d7f/classefd_1_1NDStmtList.xhtml#a015cefabf53b2666c442b01b86c2b7cd" title="Creates a new instance of this node. " alt="" coords="231,56,407,83"/>
+<area shape="rect" id="node4" href="$d3/d29/classefd_1_1NDInclude.xhtml#a81d54827a61c546040dad4f57e34c318" title="Creates a new instance of this node. " alt="" coords="235,107,404,133"/>
+<area shape="rect" id="node5" href="$d3/d29/classefd_1_1NDInclude.xhtml#a08ec207974cdeaf086c7978dc23b9a30" title="Gets the node that holds the filename. " alt="" coords="216,157,423,184"/>
 </map>

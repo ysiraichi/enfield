@@ -7,11 +7,11 @@
 #include <algorithm>
 
 // --------------------- Dependencies ------------------------
-bool efd::Dependencies::isEmpty() const {
+bool efd::Dependencies::empty() const {
     return mDeps.empty();
 }
 
-uint32_t efd::Dependencies::getSize() const {
+uint32_t efd::Dependencies::size() const {
     return mDeps.size();
 }
 
@@ -207,7 +207,7 @@ void efd::DependencyBuilderVisitor::visit(NDQOpGen::Ref ref) {
         }
     }
 
-    if (!thisDeps.isEmpty())
+    if (!thisDeps.empty())
         deps->push_back(thisDeps);
     mDepBuilder.mIDeps[ref] = thisDeps;
 }

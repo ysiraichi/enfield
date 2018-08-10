@@ -22,36 +22,36 @@ static efd::Stat<double> ReplaceTime
 static efd::Stat<double> RenameTime
 ("RenameTime", "Time to rename all qubits to the mapped qubits.");
 
-efd::Assign efd::GenAssignment(uint32_t archQ, Mapping mapping, bool fill) {
+efd::InverseMap efd::InvertMapping(uint32_t archQ, Mapping mapping, bool fill) {
     uint32_t progQ = mapping.size();
     // 'archQ' is the number of qubits from the architecture.
-    std::vector<uint32_t> assign(archQ, _undef);
+    std::vector<uint32_t> inv(archQ, _undef);
 
     // for 'u' in arch; and 'a' in prog:
     // if 'a' -> 'u', then 'u' -> 'a'
     for (uint32_t i = 0; i < progQ; ++i)
         if (mapping[i] != _undef)
-            assign[mapping[i]] = i;
+            inv[mapping[i]] = i;
 
     if (fill) {
         // Fill the qubits in the architecture that were not mapped.
-        Fill(mapping, assign);
+        Fill(mapping, inv);
     }
 
-    return assign;
+    return inv;
 }
 
-void efd::Fill(Mapping& mapping, Assign& assign) {
-    uint32_t progQ = mapping.size(), archQ = assign.size();
+void efd::Fill(Mapping& mapping, InverseMap& inv) {
+    uint32_t progQ = mapping.size(), archQ = inv.size();
     uint32_t a = 0, u = 0;
 
     do {
         while (a < progQ && mapping[a] != _undef) ++a;
-        while (u < archQ && assign[u] != _undef) ++u;
+        while (u < archQ && inv[u] != _undef) ++u;
 
         if (u < archQ && a < progQ) {
             mapping[a] = u;
-            assign[u] = a;
+            inv[u] = a;
             ++u; ++a;
         } else {
             break;
@@ -60,8 +60,8 @@ void efd::Fill(Mapping& mapping, Assign& assign) {
 }
 
 void efd::Fill(uint32_t archQ, Mapping& mapping) {
-    auto assign = GenAssignment(archQ, mapping, false);
-    Fill(mapping, assign);
+    auto inv = InvertMapping(archQ, mapping, false);
+    Fill(mapping, inv);
 }
 
 efd::Mapping efd::IdentityMapping(uint32_t progQ) {

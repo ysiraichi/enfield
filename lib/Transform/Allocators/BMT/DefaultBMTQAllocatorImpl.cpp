@@ -5,36 +5,41 @@ using namespace bmt;
 
 #include <queue>
 
-// --------------------- SeqNCandidateIterator ------------------------
-Node::Ref SeqNCandidateIterator::nextImpl() {
-    Node::Ref node = nullptr;
+static Opt<uint32_t> MaxMapSeqCandidates
+("-bmt-max-mapseq", "Select the best N mapping sequences from phase 2.", 1, false);
 
-    if (isFirst) {
-        isFirst = false;
-        mIt = mMod->stmt_begin();
-    }
-
-    if (hasNext()) {
-        node = mIt->get();
-        ++mIt;
-    }
-
-    return node;
+// --------------------- SeqNCandidatesGenerator ------------------------
+void SeqNCandidatesGenerator::initializeImpl() {
+    mIt = mMod->stmt_begin();
 }
 
-bool SeqNCandidateIterator::hasNextImpl() {
-    return mIt != mMod->stmt_end();
+bool SeqNCandidatesGenerator::finishedImpl() {
+    return mIt == mMod->stmt_end();
 }
 
-SeqNCandidateIterator::uRef SeqNCandidateIterator::Create() {
-    return uRef(new SeqNCandidateIterator());
+std::vector<Node::Ref> SeqNCandidatesGenerator::generateImpl() {
+    return { mIt->get() };
+}
+
+void SeqNCandidatesGenerator::signalProcessed(Node::Ref node) {
+    if (node != mIt->get()) {
+        ERR << "Node `" << node->toString(false) << "` not the one processed. "
+            << "Actual: `" << (*mIt)->toString(false) << "`." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
+    ++mIt;
+}
+
+SeqNCandidatesGenerator::uRef SeqNCandidatesGenerator::Create() {
+    return uRef(new SeqNCandidatesGenerator());
 }
 
 // --------------------- FirstCandidateSelector ------------------------
-CandidateVector FirstCandidateSelector::select(uint32_t maxCandidates,
-                                               const CandidateVector& candidates) {
+MCandidateVector FirstCandidateSelector::select(uint32_t maxCandidates,
+                                                const MCandidateVector& candidates) {
     uint32_t selectedSize = std::min((uint32_t) candidates.size(), maxCandidates);
-    CandidateVector selected(candidates.begin(), candidates.begin() + selectedSize);
+    MCandidateVector selected(candidates.begin(), candidates.begin() + selectedSize);
     return selected;
 }
 
@@ -96,7 +101,7 @@ GeoDistanceSwapCEstimator::uRef GeoDistanceSwapCEstimator::Create() {
 }
 
 // --------------------- GeoNearestLQPProcessor ------------------------
-uint32_t GeoNearestLQPProcessor::getNearest(const Graph::Ref g, uint32_t u, const Assign& assign) {
+uint32_t GeoNearestLQPProcessor::getNearest(const Graph::Ref g, uint32_t u, const InverseMap& inv) {
     std::vector<bool> visited(mPQubits, false);
     std::queue<uint32_t> q;
     q.push(u);
@@ -106,7 +111,7 @@ uint32_t GeoNearestLQPProcessor::getNearest(const Graph::Ref g, uint32_t u, cons
         uint32_t v = q.front();
         q.pop();
 
-        if (assign[v] == _undef) return v;
+        if (inv[v] == _undef) return v;
 
         for (uint32_t w : g->adj(v))
             if (!visited[w]) {
@@ -124,18 +129,18 @@ void GeoNearestLQPProcessor::process(const Graph::Ref g, Mapping& fromM, Mapping
     mPQubits = g->size();
     mVQubits = fromM.size();
 
-    auto fromA = GenAssignment(mPQubits, fromM, false);
-    auto toA = GenAssignment(mPQubits, toM, false);
+    auto fromInv = InvertMapping(mPQubits, fromM, false);
+    auto toInv = InvertMapping(mPQubits, toM, false);
 
     for (uint32_t i = 0; i < mVQubits; ++i) {
         if (toM[i] == _undef && fromM[i] != _undef) {
-            if (toA[fromM[i]] == _undef) {
+            if (toInv[fromM[i]] == _undef) {
                 toM[i] = fromM[i];
             } else {
-                toM[i] = getNearest(g, fromM[i], toA);
+                toM[i] = getNearest(g, fromM[i], toInv);
             }
 
-            toA[toM[i]] = i;
+            toInv[toM[i]] = i;
         }
     }
 }
@@ -144,25 +149,30 @@ GeoNearestLQPProcessor::uRef GeoNearestLQPProcessor::Create() {
     return uRef(new GeoNearestLQPProcessor());
 }
 
-// --------------------- BestMSSelector ------------------------
-Vector BestMSSelector::select(const TIMatrix& mem) {
-    Vector selected;
+// --------------------- BestNMSSelector ------------------------
+Vector BestNMSSelector::select(const TIMatrix& mem) {
+    typedef std::pair<uint32_t, uint32_t> UIntPair;
 
-    uint32_t bestCost = _undef;
-    uint32_t bestIdx = _undef;
+    Vector selected;
+    uint32_t maxMapSeq = MaxMapSeqCandidates.getVal();
     uint32_t lastLayer = mem.size() - 1;
+    std::priority_queue<UIntPair,
+                        std::vector<UIntPair>,
+                        std::less<UIntPair>> pQueue;
 
     for (uint32_t i = 0, e = mem[lastLayer].size(); i < e; ++i) {
-        auto info = mem[lastLayer][i];
-        if (info.mappingCost + info.swapEstimatedCost < bestCost) {
-            bestCost = info.mappingCost + info.swapEstimatedCost;
-            bestIdx = i;
-        }
+        const auto &info = mem[lastLayer][i];
+        pQueue.push(std::make_pair(info.mappingCost + info.swapEstimatedCost, i));
     }
 
-    return { bestIdx };
+    while (!pQueue.empty() && selected.size() < maxMapSeq) {
+        selected.push_back(pQueue.top().second);
+        pQueue.pop();
+    }
+
+    return selected;
 }
 
-BestMSSelector::uRef BestMSSelector::Create() {
-    return uRef(new BestMSSelector());
+BestNMSSelector::uRef BestNMSSelector::Create() {
+    return uRef(new BestNMSSelector());
 }

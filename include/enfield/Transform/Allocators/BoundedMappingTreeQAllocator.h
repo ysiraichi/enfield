@@ -1,13 +1,29 @@
 #ifndef __EFD_BOUNDED_MAPPING_TREE_QALLOCATOR_H__
 #define __EFD_BOUNDED_MAPPING_TREE_QALLOCATOR_H__
 
-#include "enfield/Transform/Allocators/StdSolutionQAllocator.h"
+#include "enfield/Transform/Allocators/QbitAllocator.h"
+#include "enfield/Transform/XbitToNumberPass.h"
 #include "enfield/Support/TokenSwapFinder.h"
+
+#include <queue>
 
 namespace efd {
     namespace bmt {
+        /// \brief Used for ordering the nodes based on some weight.
+        struct NodeCandidate {
+            uint32_t mWeight;
+            Node::Ref mNode;
+            Dependencies mDeps;
+        };
+
+        /// \brief `LessThan` operator that orders `NodeCandidate`s.
+        ///
+        /// It compares the weights and the `Node` pointer only, since the
+        /// `mDeps` depends on it.
+        bool operator<(const NodeCandidate& lhs, const NodeCandidate& rhs);
+
         /// \brief Composition of each candidate in phase 1.
-        struct Candidate {
+        struct MappingCandidate {
             Mapping m;
             uint32_t cost;
         };
@@ -23,8 +39,8 @@ namespace efd {
         typedef std::vector<uint32_t> Vector;
         typedef std::vector<Vector> Matrix;
 
-        typedef std::vector<Candidate> CandidateVector;
-        typedef std::vector<CandidateVector> CandidateVCollection;
+        typedef std::vector<MappingCandidate> MCandidateVector;
+        typedef std::vector<MCandidateVector> MCandidateVCollection;
 
         typedef std::vector<TracebackInfo> TIVector;
         typedef std::vector<TIVector> TIMatrix;
@@ -38,13 +54,12 @@ namespace efd {
             uint32_t mappingCost;
         };
 
-        typedef std::vector<MappingSeq> MapSeqCollection;
-        typedef std::vector<SwapSeq> SwapSeqCollection;
+        typedef std::vector<SwapSeq> SwapSeqVector;
 
         /// \brief Holds the sequence of `Mapping`s and `Swaps`to be executed.
         struct MappingSwapSequence {
             MappingVector mappingV;
-            SwapSeqCollection swapSeqCollection;
+            SwapSeqVector swapSeqCollection;
             uint32_t cost;
         };
 
@@ -52,27 +67,35 @@ namespace efd {
         typedef std::vector<PPartition> PPartitionCollection;
     }
 
-    /// \brief Interface for getting the next `Node` to be processed in phase 1.
-    struct NodeCandidateIterator {
-        typedef NodeCandidateIterator* Ref;
-        typedef std::unique_ptr<NodeCandidateIterator> uRef;
+    /// \brief Generates a vector with the `Node`s that can be chosen as the
+    /// next instruction.
+    struct NodeCandidatesGenerator {
+        typedef NodeCandidatesGenerator* Ref;
+        typedef std::unique_ptr<NodeCandidatesGenerator> uRef;
 
-        NodeCandidateIterator();
+        NodeCandidatesGenerator();
 
         /// \brief Sets the `QModule` to be iterated.
         void setQModule(QModule::Ref qmod);
-        /// \brief Returns the next `Node`.
-        Node::Ref next();
-        /// \brief Returns whether there are still `Node`s to be processed.
-        bool hasNext();
+        /// \brief Returns the next collection of candidates.
+        std::vector<Node::Ref> generate();
+        /// \brief Returns whether we have finished processing the nodes.
+        bool finished();
+        /// \brief Initializes the generator.
+        void initialize();
+        /// \brief Signals the generator which node has been selected.
+        virtual void signalProcessed(Node::Ref node);
+
+        private:
+            bool mInitialized;
+            void checkInitialized();
 
         protected:
             QModule::Ref mMod;
-            bool isFirst;
 
-            void checkQModuleSet();
-            virtual Node::Ref nextImpl() = 0;
-            virtual bool hasNextImpl() = 0;
+            virtual void initializeImpl() = 0;
+            virtual bool finishedImpl() = 0;
+            virtual std::vector<Node::Ref> generateImpl() = 0;
     };
 
     /// \brief Interface for selecting candidates (if they are greater than
@@ -81,8 +104,8 @@ namespace efd {
         typedef CandidateSelector* Ref;
         typedef std::unique_ptr<CandidateSelector> uRef;
         /// \brief Selects \em maxCandidates from \em candidates.
-        virtual bmt::CandidateVector select(uint32_t maxCandidates,
-                                            const bmt::CandidateVector& candidates) = 0;
+        virtual bmt::MCandidateVector select(uint32_t maxCandidates,
+                                            const bmt::MCandidateVector& candidates) = 0;
     };
 
     /// \brief Interface for estimating the number of swaps in phase 2.
@@ -135,7 +158,7 @@ namespace efd {
     ///         together;
     ///     3. Reconstructs the selected sequence of subgraph isomorphisms
     ///         into a program.
-    class BoundedMappingTreeQAllocator : public StdSolutionQAllocator {
+    class BoundedMappingTreeQAllocator : public QbitAllocator {
         public:
             typedef BoundedMappingTreeQAllocator* Ref;
             typedef std::unique_ptr<BoundedMappingTreeQAllocator> uRef;
@@ -144,9 +167,10 @@ namespace efd {
             uint32_t mMaxChildren;
             uint32_t mMaxPartial;
             DependencyBuilder mDBuilder;
+            XbitToNumber mXtoN;
             bmt::PPartitionCollection mPP;
 
-            NodeCandidateIterator::uRef mNCIterator;
+            NodeCandidatesGenerator::uRef mNCGenerator;
             CandidateSelector::uRef mChildrenCSelector;
             CandidateSelector::uRef mPartialSolutionCSelector;
             SwapCostEstimator::uRef mCostEstimator;
@@ -154,24 +178,32 @@ namespace efd {
             MapSeqSelector::uRef mMSSelector;
             TokenSwapFinder::uRef mTSFinder;
 
-            bmt::CandidateVCollection phase1();
-            bmt::MappingSwapSequence phase2(const bmt::CandidateVCollection& collection);
-            StdSolution phase3(const bmt::MappingSwapSequence& mss);
+        private:
+            bmt::MCandidateVCollection phase1();
+            bmt::MappingSwapSequence phase2(const bmt::MCandidateVCollection& collection);
+            Mapping phase3(QModule::Ref qmod, const bmt::MappingSwapSequence& mss);
 
-            bmt::CandidateVector extendCandidates(Dep& dep,
-                                                  const std::vector<bool>& mapped,
-                                                  const bmt::CandidateVector& candidates,
-                                                  bool ignoreChildrenLimit);
+            bmt::MCandidateVector
+                extendCandidates(Dep& dep,
+                                 const std::vector<bool>& mapped,
+                                 const bmt::MCandidateVector& candidates,
+                                 bool ignoreChildrenLimit);
+
+            std::priority_queue<bmt::NodeCandidate>
+                rankCandidates(const std::vector<Node::Ref>& nodeCandidates,
+                               const std::vector<bool>& mapped,
+                               const std::vector<std::set<uint32_t>>& neighbors);
 
             bmt::MappingSeq tracebackPath(const bmt::TIMatrix& mem, uint32_t idx);
             SwapSeq getTransformingSwapsFor(const Mapping& fromM, Mapping toM);
+            void normalize(bmt::MappingSwapSequence& mss);
 
             BoundedMappingTreeQAllocator(ArchGraph::sRef ag);
-            StdSolution buildStdSolution(QModule::Ref qmod) override;
+            Mapping allocate(QModule::Ref qmod) override;
 
         public:
             /// \brief Sets the implementation for iterating the `Node`s in phase 1.
-            void setNodeCandidateIterator(NodeCandidateIterator::uRef it);
+            void setNodeCandidatesGenerator(NodeCandidatesGenerator::uRef gen);
             /// \brief Sets the implementation for selecting the children in phase 1.
             void setChildrenSelector(CandidateSelector::uRef sel);
             /// \brief Sets the implementation for selecting the partial solutions in phase 1.

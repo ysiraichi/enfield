@@ -38,7 +38,7 @@ static std::string VecToString(std::vector<T> v) {
 }
 
 static void fixUndefAssignments(efd::Graph::Ref graph, 
-                                efd::Assign& from, efd::Assign& to) {
+                                efd::InverseMap& from, efd::InverseMap& to) {
     uint32_t size = graph->size();
     std::vector<uint32_t> fromUndefvs;
     std::vector<uint32_t> toUndefvs;
@@ -372,11 +372,11 @@ findGoodVerticesBFS(efd::Graph::Ref graph, uint32_t src, uint32_t tgt) {
     return goodv;
 }
 
-efd::SwapSeq efd::ApproxTSFinder::findImpl(const Assign& from, const Assign& to) {
-    auto fromA = from;
-    auto toA = to;
+efd::SwapSeq efd::ApproxTSFinder::findImpl(const InverseMap& from, const InverseMap& to) {
+    auto fromInv = from;
+    auto toInv = to;
 
-    fixUndefAssignments(mG, fromA, toA);
+    fixUndefAssignments(mG, fromInv, toInv);
 
     uint32_t size = mG->size();
     std::vector<std::vector<uint32_t>> gprime(size, std::vector<uint32_t>());
@@ -384,15 +384,15 @@ efd::SwapSeq efd::ApproxTSFinder::findImpl(const Assign& from, const Assign& to)
     SwapSeq swapseq;
 
     // Constructing the inverse for 'to' -----------------------
-    Mapping toinv(size, 0);
+    Mapping toMap(size, 0);
     for (uint32_t i = 0; i < size; ++i)
-        toinv[toA[i]] = i;
+        toMap[toInv[i]] = i;
     // ---------------------------------------------------------
 
     // Initializing data ---------------------------------------
     // 1. Checking which vertices are inplace.
     for (uint32_t i = 0; i < size; ++i)
-        if (fromA[i] == toA[i]) inplace[i] = true;
+        if (fromInv[i] == toInv[i]) inplace[i] = true;
         else inplace[i] = false;
 
     // 2. Constructing the graph with the good neighbors.
@@ -401,7 +401,7 @@ efd::SwapSeq efd::ApproxTSFinder::findImpl(const Assign& from, const Assign& to)
             // For each vertex 'i' in 'graph', we want to find good vertices
             // from 'i' to the vertex that should hold the label that is
             // currently in 'i' ('from[i]').
-            gprime[i] = findGoodVerticesBFS(mG, i, toinv[fromA[i]]);
+            gprime[i] = findGoodVerticesBFS(mG, i, toMap[fromInv[i]]);
         else
             gprime[i].clear();
     // ---------------------------------------------------------
@@ -442,7 +442,7 @@ efd::SwapSeq efd::ApproxTSFinder::findImpl(const Assign& from, const Assign& to)
             for (uint32_t i = 1, e = swappath.size(); i < e; ++i) {
                 auto u = swappath[i-1], v = swappath[i];
                 swapseq.push_back({ u, v });
-                std::swap(fromA[u], fromA[v]);
+                std::swap(fromInv[u], fromInv[v]);
             }
 
             // Updating those vertices that were swapped.
@@ -452,10 +452,10 @@ efd::SwapSeq efd::ApproxTSFinder::findImpl(const Assign& from, const Assign& to)
                 // Updating vertex u.
                 auto u = swappath[i];
 
-                if (fromA[u] == toA[u]) inplace[u] = true;
+                if (fromInv[u] == toInv[u]) inplace[u] = true;
                 else inplace[u] = false;
 
-                if (!inplace[u]) gprime[u] = findGoodVerticesBFS(mG, u, toinv[fromA[u]]);
+                if (!inplace[u]) gprime[u] = findGoodVerticesBFS(mG, u, toMap[fromInv[u]]);
                 else gprime[u].clear();
             }
         } else {

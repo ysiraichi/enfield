@@ -1,13 +1,14 @@
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
 #include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
 #include "enfield/Transform/PassCache.h"
+#include "enfield/Transform/Utils.h"
+#include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/ApproxTSFinder.h"
 #include "enfield/Support/CommandLine.h"
 #include "enfield/Support/Defs.h"
 #include "enfield/Support/Timer.h"
 
 #include <algorithm>
-#include <queue>
 
 using namespace efd;
 using namespace bmt;
@@ -20,29 +21,48 @@ static Opt<uint32_t> MaxPartialSolutions
 ("-bmt-max-partial", "Limits the max number of partial solutions per step.",
  std::numeric_limits<uint32_t>::max(), false);
 
-// --------------------- NodeCandidateIterator ------------------------
-NodeCandidateIterator::NodeCandidateIterator() : mMod(nullptr), isFirst(true) {}
+bool efd::bmt::operator<(const NodeCandidate& lhs, const NodeCandidate& rhs) {
+    if (lhs.mWeight != rhs.mWeight) return lhs.mWeight < rhs.mWeight;
+    return lhs.mNode < rhs.mNode;
+}
 
-void NodeCandidateIterator::setQModule(QModule::Ref qmod) {
+// --------------------- NodeCandidatesGenerator ------------------------
+NodeCandidatesGenerator::NodeCandidatesGenerator() : mInitialized(false), mMod(nullptr) {}
+
+void NodeCandidatesGenerator::setQModule(QModule::Ref qmod) {
     mMod = qmod;
 }
 
-Node::Ref NodeCandidateIterator::next() {
-    checkQModuleSet();
-    return nextImpl();
+std::vector<Node::Ref> NodeCandidatesGenerator::generate() {
+    checkInitialized();
+    if (finished()) return {};
+    return generateImpl();
 }
 
-bool NodeCandidateIterator::hasNext() {
-    checkQModuleSet();
-    return hasNextImpl();
+bool NodeCandidatesGenerator::finished() {
+    checkInitialized();
+    return finishedImpl();
 }
 
-void NodeCandidateIterator::checkQModuleSet() {
-    if (mMod == nullptr) {
-        ERR << "Set the `QModule` for NodeCandidateIterator." << std::endl;
+void NodeCandidatesGenerator::checkInitialized() {
+    if (!mInitialized) {
+        ERR << "`NodeCandidatesGenerator` not initialized." << std::endl;
         ExitWith(ExitCode::EXIT_unreachable);
     }
 }
+
+void NodeCandidatesGenerator::initialize() {
+    mInitialized = true;
+
+    if (mMod == nullptr) {
+        ERR << "Set the `QModule` for NodeCandidatesGenerator." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
+    initializeImpl();
+}
+
+void NodeCandidatesGenerator::signalProcessed(Node::Ref node) {}
 
 // --------------------- SwapCostEstimator ------------------------
 SwapCostEstimator::SwapCostEstimator() : mG(nullptr) {}
@@ -65,9 +85,80 @@ void SwapCostEstimator::checkGraphSet() {
 }
 
 // --------------------- BoundedMappingTreeQAllocator ------------------------
+namespace efd {
+    class NodeRenameVisitor : public NodeVisitor {
+        private:
+            Mapping& mMap;
+            XbitToNumber& mXtoN;
+            ArchGraph::Ref mArchGraph;
+
+        public:
+            NodeRenameVisitor(Mapping& m,
+                              XbitToNumber& xtoN,
+                              ArchGraph::Ref archGraph);
+
+            void visitNDQOp(NDQOp::Ref qop);
+
+            void visit(NDQOpMeasure::Ref ref) override;
+            void visit(NDQOpReset::Ref ref) override;
+            void visit(NDQOpU::Ref ref) override;
+            void visit(NDQOpCX::Ref ref) override;
+            void visit(NDQOpBarrier::Ref ref) override;
+            void visit(NDQOpGen::Ref ref) override;
+            void visit(NDIfStmt::Ref ref) override;
+    };
+}
+
+NodeRenameVisitor::NodeRenameVisitor(Mapping& m,
+                                     XbitToNumber& xtoN,
+                                     ArchGraph::Ref archGraph)
+    : mMap(m), mXtoN(xtoN), mArchGraph(archGraph) {}
+
+void NodeRenameVisitor::visitNDQOp(NDQOp::Ref qop) {
+    auto qargs = qop->getQArgs();
+    NDList::uRef newQArgs = NDList::Create();
+
+    for (auto& qarg : *qargs) {
+        uint32_t pseudoQUId = mXtoN.getQUId(qarg->toString(false));
+        uint32_t physicalQUId = mMap[pseudoQUId];
+        newQArgs->addChild(mArchGraph->getNode(physicalQUId)->clone());
+    }
+
+    qop->setQArgs(std::move(newQArgs));
+}
+
+void NodeRenameVisitor::visit(NDQOpMeasure::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDQOpReset::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDQOpU::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDQOpCX::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDQOpBarrier::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDQOpGen::Ref ref) {
+    visitNDQOp((NDQOp::Ref) ref);
+}
+
+void NodeRenameVisitor::visit(NDIfStmt::Ref ref) {
+    ref->getQOp()->apply(this);
+}
+
+// --------------------- BoundedMappingTreeQAllocator ------------------------
 BoundedMappingTreeQAllocator::BoundedMappingTreeQAllocator(ArchGraph::sRef ag)
-    : StdSolutionQAllocator(ag),
-      mNCIterator(nullptr),
+    : QbitAllocator(ag),
+      mNCGenerator(nullptr),
       mChildrenCSelector(nullptr),
       mPartialSolutionCSelector(nullptr),
       mCostEstimator(nullptr),
@@ -75,22 +166,22 @@ BoundedMappingTreeQAllocator::BoundedMappingTreeQAllocator(ArchGraph::sRef ag)
       mMSSelector(nullptr),
       mTSFinder(nullptr) {}
 
-CandidateVector
+MCandidateVector
 BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
                                                const std::vector<bool>& mapped,
-                                               const CandidateVector& candidates,
+                                               const MCandidateVector& candidates,
                                                bool ignoreChildrenLimit) {
     typedef std::pair<uint32_t, uint32_t> Pair;
     typedef std::vector<Pair> PairVector;
 
     uint32_t a = dep.mFrom, b = dep.mTo;
     uint32_t childrenBound = (ignoreChildrenLimit) ? _undef : mMaxChildren;
-    CandidateVector newCandidates;
+    MCandidateVector newCandidates;
 
     for (auto cand : candidates) {
         PairVector pairV;
-        CandidateVector localCandidates;
-        auto assign = GenAssignment(mPQubits, cand.m, false);
+        MCandidateVector localCandidates;
+        auto inv = InvertMapping(mPQubits, cand.m, false);
 
         if (mapped[a] && mapped[b]) {
             uint32_t u = cand.m[a], v = cand.m[b];
@@ -98,9 +189,9 @@ BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
                 pairV.push_back(Pair(u, v));
         } else if (!mapped[a] && !mapped[b]) {
             for (uint32_t u = 0; u < mPQubits; ++u) {
-                if (assign[u] != _undef) continue;
+                if (inv[u] != _undef) continue;
                 for (uint32_t v : mArchGraph->adj(u)) {
-                    if (assign[v] != _undef) continue;
+                    if (inv[v] != _undef) continue;
                     pairV.push_back(Pair(u, v));
                 }
             }
@@ -115,7 +206,7 @@ BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
 
             uint32_t u = cand.m[mappedV];
             for (uint32_t v : mArchGraph->adj(u)) {
-                if (assign[v] == _undef) {
+                if (inv[v] == _undef) {
                     if (mappedV == a) {
                         pairV.push_back(Pair(u, v));
                     } else {
@@ -137,62 +228,125 @@ BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
             localCandidates.push_back(cpy);
         }
 
-        CandidateVector selected = mChildrenCSelector->select(childrenBound, localCandidates);
+        MCandidateVector selected = mChildrenCSelector->select(childrenBound, localCandidates);
         newCandidates.insert(newCandidates.end(), selected.begin(), selected.end());
     }
 
     return mPartialSolutionCSelector->select(mMaxPartial, newCandidates);
 }
 
-CandidateVCollection BoundedMappingTreeQAllocator::phase1() {
+std::priority_queue<NodeCandidate>
+BoundedMappingTreeQAllocator::rankCandidates(const std::vector<Node::Ref>& nodeCandidates,
+                                             const std::vector<bool>& mapped,
+                                             const std::vector<std::set<uint32_t>>& neighbors) {
+    std::priority_queue<NodeCandidate> queue;
+
+    for (auto node : nodeCandidates) {
+        NodeCandidate nCand;
+
+        nCand.mNode = node;
+        nCand.mDeps = mDBuilder.getDeps(node);
+
+        auto depsSize = nCand.mDeps.size();
+        if (depsSize == 0) {
+            nCand.mWeight = 0;
+        } else if (depsSize == 1) {
+            uint32_t a = nCand.mDeps[0].mFrom;
+            uint32_t b = nCand.mDeps[0].mTo;
+
+            if (mapped[a] && mapped[b] && neighbors[a].find(b) != neighbors[a].end()) {
+                nCand.mWeight = 1;
+            } else if (!mapped[a] && !mapped[b]) {
+                nCand.mWeight = 3;
+            } else if (!mapped[a] || !mapped[b]) {
+                nCand.mWeight = 2;
+            } else {
+                nCand.mWeight = 4;
+            }
+        } else {
+            ERR << "Instructions with more than one dependency not supported "
+                << "(" << node->toString(false) << ")" << std::endl;
+            ExitWith(ExitCode::EXIT_multi_deps);
+        }
+
+        queue.push(nCand);
+    }
+
+    if (queue.empty()) {
+        ERR << "`pQueue` empty." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+
+    return queue;
+}
+
+MCandidateVCollection BoundedMappingTreeQAllocator::phase1() {
     // First Phase:
     //     in this phase, we divide the program in layers, such that each layer is satisfied
     //     by any of the mappings inside 'candidates'.
     //
     mPP.push_back(PPartition());
-    CandidateVector candidates { { Mapping(mVQubits, _undef), 0 } };
-    CandidateVCollection collection;
+    MCandidateVector candidates { { Mapping(mVQubits, _undef), 0 } };
+    MCandidateVCollection collection;
+
     std::vector<bool> mapped(mVQubits, false);
+    std::vector<std::set<uint32_t>> neighbors(mVQubits);
 
     INF << "PHASE 1 >>>> Solving SIP Instances" << std::endl;
 
     bool first = true;
 
-    while (mNCIterator->hasNext()) {
-        auto node = mNCIterator->next();
-        auto iDependencies = mDBuilder.getDeps(node);
-        auto nofIDeps = iDependencies.getSize();
+    while (!mNCGenerator->finished()) {
+        auto nodeCandidates = mNCGenerator->generate();
+        auto pQueue = rankCandidates(nodeCandidates, mapped, neighbors);
 
-        if (nofIDeps > 1) {
-            ERR << "Instructions with more than one dependency not supported "
-                << "(" << iDependencies.mCallPoint->toString(false) << ")" << std::endl;
-            ExitWith(ExitCode::EXIT_multi_deps);
-        } else if (nofIDeps < 1) {
-            continue;
+        NodeCandidate nCand;
+        MCandidateVector newCandidates;
+
+        while (!pQueue.empty()) {
+            nCand = pQueue.top();
+            pQueue.pop();
+
+            auto depsSize = nCand.mDeps.size();
+
+            if (depsSize == 0) {
+                newCandidates = candidates;
+                break;
+            } else if (depsSize == 1) {
+                newCandidates = extendCandidates(nCand.mDeps[0],
+                                                 mapped,
+                                                 candidates,
+                                                 first);
+                first = false;
+                if (!newCandidates.empty())
+                    break;
+            }
         }
-
-        auto dep = iDependencies[0];
-        auto newCandidates = extendCandidates(dep, mapped, candidates, first);
-        first = false;
 
         if (newCandidates.empty()) {
-            mPP.push_back(PPartition());
-            // Save candidates and reset!
             collection.push_back(candidates);
-            // Process this dependency again.
+            // Reseting all data from the last partition.
             candidates = { { Mapping(mVQubits, _undef), 0 } };
             mapped.assign(mVQubits, false);
-            newCandidates = extendCandidates(dep, mapped, candidates, true);
+            mPP.push_back(PPartition());
+            first = true;
+
+        } else {
+            if (!nCand.mDeps.empty()) {
+                auto dep = nCand.mDeps[0];
+                uint32_t a = dep.mFrom, b = dep.mTo;
+
+                mapped[a] = true;
+                mapped[b] = true;
+                neighbors[a].insert(b);
+                neighbors[b].insert(a);
+
+                candidates = newCandidates;
+            }
+
+            mPP.back().push_back(nCand.mNode);
+            mNCGenerator->signalProcessed(nCand.mNode);
         }
-
-        mPP.back().push_back(node);
-
-        mapped[dep.mFrom] = true;
-        mapped[dep.mTo] = true;
-        candidates = newCandidates;
-
-        INF << "Dep (" << dep.mFrom << ", " << dep.mTo << ")" << std::endl;
-        INF << "Candidate number: " << candidates.size() << std::endl;
     }
 
     collection.push_back(candidates);
@@ -229,14 +383,39 @@ SwapSeq BoundedMappingTreeQAllocator::getTransformingSwapsFor(const Mapping& fro
         }
     }
 
-    auto fromA = GenAssignment(mPQubits, fromM, false);
-    auto toA = GenAssignment(mPQubits, toM, false);
+    auto fromInv = InvertMapping(mPQubits, fromM, false);
+    auto toInv = InvertMapping(mPQubits, toM, false);
 
-    return mTSFinder->find(fromA, toA);
+    return mTSFinder->find(fromInv, toInv);
+}
+
+void BoundedMappingTreeQAllocator::normalize(MappingSwapSequence& mss) {
+    uint32_t mappingVSize = mss.mappingV.size();
+
+    // Fill the last mapping, so that all qubits are mapped in
+    // the end.
+    auto &lastMapping = mss.mappingV.back();
+    Fill(mPQubits, lastMapping);
+
+    auto inv = InvertMapping(mPQubits, lastMapping);
+
+    for (uint32_t i = mappingVSize - 1; i > 0; --i) {
+        mss.mappingV[i - 1] = mss.mappingV[i];
+        Mapping& mapping = mss.mappingV[i - 1];
+        auto swaps = mss.swapSeqCollection[i - 1];
+
+        for (auto it = swaps.rbegin(), end = swaps.rend(); it != end; ++it) {
+            uint32_t u = it->u, v = it->v;
+            uint32_t a = inv[u], b = inv[v];
+            if (a < mVQubits) mapping[a] = v;
+            if (b < mVQubits) mapping[b] = u;
+            std::swap(inv[u], inv[v]);
+        }
+    }
 }
 
 MappingSwapSequence
-BoundedMappingTreeQAllocator::phase2(const CandidateVCollection& collection) {
+BoundedMappingTreeQAllocator::phase2(const MCandidateVCollection& collection) {
     // Second Phase:
     //     here, the idea is to use, perhaps, dynamic programming to test all possibilities
     //     for 'glueing' the sequence of collection together.
@@ -257,12 +436,12 @@ BoundedMappingTreeQAllocator::phase2(const CandidateVCollection& collection) {
     }
 
     for (uint32_t i = 1; i < nofLayers; ++i) {
-        INF << "Beginning: " << i << " of " << nofLayers << " layers." << std::endl;
+        // INF << "Beginning: " << i << " of " << nofLayers << " layers." << std::endl;
 
         uint32_t jLayerSize = collection[i].size();
         for (uint32_t j = 0; j < jLayerSize; ++j) {
-            Timer jt;
-            jt.start();
+            // Timer jt;
+            // jt.start();
 
             TracebackInfo best = { {}, _undef, _undef, 0 };
             uint32_t kLayerSize = collection[i - 1].size();
@@ -286,9 +465,9 @@ BoundedMappingTreeQAllocator::phase2(const CandidateVCollection& collection) {
 
             mem[i].push_back(best);
 
-            jt.stop();
-            INF << "(i:" << i << ", j:" << j << "): "
-                << ((double) jt.getMilliseconds()) / 1000.0 << std::endl;
+            // jt.stop();
+            // INF << "(i:" << i << ", j:" << j << "): "
+            //     << ((double) jt.getMilliseconds()) / 1000.0 << std::endl;
         }
 
         INF << "End: " << i << " of " << nofLayers << " layers." << std::endl;
@@ -299,7 +478,7 @@ BoundedMappingTreeQAllocator::phase2(const CandidateVCollection& collection) {
 
     for (uint32_t idx : mapSequenceIndexes) {
         // mapSCollection.push_back(tracebackPath(mem, idx));
-        SwapSeqCollection swapSeqCollection;
+        SwapSeqVector swapSeqCollection;
         auto seq = tracebackPath(mem, idx);
 
         uint32_t swapCost = 0;
@@ -318,24 +497,21 @@ BoundedMappingTreeQAllocator::phase2(const CandidateVCollection& collection) {
         }
     }
 
+    normalize(best);
     return best;
 }
 
 
-StdSolution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss) {
+Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwapSequence& mss) {
     // Third Phase:
     //     build the operations vector by tracebacking from the solution we have
     //     found. For this, we have to go through every dependency again.
-    StdSolution sol;
-
-    sol.mCost = 0;
-    sol.mInitial.assign(mVQubits, 0);
-
     uint32_t idx = 0;
-    auto mapping = mss.mappingV[idx];
+    auto initial = mss.mappingV[idx];
+    auto mapping = initial;
 
-    Mapping realToDummy = mapping;
-    Mapping dummyToPhys = IdentityMapping(mPQubits);
+    NodeRenameVisitor renameVisitor(mapping, mXtoN, mArchGraph.get());
+    std::vector<Node::uRef> issuedInstructions;
 
     for (auto& partition : mPP) {
         for (auto& node : partition) {
@@ -343,15 +519,18 @@ StdSolution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss)
             // We are sure that there are no instruction dependency that has more than
             // one dependency.
             auto iDependencies = mDBuilder.getDeps(node);
-            if (iDependencies.getSize() < 1)
+
+            if (iDependencies.size() < 1) {
+                auto cloned = node->clone();
+                cloned->apply(&renameVisitor);
+                issuedInstructions.push_back(std::move(cloned));
                 continue;
+            }
 
             auto dep = iDependencies[0];
 
             uint32_t a = dep.mFrom, b = dep.mTo;
             uint32_t u = mapping[a], v = mapping[b];
-
-            StdSolution::OpVector opVector;
 
             // If we can't satisfy (u, v) with the current mapping, it can only mean
             // that we must go to the next one.
@@ -366,74 +545,49 @@ StdSolution BoundedMappingTreeQAllocator::phase3(const MappingSwapSequence& mss)
                 }
 
                 mapping = mss.mappingV[idx];
-
                 auto swaps = mss.swapSeqCollection[idx - 1];
-                auto physToDummy = GenAssignment(mPQubits, dummyToPhys);
 
                 for (auto swp : swaps) {
-                    uint32_t a = physToDummy[swp.u], b = physToDummy[swp.v];
-
-                    if (!mArchGraph->hasEdge(swp.u, swp.v)) {
-                        std::swap(a, b);
+                    uint32_t u = swp.u, v = swp.v;
+                    if (!mArchGraph->hasEdge(u, v)) {
+                        std::swap(u, v);
                     }
-
-                    std::swap(physToDummy[swp.u], physToDummy[swp.v]);
-                    std::swap(dummyToPhys[a], dummyToPhys[b]);
-                    opVector.push_back({ Operation::K_OP_SWAP, a, b });
-                }
-
-                sol.mCost += swaps.size() * SwapCost.getVal();
-
-                for (uint32_t i = 0; i < mVQubits; ++i) {
-                    if (realToDummy[i] == _undef && mapping[i] != _undef) {
-                        realToDummy[i] = physToDummy[mapping[i]];
-                    }
+                    issuedInstructions.push_back(CreateISwap(mArchGraph->getNode(u)->clone(),
+                                                             mArchGraph->getNode(v)->clone()));
                 }
 
                 u = mapping[a];
                 v = mapping[b];
             }
 
-            Operation op;
-            op.mU = a;
-            op.mV = b;
+            Node::uRef newNode;
 
             if (mArchGraph->hasEdge(u, v)) {
-                op.mK = Operation::K_OP_CNOT;
+                newNode = node->clone();
+                newNode->apply(&renameVisitor);
             } else if (mArchGraph->hasEdge(v, u)) {
-                sol.mCost += RevCost.getVal();
-                op.mK = Operation::K_OP_REV;
+                newNode = CreateIRevCX(mArchGraph->getNode(u)->clone(),
+                                       mArchGraph->getNode(v)->clone());
             } else {
                 ERR << "Mapping " << MappingToString(mapping) << " not able to satisfy dependency "
                     << "(" << a << "{" << u << "}, " << b << "{" << v << "})" << std::endl;
                 ExitWith(ExitCode::EXIT_unreachable);
             }
 
-            opVector.push_back(op);
-            sol.mOpSeqs.push_back(std::make_pair(node, opVector));
+            issuedInstructions.push_back(std::move(newNode));
         }
     }
 
-    Fill(mVQubits, realToDummy);
-    sol.mInitial = realToDummy;
-
-    auto dummyToReal = GenAssignment(mVQubits, realToDummy, false);
-
-    // Transforming swaps from dummy to real.
-    for (auto& pair : sol.mOpSeqs) {
-        for (auto& op : pair.second) {
-            if (op.mK == Operation::K_OP_SWAP) {
-                op.mU = dummyToReal[op.mU];
-                op.mV = dummyToReal[op.mV];
-            }
-        }
+    qmod->clearStatements();
+    for (auto& instr : issuedInstructions) {
+        qmod->insertStatementLast(std::move(instr));
     }
 
-    return sol;
+    return initial;
 }
 
-StdSolution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
-    if (mNCIterator.get() == nullptr ||
+Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
+    if (mNCGenerator.get() == nullptr ||
                 mChildrenCSelector.get() == nullptr ||
                 mPartialSolutionCSelector.get() == nullptr ||
                 mCostEstimator.get() == nullptr ||
@@ -441,7 +595,7 @@ StdSolution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
                 mMSSelector.get() == nullptr ||
                 mTSFinder.get() == nullptr) {
         ERR << "Define the `BoundedMappingTreeQAllocator` interfaces:" << std::endl;
-        ERR << "    NodeCandidateIterator: " << mNCIterator.get() << std::endl;
+        ERR << "    NodeCandidatesGenerator: " << mNCGenerator.get() << std::endl;
         ERR << "    mChildrenCSelector: " << mChildrenCSelector.get() << std::endl;
         ERR << "    mPartialSolutionCSelector: " << mPartialSolutionCSelector.get() << std::endl;
         ERR << "    mCostEstimator: " << mCostEstimator.get() << std::endl;
@@ -451,7 +605,9 @@ StdSolution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
         ExitWith(ExitCode::EXIT_unreachable);
     }
 
-    mNCIterator->setQModule(qmod);
+    mNCGenerator->setQModule(qmod);
+    mNCGenerator->initialize();
+
     mCostEstimator->setGraph(mArchGraph.get());
     mTSFinder->setGraph(mArchGraph.get());
 
@@ -459,25 +615,37 @@ StdSolution BoundedMappingTreeQAllocator::buildStdSolution(QModule::Ref qmod) {
     mMaxPartial = MaxPartialSolutions.getVal();
 
     mDBuilder = PassCache::Get<DependencyBuilderWrapperPass>(qmod)->getData();
+    mXtoN = PassCache::Get<XbitToNumberWrapperPass>(qmod)->getData();
+
     uint32_t nofDeps = mDBuilder.getDependencies().size();
-
-    StdSolution sol;
-
-    sol.mCost = 0;
-    sol.mInitial = IdentityMapping(mPQubits);
+    auto initialMapping = IdentityMapping(mPQubits);
 
     if (nofDeps > 0) {
+        Timer tPhase1, tPhase2, tPhase3;
+
+        tPhase1.start();
         auto phase1Output = phase1();
+        tPhase1.stop();
+
+        tPhase2.start();
         auto phase2Output = phase2(phase1Output);
-        sol = phase3(phase2Output);
+        tPhase2.stop();
+
+        tPhase3.start();
+        initialMapping = phase3(qmod, phase2Output);
+        tPhase3.stop();
+
+        INF << "Phase1 took: " << tPhase1.getMilliseconds() / 1000.0 << std::endl;
+        INF << "Phase2 took: " << tPhase2.getMilliseconds() / 1000.0 << std::endl;
+        INF << "Phase3 took: " << tPhase3.getMilliseconds() / 1000.0 << std::endl;
     }
 
-    return sol;
+    return initialMapping;
 }
 
-void BoundedMappingTreeQAllocator::setNodeCandidateIterator
-(NodeCandidateIterator::uRef it) {
-    mNCIterator = std::move(it);
+void BoundedMappingTreeQAllocator::setNodeCandidatesGenerator
+(NodeCandidatesGenerator::uRef gen) {
+    mNCGenerator = std::move(gen);
 }
 
 void BoundedMappingTreeQAllocator::setChildrenSelector

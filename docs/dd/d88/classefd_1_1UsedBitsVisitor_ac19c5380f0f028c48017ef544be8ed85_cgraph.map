@@ -1,7 +1,6 @@
 <map id="efd::UsedBitsVisitor::visitQOp" name="efd::UsedBitsVisitor::visitQOp">
-<area shape="rect" id="node2" href="$dd/d94/classefd_1_1NDQOp.xhtml#af7ef43289355c5bb047a46419177c8ed" title="Gets the quantum arguments. " alt="" coords="192,5,351,32"/>
-<area shape="rect" id="node4" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ae645e4b0ccb9c25c534883843484f06a" title="Returns an uint32_t number representing the qubit in this specific gate (if any). ..." alt="" coords="201,57,341,98"/>
-<area shape="rect" id="node6" href="$d6/d6a/classefd_1_1Node.xhtml#a96ca13a5c2b971b68619ce4a34be0f66" title="Returns a std::string representation of this Node and its childrem. " alt="" coords="205,123,337,149"/>
-<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#a2cef687225e13315fc282dc40b5a6909" title="Returns src cast to TargetTy, iff it is of class TargetTy, otherwise it will return nullptr..." alt="" coords="420,5,517,32"/>
-<area shape="rect" id="node5" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#a7d9474b325920d98f5832d5f1923ba2b" title="Gets a constant reference to the mapping of qubtis of a gate. " alt="" coords="399,57,539,98"/>
+<area shape="rect" id="node2" href="$dd/d94/classefd_1_1NDQOp.xhtml#af7ef43289355c5bb047a46419177c8ed" title="Gets the quantum arguments. " alt="" coords="204,5,371,32"/>
+<area shape="rect" id="node3" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ae645e4b0ccb9c25c534883843484f06a" title="Returns an uint32_t number representing the qubit in this specific gate (if any). ..." alt="" coords="211,57,364,98"/>
+<area shape="rect" id="node4" href="$d0/d9e/classefd_1_1NDDecl.xhtml#a34957c2122c38cebf80a264d5fa3863f" title="Gets the id node. " alt="" coords="427,39,569,65"/>
+<area shape="rect" id="node5" href="$df/d1b/classefd_1_1NDValue.xhtml#a53ee724a8db3429bf30bb1936ad548b2" title="Returns a copy to the setted value. " alt="" coords="419,89,577,116"/>
 </map>

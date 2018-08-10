@@ -1,19 +1,19 @@
 <map id="include/enfield/Transform/Allocators/Allocators.h" name="include/enfield/Transform/Allocators/Allocators.h">
-<area shape="rect" id="node2" href="$d7/d9d/ArchGraph_8h.xhtml" title="enfield/Arch/ArchGraph.h" alt="" coords="239,191,407,218"/>
-<area shape="rect" id="node14" href="$dd/d3b/QbitAllocator_8h.xhtml" title="enfield/Transform/Allocators\l/QbitAllocator.h" alt="" coords="935,95,1120,136"/>
-<area shape="rect" id="node22" href="$dd/d62/EnumString_8h.xhtml" title="enfield/Support/EnumString.h" alt="" coords="1337,363,1529,389"/>
-<area shape="rect" id="node31" href="$da/d66/Registry_8h.xhtml" title="enfield/Support/Registry.h" alt="" coords="1511,281,1685,307"/>
-<area shape="rect" id="node33" href="$d1/d9a/Allocators_8def.xhtml" title="enfield/Transform/Allocators\l/Allocators.def" alt="" coords="1563,95,1748,136"/>
-<area shape="rect" id="node3" href="$d7/d16/Graph_8h.xhtml" title="enfield/Support/Graph.h" alt="" coords="5,281,164,307"/>
-<area shape="rect" id="node8" href="$d4/daf/Nodes_8h.xhtml" title="enfield/Analysis/Nodes.h" alt="" coords="548,437,715,464"/>
-<area shape="rect" id="node9" href="$d1/d2e/WrapperVal_8h.xhtml" title="enfield/Support/WrapperVal.h" alt="" coords="778,512,970,539"/>
-<area shape="rect" id="node11" href="$d5/dfc/RTTI_8h.xhtml" title="enfield/Support/RTTI.h" alt="" coords="477,512,631,539"/>
-<area shape="rect" id="node15" href="$d9/dcf/DependencyBuilderPass_8h.xhtml" title="enfield/Transform/Dependency\lBuilderPass.h" alt="" coords="551,184,751,225"/>
-<area shape="rect" id="node20" href="$d9/d41/CommandLine_8h.xhtml" title="enfield/Support/CommandLine.h" alt="" coords="1070,191,1278,218"/>
-<area shape="rect" id="node30" href="$dc/d09/Stats_8h.xhtml" title="enfield/Support/Stats.h" alt="" coords="943,437,1098,464"/>
-<area shape="rect" id="node16" href="$df/d29/Pass_8h.xhtml" title="enfield/Transform/Pass.h" alt="" coords="345,437,513,464"/>
-<area shape="rect" id="node17" href="$d4/d73/QModule_8h.xhtml" title="enfield/Transform/QModule.h" alt="" coords="423,363,613,389"/>
-<area shape="rect" id="node18" href="$d6/d94/XbitToNumberPass_8h.xhtml" title="enfield/Transform/XbitTo\lNumberPass.h" alt="" coords="569,273,734,315"/>
-<area shape="rect" id="node21" href="$d1/d5e/PossibleValuesListTrait_8h.xhtml" title="enfield/Support/Possible\lValuesListTrait.h" alt="" coords="1274,273,1437,315"/>
-<area shape="rect" id="node23" href="$d1/d73/Defs_8h.xhtml" title="enfield/Support/Defs.h" alt="" coords="1677,437,1829,464"/>
+<area shape="rect" id="node2" href="$d7/d9d/ArchGraph_8h.xhtml" title="enfield/Arch/ArchGraph.h" alt="" coords="291,191,475,218"/>
+<area shape="rect" id="node14" href="$dd/d3b/QbitAllocator_8h.xhtml" title="enfield/Transform/Allocators\l/QbitAllocator.h" alt="" coords="947,95,1154,136"/>
+<area shape="rect" id="node22" href="$dd/d62/EnumString_8h.xhtml" title="enfield/Support/EnumString.h" alt="" coords="1270,363,1482,389"/>
+<area shape="rect" id="node30" href="$da/d66/Registry_8h.xhtml" title="enfield/Support/Registry.h" alt="" coords="1499,281,1690,307"/>
+<area shape="rect" id="node32" href="$d1/d9a/Allocators_8def.xhtml" title="enfield/Transform/Allocators\l/Allocators.def" alt="" coords="1550,95,1757,136"/>
+<area shape="rect" id="node3" href="$d7/d16/Graph_8h.xhtml" title="enfield/Support/Graph.h" alt="" coords="5,281,181,307"/>
+<area shape="rect" id="node8" href="$d4/daf/Nodes_8h.xhtml" title="enfield/Analysis/Nodes.h" alt="" coords="382,437,565,464"/>
+<area shape="rect" id="node9" href="$d1/d2e/WrapperVal_8h.xhtml" title="enfield/Support/WrapperVal.h" alt="" coords="555,512,768,539"/>
+<area shape="rect" id="node11" href="$d5/dfc/RTTI_8h.xhtml" title="enfield/Support/RTTI.h" alt="" coords="363,512,530,539"/>
+<area shape="rect" id="node15" href="$d9/dcf/DependencyBuilderPass_8h.xhtml" title="enfield/Transform/Dependency\lBuilderPass.h" alt="" coords="662,184,885,225"/>
+<area shape="rect" id="node20" href="$d9/d41/CommandLine_8h.xhtml" title="enfield/Support/CommandLine.h" alt="" coords="1089,191,1319,218"/>
+<area shape="rect" id="node29" href="$dc/d09/Stats_8h.xhtml" title="enfield/Support/Stats.h" alt="" coords="949,437,1120,464"/>
+<area shape="rect" id="node16" href="$df/d29/Pass_8h.xhtml" title="enfield/Transform/Pass.h" alt="" coords="589,437,773,464"/>
+<area shape="rect" id="node17" href="$d4/d73/QModule_8h.xhtml" title="enfield/Transform/QModule.h" alt="" coords="373,363,584,389"/>
+<area shape="rect" id="node18" href="$d6/d94/XbitToNumberPass_8h.xhtml" title="enfield/Transform/XbitTo\lNumberPass.h" alt="" coords="543,273,727,315"/>
+<area shape="rect" id="node21" href="$d1/d5e/PossibleValuesListTrait_8h.xhtml" title="enfield/Support/Possible\lValuesListTrait.h" alt="" coords="1245,273,1424,315"/>
+<area shape="rect" id="node23" href="$d1/d73/Defs_8h.xhtml" title="enfield/Support/Defs.h" alt="" coords="1609,437,1775,464"/>
 </map>

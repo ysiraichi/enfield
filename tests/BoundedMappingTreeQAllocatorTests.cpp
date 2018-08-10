@@ -3,6 +3,7 @@
 
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
 #include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
+#include "enfield/Transform/Allocators/BMT/ImprovedBMTQAllocatorImpl.h"
 #include "enfield/Transform/SemanticVerifierPass.h"
 #include "enfield/Transform/ArchVerifierPass.h"
 #include "enfield/Transform/PassCache.h"
@@ -33,23 +34,31 @@ q[3] q[4]\n\
     return g;
 }
 
-void TestAllocation(const std::string program) {
-    static ArchGraph::sRef g(nullptr);
-    if (g.get() == nullptr) g = createGraph();
-
-    auto qmod = QModule::ParseString(program);
-    auto qmodCopy = qmod->clone();
-
-    auto allocator = BoundedMappingTreeQAllocator::Create(g);
-    allocator->setNodeCandidateIterator(SeqNCandidateIterator::Create());\
+void FillBMT(BoundedMappingTreeQAllocator::Ref allocator) {
+    allocator->setNodeCandidatesGenerator(SeqNCandidatesGenerator::Create());\
     allocator->setChildrenSelector(FirstCandidateSelector::Create());\
     allocator->setPartialSolutionSelector(FirstCandidateSelector::Create());\
     allocator->setSwapCostEstimator(GeoDistanceSwapCEstimator::Create());\
     allocator->setLiveQubitsPreProcessor(GeoNearestLQPProcessor::Create());\
-    allocator->setMapSeqSelector(BestMSSelector::Create());\
+    allocator->setMapSeqSelector(BestNMSSelector::Create());\
     allocator->setTokenSwapFinder(ApproxTSFinder::Create());\
     allocator->setInlineAll({ "cx" });
-    allocator->run(qmod.get());
+}
+
+void FillIBMT(BoundedMappingTreeQAllocator::Ref allocator) {
+    allocator->setNodeCandidatesGenerator(CircuitCandidatesGenerator::Create());\
+    allocator->setChildrenSelector(WeightedRouletteCandidateSelector::Create());\
+    allocator->setPartialSolutionSelector(WeightedRouletteCandidateSelector::Create());\
+    allocator->setSwapCostEstimator(GeoDistanceSwapCEstimator::Create());\
+    allocator->setLiveQubitsPreProcessor(GeoNearestLQPProcessor::Create());\
+    allocator->setMapSeqSelector(BestNMSSelector::Create());\
+    allocator->setTokenSwapFinder(ApproxTSFinder::Create());\
+    allocator->setInlineAll({ "cx" });
+}
+
+void TestAllocator(QModule::Ref qmod, ArchGraph::sRef g, QbitAllocator::Ref allocator) {
+    auto qmodCopy = qmod->clone();
+    allocator->run(qmod);
 
     auto mapping = allocator->getData();
 
@@ -57,13 +66,31 @@ void TestAllocation(const std::string program) {
     qmodCopy->print(std::cout, true);
 
     auto aVerifierPass = ArchVerifierPass::Create(g);
-    PassCache::Run(qmod.get(), aVerifierPass.get());
+    PassCache::Run(qmod, aVerifierPass.get());
     EXPECT_TRUE(aVerifierPass->getData());
 
     auto sVerifierPass = SemanticVerifierPass::Create(std::move(qmodCopy), mapping);
     sVerifierPass->setInlineAll({ "cx" });
-    PassCache::Run(qmod.get(), sVerifierPass.get());
+    PassCache::Run(qmod, sVerifierPass.get());
     EXPECT_TRUE(sVerifierPass->getData());
+}
+
+void TestAllocation(const std::string program) {
+    static ArchGraph::sRef g(nullptr);
+    if (g.get() == nullptr) g = createGraph();
+
+    auto qmod = QModule::ParseString(program);
+
+    {
+        auto allocator = BoundedMappingTreeQAllocator::Create(g);
+        FillBMT(allocator.get());
+        TestAllocator(qmod.get(), g, allocator.get());
+    }
+    {
+        auto allocator = BoundedMappingTreeQAllocator::Create(g);
+        FillIBMT(allocator.get());
+        TestAllocator(qmod.get(), g, allocator.get());
+    }
 }
 
 TEST(BoundedMappingTreeQAllocatorTests, SimpleNoSwapProgram) {

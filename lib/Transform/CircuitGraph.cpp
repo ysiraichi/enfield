@@ -1,7 +1,6 @@
 #include "enfield/Transform/CircuitGraph.h"
 #include "enfield/Support/Defs.h"
 
-
 using namespace efd;
 
 // ----------------------------------------------------------------
@@ -9,6 +8,25 @@ using namespace efd;
 // ----------------------------------------------------------------
 
 Xbit::Xbit(Type t, uint32_t id) : mType(t), mId(id) {}
+
+Xbit::Xbit(uint32_t realId, uint32_t qubits, uint32_t cbits) {
+    mId = realId;
+    
+    if (realId < qubits) {
+        mId = realId;
+        mType = Type::QUANTUM;
+    } else if (realId < qubits + cbits) {
+        mId = qubits - realId;
+        mType = Type::CLASSIC;
+    } else {
+        ERR << "Bit `" << realId << "` is not quantum (until `" << qubits << "`) nor "
+            << "classical (until `" << qubits + cbits << "`)." << std::endl;
+        ExitWith(ExitCode::EXIT_unreachable);
+    }
+}
+
+bool Xbit::isQuantum() { return mType == Type::QUANTUM; }
+bool Xbit::isClassic() { return mType == Type::CLASSIC; }
 
 uint32_t Xbit::getRealId(uint32_t qubits, uint32_t cbits) {
     uint32_t id = mId;
@@ -69,13 +87,22 @@ bool CircuitGraph::CircuitNode::isGateNode() {
     return !isInputNode() && !isOutputNode();
 }
 
-std::vector<uint32_t> CircuitGraph::CircuitNode::getXbitsIds() {
-    std::vector<uint32_t> xbitsIds;
+std::vector<Xbit> CircuitGraph::CircuitNode::getXbits(uint32_t qubits, uint32_t cbits) {
+    std::vector<Xbit> xbits;
     for (auto& pair : mStepMap) {
-        xbitsIds.push_back(pair.first);
+        xbits.push_back(Xbit(pair.first, qubits, cbits));
     }
 
-    return xbitsIds;
+    return xbits;
+}
+
+std::vector<uint32_t> CircuitGraph::CircuitNode::getXbitsId() {
+    std::vector<uint32_t> xbitsId;
+    for (auto& pair : mStepMap) {
+        xbitsId.push_back(pair.first);
+    }
+
+    return xbitsId;
 }
 
 // ----------------------------------------------------------------

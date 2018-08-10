@@ -34,10 +34,10 @@ namespace efd {
         Dep& operator[](uint32_t i);
 
         /// \brief Forwards to the \em mDeps attribute.
-        bool isEmpty() const;
+        bool empty() const;
 
         /// \brief Forwards to the \em mDeps attribute.
-        uint32_t getSize() const;
+        uint32_t size() const;
 
         /// \brief Forwards to the \em mDeps attribute.
         Iterator begin();

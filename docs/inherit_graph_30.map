@@ -1,3 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$d4/dbd/structefd_1_1ParseOptTrait_3_01std_1_1vector_3_01std_1_1string_01_4_01_4.xhtml" title="efd::ParseOptTrait\l\&lt; std::vector\&lt; std::\lstring \&gt; \&gt;" alt="" coords="5,5,140,61"/>
+<area shape="rect" id="node1" href="$d6/d25/classefd_1_1OptBase.xhtml" title="Base class for implementing command line options. " alt="" coords="5,5,112,32"/>
+<area shape="rect" id="node2" href="$de/d50/classefd_1_1Opt.xhtml" title="Class used to declare the command line options available. " alt="" coords="160,5,272,32"/>
 </map>

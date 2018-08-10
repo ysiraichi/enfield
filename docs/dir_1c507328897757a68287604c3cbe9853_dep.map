@@ -1,9 +1,12 @@
 <map id="include/enfield/Transform/Allocators" name="include/enfield/Transform/Allocators">
-<area shape="rect" id="node1" href="dir_1c507328897757a68287604c3cbe9853.xhtml" title="Allocators" alt="" coords="37,52,117,100"/>
-<area shape="rect" id="node2" href="dir_beaccb1e436ea0f3a34f2202b7e5f29d.xhtml" title="Arch" alt="" coords="5,148,77,196"/>
-<area shape="rect" id="edge2-headlabel" href="dir_000007_000004.xhtml" title="2" alt="" coords="61,127,69,141"/>
-<area shape="rect" id="node3" href="dir_71e3284cbba00b0db547557b8d5e42ce.xhtml" title="Support" alt="" coords="41,244,113,292"/>
-<area shape="rect" id="edge3-headlabel" href="dir_000007_000006.xhtml" title="10" alt="" coords="86,220,101,235"/>
-<area shape="rect" id="edge1-headlabel" href="dir_000004_000006.xhtml" title="3" alt="" coords="66,217,74,231"/>
-<area shape="rect" id="clust1" href="dir_15dbf64d7f9e9589da7a7339d5165684.xhtml" title="Transform" alt="" coords="27,16,128,111"/>
+<area shape="rect" id="node4" href="dir_beaccb1e436ea0f3a34f2202b7e5f29d.xhtml" title="Arch" alt="" coords="45,159,117,207"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000007_000004.xhtml" title="2" alt="" coords="85,133,94,147"/>
+<area shape="rect" id="node5" href="dir_71e3284cbba00b0db547557b8d5e42ce.xhtml" title="Support" alt="" coords="119,255,191,303"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000007_000006.xhtml" title="11" alt="" coords="150,228,167,243"/>
+<area shape="rect" id="node2" href="dir_b6db2720bd2a76f9fb2679375411fdda.xhtml" title="BMT" alt="" coords="149,63,221,111"/>
+<area shape="rect" id="node3" href="dir_36acf298a92b501eb37aa8f7aa697dc3.xhtml" title="Simple" alt="" coords="245,63,317,111"/>
+<area shape="rect" id="edge4-headlabel" href="dir_000009_000006.xhtml" title="4" alt="" coords="183,237,192,251"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000004_000006.xhtml" title="3" alt="" coords="127,227,136,242"/>
+<area shape="rect" id="clust2" href="dir_1c507328897757a68287604c3cbe9853.xhtml" alt="" coords="27,52,328,121"/>
+<area shape="rect" id="clust1" href="dir_15dbf64d7f9e9589da7a7339d5165684.xhtml" title="Transform" alt="" coords="16,16,339,132"/>
 </map>

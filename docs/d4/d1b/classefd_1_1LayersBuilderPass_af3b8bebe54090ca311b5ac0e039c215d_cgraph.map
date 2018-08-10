@@ -1,13 +1,4 @@
 <map id="efd::LayersBuilderPass::run" name="efd::LayersBuilderPass::run">
-<area shape="rect" id="node2" href="$d6/d6a/classefd_1_1Node.xhtml#ab813c60af1717cf50e92a28b274c24ef" title="Used by visitor classes. " alt="" coords="258,5,377,32"/>
-<area shape="rect" id="node3" href="$d1/df9/classefd_1_1PassCache.xhtml#a8c54d0a438f35de5629ae78c886687a8" title="Gets a shared pointer to the pass T run in qmod. If it does not exist, it tries to run..." alt="" coords="245,56,390,83"/>
-<area shape="rect" id="node4" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#aee01f34943dd3c3afa794cb45815268f" title="Returns the number of cbits in a given gate (if any). " alt="" coords="247,107,387,149"/>
-<area shape="rect" id="node5" href="$db/d56/classefd_1_1PassT.xhtml#aae3442c1486bcec7622a64451262d684" title="efd::PassT::getData" alt="" coords="247,173,387,200"/>
-<area shape="rect" id="node6" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#ab395508705fe60ed3bd0cfb28eb5ffc6" title="Returns the number of qbits in a given gate (if any). " alt="" coords="247,225,387,266"/>
-<area shape="rect" id="node8" href="$dd/d52/classefd_1_1QModule.xhtml#ac00e1eb93f94c00db1e6a661d8f95d9d" title="Iterator to the beginning of the statement node vector. " alt="" coords="250,290,385,331"/>
-<area shape="rect" id="node10" href="$dd/d52/classefd_1_1QModule.xhtml#a23d45e3b6c65d5fa14b199da8b0617c7" title="Iterator to the end of the statement node vector. " alt="" coords="236,356,399,383"/>
-<area shape="rect" id="node12" href="$dd/d88/classefd_1_1UsedBitsVisitor.xhtml#a895cf7a07ed9255243724236621caf5c" title="efd::UsedBitsVisitor\l::UsedBitsVisitor" alt="" coords="248,407,387,449"/>
-<area shape="rect" id="node7" href="$db/d0c/structefd_1_1XbitToNumber.xhtml#a7d9474b325920d98f5832d5f1923ba2b" title="Gets a constant reference to the mapping of qubtis of a gate. " alt="" coords="447,225,587,266"/>
-<area shape="rect" id="node9" href="$d6/d6a/classefd_1_1Node.xhtml#ae890d36b0dcb332d82616b3180da1886" title="Returns a iterator to the beginning of the vector. " alt="" coords="457,297,576,324"/>
-<area shape="rect" id="node11" href="$d6/d6a/classefd_1_1Node.xhtml#a335606078a1d727de214982453c9dd1b" title="Returns a iterator to the end of the vector. " alt="" coords="463,356,571,383"/>
+<area shape="rect" id="node2" href="$dd/d52/classefd_1_1QModule.xhtml#ac00e1eb93f94c00db1e6a661d8f95d9d" title="Iterator to the beginning of the statement node vector. " alt="" coords="267,5,414,47"/>
+<area shape="rect" id="node3" href="$dd/d52/classefd_1_1QModule.xhtml#a23d45e3b6c65d5fa14b199da8b0617c7" title="Iterator to the end of the statement node vector. " alt="" coords="252,71,429,98"/>
 </map>

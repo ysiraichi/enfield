@@ -63,9 +63,13 @@ static void CheckCircuitGraph(std::string prog, Checker checker) {
 
             uint32_t i = 0;
             for (uint32_t e = checker.used.size(); i < e; ++i) {
-                auto used = cnode->getXbitsIds();
-                std::set<uint32_t> set(used.begin(), used.end());
-                if (set == checker.used[i]) {
+                std::set<uint32_t> idSet;
+
+                for (uint32_t id: cnode->getXbitsId()) {
+                    idSet.insert(id);
+                }
+
+                if (idSet == checker.used[i]) {
                     found = true;
                     checker.used.erase(checker.used.begin() + i);
                     break;

@@ -1055,7 +1055,11 @@ CLANG_ASSISTED_PARSING = YES
 # specified with INPUT and INCLUDE_PATH.
 # This tag requires that the tag CLANG_ASSISTED_PARSING is set to YES.
 
+<<<<<<< HEAD
 CLANG_OPTIONS          = -isystem /usr/include/clang/3.9.1/include -std=c++11
+=======
+CLANG_OPTIONS          = -isystem /usr/lib64/clang/6.0.1/include -std=c++11
+>>>>>>> 5f935dc... Doxygen updated.
 
 #---------------------------------------------------------------------------
 # Configuration options related to the alphabetical class index

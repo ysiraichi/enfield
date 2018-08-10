@@ -39,7 +39,7 @@ gate cnot x, y {\
         // Has only one parallel dependency.
         ASSERT_EQ(deps.size(), (uint32_t) 1);
         // The only paralel dependency has only one parallel dependency.
-        ASSERT_EQ(deps[0].getSize(), (uint32_t) 1);
+        ASSERT_EQ(deps[0].size(), (uint32_t) 1);
         ASSERT_EQ(deps[0][0].mFrom, x);
         ASSERT_EQ(deps[0][0].mTo, y);
 
@@ -84,7 +84,7 @@ gate cnot x, y {\
         // Has only one parallel dependency.
         ASSERT_EQ(cxDeps.size(), (uint32_t) 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ(cxDeps[0].getSize(), (uint32_t) 1);
+        ASSERT_EQ(cxDeps[0].size(), (uint32_t) 1);
         ASSERT_EQ(cxDeps[0][0].mFrom, x);
         ASSERT_EQ(cxDeps[0][0].mTo, y);
 
@@ -94,7 +94,7 @@ gate cnot x, y {\
         // Has only one parallel dependency.
         ASSERT_EQ(cnotDeps.size(), (uint32_t) 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ(cnotDeps[0].getSize(), (uint32_t) 1);
+        ASSERT_EQ(cnotDeps[0].size(), (uint32_t) 1);
         ASSERT_EQ(cnotDeps[0][0].mFrom, x);
         ASSERT_EQ(cnotDeps[0][0].mTo, y);
 
@@ -126,7 +126,7 @@ CX q[0], q[1];\
         // Has only one parallel dependency.
         ASSERT_EQ(deps.size(), (uint32_t) 1);
         // The only parallel dependency has only one parallel dependency.
-        ASSERT_EQ(deps[0].getSize(), (uint32_t) 1);
+        ASSERT_EQ(deps[0].size(), (uint32_t) 1);
         ASSERT_EQ(deps[0][0].mFrom, q0);
         ASSERT_EQ(deps[0][0].mTo, q1);
 
@@ -207,7 +207,7 @@ measure carry[0] -> carryout[0];\
             ASSERT_EQ(deps.size(), pair.second.first);
 
             uint32_t sum = 0;
-            for (auto v : deps) sum += v.getSize();
+            for (auto v : deps) sum += v.size();
             ASSERT_EQ(sum, pair.second.second);
         }
 

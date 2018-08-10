@@ -47,7 +47,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
 
     auto mapfinder = WeightedSIMappingFinder::Create();
     auto mapping = mapfinder->find(mArchGraph.get(), depsVector);
-    auto assign = GenAssignment(mArchGraph->size(), mapping);
+    auto inv = InvertMapping(mArchGraph->size(), mapping);
 
     StdSolution sol { mapping, StdSolution::OpSequences(depsVector.size()), 0 };
 
@@ -120,21 +120,15 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             auto node = cnode->node();
             auto dep = depBuilder.getDeps(node);
 
-            if (dep.getSize() == 0) {
+            if (dep.size() == 0) {
                 redo = true;
                 allocatedStatements.push_back(node->clone());
 
-                // for (uint32_t q : cnode->qargsid) {
-                for (uint32_t i : cnode->getXbitsIds()) {
+                for (uint32_t i : cnode->getXbitsId()) {
                     if (i < qubitNumber) frozen[i] = true;
                     marked[i] = false;
                     it.next(i);
                 }
-
-                // for (uint32_t c : cnode->cargsid) {
-                //     marked[c] = false;
-                //     cgraph[c] = cgraph[c]->child[c];
-                // }
             }
         }
 
@@ -150,7 +144,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             auto node = cnode->node();
             auto dep = depBuilder.getDeps(node);
 
-            if (dep.getSize() > 1) {
+            if (dep.size() > 1) {
                 ERR << "Can only allocate gates with at most one depenency."
                     << " Gate: `" << dep.mCallPoint->toString(false) << "`." << std::endl;
                 ExitWith(ExitCode::EXIT_unreachable);
@@ -181,7 +175,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
                     uint32_t v = mapping[b];
 
                     for (uint32_t u : mArchGraph->adj(v)) {
-                        uint32_t newA = assign[u];
+                        uint32_t newA = inv[u];
 
                         if (!frozen[newA]) {
                             props.type = K_FRZ;
@@ -201,7 +195,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
                     uint32_t u = mapping[a];
 
                     for (uint32_t v : mArchGraph->adj(u)) {
-                        uint32_t newB = assign[v];
+                        uint32_t newB = inv[v];
 
                         if (!frozen[newB]) {
                             props.type = K_FRZ;
@@ -263,7 +257,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
                 for (auto it = best.path.begin() + 2, end = best.path.end();
                         it != end; ++it) {
                     uint32_t u = *(it - 2), v = *(it - 1);
-                    uint32_t a = assign[u], b = assign[v];
+                    uint32_t a = inv[u], b = inv[v];
 
                     frozen[a] = true;
                     frozen[b] = true;
@@ -271,7 +265,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
                     ops.second.push_back({ Operation::K_OP_SWAP, a, b });
 
                     std::swap(mapping[a], mapping[b]);
-                    std::swap(assign[u], assign[v]);
+                    std::swap(inv[u], inv[v]);
                 }
             }
         } else {
@@ -279,7 +273,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             uint32_t u = mapping[a], v = mapping[newA];
             std::swap(sol.mInitial[a], sol.mInitial[newA]);
             std::swap(mapping[a], mapping[newA]);
-            std::swap(assign[u], assign[v]);
+            std::swap(inv[u], inv[v]);
         }
 
         auto dep = depBuilder.getDeps(node)[0];
@@ -294,7 +288,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             ops.second.push_back({ Operation::K_OP_REV, a, b });
         }
 
-        for (uint32_t i : best.cnode->getXbitsIds()) {
+        for (uint32_t i : best.cnode->getXbitsId()) {
             marked[i] = false;
             it.next(i);
         }

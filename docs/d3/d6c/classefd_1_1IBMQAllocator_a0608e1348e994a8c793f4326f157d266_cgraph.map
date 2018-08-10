@@ -1,0 +1,9 @@
+<map id="efd::IBMQAllocator::buildStdSolution" name="efd::IBMQAllocator::buildStdSolution">
+<area shape="rect" id="node2" href="$dd/d52/classefd_1_1QModule.xhtml#a0d1ee13f9fdf977893067cb4d0688e3f" title="Removes all statements present int this module. " alt="" coords="209,5,431,32"/>
+<area shape="rect" id="node3" href="$d4/deb/namespaceefd.xhtml#af3487901a239a99750dc5dcdc3a8c868" title="efd::ExitWith" alt="" coords="267,56,373,83"/>
+<area shape="rect" id="node4" href="$d8/d45/classefd_1_1BFSPathFinder.xhtml#a4a91e28940313cb585654f5214187cac" title="Searches for a path from u to v in the graph g. " alt="" coords="248,107,392,149"/>
+<area shape="rect" id="node5" href="$dd/d52/classefd_1_1QModule.xhtml#ae5c8859117a0d6ea5aeddd1a3fb060ec" title="Inserts ref at the back, and returns a iterator to this node. " alt="" coords="196,173,444,200"/>
+<area shape="rect" id="node6" href="$d4/deb/namespaceefd.xhtml#aac5a20e6db5d358cf72d4816441d0b0d" title="Prints the mapping m to a string and returns it. " alt="" coords="240,224,400,251"/>
+<area shape="rect" id="node7" href="$d8/dcc/namespacestd.xhtml#a76fb98cd4a35566d53c2f0513c5d12d1" title="std::to_string" alt="" coords="492,224,599,251"/>
+<area shape="rect" id="node8" href="$dc/d5d/classefd_1_1EnumString.xhtml#a39d129d188c7746b7f8b65308d7d7b53" title="Returns the string value of the enum. " alt="" coords="647,217,840,258"/>
+</map>

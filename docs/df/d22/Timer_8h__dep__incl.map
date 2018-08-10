@@ -1,5 +1,5 @@
 <map id="include/enfield/Support/Timer.h" name="include/enfield/Support/Timer.h">
-<area shape="rect" id="node2" href="$d0/dc2/Timer_8cpp.xhtml" title="lib/Support/Timer.cpp" alt="" coords="5,102,152,129"/>
-<area shape="rect" id="node3" href="$d5/d8f/BoundedSIDepSolver_8cpp.xhtml" title="lib/Transform/Allocators\l/BoundedSIDepSolver.cpp" alt="" coords="176,95,352,136"/>
-<area shape="rect" id="node4" href="$d0/d91/QbitAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/QbitAllocator.cpp" alt="" coords="376,95,536,136"/>
+<area shape="rect" id="node2" href="$d0/dc2/Timer_8cpp.xhtml" title="lib/Support/Timer.cpp" alt="" coords="5,102,167,129"/>
+<area shape="rect" id="node3" href="$d6/dab/BoundedMappingTreeQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/BoundedMappingTreeQAllocator.cpp" alt="" coords="191,95,453,136"/>
+<area shape="rect" id="node4" href="$d0/d91/QbitAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/QbitAllocator.cpp" alt="" coords="478,95,657,136"/>
 </map>

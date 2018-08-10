@@ -1,11 +1,12 @@
 <map id="include/enfield/Transform/LayersBuilderPass.h" name="include/enfield/Transform/LayersBuilderPass.h">
-<area shape="rect" id="node2" href="$d3/d48/IBMQAllocator_8h.xhtml" title="include/enfield/Transform\l/Allocators/IBMQAllocator.h" alt="" coords="167,95,351,136"/>
-<area shape="rect" id="node5" href="$df/d01/LayerBasedOrderingWrapperPass_8h.xhtml" title="include/enfield/Transform\l/LayerBasedOrderingWrapperPass.h" alt="" coords="375,95,609,136"/>
-<area shape="rect" id="node10" href="$d8/d9d/LayersBuilderPass_8cpp.xhtml" title="lib/Transform/LayersBuilder\lPass.cpp" alt="" coords="633,95,815,136"/>
-<area shape="rect" id="node3" href="$dc/dea/Allocators_8cpp.xhtml" title="lib/Transform/Allocators\l/Allocators.cpp" alt="" coords="5,184,165,225"/>
-<area shape="rect" id="node4" href="$dd/d90/IBMQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/IBMQAllocator.cpp" alt="" coords="189,184,349,225"/>
-<area shape="rect" id="node6" href="$d1/dc9/CNOTLBOWrapperPass_8h.xhtml" title="include/enfield/Transform\l/CNOTLBOWrapperPass.h" alt="" coords="393,184,573,225"/>
-<area shape="rect" id="node9" href="$d7/d43/LayerBasedOrderingWrapperPass_8cpp.xhtml" title="lib/Transform/LayerBased\lOrderingWrapperPass.cpp" alt="" coords="597,184,771,225"/>
-<area shape="rect" id="node7" href="$d0/d2e/CNOTLBOWrapperPass_8cpp.xhtml" title="lib/Transform/CNOTLBOWrapper\lPass.cpp" alt="" coords="269,273,483,315"/>
-<area shape="rect" id="node8" href="$df/dd9/Driver_8cpp.xhtml" title="lib/Transform/Driver.cpp" alt="" coords="508,281,671,307"/>
+<area shape="rect" id="node2" href="$d3/d48/IBMQAllocator_8h.xhtml" title="include/enfield/Transform\l/Allocators/IBMQAllocator.h" alt="" coords="187,95,386,136"/>
+<area shape="rect" id="node5" href="$df/d01/LayerBasedOrderingWrapperPass_8h.xhtml" title="include/enfield/Transform\l/LayerBasedOrderingWrapperPass.h" alt="" coords="410,95,665,136"/>
+<area shape="rect" id="node10" href="$d8/d9d/LayersBuilderPass_8cpp.xhtml" title="lib/Transform/LayersBuilder\lPass.cpp" alt="" coords="689,95,892,136"/>
+<area shape="rect" id="node11" href="$d9/dac/QModuleQualityEvalPass_8cpp.xhtml" title="lib/Transform/QModuleQuality\lEvalPass.cpp" alt="" coords="917,95,1134,136"/>
+<area shape="rect" id="node3" href="$dc/dea/Allocators_8cpp.xhtml" title="lib/Transform/Allocators\l/Allocators.cpp" alt="" coords="5,184,184,225"/>
+<area shape="rect" id="node4" href="$dd/d90/IBMQAllocator_8cpp.xhtml" title="lib/Transform/Allocators\l/IBMQAllocator.cpp" alt="" coords="208,184,387,225"/>
+<area shape="rect" id="node6" href="$d1/dc9/CNOTLBOWrapperPass_8h.xhtml" title="include/enfield/Transform\l/CNOTLBOWrapperPass.h" alt="" coords="432,184,621,225"/>
+<area shape="rect" id="node9" href="$d7/d43/LayerBasedOrderingWrapperPass_8cpp.xhtml" title="lib/Transform/LayerBased\lOrderingWrapperPass.cpp" alt="" coords="646,184,837,225"/>
+<area shape="rect" id="node7" href="$d0/d2e/CNOTLBOWrapperPass_8cpp.xhtml" title="lib/Transform/CNOTLBOWrapper\lPass.cpp" alt="" coords="297,273,527,315"/>
+<area shape="rect" id="node8" href="$df/dd9/Driver_8cpp.xhtml" title="lib/Transform/Driver.cpp" alt="" coords="551,281,731,307"/>
 </map>

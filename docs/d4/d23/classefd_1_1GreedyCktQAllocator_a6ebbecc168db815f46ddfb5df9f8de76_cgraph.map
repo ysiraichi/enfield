@@ -1,0 +1,9 @@
+<map id="efd::GreedyCktQAllocator::buildStdSolution" name="efd::GreedyCktQAllocator::buildStdSolution">
+<area shape="rect" id="node2" href="$dd/d52/classefd_1_1QModule.xhtml#a0d1ee13f9fdf977893067cb4d0688e3f" title="Removes all statements present int this module. " alt="" coords="254,5,477,32"/>
+<area shape="rect" id="node3" href="$d3/d4f/classefd_1_1WeightedSIMappingFinder.xhtml#a75ebcbce80487bf331c26b2c2cfa9689" title="Creates an instance of this class. " alt="" coords="255,57,475,98"/>
+<area shape="rect" id="node4" href="$d4/deb/namespaceefd.xhtml#af3487901a239a99750dc5dcdc3a8c868" title="efd::ExitWith" alt="" coords="312,123,419,149"/>
+<area shape="rect" id="node5" href="$d8/d45/classefd_1_1BFSPathFinder.xhtml#a4a91e28940313cb585654f5214187cac" title="Searches for a path from u to v in the graph g. " alt="" coords="293,174,437,215"/>
+<area shape="rect" id="node6" href="$dd/d52/classefd_1_1QModule.xhtml#a13a07a303d5913d73fecc7babaeba7ac" title="Return the number of statements. " alt="" coords="263,239,467,281"/>
+<area shape="rect" id="node7" href="$dd/d52/classefd_1_1QModule.xhtml#ae5c8859117a0d6ea5aeddd1a3fb060ec" title="Inserts ref at the back, and returns a iterator to this node. " alt="" coords="241,305,489,332"/>
+<area shape="rect" id="node8" href="$d4/deb/namespaceefd.xhtml#adb4ffc373d7273aefb15d2f9dcd4aeb4" title="Generates an assignment mapping (maps the architecture&#39;s qubits to the logical ones) of size archQ..." alt="" coords="293,356,437,383"/>
+</map>

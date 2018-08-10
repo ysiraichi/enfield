@@ -1,0 +1,4 @@
+<map id="efd::CircuitCandidatesGenerator::generateImpl" name="efd::CircuitCandidatesGenerator::generateImpl">
+<area shape="rect" id="node2" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#a748e8cd12225a2d0268e84979726cd03" title="Returns the Node::Ref associated with this circuit node. " alt="" coords="316,5,456,47"/>
+<area shape="rect" id="node3" href="$d9/dbc/structefd_1_1CircuitGraph_1_1CircuitNode.xhtml#acdd2fff3b8fbce45bf0fd84efab71ab1" title="Returns the number of Xbit&#39;s in this node. " alt="" coords="284,71,488,112"/>
+</map>
