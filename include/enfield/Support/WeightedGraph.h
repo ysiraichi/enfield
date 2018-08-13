@@ -190,7 +190,7 @@ efd::JsonBackendParser<efd::WeightedGraph<T>>::Parse(const Json::Value& root) {
         }
     }
 
-    return std::move(graph);
+    return graph;
 }
 
 #endif

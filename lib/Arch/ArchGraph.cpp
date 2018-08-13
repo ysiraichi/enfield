@@ -201,5 +201,5 @@ std::unique_ptr<ArchGraph> JsonBackendParser<ArchGraph>::Parse(const Json::Value
         }
     }
 
-    return std::move(graph);
+    return graph;
 }

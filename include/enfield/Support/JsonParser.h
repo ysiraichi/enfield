@@ -4,6 +4,8 @@
 #include "enfield/Support/Defs.h"
 
 #include <memory>
+#include <sstream>
+#include <fstream>
 #include <json/json.h>
 
 namespace efd {

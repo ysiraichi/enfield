@@ -159,5 +159,5 @@ std::unique_ptr<Graph> JsonBackendParser<Graph>::Parse(const Json::Value& root) 
         }
     }
 
-    return std::move(graph);
+    return graph;
 }
