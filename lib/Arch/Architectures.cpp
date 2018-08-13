@@ -28,7 +28,7 @@ namespace efd {
 #define EFD_COUPLING(_QReg_, _U_, _V_) \
                 u = this->getUId(#_QReg_"["#_U_"]");\
                 v = this->getUId(#_QReg_"["#_V_"]");\
-                this->putEdge(u, v);
+                this->putEdge(u, v, 1);
 
 #define EFD_ARCHITECTURE_END \
             }\
