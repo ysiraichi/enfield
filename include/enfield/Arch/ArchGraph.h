@@ -1,13 +1,13 @@
 #ifndef __EFD_ARCH_GRAPH_H__
 #define __EFD_ARCH_GRAPH_H__
 
-#include "enfield/Support/Graph.h"
+#include "enfield/Support/WeightedGraph.h"
 #include "enfield/Analysis/Nodes.h"
 
 namespace efd {
     /// \brief This is the base class for the architectures that this project will
     /// be supporting.
-    class ArchGraph : public Graph {
+    class ArchGraph : public WeightedGraph<double> {
         public:
             typedef ArchGraph* Ref;
             typedef std::unique_ptr<ArchGraph> uRef;
@@ -67,10 +67,21 @@ namespace efd {
 
             /// \brief Encapsulates the creation of a new ArchGraph.
             static uRef Create(uint32_t n);
-            /// \brief Parses the file \p filename into a ArchGraph representation.
-            static uRef Read(std::string filepath);
-            /// \brief Parses the string \p graphStr into a ArchGraph representation.
-            static uRef ReadString(std::string graphStr);
+    };
+
+    template <> struct JsonFields<ArchGraph> {
+        static const std::string _QubitsLabel_;
+        static const std::string _RegistersLabel_;
+        static const std::string _NameLabel_;
+        static const std::string _AdjListLabel_;
+        static const std::string _VLabel_;
+        static const std::string _WeightLabel_;
+        static const std::string _RegLabel_;
+        static const std::string _IdLabel_;
+    };
+
+    template <> struct JsonBackendParser<ArchGraph> {
+        static std::unique_ptr<ArchGraph> Parse(const Json::Value& root);
     };
 }
 
