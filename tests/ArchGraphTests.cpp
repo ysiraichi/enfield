@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Arch/ArchGraph.h"
+#include "enfield/Support/JsonParser.h"
 
 #include <string>
 
@@ -8,15 +9,19 @@ using namespace efd;
 
 TEST(ArchGraphTests, TreeCreationTest) {
     const std::string gStr =
-"\
-1 5\n\
-q 5\n\
-q[0] q[1]\n\
-q[0] q[2]\n\
-q[1] q[3]\n\
-q[1] q[4]\n\
-";
-    std::unique_ptr<ArchGraph> graph = efd::ArchGraph::ReadString(gStr);
+"{\n\
+    \"qubits\": 5,\n\
+    \"registers\": [ {\"name\": \"q\", \"qubits\": 5} ],\n\
+    \"adj\": [\n\
+        [ {\"v\": \"q[1]\"}, {\"v\": \"q[2]\"} ],\n\
+        [ {\"v\": \"q[3]\"}, {\"v\": \"q[4]\"} ],\n\
+        [],\n\
+        [],\n\
+        []\n\
+    ]\n\
+}";
+
+    auto graph = JsonParser<ArchGraph>::ParseString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), (uint32_t) 5);
@@ -33,18 +38,20 @@ q[1] q[4]\n\
 
 TEST(ArchGraphTests, SomeReverseEdgesTest) {
     const std::string gStr =
-"\
-1 5\n\
-q 5\n\
-q[0] q[1]\n\
-q[1] q[0]\n\
-q[0] q[2]\n\
-q[1] q[2]\n\
-q[1] q[3]\n\
-q[1] q[4]\n\
-q[4] q[1]\n\
-";
-    std::unique_ptr<ArchGraph> graph = efd::ArchGraph::ReadString(gStr);
+"{\n\
+    \"qubits\": 5,\n\
+    \"registers\": [ {\"name\": \"q\", \"qubits\": 5} ],\n\
+    \"adj\": [\n\
+        [ {\"v\": \"q[1]\"}, {\"v\": \"q[2]\"} ],\n\
+        [ {\"v\": \"q[0]\"}, {\"v\": \"q[2]\"},\n\
+          {\"v\": \"q[3]\"}, {\"v\": \"q[4]\"} ],\n\
+        [],\n\
+        [],\n\
+        [ {\"v\": \"q[1]\"} ]\n\
+    ]\n\
+}";
+
+    auto graph = JsonParser<ArchGraph>::ParseString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), (uint32_t) 5);
@@ -67,16 +74,22 @@ q[4] q[1]\n\
 TEST(ArchGraphTests, MultipleRegisterArchitecture) {
     {
         const std::string gStr =
-"\
-2 5\n\
-r 1\n\
-q 4\n\
-r[0] q[0]\n\
-r[0] q[1]\n\
-q[0] q[2]\n\
-q[0] q[3]\n\
-";
-        std::unique_ptr<ArchGraph> graph = efd::ArchGraph::ReadString(gStr);
+"{\n\
+    \"qubits\": 5,\n\
+    \"registers\": [\n\
+        {\"name\": \"r\", \"qubits\": 1},\n\
+        {\"name\": \"q\", \"qubits\": 4}\n\
+    ],\n\
+    \"adj\": [\n\
+        [ {\"v\": \"q[0]\"}, {\"v\": \"q[1]\"} ],\n\
+        [ {\"v\": \"q[2]\"}, {\"v\": \"q[3]\"} ],\n\
+        [],\n\
+        [],\n\
+        []\n\
+    ]\n\
+}";
+
+        auto graph = JsonParser<ArchGraph>::ParseString(gStr);
         ASSERT_FALSE(graph.get() == nullptr);
 
         ASSERT_EQ(graph->size(), (uint32_t) 5);
@@ -92,19 +105,23 @@ q[0] q[3]\n\
     }
     {
         const std::string gStr =
-"\
-2 5\n\
-q 2\n\
-r 3\n\
-q[0] q[1]\n\
-q[1] q[0]\n\
-q[0] r[0]\n\
-q[1] r[0]\n\
-q[1] r[1]\n\
-q[1] r[2]\n\
-r[2] q[1]\n\
-";
-        std::unique_ptr<ArchGraph> graph = efd::ArchGraph::ReadString(gStr);
+"{\n\
+    \"qubits\": 5,\n\
+    \"registers\": [\n\
+        {\"name\": \"q\", \"qubits\": 2},\n\
+        {\"name\": \"r\", \"qubits\": 3}\n\
+    ],\n\
+    \"adj\": [\n\
+        [ {\"v\": \"q[1]\"}, {\"v\": \"r[0]\"} ],\n\
+        [ {\"v\": \"q[0]\"}, {\"v\": \"r[0]\"},\n\
+          {\"v\": \"r[1]\"}, {\"v\": \"r[2]\"} ],\n\
+        [],\n\
+        [],\n\
+        [ {\"v\": \"q[1]\"} ]\n\
+    ]\n\
+}";
+
+        auto graph = JsonParser<ArchGraph>::ParseString(gStr);
         ASSERT_FALSE(graph.get() == nullptr);
 
         ASSERT_EQ(graph->size(), (uint32_t) 5);

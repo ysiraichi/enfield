@@ -16,18 +16,19 @@ using namespace efd;
 static ArchGraph::sRef createGraph() {
     ArchGraph::sRef g(nullptr);
     const std::string gStr =
-"\
-1 5\n\
-q 5\n\
-q[0] q[1]\n\
-q[1] q[2]\n\
-q[0] q[2]\n\
-q[3] q[2]\n\
-q[4] q[2]\n\
-q[3] q[4]\n\
-";
+"{\n\
+    \"qubits\": 5,\n\
+    \"registers\": [ {\"name\": \"q\", \"qubits\": 5} ],\n\
+    \"adj\": [\n\
+        [ {\"v\": \"q[1]\"}, {\"v\": \"q[2]\"} ],\n\
+        [ {\"v\": \"q[2]\"} ],\n\
+        [],\n\
+        [ {\"v\": \"q[2]\"}, {\"v\": \"q[4]\"} ],\n\
+        [ {\"v\": \"q[2]\"} ]\n\
+    ]\n\
+}";
 
-    g = toShared(ArchGraph::ReadString(gStr));
+    g = JsonParser<ArchGraph>::ParseString(gStr);
     return g;
 }
 
