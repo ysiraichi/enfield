@@ -72,7 +72,8 @@ void Graph::putEdge(uint32_t i, uint32_t j) {
 }
 
 bool Graph::isWeighted() const {
-    return mK == K_WEIGHTED;
+    return mK == K_WEIGHTED ||
+        mK == K_ARCH;
 }
 
 bool Graph::isArch() const {

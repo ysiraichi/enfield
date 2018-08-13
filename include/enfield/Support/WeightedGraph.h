@@ -8,38 +8,40 @@
 #include <sstream>
 
 namespace efd {
-
     template <typename T>
-    class WeightedGraph : public Graph {
-        public:
-            typedef WeightedGraph<T>* Ref;
-            typedef std::unique_ptr<WeightedGraph<T>> uRef;
-            typedef std::shared_ptr<WeightedGraph<T>> sRef;
+        class WeightedGraph : public Graph {
+            public:
+                typedef WeightedGraph<T>* Ref;
+                typedef std::unique_ptr<WeightedGraph<T>> uRef;
+                typedef std::shared_ptr<WeightedGraph<T>> sRef;
 
-        protected:
-            std::string edgeToString(uint32_t i, uint32_t j, std::string op)
-                const override;
+            private:
+                std::map<std::pair<uint32_t, uint32_t>, T> mW;
 
-        private:
-            std::map<std::pair<uint32_t, uint32_t>, T> mW;
+            protected:
+                std::string edgeToString(uint32_t i, uint32_t j, std::string op)
+                    const override;
 
-        public:
-            WeightedGraph(uint32_t n, Type ty = Undirected);
+                /// \brief Constructor to be used by whoever inherits this class.
+                WeightedGraph(Kind k, uint32_t n, Type ty = Undirected);
 
-            /// \brief Insert the edge (i, j) with weight w(i, j) = \p w.
-            void putEdge(uint32_t i, uint32_t j, T w);
+            public:
+                WeightedGraph(uint32_t n, Type ty = Undirected);
 
-            /// \brief Sets the weight of an edge (i, j).
-            void setW(uint32_t i, uint32_t j, T w);
-            /// \brief Gets the weight of an edge (i, j).
-            T getW(uint32_t i, uint32_t j) const;
-    
-            /// \brief Returns true if \p g is of this type.
-            static bool ClassOf(const Graph* g);
-    
-            /// \brief Encapsulates the creation of a new Graph.
-            static uRef Create(uint32_t n, Type ty = Undirected);
-    };
+                /// \brief Insert the edge (i, j) with weight w(i, j) = \p w.
+                void putEdge(uint32_t i, uint32_t j, T w);
+
+                /// \brief Sets the weight of an edge (i, j).
+                void setW(uint32_t i, uint32_t j, T w);
+                /// \brief Gets the weight of an edge (i, j).
+                T getW(uint32_t i, uint32_t j) const;
+        
+                /// \brief Returns true if \p g is of this type.
+                static bool ClassOf(const Graph* g);
+        
+                /// \brief Encapsulates the creation of a new Graph.
+                static uRef Create(uint32_t n, Type ty = Undirected);
+        };
 
     template <class T> struct JsonFields<WeightedGraph<T>> {
         static std::string _WeightLabel_;
@@ -65,6 +67,9 @@ namespace efd {
     template <> std::vector<Json::ValueType>
         JsonBackendParser<WeightedGraph<double>>::GetTysForT();
 }
+
+template <typename T>
+efd::WeightedGraph<T>::WeightedGraph(Kind k, uint32_t n, Type ty) : Graph(k, n, ty) {}
 
 template <typename T>
 efd::WeightedGraph<T>::WeightedGraph(uint32_t n, Type ty) : Graph(K_WEIGHTED, n, ty) {}
