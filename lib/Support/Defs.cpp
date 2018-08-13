@@ -1,6 +1,7 @@
 #include "enfield/Support/Defs.h"
 #include "enfield/Support/CommandLine.h"
 
+#include <iostream>
 #include <fstream>
 
 static efd::Opt<std::string> ErrorFile
@@ -42,6 +43,8 @@ std::ostream& efd::InfoLog(std::string file, uint32_t line) {
     return out;
 }
 
-void efd::ExitWith(ExitCode e) {
-    std::exit(static_cast<uint32_t>(e));
+void efd::Abort(std::string file, uint32_t line) {
+    std::cerr << "Enfield Aborted on file `" << file << "`, line `" << line << "`." 
+              << std::endl;
+    std::abort();
 }

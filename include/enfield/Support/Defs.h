@@ -29,21 +29,13 @@ namespace efd {
     /// \brief Returns a stream object for logging information.
     std::ostream& InfoLog(std::string file = "", uint32_t line = 0);
 
-    /// \brief Instead of issueing an 'assert(false)', we should use
-    /// this enum in order to exit with errors.
-    enum class ExitCode {
-        EXIT_multi_deps = 11,
-        EXIT_unknown_resource,
-        EXIT_out_of_bounds,
-        EXIT_json_parsing_error,
-        EXIT_unreachable
-    };
-
-    void ExitWith(ExitCode e);
+    /// \brief Aborts reporting the file and the line.
+    void Abort(std::string file = "", uint32_t line = 0);
 }
 
 #ifndef EFD_MESSAGE_LOG
 #define EFD_MESSAGE_LOG
+#define EFD_ABORT() Abort(__FILE__, __LINE__)
 #define ERR ErrorLog(__FILE__, __LINE__)
 #define WAR WarningLog(__FILE__, __LINE__)
 #define INF InfoLog(__FILE__, __LINE__)
