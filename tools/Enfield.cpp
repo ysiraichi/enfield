@@ -8,6 +8,7 @@
 #include "enfield/Transform/ReverseEdgesPass.h"
 #include "enfield/Transform/Allocators/Allocators.h"
 #include "enfield/Arch/Architectures.h"
+#include "enfield/Support/JsonParser.h"
 #include "enfield/Support/Stats.h"
 #include "enfield/Support/Defs.h"
 
@@ -137,7 +138,7 @@ int main(int argc, char** argv) {
         if (!ArchFilepath.isParsed() && HasArchitecture(Arch.getVal())) {
             archGraph = CreateArchitecture(Arch.getVal());
         } else if (ArchFilepath.isParsed()) {
-            archGraph = ArchGraph::Read(ArchFilepath.getVal());
+            archGraph = JsonParser<ArchGraph>::ParseFile(ArchFilepath.getVal());
         } else {
             ERR << "Architecture: " << Arch.getVal().getStringValue()
                 << " not found." << std::endl;
