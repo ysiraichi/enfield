@@ -25,7 +25,7 @@ void SeqNCandidatesGenerator::signalProcessed(Node::Ref node) {
     if (node != mIt->get()) {
         ERR << "Node `" << node->toString(false) << "` not the one processed. "
             << "Actual: `" << (*mIt)->toString(false) << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     ++mIt;
@@ -122,7 +122,7 @@ uint32_t GeoNearestLQPProcessor::getNearest(const Graph::Ref g, uint32_t u, cons
 
     // There is no way we can not find anyone!!
     ERR << "Can't find any vertice connected to v:" << u << "." << std::endl;
-    ExitWith(ExitCode::EXIT_unreachable);
+    EFD_ABORT();
 }
 
 void GeoNearestLQPProcessor::process(const Graph::Ref g, Mapping& fromM, Mapping& toM) {

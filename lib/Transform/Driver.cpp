@@ -42,7 +42,7 @@ QModule::uRef efd::Compile(QModule::uRef qmod, CompilationSettings settings) {
         ERR << "Using more qbits than the maximum permitted by the architecture (max `"
             << settings.archGraph->size() << "`): `" << xbitToNumber.getQSize()
             << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     auto allocPass = CreateQbitAllocator(settings.allocator, settings.archGraph);

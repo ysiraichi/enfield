@@ -56,7 +56,7 @@ bool ArchVerifierVisitor::visitNDQOp(NDQOp::Ref qop) {
         if (qUIds.size() != 2) {
             ERR << "CNOT call must have 2 quantum qubits. Actual: `"
                 << qop->toString(false) << "`." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
+            EFD_ABORT();
         }
 
         success = checkCNOT({ qUIds[0], qUIds[1] });
@@ -67,13 +67,13 @@ bool ArchVerifierVisitor::visitNDQOp(NDQOp::Ref qop) {
         if (gen == nullptr) {
             ERR << "Intrinsic call not generic operation!? Actual: `"
                 << qop->toString(false) << "`." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
+            EFD_ABORT();
         }
 
         if (!gen->isIntrinsic()) {
             ERR << "Intrinsic call not marked as intrinsic!? Actual: `"
                 << qop->toString(false) << "`." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
+            EFD_ABORT();
         }
 
         switch (gen->getIntrinsicKind()) {
@@ -81,7 +81,7 @@ bool ArchVerifierVisitor::visitNDQOp(NDQOp::Ref qop) {
                 if (qUIds.size() != 2) {
                     ERR << "SWAP call must have 2 quantum qubits. Actual: `"
                         << qUIds.size() << "`." << std::endl;
-                    ExitWith(ExitCode::EXIT_unreachable);
+                    EFD_ABORT();
                 }
 
                 success = checkCNOT({ qUIds[0], qUIds[1] }) || checkCNOT({ qUIds[1], qUIds[0] });
@@ -91,7 +91,7 @@ bool ArchVerifierVisitor::visitNDQOp(NDQOp::Ref qop) {
                 if (qUIds.size() != 3) {
                     ERR << "LCX call must have 3 quantum qubits. Actual: `"
                         << qUIds.size() << "`." << std::endl;
-                    ExitWith(ExitCode::EXIT_unreachable);
+                    EFD_ABORT();
                 }
 
                 success = (checkCNOT({ qUIds[0], qUIds[1] }) || checkCNOT({ qUIds[1], qUIds[0] })) &&
@@ -102,7 +102,7 @@ bool ArchVerifierVisitor::visitNDQOp(NDQOp::Ref qop) {
                 if (qUIds.size() != 2) {
                     ERR << "Reversal call must have 2 quantum qubits. Actual: `"
                         << qUIds.size() << "`." << std::endl;
-                    ExitWith(ExitCode::EXIT_unreachable);
+                    EFD_ABORT();
                 }
 
                 success = checkCNOT({ qUIds[1], qUIds[0] });

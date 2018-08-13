@@ -20,7 +20,7 @@ uint32_t efd::ExpTSFinder::getTargetId(const InverseMap& source,
     if (source.size() != target.size()) {
         ERR << "The assignment map must be of same size: `"
             << source.size() << "` and `" << target.size() << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     int size = source.size();

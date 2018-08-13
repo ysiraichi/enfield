@@ -34,7 +34,7 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
         if (_deps.size() > 1) {
             ERR << "Not suporting gates with more than 1 dependency ("
                 << node->toString(false) << ")." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
+            EFD_ABORT();
         } else if (_deps.size() == 1) {
             deps.push_back(_deps[0]);
         }
@@ -246,7 +246,7 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                     } else {
                         ERR << "If we found one configuration, it should not reach this point."
                             << std::endl;
-                        ExitWith(ExitCode::EXIT_unreachable);
+                        EFD_ABORT();
                     }
 
                     sol.mOpSeqs.push_back(std::make_pair(clone.get(), StdSolution::OpVector{ op }));
@@ -261,7 +261,7 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                                                      result.opv.begin(), result.opv.end());
             } else if (!result.opv.empty()) {
                 ERR << "Swap operations but there were no dependencies to satisfy." << std::endl;
-                ExitWith(ExitCode::EXIT_unreachable);
+                EFD_ABORT();
             }
         } else {
             INF << "Serializing this layer!" << std::endl;
@@ -274,7 +274,7 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                 if (!result.success) {
                     ERR << "Could not allocate sublayer " << node->toString(false)
                         << " on mapping: " << MappingToString(current) << "." << std::endl;
-                    ExitWith(ExitCode::EXIT_unreachable);
+                    EFD_ABORT();
                 }
 
                 current = result.map;
@@ -308,7 +308,7 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                     } else {
                         ERR << "If we found one configuration, it should not reach this point."
                             << std::endl;
-                        ExitWith(ExitCode::EXIT_unreachable);
+                        EFD_ABORT();
                     }
 
                     opVector.push_back(op);
@@ -327,7 +327,7 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
 
     if (firstLayer) {
         ERR << "No first layer found." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     qmod->clearStatements();

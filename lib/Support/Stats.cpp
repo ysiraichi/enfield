@@ -23,7 +23,7 @@ void efd::StatsPool::addStat(StatBase* stat) {
     if (hasStat(stat->getName())) {
         ERR << "Stat with the same name already defined: `" << stat->getName()
             << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     mMap[stat->getName()] = stat;

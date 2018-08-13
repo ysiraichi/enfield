@@ -62,7 +62,7 @@ efd::EnumString<T, first, last>::EnumString(T init) {
     if (mValue > static_cast<uint32_t>(last) || mValue < static_cast<uint32_t>(first)) {
         ERR << "Enum '" << typeid(T).name() << "' doesn't have such value '"
             << mValue << "'." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     mValue = mValue - static_cast<uint32_t>(first);
@@ -83,7 +83,7 @@ void efd::EnumString<T, first, last>::initImpl(std::string init) {
     if (!EnumString<T, first, last>::Has(init)) {
         ERR << "Enum '" << typeid(T).name() << "' doesn't have string '"
             << init << "'." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     auto it = std::find(mStrVal.begin(), mStrVal.end(), init);
@@ -97,7 +97,7 @@ std::string efd::EnumString<T, first, last>::getStringValue() const {
     if (strSize < mValue) {
         ERR << "Enum '" << typeid(T).name() << "' does not have value over "
             << strSize << ": " << mValue << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     if (static_cast<uint32_t>(last) - static_cast<uint32_t>(first) + 1 != strSize) {

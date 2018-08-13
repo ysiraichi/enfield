@@ -20,9 +20,7 @@ void TestBitOptions() {
     }
 
     for (uint32_t i = Last + 1, e = ElemSize * TotalSize; i < e; ++i) {
-        EXPECT_EXIT({ bitOpt.get(i); },
-                    ::testing::ExitedWithCode(static_cast<uint32_t>(ExitCode::EXIT_unreachable)),
-                    "");
+        EXPECT_DEATH({ bitOpt.get(i); }, "");
     }
 }
 

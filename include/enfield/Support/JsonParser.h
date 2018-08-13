@@ -35,7 +35,7 @@ namespace efd {
             if (!check) {
                 ERR << prefix << ": incorrect type for " << JsonTypeVectorString(tys) << ". "
                     << "Actual: `" << JsonTypeString(keyTy) << "`." << std::endl;
-                ExitWith(ExitCode::EXIT_json_parsing_error);
+                EFD_ABORT();
             }
         }
 
@@ -43,7 +43,7 @@ namespace efd {
     template <class T> struct JsonBackendParser {
         static std::unique_ptr<T> Parse(const Json::Value& root) {
             ERR << "Parse method not implemented for '" << typeid(T).name() << "'." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
+            EFD_ABORT();
         }
     };
 

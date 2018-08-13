@@ -89,7 +89,7 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
         if (deps[i-1].size() > 1) {
             ERR << "Trying to allocate qbits to a gate with more than one dependency."
                 << " Gate: `" << deps[i-1].mCallPoint->toString(false) << "`." << std::endl;
-            ExitWith(ExitCode::EXIT_multi_deps);
+            EFD_ABORT();
         }
 
         efd::Dep dep = deps[i-1].mDeps[0];
@@ -158,7 +158,7 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
     for (int i = depN-1; i >= 0; --i) {
         if (val->parent == nullptr) {
             ERR << "Nullptr reached too soon." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
+            EFD_ABORT();
         }
 
         mappings[i] = std::make_pair(val->pId, permutations[val->pId]);
@@ -212,7 +212,7 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
                 if (path.size() != 3) {
                     ERR << "Can't apply a long cnot. Actual path size: `"
                         << path.size() << "`." << std::endl;
-                    ExitWith(ExitCode::EXIT_unreachable);
+                    EFD_ABORT();
                 }
 
                 operation = { Operation::K_OP_LCNOT, a, b };

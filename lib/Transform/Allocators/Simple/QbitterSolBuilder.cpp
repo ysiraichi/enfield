@@ -34,7 +34,7 @@ efd::StdSolution efd::QbitterSolBuilder::build
             if (path.size() != 3) {
                 ERR << "Can't apply a long cnot. Path size: `"
                     << path.size() << "`." << std::endl;
-                ExitWith(ExitCode::EXIT_unreachable);
+                EFD_ABORT();
             }
 
             operation.mW = inv[path[1]];

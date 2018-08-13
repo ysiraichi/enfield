@@ -112,7 +112,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
 
         if (allocatable.empty()) {
             ERR << "Every step has to process at least one gate." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
+            EFD_ABORT();
         }
 
         // Removing instructions that don't use only one qubit, but do not have any dependencies
@@ -147,7 +147,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             if (dep.size() > 1) {
                 ERR << "Can only allocate gates with at most one depenency."
                     << " Gate: `" << dep.mCallPoint->toString(false) << "`." << std::endl;
-                ExitWith(ExitCode::EXIT_unreachable);
+                EFD_ABORT();
             }
 
             uint32_t a = dep[0].mFrom, b = dep[0].mTo;
@@ -237,7 +237,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
 
         if (best.cnode.get() == nullptr) {
             ERR << "There must be a 'best' node." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
+            EFD_ABORT();
         }
 
         // Allocate best node;

@@ -37,7 +37,7 @@ Node::Ref ArchGraph::getNode(uint32_t i) const {
     if (i >= mNodes.size()) {
         ERR << "Node index out of bounds (of `" << mNodes.size()
             << "`): `" << i << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
     return mNodes[i].get();
 }
@@ -70,7 +70,7 @@ void ArchGraph::putReg(std::string id, std::string size) {
 uint32_t ArchGraph::getUId(std::string s) {
     if (!hasSId(s)) {
         ERR << "No such vertex with this string id: `" << s << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unknown_resource);
+        EFD_ABORT();
     }
     return mStrToId[s];
 }
@@ -83,7 +83,7 @@ std::string ArchGraph::getSId(uint32_t i) {
     if (i >= mId.size()) {
         ERR << "Vertex index out of bounds (of `" << mId.size() << "`): `"
             << i << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
     return mId[i];
 }
@@ -171,7 +171,7 @@ std::unique_ptr<ArchGraph> JsonBackendParser<ArchGraph>::Parse(const Json::Value
     if (totalQubits != qubits) {
         ERR << "Sum of qubits doesn't match total provided. "
             << "Sum: " << totalQubits << " != Total: " << qubits << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
     
     auto &adj = root[JsonFields<ArchGraph>::_AdjListLabel_];

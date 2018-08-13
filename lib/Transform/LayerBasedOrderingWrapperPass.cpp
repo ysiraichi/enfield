@@ -6,7 +6,7 @@ uint32_t efd::LayerBasedOrderingWrapperPass::getNodeId(Node::Ref ref) {
     if (mStmtId.find(ref) == mStmtId.end()) {
         std::string refStr = (ref == nullptr) ? "nullptr" : ref->toString(false);
         efd::ERR << "Unknown node: `" << refStr << "`." << std::endl;
-        efd::ExitWith(efd::ExitCode::EXIT_unreachable);
+        efd::EFD_ABORT();
     }
 
     return mStmtId[ref];

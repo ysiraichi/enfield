@@ -97,7 +97,7 @@ void efd::WeightedGraph<T>::setW(uint32_t i, uint32_t j, T w) {
 
     if (mW.find(pair) == mW.end()) {
         ERR << "Edge not found: `(" << i << ", " << j << ")`." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     mW[pair] = w;
@@ -109,7 +109,7 @@ T efd::WeightedGraph<T>::getW(uint32_t i, uint32_t j) const {
 
     if (mW.find(pair) == mW.end()) {
         ERR << "Edge weight not found for edge: `(" << i << ", " << j << ")`." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     return mW.at(pair);
@@ -134,7 +134,7 @@ template <class T>
 T efd::JsonBackendParser<efd::WeightedGraph<T>>::ParseWeight(const Json::Value& v) {
     ERR << "ParseWeight not implemented for `" << typeid(T).name() << "`."
         << std::endl;
-    ExitWith(ExitCode::EXIT_unreachable);
+    EFD_ABORT();
 }
 
 template <class T>
@@ -142,7 +142,7 @@ std::vector<Json::ValueType>
 efd::JsonBackendParser<efd::WeightedGraph<T>>::GetTysForT() {
     ERR << "ParseWeight not implemented for `" << typeid(T).name() << "`."
         << std::endl;
-    ExitWith(ExitCode::EXIT_unreachable);
+    EFD_ABORT();
 }
 
 template <class T>
