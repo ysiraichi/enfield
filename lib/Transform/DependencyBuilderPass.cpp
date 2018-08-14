@@ -56,7 +56,7 @@ const efd::DependencyBuilder::DepsVector* efd::DependencyBuilder::getDepsVector
         if (mLDeps.find(gate) == mLDeps.end()) {
             efd::ERR << "No dependencies for this gate: `"
                 << gate->getId()->getVal() << "`." << std::endl;
-            efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
+            efd::EFD_ABORT();
         }
 
         deps = &mLDeps.at(gate);
@@ -94,7 +94,7 @@ const efd::Dependencies efd::DependencyBuilder::getDeps(Node* ref) const {
     if (mIDeps.find(ref) == mIDeps.end()) {
         std::string refStr = (ref == nullptr) ? "nullptr" : ref->toString(false);
         efd::ERR << "Instruction never seen before: `" << refStr << "`." << std::endl;
-        efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
+        efd::EFD_ABORT();
     }
 
     return mIDeps.at(ref);
@@ -148,7 +148,7 @@ efd::NDGateDecl::Ref efd::DependencyBuilderVisitor::getParentGate(Node::Ref ref)
 
     if (gate == nullptr) {
         efd::ERR << "NDGOpList is owned by a no node." << std::endl;
-        efd::ExitWith(efd::ExitCode::EXIT_unreachable);
+        efd::EFD_ABORT();
     }
 
     return gate;
@@ -192,7 +192,7 @@ void efd::DependencyBuilderVisitor::visit(NDQOpGen::Ref ref) {
     if (gRef == nullptr) {
         std::string nodeStr = (node == nullptr) ? "nullptr" : node->toString(false);
         efd::ERR << "There is no quantum gate with this id: `" << nodeStr << "`." << std::endl;
-        efd::ExitWith(efd::ExitCode::EXIT_unknown_resource);
+        efd::EFD_ABORT();
     }
 
     auto& gDeps = mDepBuilder.mLDeps[gRef];

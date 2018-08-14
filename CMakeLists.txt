@@ -24,6 +24,9 @@ elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
     set (CMAKE_CXX_FLAGS "-O3 ${CMAKE_CXX_FLAGS}")
 endif()
 
+find_package(JsonCpp REQUIRED)
+include_directories(${JSONCPP_INCLUDE})
+
 include_directories (include)
 
 add_subdirectory (lib)

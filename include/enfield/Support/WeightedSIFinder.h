@@ -112,14 +112,14 @@ uint32_t efd::WeightedSIFinder<T>::getFirstFree() {
     }
 
     ERR << "Not enough qubits?" << std::endl;
-    ExitWith(ExitCode::EXIT_unreachable);
+    EFD_ABORT();
 }
 
 template <typename T>
 efd::SIFinder::Result efd::WeightedSIFinder<T>::find(Graph::Ref g, Graph::Ref h) {
     if (!h->isWeighted()) {
         ERR << "Trying to use weighted partial matching on unweighted graph." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     mG = g;
@@ -127,7 +127,7 @@ efd::SIFinder::Result efd::WeightedSIFinder<T>::find(Graph::Ref g, Graph::Ref h)
 
     if (mH == nullptr) {
         ERR << "Graph 'h' is not of the specified type." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     uint32_t hSize = mH->size();

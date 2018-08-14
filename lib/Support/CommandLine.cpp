@@ -252,7 +252,7 @@ void efd::ParseArguments(const int argc, const char **argv) {
             if (i + toBeConsumed >= argc) {
                 ERR << "There should be " << toBeConsumed << " arguments for -" << arg
                     << ", but there was only " << argc - i << "." << std::endl;
-                ExitWith(ExitCode::EXIT_unreachable);
+                EFD_ABORT();
             }
 
             std::vector<std::string> optArgs;
@@ -281,6 +281,6 @@ void efd::ParseArguments(const int argc, const char **argv) {
 
     if (PrintHelp.getVal() || !requirementsFulfilled) {
         PrintCommandLineHelp();
-        exit(0);
+        std::exit(0);
     }
 }

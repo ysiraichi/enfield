@@ -42,7 +42,7 @@ std::pair<uint32_t, uint32_t> efd::BitOptions<ETy, last>::getBlkAndBit(ETy optio
 
     if (iOpt > Last) {
         ERR << "Invalid Option: " << iOpt << ". Max: " << Last << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     uint32_t blk = iOpt / ElemSize;

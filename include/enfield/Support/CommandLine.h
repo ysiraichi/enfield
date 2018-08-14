@@ -136,7 +136,7 @@ namespace efd {
 template <typename T>
 void efd::ParseOptTrait<T>::Run(Opt<T>* opt, std::vector<std::string> args) {
     ERR << "Parse method not implemented for '" << typeid(T).name() << "'." << std::endl;
-    ExitWith(ExitCode::EXIT_unreachable);
+    EFD_ABORT();
 }
 
 template <typename T, T first, T last>

@@ -26,7 +26,7 @@ namespace efd {
             ERR << "Failed when casting a std::unique_ptr. `"
                 << typeid(T).name() << "` not a base class of `" << typeid(U).name()
                 << "`." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
+            EFD_ABORT();
         }
 
     /// \brief Uses the RTTI framework to cast forwardly an unique_ptr.
@@ -45,7 +45,7 @@ namespace efd {
             ERR << "Failed when casting a std::unique_ptr: from `"
                 << typeid(U).name() << "` to `" << typeid(T).name()
                 << "`." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
+            EFD_ABORT();
         }
 
     /// \brief Wrapper function that "transforms" a \em std::unique_ptr

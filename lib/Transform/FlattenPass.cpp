@@ -144,7 +144,7 @@ static NDRegDecl::Ref GetDeclFromId(const QModule::Ref qmod, Node::Ref ref) {
     if (refId == nullptr) {
         std::string refStr = (ref == nullptr) ? "nullptr" : ref->toString(false);
         ERR << "Not an Id: `" << refStr << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     auto node = qmod->getQVar(refId->getVal());
@@ -153,7 +153,7 @@ static NDRegDecl::Ref GetDeclFromId(const QModule::Ref qmod, Node::Ref ref) {
     if (refDecl == nullptr) {
         std::string nodeStr = (node == nullptr) ? "nullptr" : node->toString(false);
         ERR << "Not an NDRegDecl: `" << nodeStr << "`." << std::endl;
-        ExitWith(ExitCode::EXIT_unknown_resource);
+        EFD_ABORT();
     }
 
     return refDecl;

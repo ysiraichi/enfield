@@ -8,4 +8,6 @@ add_library (EfdSupport
     ExpTSFinder.cpp
     ApproxTSFinder.cpp
     Defs.cpp
-    TokenSwapFinder.cpp)
+    TokenSwapFinder.cpp
+    JsonParser.cpp
+    WeightedGraph.cpp)

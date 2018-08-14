@@ -7,23 +7,17 @@
 
 namespace efd {
     enum class Architecture {
-#define EFD_FIRSTLAST(_First_, _Last_)
-#define EFD_ARCH(_Arch_, _Name_)\
+        first,
+#define EFD_ARCH(_Name_, _Json_)\
         A_##_Name_,
 #include "enfield/Arch/Architectures.def"
-#undef EFD_FIRSTLAST
 #undef EFD_ARCH
+        last
     };
 
-#define EFD_FIRSTLAST(_First_, _Last_)\
-    typedef EnumString<Architecture,\
-                       Architecture::A_##_First_,\
-                       Architecture::A_##_Last_>\
-            EnumArchitecture;
-#define EFD_ARCH(_Arch_, _Name_)
-#include "enfield/Arch/Architectures.def"
-#undef EFD_FIRSTLAST
-#undef EFD_ARCH
+    typedef EnumString<Architecture,
+                       Architecture::first,
+                       Architecture::last> EnumArchitecture;
 
     typedef Registry<ArchGraph::uRef, int, EnumArchitecture> ArchRegistry;
 

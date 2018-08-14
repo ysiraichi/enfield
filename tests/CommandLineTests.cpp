@@ -60,9 +60,9 @@ TEST(CommandLineTest, RequiredAssertTest) {
 
     int nArgs = 3;
 
-    CREATE_ARGS(nArgs, "RequiredAssertTest",
-            "-int", "0");
-    ASSERT_EXIT({ efd::ParseArguments(nArgs, argv); }, ::testing::ExitedWithCode(0), "");
+    CREATE_ARGS(nArgs, "RequiredAssertTest", "-int", "0");
+    ASSERT_EXIT({ efd::ParseArguments(nArgs, argv); },
+            ::testing::ExitedWithCode(0), "");
 }
 
 TEST(CommandLineTest, NotEnoughArgumentsTest) {
@@ -71,11 +71,8 @@ TEST(CommandLineTest, NotEnoughArgumentsTest) {
 
     int nArgs = 3;
 
-    CREATE_ARGS(nArgs, "RequiredAssertTest",
-            "-bool", "-int");
-    ASSERT_EXIT({ efd::ParseArguments(nArgs, argv); },
-                ::testing::ExitedWithCode(static_cast<uint32_t>(ExitCode::EXIT_unreachable)),
-                "");
+    CREATE_ARGS(nArgs, "RequiredAssertTest", "-bool", "-int");
+    ASSERT_DEATH({ efd::ParseArguments(nArgs, argv); }, "");
 }
 
 namespace efd {
@@ -91,11 +88,8 @@ TEST(CommandLineTest, NoParserImplementedTest) {
 
     int nArgs = 3;
 
-    CREATE_ARGS(nArgs, "RequiredAssertTest",
-            "-vec", "true false false true");
-    ASSERT_EXIT({ efd::ParseArguments(nArgs, argv); },
-                ::testing::ExitedWithCode(static_cast<uint32_t>(ExitCode::EXIT_unreachable)),
-                "");
+    CREATE_ARGS(nArgs, "RequiredAssertTest", "-vec", "true false false true");
+    ASSERT_DEATH({ efd::ParseArguments(nArgs, argv); }, "");
 }
 
 namespace efd {

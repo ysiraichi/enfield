@@ -9,14 +9,19 @@ using namespace efd;
 
 TEST(GraphTests, SameIntWeightTest) {
     const std::string gStr =
-"\
-5\n\
-0 1 1\n\
-0 2 1\n\
-1 3 1\n\
-1 4 1\n\
-";
-    auto graph = efd::WeightedGraph<int>::ReadString(gStr);
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1, \"w\": 1}, {\"v\": 2, \"w\": 1} ],\
+        [ {\"v\": 3, \"w\": 1}, {\"v\": 4, \"w\": 1} ],\
+        [],\
+        [],\
+        []\
+    ]\
+}";
+
+    auto graph = JsonParser<WeightedGraph<int>>::ParseString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), (uint32_t) 5);
@@ -33,17 +38,20 @@ TEST(GraphTests, SameIntWeightTest) {
 
 TEST(GraphTests, DifferentWeightIntTest) {
     const std::string gStr =
-"\
-5\n\
-0 1 1\n\
-1 0 0\n\
-0 2 2\n\
-1 2 2\n\
-1 3 3\n\
-1 4 4\n\
-4 1 1\n\
-";
-    auto graph = efd::WeightedGraph<int>::ReadString(gStr, efd::Graph::Directed);
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1, \"w\": 1}, {\"v\": 2, \"w\": 2} ],\
+        [ {\"v\": 0, \"w\": 0}, {\"v\": 2, \"w\": 2},  \
+          {\"v\": 3, \"w\": 3}, {\"v\": 4, \"w\": 4} ],\
+        [],\
+        [],\
+        [ {\"v\": 1, \"w\": 1} ]\
+    ]\
+}";
+
+    auto graph = JsonParser<WeightedGraph<int>>::ParseString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), (uint32_t) 5);
@@ -68,17 +76,19 @@ TEST(GraphTests, DoubleWeightTest) {
     double episilon = 0.00001;
 
     const std::string gStr =
-"\
-5\n\
-0 1 1.3\n\
-1 0 0.2\n\
-0 2 2.8\n\
-1 2 2.3\n\
-1 3 3.009\n\
-1 4 4.1\n\
-4 1 3.14159\n\
-";
-    auto graph = efd::WeightedGraph<double>::ReadString(gStr, efd::Graph::Directed);
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1, \"w\": 1.3}, {\"v\": 2, \"w\": 2.8} ],  \
+        [ {\"v\": 0, \"w\": 0.2},   {\"v\": 2, \"w\": 2.3},  \
+          {\"v\": 3, \"w\": 3.009}, {\"v\": 4, \"w\": 4.1} ],\
+        [],\
+        [],\
+        [ {\"v\": 1, \"w\": 3.14159} ]\
+    ]\
+}";
+    auto graph = JsonParser<WeightedGraph<double>>::ParseString(gStr);
     ASSERT_FALSE(graph.get() == nullptr);
 
     ASSERT_EQ(graph->size(), (uint32_t) 5);

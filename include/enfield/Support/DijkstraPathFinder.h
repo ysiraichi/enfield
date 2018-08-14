@@ -43,7 +43,7 @@ efd::DijkstraPathFinder<T>::find(Graph::Ref g, uint32_t u, uint32_t v) {
 
     if (wg == nullptr) {
         ERR << "Invalid weighted graph for this Dijkstra implementation." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     uint32_t size = wg->size();
@@ -80,7 +80,7 @@ efd::DijkstraPathFinder<T>::find(Graph::Ref g, uint32_t u, uint32_t v) {
     // Reconstructing the path
     if (equal(dist[to], infw)) {
         ERR << "No existing path in this graph." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     std::vector<uint32_t> path;

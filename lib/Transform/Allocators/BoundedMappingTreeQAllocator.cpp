@@ -47,7 +47,7 @@ bool NodeCandidatesGenerator::finished() {
 void NodeCandidatesGenerator::checkInitialized() {
     if (!mInitialized) {
         ERR << "`NodeCandidatesGenerator` not initialized." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 }
 
@@ -56,7 +56,7 @@ void NodeCandidatesGenerator::initialize() {
 
     if (mMod == nullptr) {
         ERR << "Set the `QModule` for NodeCandidatesGenerator." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     initializeImpl();
@@ -80,7 +80,7 @@ uint32_t SwapCostEstimator::estimate(const Mapping& fromM, const Mapping& toM) {
 void SwapCostEstimator::checkGraphSet() {
     if (mG == nullptr) {
         ERR << "Set the `Graph` for SwapCostEstimator." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 }
 
@@ -266,7 +266,7 @@ BoundedMappingTreeQAllocator::rankCandidates(const std::vector<Node::Ref>& nodeC
         } else {
             ERR << "Instructions with more than one dependency not supported "
                 << "(" << node->toString(false) << ")" << std::endl;
-            ExitWith(ExitCode::EXIT_multi_deps);
+            EFD_ABORT();
         }
 
         queue.push(nCand);
@@ -274,7 +274,7 @@ BoundedMappingTreeQAllocator::rankCandidates(const std::vector<Node::Ref>& nodeC
 
     if (queue.empty()) {
         ERR << "`pQueue` empty." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     return queue;
@@ -377,7 +377,7 @@ SwapSeq BoundedMappingTreeQAllocator::getTransformingSwapsFor(const Mapping& fro
         if (fromM[i] != _undef && toM[i] == _undef) {
             ERR << "Assumption that previous mappings have same mapped qubits "
                 << "than current mapping broken." << std::endl;
-            ExitWith(ExitCode::EXIT_unreachable);
+            EFD_ABORT();
         } else if (fromM[i] == _undef && toM[i] != _undef) {
             toM[i] = _undef;
         }
@@ -541,7 +541,7 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
                     ERR << "Not enough mappings were generated, maybe!?" << std::endl;
                     ERR << "Mapping for '" << iDependencies.mCallPoint->toString(false)
                         << "'." << std::endl;
-                    ExitWith(ExitCode::EXIT_unreachable);
+                    EFD_ABORT();
                 }
 
                 mapping = mss.mappingV[idx];
@@ -571,7 +571,7 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
             } else {
                 ERR << "Mapping " << MappingToString(mapping) << " not able to satisfy dependency "
                     << "(" << a << "{" << u << "}, " << b << "{" << v << "})" << std::endl;
-                ExitWith(ExitCode::EXIT_unreachable);
+                EFD_ABORT();
             }
 
             issuedInstructions.push_back(std::move(newNode));
@@ -602,7 +602,7 @@ Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
         ERR << "    mLQPProcessor: " << mLQPProcessor.get() << std::endl;
         ERR << "    mMSSelector: " << mMSSelector.get() << std::endl;
         ERR << "    mTSFinder: " << mTSFinder.get() << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 
     mNCGenerator->setQModule(qmod);

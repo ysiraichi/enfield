@@ -133,41 +133,16 @@ TEST(CircuitGraphTests, ClassicalQuantumBits) {
 }
 
 TEST(CircuitGraphTests, ErrorTests) {
-    uint32_t exitCode = static_cast<uint32_t>(ExitCode::EXIT_unreachable);
-
-    ASSERT_EXIT({ CircuitGraph ckt; ckt.append({}, nullptr); },
-                ::testing::ExitedWithCode(exitCode), "");
-
-    ASSERT_EXIT({ CircuitGraph ckt; ckt.build_iterator(); },
-                ::testing::ExitedWithCode(exitCode), "");
-
-    ASSERT_EXIT({ FullTest(5, 5, { { Xbit::Q(0), Xbit::C(9) } }); },
-                ::testing::ExitedWithCode(exitCode), "");
-
-    ASSERT_EXIT({ FullTest(5, 5, { { Xbit::Q(1), Xbit::C(8) } }); },
-                ::testing::ExitedWithCode(exitCode), "");
-
-    ASSERT_EXIT({ FullTest(5, 5, { { Xbit::Q(2), Xbit::C(7) } }); },
-                ::testing::ExitedWithCode(exitCode), "");
-
-    ASSERT_EXIT({ FullTest(5, 5, { { Xbit::Q(3), Xbit::C(6) } }); },
-                ::testing::ExitedWithCode(exitCode), "");
-
-    ASSERT_EXIT({ FullTest(5, 5, { { Xbit::Q(4), Xbit::C(5) } }); },
-                ::testing::ExitedWithCode(exitCode), "");
-
-    ASSERT_EXIT({ FullTest(5, 5, { { Xbit::Q(5), Xbit::C(4) } }); },
-                ::testing::ExitedWithCode(exitCode), "");
-
-    ASSERT_EXIT({ FullTest(5, 5, { { Xbit::Q(6), Xbit::C(3) } }); },
-                ::testing::ExitedWithCode(exitCode), "");
-
-    ASSERT_EXIT({ FullTest(5, 5, { { Xbit::Q(7), Xbit::C(2) } }); },
-                ::testing::ExitedWithCode(exitCode), "");
-
-    ASSERT_EXIT({ FullTest(5, 5, { { Xbit::Q(8), Xbit::C(1) } }); },
-                ::testing::ExitedWithCode(exitCode), "");
-
-    ASSERT_EXIT({ FullTest(5, 5, { { Xbit::Q(9), Xbit::C(0) } }); },
-                ::testing::ExitedWithCode(exitCode), "");
+    ASSERT_DEATH({ CircuitGraph ckt; ckt.append({}, nullptr); }, "");
+    ASSERT_DEATH({ CircuitGraph ckt; ckt.build_iterator(); }, "");
+    ASSERT_DEATH({ FullTest(5, 5, { { Xbit::Q(0), Xbit::C(9) } }); }, ""); 
+    ASSERT_DEATH({ FullTest(5, 5, { { Xbit::Q(1), Xbit::C(8) } }); }, "");
+    ASSERT_DEATH({ FullTest(5, 5, { { Xbit::Q(2), Xbit::C(7) } }); }, "");
+    ASSERT_DEATH({ FullTest(5, 5, { { Xbit::Q(3), Xbit::C(6) } }); }, "");
+    ASSERT_DEATH({ FullTest(5, 5, { { Xbit::Q(4), Xbit::C(5) } }); }, "");
+    ASSERT_DEATH({ FullTest(5, 5, { { Xbit::Q(5), Xbit::C(4) } }); }, "");
+    ASSERT_DEATH({ FullTest(5, 5, { { Xbit::Q(6), Xbit::C(3) } }); }, "");
+    ASSERT_DEATH({ FullTest(5, 5, { { Xbit::Q(7), Xbit::C(2) } }); }, "");
+    ASSERT_DEATH({ FullTest(5, 5, { { Xbit::Q(8), Xbit::C(1) } }); }, "");
+    ASSERT_DEATH({ FullTest(5, 5, { { Xbit::Q(9), Xbit::C(0) } }); }, "");
 }

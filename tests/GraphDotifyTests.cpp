@@ -10,7 +10,7 @@ using namespace efd;
 template <typename T = efd::Graph>
 void TestDotifyTrue(std::string gstr, std::string result,
                     Graph::Type ty = Graph::Undirected) {
-    auto graph = T::ReadString(gstr, ty);
+    auto graph = JsonParser<T>::ParseString(gstr);
     ASSERT_FALSE(graph.get() == nullptr);
     ASSERT_EQ(graph->dotify(), result);
 }
@@ -18,7 +18,7 @@ void TestDotifyTrue(std::string gstr, std::string result,
 template <typename T = efd::Graph>
 void TestDotifyFalse(std::string gstr, std::string result,
                      Graph::Type ty = Graph::Undirected) {
-    auto graph = T::ReadString(gstr, ty);
+    auto graph = JsonParser<T>::ParseString(gstr);
     ASSERT_FALSE(graph.get() == nullptr);
     ASSERT_NE(graph->dotify(), result);
 }
@@ -26,11 +26,17 @@ void TestDotifyFalse(std::string gstr, std::string result,
 TEST(GraphDotifyTests, UndirectedGraphTest) {
     {
         const std::string gStr =
-"5\n\
-0 1\n\
-0 2\n\
-1 3\n\
-1 4\n";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Undirected\",\
+    \"adj\": [\
+        [ {\"v\": 1}, {\"v\": 2} ],\
+        [ {\"v\": 3}, {\"v\": 4} ],\
+        [],\
+        [],\
+        []\
+    ]\
+}";
 
         const std::string result =
 "graph Dump {\n\
@@ -49,14 +55,18 @@ TEST(GraphDotifyTests, UndirectedGraphTest) {
     }
     {
         const std::string gStr =
-"5\n\
-0 1\n\
-1 0\n\
-0 2\n\
-1 2\n\
-1 3\n\
-1 4\n\
-4 1\n";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Undirected\",\
+    \"adj\": [\
+        [ {\"v\": 1}, {\"v\": 2} ],\
+        [ {\"v\": 0}, {\"v\": 2},  \
+          {\"v\": 3}, {\"v\": 4} ],\
+        [],\
+        [],\
+        [ {\"v\": 1} ]\
+    ]\
+}";
 
         const std::string result =
 "graph Dump {\n\
@@ -79,11 +89,17 @@ TEST(GraphDotifyTests, UndirectedGraphTest) {
 TEST(GraphDotifyTests, DirectedGraphTest) {
     {
         const std::string gStr =
-"5\n\
-0 1\n\
-2 0\n\
-1 3\n\
-4 1\n";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1} ],\
+        [ {\"v\": 3} ],\
+        [ {\"v\": 0} ],\
+        [],\
+        [ {\"v\": 1} ]\
+    ]\
+}";
 
         const std::string result =
 "digraph Dump {\n\
@@ -102,14 +118,17 @@ TEST(GraphDotifyTests, DirectedGraphTest) {
     }
     {
         const std::string gStr =
-"5\n\
-0 1\n\
-1 0\n\
-0 2\n\
-1 2\n\
-3 1\n\
-4 1\n\
-1 4\n";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1}, {\"v\": 2} ],\
+        [ {\"v\": 0}, {\"v\": 2}, {\"v\": 4} ],\
+        [],\
+        [ {\"v\": 1} ],\
+        [ {\"v\": 1} ]\
+    ]\
+}";
 
         const std::string result =
 "digraph Dump {\n\
@@ -134,11 +153,17 @@ TEST(GraphDotifyTests, DirectedGraphTest) {
 TEST(GraphDotifyTests, UndirectedWeightedGraphTest) {
     {
         const std::string gStr =
-"5\n\
-0 1 1\n\
-0 2 1\n\
-1 3 1\n\
-1 4 1\n";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Undirected\",\
+    \"adj\": [\
+        [ {\"v\": 1, \"w\": 1}, {\"v\": 2, \"w\": 1} ],\
+        [ {\"v\": 3, \"w\": 1}, {\"v\": 4, \"w\": 1} ],\
+        [],\
+        [],\
+        []\
+    ]\
+}";
 
         const std::string result =
 "graph Dump {\n\
@@ -157,12 +182,17 @@ TEST(GraphDotifyTests, UndirectedWeightedGraphTest) {
     }
     {
         const std::string gStr =
-"5\n\
-0 1 1\n\
-0 2 2\n\
-1 2 2\n\
-1 3 3\n\
-4 1 1\n";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Undirected\",\
+    \"adj\": [\
+        [ {\"v\": 1, \"w\": 1}, {\"v\": 2, \"w\": 2} ],\
+        [ {\"v\": 2, \"w\": 2}, {\"v\": 3, \"w\": 3} ],\
+        [],\
+        [],\
+        [ {\"v\": 1, \"w\": 1} ]\
+    ]\
+}";
 
         const std::string result =
 "graph Dump {\n\
@@ -185,11 +215,17 @@ TEST(GraphDotifyTests, UndirectedWeightedGraphTest) {
 TEST(GraphDotifyTests, DirectedWeightedGraphTest) {
     {
         const std::string gStr =
-"5\n\
-0 1 1\n\
-4 1 1\n\
-2 0 1\n\
-1 3 1\n";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1, \"w\": 1} ],\
+        [ {\"v\": 3, \"w\": 1} ],\
+        [ {\"v\": 0, \"w\": 1} ],\
+        [],\
+        [ {\"v\": 1, \"w\": 1} ]\
+    ]\
+}";
 
         const std::string result =
 "digraph Dump {\n\
@@ -208,13 +244,17 @@ TEST(GraphDotifyTests, DirectedWeightedGraphTest) {
     }
     {
         const std::string gStr =
-"5\n\
-0 1 1\n\
-1 0 2\n\
-1 2 2\n\
-2 1 3\n\
-4 2 1\n\
-2 4 3\n";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1, \"w\": 1} ],\
+        [ {\"v\": 0, \"w\": 2}, {\"v\": 2, \"w\": 2} ],\
+        [ {\"v\": 1, \"w\": 3}, {\"v\": 4, \"w\": 3} ],\
+        [],\
+        [ {\"v\": 2, \"w\": 1} ]\
+    ]\
+}";
 
         const std::string result =
 "digraph Dump {\n\

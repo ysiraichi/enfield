@@ -7,7 +7,7 @@ TokenSwapFinder::TokenSwapFinder() : mG(nullptr) {}
 void TokenSwapFinder::checkGraphSet() {
     if (mG == nullptr) {
         ERR << "Set the `Graph` for TokenSwapFinder." << std::endl;
-        ExitWith(ExitCode::EXIT_unreachable);
+        EFD_ABORT();
     }
 }
 

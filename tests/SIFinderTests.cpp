@@ -2,14 +2,15 @@
 #include "gtest/gtest.h"
 
 #include "enfield/Support/WeightedSIFinder.h"
+#include "enfield/Support/JsonParser.h"
 
 #include <string>
 
 using namespace efd;
 
 static void check(const std::string gS, const std::string wGS) {
-    Graph::sRef graph = Graph::ReadString(gS);
-    auto wGraph = WeightedGraph<int>::ReadString(wGS);
+    Graph::sRef graph = JsonParser<Graph>::ParseString(gS);
+    auto wGraph = JsonParser<WeightedGraph<int>>::ParseString(wGS);
     auto matcher = WeightedSIFinder<int>::Create();
     
     uint32_t gSize = graph->size();
@@ -34,52 +35,60 @@ static void check(const std::string gS, const std::string wGS) {
 
 TEST(SIFinderTests, NoSegFaultTests) {
     const std::string graphStr = 
-"\
-5\n\
-0 1\n\
-0 2\n\
-1 2\n\
-3 4\n\
-3 2\n\
-4 2\n\
-";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1}, {\"v\": 2} ],\
+        [ {\"v\": 2} ],\
+        [],\
+        [ {\"v\": 2}, {\"v\": 4} ],\
+        [ {\"v\": 2} ]\
+    ]\
+}";
 
     const std::string wGraphStr = 
-"\
-5\n\
-0 1 1\n\
-0 2 1\n\
-1 2 1\n\
-3 4 1\n\
-3 2 1\n\
-4 2 1\n\
-";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1, \"w\": 1}, {\"v\": 2, \"w\": 1} ],\
+        [ {\"v\": 2, \"w\": 1} ],\
+        [],\
+        [ {\"v\": 2, \"w\": 1}, {\"v\": 4, \"w\": 1} ],\
+        [ {\"v\": 2, \"w\": 1} ]\
+    ]\
+}";
 
     check(graphStr, wGraphStr);
 }
 
 TEST(SIFinderTests, VaryingWeightsTest) {
     const std::string graphStr = 
-"\
-5\n\
-0 1\n\
-0 2\n\
-1 2\n\
-3 4\n\
-3 2\n\
-4 2\n\
-";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1}, {\"v\": 2} ],\
+        [ {\"v\": 2} ],\
+        [],\
+        [ {\"v\": 2}, {\"v\": 4} ],\
+        [ {\"v\": 2} ]\
+    ]\
+}";
 
     const std::string wGraphStr = 
-"\
-5\n\
-0 1 1\n\
-0 2 1\n\
-1 2 5\n\
-3 4 1\n\
-3 2 3\n\
-4 2 1\n\
-";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Directed\",\
+    \"adj\": [\
+        [ {\"v\": 1, \"w\": 1}, {\"v\": 2, \"w\": 1} ],\
+        [ {\"v\": 2, \"w\": 5} ],\
+        [],\
+        [ {\"v\": 2, \"w\": 3}, {\"v\": 4, \"w\": 1} ],\
+        [ {\"v\": 2, \"w\": 1} ]\
+    ]\
+}";
 
     check(graphStr, wGraphStr);
 }

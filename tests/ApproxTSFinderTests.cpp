@@ -8,19 +8,21 @@ using namespace efd;
 static ExpTSFinder::uRef expfinder;
 static Graph::sRef graph;
 static const std::string graphstr =
-"\
-5\n\
-0 1\n\
-0 2\n\
-1 2\n\
-3 4\n\
-3 2\n\
-4 2\
-";
+"{\
+    \"vertices\": 5,\
+    \"type\": \"Undirected\",\
+    \"adj\": [\
+        [ {\"v\": 1}, {\"v\": 2} ],\
+        [ {\"v\": 2} ],\
+        [],\
+        [ {\"v\": 2}, {\"v\": 4} ],\
+        [ {\"v\": 2} ]\
+    ]\
+}";
 
 static Graph::sRef GetGraph() {
     if (graph.get() == nullptr) {
-        graph = Graph::ReadString(graphstr);
+        graph = JsonParser<efd::Graph>::ParseString(graphstr);
         expfinder = ExpTSFinder::Create();
         expfinder->setGraph(graph.get());
     }
@@ -196,31 +198,30 @@ TEST(ApproxTSFinderTests, Undef16QComplexSwapTest) {
     Graph::sRef graph;
 
     const std::string graphstr =
-"\
-16\n\
-0 1\n\
-1 2\n\
-2 3\n\
-3 14\n\
-4 3\n\
-4 5\n\
-6 7\n\
-6 11\n\
-7 10\n\
-8 7\n\
-9 8\n\
-9 10\n\
-11 10\n\
-12 5\n\
-12 11\n\
-12 13\n\
-13 4\n\
-13 14\n\
-15 0\n\
-15 14\
-";
+"{\
+    \"vertices\": 16,\
+    \"type\": \"Undirected\",\
+    \"adj\": [\
+        [ {\"v\": 1} ],\
+        [ {\"v\": 2} ],\
+        [ {\"v\": 3} ],\
+        [ {\"v\": 14} ],\
+        [ {\"v\": 3}, {\"v\": 5} ],\
+        [],\
+        [ {\"v\": 7}, {\"v\": 11} ],\
+        [ {\"v\": 10} ],\
+        [ {\"v\": 7} ],\
+        [ {\"v\": 8}, {\"v\": 10} ],\
+        [],\
+        [ {\"v\": 10} ],\
+        [ {\"v\": 5}, {\"v\": 11}, {\"v\": 13} ],\
+        [ {\"v\": 4}, {\"v\": 14} ],\
+        [],\
+        [ {\"v\": 0}, {\"v\": 14} ]\
+    ]\
+}";
     
-    graph = Graph::ReadString(graphstr);
+    graph = JsonParser<efd::Graph>::ParseString(graphstr);
 
     {
         InverseMap from {
