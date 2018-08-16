@@ -53,7 +53,7 @@ uint32_t efd::DynprogQAllocator::getIntermediateV(uint32_t u, uint32_t v) {
 }
 
 efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
-    auto &deps = PassCache::Get<DependencyBuilderWrapperPass>(mMod)
+    auto &deps = PassCache::Get<DependencyBuilderWrapperPass>(qmod)
         ->getData()
         .getDependencies();
 

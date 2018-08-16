@@ -40,7 +40,6 @@ void TestAllocation(const std::string program) {
     auto qmodCopy = qmod->clone();
 
     auto allocator = IBMQAllocator::Create(g);
-    allocator->setInlineAll({ "cx" });
     allocator->run(qmod.get());
 
     auto mapping = allocator->getData();

@@ -35,7 +35,6 @@ std::string TestAllocation(const std::string program) {
 
     auto qmod = QModule::ParseString(program);
     auto allocator = GreedyCktQAllocator::Create(g);
-    allocator->setInlineAll({ "cx" });
     allocator->run(qmod.get());
 
     return qmod->toString(false);

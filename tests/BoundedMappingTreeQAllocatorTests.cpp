@@ -43,7 +43,6 @@ void FillBMT(BoundedMappingTreeQAllocator::Ref allocator) {
     allocator->setLiveQubitsPreProcessor(GeoNearestLQPProcessor::Create());\
     allocator->setMapSeqSelector(BestNMSSelector::Create());\
     allocator->setTokenSwapFinder(ApproxTSFinder::Create());\
-    allocator->setInlineAll({ "cx" });
 }
 
 void FillIBMT(BoundedMappingTreeQAllocator::Ref allocator) {
@@ -54,7 +53,6 @@ void FillIBMT(BoundedMappingTreeQAllocator::Ref allocator) {
     allocator->setLiveQubitsPreProcessor(GeoNearestLQPProcessor::Create());\
     allocator->setMapSeqSelector(BestNMSSelector::Create());\
     allocator->setTokenSwapFinder(ApproxTSFinder::Create());\
-    allocator->setInlineAll({ "cx" });
 }
 
 void TestAllocator(QModule::Ref qmod, ArchGraph::sRef g, QbitAllocator::Ref allocator) {

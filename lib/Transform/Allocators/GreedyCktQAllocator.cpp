@@ -32,7 +32,7 @@ struct AllocProps {
 GreedyCktQAllocator::GreedyCktQAllocator(ArchGraph::sRef ag) : StdSolutionQAllocator(ag) {}
 
 StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
-    auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(mMod);
+    auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(qmod);
     auto depBuilder = depPass->getData();
     auto& depsVector = depBuilder.getDependencies();
 
