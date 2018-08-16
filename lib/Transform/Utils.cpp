@@ -11,6 +11,15 @@
 
 using namespace efd;
 
+// ==--------------- Misc ---------------==
+GateNameVector efd::ExtractGateNames(const GateWeightMap& map) {
+    GateNameVector vector;
+    for (const auto& pair : map) {
+        vector.push_back(pair.first);
+    }
+    return vector;
+}
+
 // ==--------------- Intrinsic Gates ---------------==
 static std::vector<NDGateSign::uRef> IntrinsicGates;
 static const std::string IntrinsicGatesStr =
