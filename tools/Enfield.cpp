@@ -2,7 +2,6 @@
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/Driver.h"
 #include "enfield/Transform/PassCache.h"
-#include "enfield/Transform/IntrinsicGateCostPass.h"
 #include "enfield/Transform/QModuleQualityEvalPass.h"
 #include "enfield/Transform/InlineAllPass.h"
 #include "enfield/Transform/ReverseEdgesPass.h"
@@ -89,8 +88,6 @@ static Opt<std::string> PrintDepGraphFile
 static Opt<std::string> PrintArchGraphFile
 ("-print-archgraph", "Choose a file to print the architecture graph.", "", false);
 
-static efd::Stat<uint32_t> TotalCost
-("TotalCost", "Total cost after allocating the qubits.");
 static efd::Stat<uint32_t> Depth
 ("Depth", "Total depth after allocating the qubits.");
 static efd::Stat<uint32_t> Gates
@@ -105,9 +102,6 @@ static void DumpToOutFile(QModule::Ref qmod) {
 }
 
 static void ComputeStats(QModule::Ref qmod, ArchGraph::sRef archGraph) {
-    TotalCost = PassCache::Get<IntrinsicGateCostPass>(qmod)
-                    ->getData();
-
     auto inlinePass = InlineAllPass::Create(ExtractGateNames(GateWeights.getVal()));
     auto reversePass = ReverseEdgesPass::Create(archGraph);
     auto qualityPass = QModuleQualityEvalPass::Create(GateWeights.getVal());
