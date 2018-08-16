@@ -4,13 +4,14 @@
 #include "enfield/Transform/QModule.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Transform/Allocators/Allocators.h"
+#include "enfield/Transform/Utils.h"
 
 namespace efd {
     /// \brief Required information in order to compile a \em QModule.
     struct CompilationSettings {
         ArchGraph::sRef archGraph;
         EnumAllocator allocator;
-        std::vector<std::string> basis;
+        GateWeightMap gWeightMap;
         bool reorder;
         bool verify;
         bool force;

@@ -46,7 +46,7 @@ QModule::uRef efd::Compile(QModule::uRef qmod, CompilationSettings settings) {
     }
 
     auto allocPass = CreateQbitAllocator(settings.allocator, settings.archGraph);
-    allocPass->setInlineAll(settings.basis);
+    allocPass->setGateWeightMap(settings.gWeightMap);
     PassCache::Run(qmod.get(), allocPass.get());
 
     auto revPass = ReverseEdgesPass::Create(settings.archGraph);
@@ -57,7 +57,7 @@ QModule::uRef efd::Compile(QModule::uRef qmod, CompilationSettings settings) {
 
         auto aVerifierPass = ArchVerifierPass::Create(settings.archGraph);
         auto sVerifierPass = SemanticVerifierPass::Create(std::move(qmodCopy), mapping);
-        sVerifierPass->setInlineAll(settings.basis);
+        sVerifierPass->setInlineAll(ExtractGateNames(settings.gWeightMap));
 
         PassCache::Run(qmod.get(), aVerifierPass.get());
         success = success && aVerifierPass->getData();
