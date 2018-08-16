@@ -2,7 +2,6 @@
 #include "enfield/Transform/RenameQbitsPass.h"
 #include "enfield/Transform/InlineAllPass.h"
 #include "enfield/Transform/PassCache.h"
-#include "enfield/Transform/Utils.h"
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/RTTI.h"
@@ -11,18 +10,20 @@
 
 #include <iterator>
 
-static efd::Stat<uint32_t> DepStat
+using namespace efd;
+
+static Stat<uint32_t> DepStat
 ("Dependencies", "The number of dependencies of this program.");
-static efd::Stat<double> AllocTime
+static Stat<double> AllocTime
 ("AllocTime", "Time to allocate all qubits.");
-static efd::Stat<double> InlineTime
+static Stat<double> InlineTime
 ("InlineTime", "Time to inline all gates.");
-static efd::Stat<double> ReplaceTime
+static Stat<double> ReplaceTime
 ("ReplaceTime", "Time to replace all qubits to the corresponding architechture ones.");
-static efd::Stat<double> RenameTime
+static Stat<double> RenameTime
 ("RenameTime", "Time to rename all qubits to the mapped qubits.");
 
-efd::InverseMap efd::InvertMapping(uint32_t archQ, Mapping mapping, bool fill) {
+InverseMap efd::InvertMapping(uint32_t archQ, Mapping mapping, bool fill) {
     uint32_t progQ = mapping.size();
     // 'archQ' is the number of qubits from the architecture.
     std::vector<uint32_t> inv(archQ, _undef);
@@ -64,7 +65,7 @@ void efd::Fill(uint32_t archQ, Mapping& mapping) {
     Fill(mapping, inv);
 }
 
-efd::Mapping efd::IdentityMapping(uint32_t progQ) {
+Mapping efd::IdentityMapping(uint32_t progQ) {
     Mapping mapping(progQ, _undef);
 
     for (uint32_t i = 0; i < progQ; ++i) {
@@ -88,20 +89,47 @@ std::string efd::MappingToString(Mapping m) {
 }
 
 // ------------------ QbitAllocator ----------------------
-efd::QbitAllocator::QbitAllocator(ArchGraph::sRef archGraph) 
-    : mInlineAll(false), mArchGraph(archGraph) {
+QbitAllocator::QbitAllocator(ArchGraph::sRef archGraph) : mArchGraph(archGraph) {
+    mGateWeightMap = { {"U", 1}, {"CX", 10} };
 }
 
-void efd::QbitAllocator::inlineAllGates() {
-    auto inlinePass = InlineAllPass::Create(mBasis);
-    PassCache::Run(mMod, inlinePass.get());
+// In order for calculatin the cost of a CNOT and a Haddamard gate in the most
+// generic way possible, we create a program with only one application of the
+// RevCNOT gate (it uses both CNOT and Hadammard).
+// Then, we inline it based on the given gates and compute the cost of each
+// gate, knowing that the only single-qubit gate is a Hadammard, and the only
+// two-qubit gate is a CNOT.
+void QbitAllocator::calculateHAndCXCost() {
+    static const std::string revCXProgram =
+"\
+OPENQASM 2.0;\
+include \"qelib1.inc\";\
+qreg q[2];\
+intrinsic_rev_cx__ q[0], q[1];\
+";
+    auto qmod = QModule::ParseString(revCXProgram);
+    inlineAllGates(qmod.get());
+
+    for (auto it = qmod->stmt_begin(), end = qmod->stmt_end(); it != end; ++it) {
+        auto qopNode = dynCast<NDQOp>(it->get());
+        auto qargs = qopNode->getQArgs();
+        auto cost = mGateWeightMap[qopNode->getOperation()];
+
+        if (qargs->getChildNumber() == 2) mCXCost = cost;
+        else mHCost = cost;
+    }
 }
 
-void efd::QbitAllocator::replaceWithArchSpecs() {
+void QbitAllocator::inlineAllGates(QModule::Ref qmod) {
+    auto inlinePass = InlineAllPass::Create(ExtractGateNames(mGateWeightMap));
+    PassCache::Run(qmod, inlinePass.get());
+}
+
+void QbitAllocator::replaceWithArchSpecs(QModule::Ref qmod) {
     // Renaming program qbits to architecture qbits.
     RenameQbitPass::ArchMap toArchMap;
 
-    auto xtn = PassCache::Get<XbitToNumberWrapperPass>(mMod);
+    auto xtn = PassCache::Get<XbitToNumberWrapperPass>(qmod);
     auto xbitToNumber = xtn->getData();
 
     for (uint32_t i = 0, e = xbitToNumber.getQSize(); i < e; ++i) {
@@ -109,34 +137,52 @@ void efd::QbitAllocator::replaceWithArchSpecs() {
     }
 
     auto renamePass = RenameQbitPass::Create(toArchMap);
-    PassCache::Run(mMod, renamePass.get());
+    PassCache::Run(qmod, renamePass.get());
 
     // Replacing the old qbit declarations with the architecture's qbit
     // declaration.
-    mMod->removeAllQRegs();
+    qmod->removeAllQRegs();
     for (auto it = mArchGraph->reg_begin(), e = mArchGraph->reg_end(); it != e; ++it)
-        mMod->insertReg(NDRegDecl::CreateQ
+        qmod->insertReg(NDRegDecl::CreateQ
                 (NDId::Create(it->first), NDInt::Create(std::to_string(it->second))));
 }
 
-bool efd::QbitAllocator::run(QModule::Ref qmod) {
+uint32_t QbitAllocator::getCXCost(uint32_t u, uint32_t v) {
+    if (mArchGraph->hasEdge(u, v)) return mCXCost;
+    if (mArchGraph->hasEdge(v, u)) return mCXCost + (4 * mHCost);
+
+    ERR << "There is no edge (" << u << ", " << v << ") in the architecture graph."
+        << std::endl;
+    EFD_ABORT();
+}
+
+uint32_t QbitAllocator::getSwapCost(uint32_t u, uint32_t v) {
+    uint32_t uvCost = getCXCost(u, v);
+    uint32_t vuCost = getCXCost(v, u);
+    return (uvCost < vuCost) ? (uvCost * 2) + vuCost : (vuCost * 2) + uvCost;
+}
+
+uint32_t QbitAllocator::getBridgeCost(uint32_t u, uint32_t w, uint32_t v) {
+    return (getCXCost(u, w) * 2) + (getCXCost(w, v) * 2);
+}
+
+bool QbitAllocator::run(QModule::Ref qmod) {
     Timer timer;
 
-    // Setting the class QModule.
-    mMod = qmod;
+    // Before running the allocator, we first calculate the costs for CX
+    // and H with the gate weights set up.
+    calculateHAndCXCost();
 
-    if (mInlineAll) {
-        // Setting up timer ----------------
-        timer.start();
-        // ---------------------------------
+    // Setting up timer ----------------
+    timer.start();
+    // ---------------------------------
 
-        inlineAllGates();
+    inlineAllGates(qmod);
 
-        // Stopping timer and setting the stat -----------------
-        timer.stop();
-        InlineTime = ((double) timer.getMicroseconds() / 1000000.0);
-        // -----------------------------------------------------
-    }
+    // Stopping timer and setting the stat -----------------
+    timer.stop();
+    InlineTime = ((double) timer.getMicroseconds() / 1000000.0);
+    // -----------------------------------------------------
 
     // Replacing all declared registers to the registers declared in the
     // architecture graph.
@@ -144,7 +190,7 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
     timer.start();
     // ---------------------------------
 
-    replaceWithArchSpecs();
+    replaceWithArchSpecs(qmod);
 
     // Stopping timer and setting the stat -----------------
     timer.stop();
@@ -153,7 +199,7 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
 
     // Getting the new information, since it can be the case that the qmodule
     // was modified.
-    auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(mMod);
+    auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(qmod);
     auto depBuilder = depPass->getData();
     auto& deps = depBuilder.getDependencies();
 
@@ -170,7 +216,7 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
     timer.start();
     // ---------------------------------
 
-    mData = allocate(mMod);
+    mData = allocate(qmod);
 
     // Stopping timer and setting the stat -----------------
     timer.stop();
@@ -180,11 +226,6 @@ bool efd::QbitAllocator::run(QModule::Ref qmod) {
     return true;
 }
 
-void efd::QbitAllocator::setInlineAll(BasisVector basis) {
-    mInlineAll = true;
-    mBasis = basis;
-}
-
-void efd::QbitAllocator::setDontInline() {
-    mInlineAll = false;
+void QbitAllocator::setGateWeightMap(const GateWeightMap& weightMap) {
+    mGateWeightMap = weightMap;
 }

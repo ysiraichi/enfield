@@ -185,6 +185,6 @@ StdSolutionQAllocator::StdSolutionQAllocator(ArchGraph::sRef archGraph)
 Mapping StdSolutionQAllocator::allocate(QModule::Ref qmod) {
     auto stdSolution = buildStdSolution(qmod);
     StdSolutionImplPass pass(stdSolution);
-    PassCache::Run(mMod, &pass);
+    PassCache::Run(qmod, &pass);
     return stdSolution.mInitial;
 }

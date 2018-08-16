@@ -54,7 +54,6 @@ CX q[0], q[1];\
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -92,7 +91,6 @@ intrinsic_lcx__ q[3], q[2], q[0];\
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -122,7 +120,6 @@ CX q[1], q[2];\
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -154,7 +151,6 @@ CX q[4], q[2];\
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -191,7 +187,6 @@ intrinsic_rev_cx__ q[1], q[0];\
         allocator->setMapFinder(IdentityMappingFinder::Create());
         allocator->setSolBuilder(QbitterSolBuilder::Create());
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }

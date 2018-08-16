@@ -35,7 +35,6 @@ namespace efd {
 
         Mapping mInitial;
         OpSequences mOpSeqs;
-        uint32_t mCost;
     };
 
     /// \brief An abstract allocator that builds the solution based on a `StdSolution`.

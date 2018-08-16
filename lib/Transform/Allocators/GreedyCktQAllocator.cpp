@@ -32,7 +32,7 @@ struct AllocProps {
 GreedyCktQAllocator::GreedyCktQAllocator(ArchGraph::sRef ag) : StdSolutionQAllocator(ag) {}
 
 StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
-    auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(mMod);
+    auto depPass = PassCache::Get<DependencyBuilderWrapperPass>(qmod);
     auto depBuilder = depPass->getData();
     auto& depsVector = depBuilder.getDependencies();
 
@@ -49,7 +49,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
     auto mapping = mapfinder->find(mArchGraph.get(), depsVector);
     auto inv = InvertMapping(mArchGraph->size(), mapping);
 
-    StdSolution sol { mapping, StdSolution::OpSequences(depsVector.size()), 0 };
+    StdSolution sol { mapping, StdSolution::OpSequences(depsVector.size()) };
 
     std::vector<Node::uRef> allocatedStatements;
     std::map<Node::Ref, uint32_t> reached;
@@ -158,16 +158,9 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             props.cost = 0;
             props.path = {};
 
-            // If either 'a' or 'b' is not frozen, we can search for a vertice nearby (each of them)
-            // in order not to o any swaps.
-            bool hasEdge = mArchGraph->hasEdge(u, v);
-            bool hasReverseEdge = mArchGraph->hasEdge(v, u);
-
-            if (hasEdge) {
+            if (mArchGraph->hasEdge(u, v) || mArchGraph->hasEdge(v, u)) {
                 props.type = K_SWP;
-            } else if (!hasEdge && hasReverseEdge) {
-                props.type = K_SWP;
-                props.cost = RevCost.getVal();
+                props.cost = getCXCost(u, v);
             } else {
                 bool foundFrozen = false;
 
@@ -181,10 +174,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
                             props.type = K_FRZ;
                             props.u.frz.from = a;
                             props.u.frz.to = newA;
-
-                            if (!mArchGraph->hasEdge(u, v))
-                                props.cost = RevCost.getVal();
-
+                            props.cost = getCXCost(u, v);
                             foundFrozen = true;
                             break;
                         }
@@ -201,10 +191,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
                             props.type = K_FRZ;
                             props.u.frz.from = b;
                             props.u.frz.to = newB;
-
-                            if (!mArchGraph->hasEdge(u, v))
-                                props.cost = RevCost.getVal();
-
+                            props.cost = getCXCost(u, v);
                             foundFrozen = true;
                             break;
                         }
@@ -218,16 +205,26 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
                     uint32_t pathsize = bfspath.size();
 
                     props.path = bfspath;
-                    props.cost = (bfspath.size() - 2) * SwapCost.getVal();
+                    props.cost = 0;
 
-                    bool hasEdgeFromU = mArchGraph->hasEdge(bfspath[0], bfspath[1]);
-                    bool hasEdgeToV = mArchGraph->hasEdge(bfspath[pathsize - 2], bfspath[pathsize - 1]);
-                    if (hasEdgeFromU)
+                    if (mArchGraph->hasEdge(bfspath[0], bfspath[1])) {
                         props.u.swp.mvTgtSrc = true;
-                    else if (!hasEdgeFromU && hasEdgeToV)
+
+                        for (uint32_t i = pathsize - 1; i > 1; --i) {
+                            props.cost += getSwapCost(bfspath[i], bfspath[i - 1]);
+                        }
+
+                        props.cost += getCXCost(bfspath[0], bfspath[1]);
+                    } else if (mArchGraph->hasEdge(bfspath[pathsize - 2], bfspath[pathsize - 1])) {
                         props.u.swp.mvTgtSrc = false;
-                    else if (!hasEdgeFromU && !hasEdgeToV)
-                        props.cost += RevCost.getVal();
+
+                        for (uint32_t i = 1; i < pathsize - 1; ++i) {
+                            props.cost += getSwapCost(bfspath[i], bfspath[i - 1]);
+                        }
+
+                        props.cost += getCXCost(bfspath[pathsize - 2], bfspath[pathsize - 1]);
+                    }
+
                 }
             }
 
@@ -292,8 +289,6 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             marked[i] = false;
             it.next(i);
         }
-
-        sol.mCost += best.cost;
     }
 
     qmod->clearStatements();

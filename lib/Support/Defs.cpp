@@ -11,15 +11,15 @@ static efd::Opt<std::string> WarningFile
 static efd::Opt<std::string> InfoFile
 ("inf", "File to keep information messages.", "/dev/stdout", false);
 
-static efd::Opt<bool> VerboseInfo
-("v", "Show location of messages.", false, false);
+static efd::Opt<bool> Verbose
+("v", "Verbose. You know... That thing everyone does!", false, false);
 
 static void PrintMessage(std::ostream& out,
                          std::string level, std::string file,
                          uint32_t line) {
     out << "[" << level << "]: ";
 
-    if (VerboseInfo.getVal() && file != "" && line != 0) {
+    if (Verbose.getVal() && file != "" && line != 0) {
         out << file << ":" << line << ":" << std::endl;
         out << "\t";
     }

@@ -10,7 +10,6 @@ add_library (EfdTransform
     Driver.cpp
     FlattenPass.cpp
     InlineAllPass.cpp
-    IntrinsicGateCostPass.cpp
     LayersBuilderPass.cpp
     LayerBasedOrderingWrapperPass.cpp
     Pass.cpp

@@ -220,11 +220,7 @@ BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
             auto cpy = cand;
             cpy.m[a] = pair.first;
             cpy.m[b] = pair.second;
-
-            if (!mArchGraph->hasEdge(pair.first, pair.second)) {
-                cpy.cost += RevCost.getVal();
-            }
-            
+            cpy.cost += getCXCost(pair.first, pair.second);
             localCandidates.push_back(cpy);
         }
 
@@ -482,12 +478,15 @@ BoundedMappingTreeQAllocator::phase2(const MCandidateVCollection& collection) {
         auto seq = tracebackPath(mem, idx);
 
         uint32_t swapCost = 0;
-        uint32_t mappingCost = seq.mappingCost * RevCost.getVal();
+        uint32_t mappingCost = seq.mappingCost;
 
         for (uint32_t i = 1; i < nofLayers; ++i) {
             auto swaps = getTransformingSwapsFor(seq.mappingV[i - 1], seq.mappingV[i]);
             swapSeqCollection.push_back(swaps);
-            swapCost += swaps.size() * SwapCost.getVal();
+
+            for (const auto& s : swaps) {
+                swapCost += getSwapCost(s.u, s.v);
+            }
         }
 
         if (swapCost + mappingCost < best.cost) {

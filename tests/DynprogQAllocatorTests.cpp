@@ -50,7 +50,6 @@ CX q[0], q[1];\
         auto qmod = toShared(QModule::ParseString(program));
         DynprogQAllocator::uRef allocator = DynprogQAllocator::Create(graph);
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -84,7 +83,6 @@ CX q[4], q[2];\
         auto qmod = toShared(QModule::ParseString(program));
         DynprogQAllocator::uRef allocator = DynprogQAllocator::Create(graph);
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -112,7 +110,6 @@ CX q[1], q[2];\
         auto qmod = toShared(QModule::ParseString(program));
         DynprogQAllocator::uRef allocator = DynprogQAllocator::Create(graph);
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -142,7 +139,6 @@ CX q[4], q[2];\
         auto qmod = toShared(QModule::ParseString(program));
         DynprogQAllocator::uRef allocator = DynprogQAllocator::Create(graph);
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -178,7 +174,6 @@ CX q[0], q[2];\
         auto qmod = toShared(QModule::ParseString(program));
         DynprogQAllocator::uRef allocator = DynprogQAllocator::Create(graph);
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }

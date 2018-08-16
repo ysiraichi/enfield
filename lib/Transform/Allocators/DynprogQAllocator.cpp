@@ -53,7 +53,7 @@ uint32_t efd::DynprogQAllocator::getIntermediateV(uint32_t u, uint32_t v) {
 }
 
 efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
-    auto &deps = PassCache::Get<DependencyBuilderWrapperPass>(mMod)
+    auto &deps = PassCache::Get<DependencyBuilderWrapperPass>(qmod)
         ->getData()
         .getDependencies();
 
@@ -62,9 +62,6 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
 
     auto permutations = tsp.mInverseMaps;
     uint32_t archQ = mArchGraph->size();
-    const uint32_t SWAP_COST = SwapCost.getVal();
-    const uint32_t REV_COST = RevCost.getVal();
-    const uint32_t LCX_COST = LCXCost.getVal();
 
     uint32_t permN = permutations.size();
     uint32_t depN = deps.size();
@@ -105,8 +102,8 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
             // (u -> w -> v).
             bool hasEdge = mArchGraph->hasEdge(u, v);
             bool isReverse = mArchGraph->isReverseEdge(u, v);
-            bool is2Dist = finder->find(mArchGraph.get(), u, v).size() == 3;
-            if (!hasEdge && !isReverse && !is2Dist)
+            auto uvPath = finder->find(mArchGraph.get(), u, v);
+            if (!hasEdge && !isReverse && uvPath.size() != 3)
                 continue;
 
             Val minimum { tgt, nullptr, UNREACH };
@@ -121,16 +118,17 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
                 if (tgt != src) {
                     auto srcInverseMap = InvertMapping(archQ, permutations[src]);
                     auto tgtInverseMap = InvertMapping(archQ, tgtPerm);
-                    finalCost += tsp.find(srcInverseMap, tgtInverseMap).size() * SWAP_COST;
+                    auto swaps = tsp.find(srcInverseMap, tgtInverseMap);
+
+                    for (auto& s : swaps) {
+                        finalCost += getSwapCost(s.u, s.v);
+                    }
                 }
 
-                if (!hasEdge) {
-                    // Increase cost if using reverse edge.
-                    if (isReverse)
-                        finalCost += REV_COST;
-                    // Else, increase cost if using long cnot gate.
-                    else if (is2Dist)
-                        finalCost += LCX_COST;
+                if (!hasEdge && !isReverse) {
+                    finalCost += getBridgeCost(u, uvPath[1], v);
+                } else {
+                    finalCost += getCXCost(u, v);
                 }
 
                 Val thisVal { tgt, &srcVal, finalCost };
@@ -149,7 +147,6 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
     }
 
     StdSolution solution;
-    solution.mCost = val->cost;
     solution.mOpSeqs.assign(depN, std::pair<Node::Ref, StdSolution::OpVector>());
 
     // Get the target mappings for each dependency (with its id).
@@ -168,7 +165,6 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
     if (depN == 0) {
         for (uint32_t i = 0; i < archQ; ++i)
             solution.mInitial.push_back(i);
-        solution.mCost = 0;
     } else {
         solution.mInitial = mappings[0].second;
         solution.mOpSeqs[0].first = deps[0].mCallPoint;

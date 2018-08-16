@@ -54,7 +54,6 @@ CX q[1], q[2];\
         allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -90,7 +89,6 @@ CX q[1], q[2];\
         allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -120,7 +118,6 @@ CX q[1], q[2];\
         allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -152,7 +149,6 @@ CX q[1], q[2];\
         allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }
@@ -191,7 +187,6 @@ intrinsic_rev_cx__ q[2], q[1];\
         allocator->setMapFinder(WeightedSIMappingFinder::Create());
         allocator->setSolBuilder(PathGuidedSolBuilder::Create());
 
-        allocator->setInlineAll({ "cx" });
         allocator->run(qmod.get());
         ASSERT_EQ(qmod->toString(), result);
     }

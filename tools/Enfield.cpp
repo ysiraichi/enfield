@@ -2,11 +2,11 @@
 #include "enfield/Transform/QModule.h"
 #include "enfield/Transform/Driver.h"
 #include "enfield/Transform/PassCache.h"
-#include "enfield/Transform/IntrinsicGateCostPass.h"
 #include "enfield/Transform/QModuleQualityEvalPass.h"
 #include "enfield/Transform/InlineAllPass.h"
 #include "enfield/Transform/ReverseEdgesPass.h"
 #include "enfield/Transform/Allocators/Allocators.h"
+#include "enfield/Transform/Utils.h"
 #include "enfield/Arch/Architectures.h"
 #include "enfield/Support/JsonParser.h"
 #include "enfield/Support/Stats.h"
@@ -20,18 +20,16 @@
 
 using namespace efd;
 
-typedef std::map<std::string, uint32_t> MapGateUInt;
-
 namespace efd {
-    template <> std::string Opt<MapGateUInt>::getStringVal() {
+    template <> std::string Opt<GateWeightMap>::getStringVal() {
         std::string str;
         for (auto& pair : mVal)
             str += pair.first + ":" + std::to_string(pair.second) + " ";
         return str;
     }
 
-    template <> struct ParseOptTrait<MapGateUInt> {
-        static void Run(Opt<MapGateUInt>* opt, std::vector<std::string> args) {
+    template <> struct ParseOptTrait<GateWeightMap> {
+        static void Run(Opt<GateWeightMap>* opt, std::vector<std::string> args) {
             std::string sVector = args[0];
             std::istringstream iVector(sVector);
 
@@ -53,7 +51,7 @@ namespace efd {
     };
 }
 
-static efd::Opt<MapGateUInt> GateWeights
+static efd::Opt<GateWeightMap> GateWeights
 ("-gate-w",
 "Cost of using each basis gate. \
 Should be specified as <gate>:<w> between quotes.",
@@ -76,6 +74,8 @@ static Opt<bool> NoVerify
 ("-no-verify", "Verify the compiled code (negation).", false, false);
 static Opt<bool> Force
 ("f", "Compile and print the module, even if verification fails.", false, false);
+static Opt<bool> InlineOutput
+("-inline", "Inlines the output QASM program.", false, false);
 
 static Opt<EnumAllocator> Alloc
 ("alloc", "Sets the allocator to be used.", Allocator::Q_dynprog, false);
@@ -88,8 +88,6 @@ static Opt<std::string> PrintDepGraphFile
 static Opt<std::string> PrintArchGraphFile
 ("-print-archgraph", "Choose a file to print the architecture graph.", "", false);
 
-static efd::Stat<uint32_t> TotalCost
-("TotalCost", "Total cost after allocating the qubits.");
 static efd::Stat<uint32_t> Depth
 ("Depth", "Total depth after allocating the qubits.");
 static efd::Stat<uint32_t> Gates
@@ -104,15 +102,7 @@ static void DumpToOutFile(QModule::Ref qmod) {
 }
 
 static void ComputeStats(QModule::Ref qmod, ArchGraph::sRef archGraph) {
-    TotalCost = PassCache::Get<IntrinsicGateCostPass>(qmod)
-                    ->getData();
-
-    std::vector<std::string> basisGates;
-    for (auto& pair : GateWeights.getVal()) {
-        basisGates.push_back(pair.first);
-    }
-
-    auto inlinePass = InlineAllPass::Create(basisGates);
+    auto inlinePass = InlineAllPass::Create(ExtractGateNames(GateWeights.getVal()));
     auto reversePass = ReverseEdgesPass::Create(archGraph);
     auto qualityPass = QModuleQualityEvalPass::Create(GateWeights.getVal());
     PassCache::Run(qmod, inlinePass.get());
@@ -159,16 +149,7 @@ int main(int argc, char** argv) {
         CompilationSettings settings {
             archGraph,
             Alloc.getVal(),
-            {
-                "intrinsic_swap__",
-                "intrinsic_rev_cx__",
-                "intrinsic_lcx__",
-                "cx",
-                "u1",
-                "u2",
-                "u3",
-                "h"
-            },
+            GateWeights.getVal(),
             Reorder.getVal(),
             !NoVerify.getVal(),
             Force.getVal()
@@ -176,10 +157,18 @@ int main(int argc, char** argv) {
 
         qmod.reset(Compile(std::move(qmod), settings).release());
 
-        if (qmod.get() != nullptr)
-            DumpToOutFile(qmod.get());
+        if (qmod.get() != nullptr) {
+            if (!InlineOutput.getVal()) {
+                DumpToOutFile(qmod.get());
+            }
 
-        ComputeStats(qmod.get(), archGraph);
+            ComputeStats(qmod.get(), archGraph);
+
+            if (InlineOutput.getVal()) {
+                DumpToOutFile(qmod.get());
+            }
+
+        }
     }
 
     if (ShowStats.getVal())
