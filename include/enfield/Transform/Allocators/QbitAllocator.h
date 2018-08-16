@@ -73,8 +73,4 @@ namespace efd {
     std::string MappingToString(Mapping m);
 }
 
-extern efd::Opt<uint32_t> SwapCost;
-extern efd::Opt<uint32_t> RevCost;
-extern efd::Opt<uint32_t> LCXCost;
-
 #endif

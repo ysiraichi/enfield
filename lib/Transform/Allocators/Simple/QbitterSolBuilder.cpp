@@ -7,7 +7,7 @@ efd::StdSolution efd::QbitterSolBuilder::build
     auto inv = InvertMapping(g->size(), mapping);
     auto finder = BFSPathFinder::Create();
 
-    StdSolution solution { initial, StdSolution::OpSequences(deps.size()), 0 };
+    StdSolution solution { initial, StdSolution::OpSequences(deps.size()) };
 
     for (uint32_t i = 0, e = deps.size(); i < e; ++i) {
         auto dep = deps[i][0];
@@ -23,10 +23,8 @@ efd::StdSolution efd::QbitterSolBuilder::build
         if (g->hasEdge(u, v)) {
             operation = { Operation::K_OP_CNOT, a, b };
         } else if (g->isReverseEdge(u, v)) {
-            solution.mCost += RevCost.getVal();
             operation = { Operation::K_OP_REV, a, b };
         } else {
-            solution.mCost += LCXCost.getVal();
             operation = { Operation::K_OP_LCNOT, a, b };
 
             auto path = finder->find(g, u, v);

@@ -4,13 +4,6 @@
 
 #include <map>
 
-static efd::Stat<uint32_t> TotalSwapCost
-("TotalSwapCost", "The total cost yielded by swaps.");
-static efd::Stat<double> MeanSwapsSize
-("MeanSwapsSize", "The mean of swap sequence size.");
-static efd::Stat<uint32_t> SerialSwapsCount
-("SerialSwapsCount", "The mean of swap sequence size.");
-
 struct DepComp {
     bool operator()(const efd::Dep& lhs, const efd::Dep& rhs) const {
         if (lhs.mFrom != rhs.mFrom)
@@ -29,7 +22,7 @@ efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
     bool improveInitialMapping = get(SolutionBuilderOptions::ImproveInitial);
 
     Mapping match = initial;
-    StdSolution solution { initial, StdSolution::OpSequences(deps.size()), 0 };
+    StdSolution solution { initial, StdSolution::OpSequences(deps.size()) };
 
     std::map<Dep, uint32_t, DepComp> freq;
     for (uint32_t i = 0, e = deps.size(); i < e; ++i) {
@@ -68,6 +61,8 @@ efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
                 frozen[u] = true;
             }
 
+            uint32_t swapCost = 0;
+
             for (auto i = path.size() - 2; i >= 1; --i) {
                 uint32_t u = path[i], v = path[i+1];
 
@@ -88,16 +83,6 @@ efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
             // If this is the first mapping
             if (changeInitialMapping) {
                 ops.second.clear();
-            } else {
-                if (keepStats) {
-                    // ------ Stats
-                    SerialSwapsCount += 1;
-                    MeanSwapsSize += ops.second.size();
-                    TotalSwapCost += SwapCost.getVal() * ops.second.size();
-                    // --------------------
-                }
-
-                solution.mCost += (SwapCost.getVal() * ops.second.size());
             }
 
             u = match[a], v = match[b];
@@ -106,7 +91,6 @@ efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
         if (g->hasEdge(u, v)) {
             ops.second.push_back({ Operation::K_OP_CNOT, a, b });
         } else {
-            solution.mCost += RevCost.getVal();
             ops.second.push_back({ Operation::K_OP_REV, a, b });
         }
 
@@ -115,9 +99,6 @@ efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
 
         --freq[d];
     }
-
-    if (keepStats && SerialSwapsCount.getVal())
-        MeanSwapsSize /= ((double) SerialSwapsCount.getVal());
 
     return solution;
 }

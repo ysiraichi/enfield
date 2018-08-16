@@ -172,7 +172,6 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
     std::srand(Seed.getVal());
 
     StdSolution sol;
-    sol.mCost = 0;
 
     auto dbwPass = PassCache::Get<DependencyBuilderWrapperPass>(qmod);
     auto depData = dbwPass->getData();
@@ -242,7 +241,6 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                         op = { Operation::K_OP_CNOT, dep.mFrom, dep.mTo };
                     } else if (mArchGraph->hasEdge(v, u)) {
                         op = { Operation::K_OP_REV, dep.mFrom, dep.mTo };
-                        sol.mCost += RevCost.getVal();
                     } else {
                         ERR << "If we found one configuration, it should not reach this point."
                             << std::endl;
@@ -256,7 +254,6 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
             }
 
             if (sol.mOpSeqs.size() != opsSeqIdx) {
-                sol.mCost += (SwapCost.getVal() * result.opv.size());
                 sol.mOpSeqs[opsSeqIdx].second.insert(sol.mOpSeqs[opsSeqIdx].second.begin(),
                                                      result.opv.begin(), result.opv.end());
             } else if (!result.opv.empty()) {
@@ -304,7 +301,6 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                         op = { Operation::K_OP_CNOT, dep.mFrom, dep.mTo };
                     } else if (mArchGraph->hasEdge(v, u)) {
                         op = { Operation::K_OP_REV, dep.mFrom, dep.mTo };
-                        sol.mCost += RevCost.getVal();
                     } else {
                         ERR << "If we found one configuration, it should not reach this point."
                             << std::endl;
