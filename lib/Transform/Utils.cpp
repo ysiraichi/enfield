@@ -20,6 +20,24 @@ GateNameVector efd::ExtractGateNames(const GateWeightMap& map) {
     return vector;
 }
 
+StatementPair efd::GetStatementPair(const Node::Ref node) {
+    StatementPair pair { nullptr, nullptr };
+    pair.second = dynCast<NDQOp>(node);
+
+    if (pair.second == nullptr) {
+        pair.first = dynCast<NDIfStmt>(node);
+
+        if (pair.first == nullptr) {
+            ERR << "Unknown instruction type: `" << node->toString(false) << "`." << std::endl;
+            EFD_ABORT();
+        }
+
+        pair.second = pair.first->getQOp();
+    }
+
+    return pair;
+}
+
 // ==--------------- Intrinsic Gates ---------------==
 static std::vector<NDGateSign::uRef> IntrinsicGates;
 static const std::string IntrinsicGatesStr =
