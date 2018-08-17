@@ -8,6 +8,7 @@ add_library (EfdTransform
     DependencyBuilderPass.cpp
     DependencyGraphBuilderPass.cpp
     Driver.cpp
+    ErrorRateCalculationPass.cpp
     FlattenPass.cpp
     InlineAllPass.cpp
     LayersBuilderPass.cpp
