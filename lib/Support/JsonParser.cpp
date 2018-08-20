@@ -1,4 +1,5 @@
 #include "enfield/Support/JsonParser.h"
+#include "enfield/Support/Defs.h"
 
 using namespace efd;
 
@@ -13,6 +14,8 @@ std::string efd::JsonTypeString(const Json::ValueType& ty) {
         case Json::ValueType::arrayValue:   return "array";
         case Json::ValueType::objectValue:  return "object";
     }
+
+    EFD_ABORT();
 }
 
 std::string efd::JsonTypeVectorString(const std::vector<Json::ValueType>& tys) {

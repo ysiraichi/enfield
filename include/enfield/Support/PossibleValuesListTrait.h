@@ -9,10 +9,10 @@ namespace efd {
             static std::vector<std::string> Get() { return {}; }
         };
 
-    template <typename T, T first, T last>
-        struct PossibleValuesListTrait<efd::EnumString<T, first, last>> {
+    template <typename T, T first, T last, uint32_t padding>
+        struct PossibleValuesListTrait<efd::EnumString<T, first, last, padding>> {
             static std::vector<std::string> Get() {
-                return EnumString<T, first, last>::List();
+                return EnumString<T, first, last, padding>::StringList();
             }
         };
 }

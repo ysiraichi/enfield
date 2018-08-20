@@ -12,14 +12,17 @@ namespace efd {
     ///
     /// Turns Enum to String and vice-versa.
     /// It is used mainly for the command line options.
-    template <typename T, T first, T last>
+    template <typename T, T first, T last, uint32_t padding = 0>
         class EnumString {
             private:
-                static std::vector<std::string> mStrVal;
                 uint32_t mValue;
 
                 /// \brief Initializes this class from an initialization string.
                 void initImpl(std::string init);
+
+            protected:
+                typedef EnumString<T, first, last, padding> Self;
+                static std::vector<std::string> mStrVal;
 
             public:
                 EnumString(T init);
@@ -31,12 +34,27 @@ namespace efd {
                 /// \brief Returns the value of the enum.
                 T getValue() const;
 
-                bool operator<(const EnumString<T, first, last>& rhs) const;
+                bool operator<(const Self& rhs) const;
 
                 /// \brief Returns a list with every enumerated element in its
                 /// string representation.
-                static std::vector<std::string> List() {
-                    return mStrVal;
+                static std::vector<std::string> StringList() {
+                    if (padding != 0) {
+                        return std::vector<std::string>(mStrVal.begin() + padding,
+                                                        mStrVal.end() - padding);
+                    } else {
+                        return mStrVal;
+                    }
+                }
+
+                /// \brief Returns a list with every enumerated element.
+                static std::vector<Self> List() {
+                    std::vector<Self> list;
+
+                    for (const std::string& str : StringList())
+                        list.push_back(Self(str));
+
+                    return list;
                 }
 
                 /// \brief Returns whether \p str is a string representative of any
@@ -49,14 +67,14 @@ namespace efd {
 }
 
 namespace std {
-    template <typename T, T first, T last>
-        string to_string(efd::EnumString<T, first, last>& val) {
+    template <typename T, T first, T last, uint32_t padding>
+        string to_string(efd::EnumString<T, first, last, padding>& val) {
             return val.getStringValue();
         }
 }
 
-template <typename T, T first, T last>
-efd::EnumString<T, first, last>::EnumString(T init) {
+template <typename T, T first, T last, uint32_t padding>
+efd::EnumString<T, first, last, padding>::EnumString(T init) {
     mValue = static_cast<uint32_t>(init);
 
     if (mValue > static_cast<uint32_t>(last) || mValue < static_cast<uint32_t>(first)) {
@@ -68,19 +86,19 @@ efd::EnumString<T, first, last>::EnumString(T init) {
     mValue = mValue - static_cast<uint32_t>(first);
 }
 
-template <typename T, T first, T last>
-efd::EnumString<T, first, last>::EnumString(const char* cstr) {
+template <typename T, T first, T last, uint32_t padding>
+efd::EnumString<T, first, last, padding>::EnumString(const char* cstr) {
     initImpl(std::string(cstr));
 }
 
-template <typename T, T first, T last>
-efd::EnumString<T, first, last>::EnumString(std::string init) {
+template <typename T, T first, T last, uint32_t padding>
+efd::EnumString<T, first, last, padding>::EnumString(std::string init) {
     initImpl(init);
 }
 
-template <typename T, T first, T last>
-void efd::EnumString<T, first, last>::initImpl(std::string init) {
-    if (!EnumString<T, first, last>::Has(init)) {
+template <typename T, T first, T last, uint32_t padding>
+void efd::EnumString<T, first, last, padding>::initImpl(std::string init) {
+    if (!EnumString<T, first, last, padding>::Has(init)) {
         ERR << "Enum '" << typeid(T).name() << "' doesn't have string '"
             << init << "'." << std::endl;
         EFD_ABORT();
@@ -90,8 +108,8 @@ void efd::EnumString<T, first, last>::initImpl(std::string init) {
     mValue = std::distance(mStrVal.begin(), it);
 }
 
-template <typename T, T first, T last>
-std::string efd::EnumString<T, first, last>::getStringValue() const {
+template <typename T, T first, T last, uint32_t padding>
+std::string efd::EnumString<T, first, last, padding>::getStringValue() const {
     auto strSize = mStrVal.size();
 
     if (strSize < mValue) {
@@ -108,13 +126,13 @@ std::string efd::EnumString<T, first, last>::getStringValue() const {
     return mStrVal[mValue];
 }
 
-template <typename T, T first, T last>
-T efd::EnumString<T, first, last>::getValue() const {
+template <typename T, T first, T last, uint32_t padding>
+T efd::EnumString<T, first, last, padding>::getValue() const {
     return static_cast<T>(mValue + static_cast<uint32_t>(first));
 }
 
-template <typename T, T first, T last>
-bool efd::EnumString<T, first, last>::operator<(const EnumString<T, first, last>& rhs) const {
+template <typename T, T first, T last, uint32_t padding>
+bool efd::EnumString<T, first, last, padding>::operator<(const Self& rhs) const {
     return mValue < rhs.mValue;
 }
 

@@ -95,9 +95,11 @@ namespace efd {
         static void Run(Opt<std::vector<std::string>>* opt, std::vector<std::string> args);
     };
 
-    template <typename T, T first, T last> struct ParseOptTrait<EnumString<T, first, last>> {
-        static void Run(Opt<EnumString<T, first, last>>* opt, std::vector<std::string> args);
-    };
+    template <typename T, T first, T last, uint32_t padding>
+        struct ParseOptTrait<EnumString<T, first, last, padding>> {
+            static void Run(Opt<EnumString<T, first, last, padding>>* opt,
+                            std::vector<std::string> args);
+        };
 
     /// \brief Class used to declare the command line options available.
     template <typename T>
@@ -139,9 +141,9 @@ void efd::ParseOptTrait<T>::Run(Opt<T>* opt, std::vector<std::string> args) {
     EFD_ABORT();
 }
 
-template <typename T, T first, T last>
-void efd::ParseOptTrait<efd::EnumString<T, first, last>>::
-Run(Opt<efd::EnumString<T, first, last>>* opt, std::vector<std::string> args) {
+template <typename T, T first, T last, uint32_t padding>
+void efd::ParseOptTrait<efd::EnumString<T, first, last, padding>>::
+Run(Opt<efd::EnumString<T, first, last, padding>>* opt, std::vector<std::string> args) {
     opt->mVal = args[0];
 }
 
