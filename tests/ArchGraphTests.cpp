@@ -30,10 +30,10 @@ TEST(ArchGraphTests, TreeCreationTest) {
     ASSERT_TRUE(graph->hasEdge(1, 3));
     ASSERT_TRUE(graph->hasEdge(1, 4));
 
-    ASSERT_TRUE(graph->isReverseEdge(1, 0));
-    ASSERT_TRUE(graph->isReverseEdge(2, 0));
-    ASSERT_TRUE(graph->isReverseEdge(3, 1));
-    ASSERT_TRUE(graph->isReverseEdge(4, 1));
+    ASSERT_TRUE(!graph->hasEdge(1, 0));
+    ASSERT_TRUE(!graph->hasEdge(2, 0));
+    ASSERT_TRUE(!graph->hasEdge(3, 1));
+    ASSERT_TRUE(!graph->hasEdge(4, 1));
 }
 
 TEST(ArchGraphTests, SomeReverseEdgesTest) {
@@ -63,12 +63,12 @@ TEST(ArchGraphTests, SomeReverseEdgesTest) {
     ASSERT_TRUE(graph->hasEdge(1, 4));
     ASSERT_TRUE(graph->hasEdge(4, 1));
 
-    ASSERT_TRUE(graph->isReverseEdge(2, 0));
-    ASSERT_TRUE(graph->isReverseEdge(2, 1));
-    ASSERT_TRUE(graph->isReverseEdge(3, 1));
+    ASSERT_TRUE(!graph->hasEdge(2, 0));
+    ASSERT_TRUE(!graph->hasEdge(2, 1));
+    ASSERT_TRUE(!graph->hasEdge(3, 1));
 
-    ASSERT_FALSE(graph->isReverseEdge(1, 0));
-    ASSERT_FALSE(graph->isReverseEdge(4, 1));
+    ASSERT_FALSE(!graph->hasEdge(1, 0));
+    ASSERT_FALSE(!graph->hasEdge(4, 1));
 }
 
 TEST(ArchGraphTests, MultipleRegisterArchitecture) {
@@ -98,10 +98,10 @@ TEST(ArchGraphTests, MultipleRegisterArchitecture) {
         ASSERT_TRUE(graph->hasEdge(1, 3));
         ASSERT_TRUE(graph->hasEdge(1, 4));
 
-        ASSERT_TRUE(graph->isReverseEdge(1, 0));
-        ASSERT_TRUE(graph->isReverseEdge(2, 0));
-        ASSERT_TRUE(graph->isReverseEdge(3, 1));
-        ASSERT_TRUE(graph->isReverseEdge(4, 1));
+        ASSERT_TRUE(!graph->hasEdge(1, 0));
+        ASSERT_TRUE(!graph->hasEdge(2, 0));
+        ASSERT_TRUE(!graph->hasEdge(3, 1));
+        ASSERT_TRUE(!graph->hasEdge(4, 1));
     }
     {
         const std::string gStr =
@@ -133,11 +133,11 @@ TEST(ArchGraphTests, MultipleRegisterArchitecture) {
         ASSERT_TRUE(graph->hasEdge(1, 4));
         ASSERT_TRUE(graph->hasEdge(4, 1));
 
-        ASSERT_TRUE(graph->isReverseEdge(2, 0));
-        ASSERT_TRUE(graph->isReverseEdge(2, 1));
-        ASSERT_TRUE(graph->isReverseEdge(3, 1));
+        ASSERT_TRUE(!graph->hasEdge(2, 0));
+        ASSERT_TRUE(!graph->hasEdge(2, 1));
+        ASSERT_TRUE(!graph->hasEdge(3, 1));
 
-        ASSERT_FALSE(graph->isReverseEdge(1, 0));
-        ASSERT_FALSE(graph->isReverseEdge(4, 1));
+        ASSERT_FALSE(!graph->hasEdge(1, 0));
+        ASSERT_FALSE(!graph->hasEdge(4, 1));
     }
 }

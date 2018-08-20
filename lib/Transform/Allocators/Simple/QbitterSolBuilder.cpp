@@ -22,7 +22,7 @@ efd::StdSolution efd::QbitterSolBuilder::build
         Operation operation;
         if (g->hasEdge(u, v)) {
             operation = { Operation::K_OP_CNOT, a, b };
-        } else if (g->isReverseEdge(u, v)) {
+        } else if (g->hasEdge(v, u)) {
             operation = { Operation::K_OP_REV, a, b };
         } else {
             operation = { Operation::K_OP_LCNOT, a, b };

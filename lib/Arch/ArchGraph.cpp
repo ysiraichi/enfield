@@ -88,12 +88,6 @@ std::string ArchGraph::getSId(uint32_t i) {
     return mId[i];
 }
 
-bool ArchGraph::isReverseEdge(uint32_t i, uint32_t j) {
-    auto& succ = mSuccessors[i];
-    auto& pred = mPredecessors[i];
-    return succ.find(j) == succ.end() && pred.find(j) != pred.end();
-}
-
 bool ArchGraph::isGeneric() {
     return mGeneric;
 }

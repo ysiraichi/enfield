@@ -47,7 +47,7 @@ void efd::ReverseEdgesVisitor::visit(NDQOpCX::Ref ref) {
     uint32_t uidLhs = mG->getUId(ref->getLhs()->toString());
     uint32_t uidRhs = mG->getUId(ref->getRhs()->toString());
 
-    if (mG->isReverseEdge(uidLhs, uidRhs)) {
+    if (!mG->hasEdge(uidLhs, uidRhs)) {
         insertIntoRevVector(ref, ref->getLhs(), ref->getRhs());
     }
 }
@@ -64,7 +64,7 @@ void efd::ReverseEdgesVisitor::visit(NDQOpGen::Ref ref) {
         uint32_t uidLhs = mG->getUId(qargs->getChild(0)->toString());
         uint32_t uidRhs = mG->getUId(qargs->getChild(1)->toString());
 
-        if (mG->isReverseEdge(uidLhs, uidRhs)) {
+        if (!mG->hasEdge(uidLhs, uidRhs)) {
             insertIntoRevVector(ref, qargs->getChild(0), qargs->getChild(1));
         }
     }

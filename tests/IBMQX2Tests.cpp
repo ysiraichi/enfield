@@ -23,10 +23,10 @@ TEST(IBMQX2Tests, IntantiationTest) {
     ASSERT_TRUE(graph->hasEdge(3, 2));
     ASSERT_TRUE(graph->hasEdge(4, 2));
     
-    ASSERT_TRUE(graph->isReverseEdge(1, 0));
-    ASSERT_TRUE(graph->isReverseEdge(2, 0));
-    ASSERT_TRUE(graph->isReverseEdge(2, 1));
-    ASSERT_TRUE(graph->isReverseEdge(4, 3));
-    ASSERT_TRUE(graph->isReverseEdge(2, 3));
-    ASSERT_TRUE(graph->isReverseEdge(2, 4));
+    ASSERT_TRUE(!graph->hasEdge(1, 0));
+    ASSERT_TRUE(!graph->hasEdge(2, 0));
+    ASSERT_TRUE(!graph->hasEdge(2, 1));
+    ASSERT_TRUE(!graph->hasEdge(4, 3));
+    ASSERT_TRUE(!graph->hasEdge(2, 3));
+    ASSERT_TRUE(!graph->hasEdge(2, 4));
 }
