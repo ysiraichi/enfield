@@ -190,7 +190,9 @@ std::unique_ptr<ArchGraph> JsonBackendParser<ArchGraph>::Parse(const Json::Value
                                    JsonFields<ArchGraph>::_WeightLabel_,
                                    { Ty::intValue, Ty::uintValue, Ty::realValue });
                 auto w = jElem[JsonFields<ArchGraph>::_WeightLabel_].asDouble();
-                graph->setW(i, v, w);
+                // In the Json, the standard is to have the probability of error.
+                // What we want is the probability of succes.
+                graph->setW(i, v, 1 - w);
             }
         }
     }
