@@ -1,13 +1,14 @@
 add_library (EfdSupport
-    CommandLine.cpp
-    WrapperVal.cpp
-    Graph.cpp
-    BFSPathFinder.cpp
-    Timer.cpp
-    Stats.cpp
-    ExpTSFinder.cpp
     ApproxTSFinder.cpp
+    BFSPathFinder.cpp
+    CommandLine.cpp
     Defs.cpp
-    TokenSwapFinder.cpp
+    ExpTSFinder.cpp
+    Graph.cpp
     JsonParser.cpp
-    WeightedGraph.cpp)
+    Stats.cpp
+    SimplifiedApproxTSFinder.cpp
+    Timer.cpp
+    TokenSwapFinder.cpp
+    WeightedGraph.cpp
+    WrapperVal.cpp)
