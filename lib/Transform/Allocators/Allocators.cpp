@@ -8,6 +8,7 @@
 #include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
 #include "enfield/Transform/Allocators/BMT/ImprovedBMTQAllocatorImpl.h"
 #include "enfield/Support/ApproxTSFinder.h"
+#include "enfield/Support/SimplifiedApproxTSFinder.h"
 
 #include "enfield/Transform/Allocators/Simple/WeightedSIMappingFinder.h"
 #include "enfield/Transform/Allocators/Simple/RandomMappingFinder.h"
