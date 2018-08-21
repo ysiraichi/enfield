@@ -13,6 +13,11 @@ namespace efd {
             typedef ApproxTSFinder* Ref;
             typedef std::unique_ptr<ApproxTSFinder> uRef;
 
+        private:
+            typedef std::vector<uint32_t> GoodVertices;
+            typedef std::vector<std::vector<GoodVertices>> GoodVerticesMatrix;
+            GoodVerticesMatrix mMatrix;
+
         protected:
             void preprocess() override;
             SwapSeq findImpl(const InverseMap& from, const InverseMap& to) override;
