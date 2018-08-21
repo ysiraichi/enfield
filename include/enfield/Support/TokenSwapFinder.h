@@ -20,6 +20,8 @@ namespace efd {
             virtual SwapSeq findImpl(const InverseMap& from, const InverseMap& to) = 0;
 
         public:
+            virtual ~TokenSwapFinder() = default;
+
             /// \brief Sets the `Graph`.
             void setGraph(Graph::Ref graph);
             /// \brief Finds a swap sequence to reach \p to from \p from.

@@ -30,7 +30,7 @@ namespace efd {
     std::ostream& InfoLog(std::string file = "", uint32_t line = 0);
 
     /// \brief Aborts reporting the file and the line.
-    void Abort(std::string file = "", uint32_t line = 0);
+    void Abort [[noreturn]] (std::string file = "", uint32_t line = 0);
 }
 
 #ifndef EFD_MESSAGE_LOG

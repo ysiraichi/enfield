@@ -21,6 +21,8 @@ namespace efd {
                 Mapping m;
             };
 
+            virtual ~SIFinder() = default;
+
             /// \brief Returns a valid matching of \p h in \p g.
             ///
             /// Note that this is not necessairly an exact match (exact 

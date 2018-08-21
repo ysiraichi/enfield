@@ -24,6 +24,7 @@ namespace efd {
 
     typedef EnumString<Allocator, Allocator::first, Allocator::last>
             EnumAllocator;
+    template <> std::vector<std::string> EnumAllocator::mStrVal;
 
     typedef Registry<QbitAllocator::uRef, ArchGraph::sRef, EnumAllocator>
             AllocatorRegistry;

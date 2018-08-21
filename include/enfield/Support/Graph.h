@@ -38,6 +38,7 @@ namespace efd {
             virtual std::string edgeToString(uint32_t i, uint32_t j, std::string op) const;
 
         public:
+            virtual ~Graph() = default;
             Graph(uint32_t n, Type ty = Undirected);
 
             /// \brief Return the degree entering the vertex \p i.
