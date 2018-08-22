@@ -5,6 +5,7 @@
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/ApproxTSFinder.h"
 #include "enfield/Support/CommandLine.h"
+#include "enfield/Support/Stats.h"
 #include "enfield/Support/Defs.h"
 #include "enfield/Support/Timer.h"
 
@@ -20,6 +21,18 @@ static Opt<uint32_t> MaxChildren
 static Opt<uint32_t> MaxPartialSolutions
 ("-bmt-max-partial", "Limits the max number of partial solutions per step.",
  std::numeric_limits<uint32_t>::max(), false);
+
+static Stat<double> Phase1Time
+("Phase1Time", "Time spent by the 1st phase of BMT allocators.");
+
+static Stat<double> Phase2Time
+("Phase2Time", "Time spent by the 2nd phase of BMT allocators.");
+
+static Stat<double> Phase3Time
+("Phase3Time", "Time spent by the 3rd phase of BMT allocators.");
+
+static Stat<uint32_t> Partitions
+("BMTPartitions", "Number of partitions split by *BMT allocators.");
 
 bool efd::bmt::operator<(const NodeCandidate& lhs, const NodeCandidate& rhs) {
     if (lhs.mWeight != rhs.mWeight) return lhs.mWeight < rhs.mWeight;
@@ -634,9 +647,11 @@ Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
         initialMapping = phase3(qmod, phase2Output);
         tPhase3.stop();
 
-        INF << "Phase1 took: " << tPhase1.getMilliseconds() / 1000.0 << std::endl;
-        INF << "Phase2 took: " << tPhase2.getMilliseconds() / 1000.0 << std::endl;
-        INF << "Phase3 took: " << tPhase3.getMilliseconds() / 1000.0 << std::endl;
+        // Stats collection.
+        Phase1Time = (double) tPhase1.getMilliseconds() / 1000.0;
+        Phase2Time = (double) tPhase2.getMilliseconds() / 1000.0;
+        Phase3Time = (double) tPhase3.getMilliseconds() / 1000.0;
+        Partitions = mPP.size();
     }
 
     return initialMapping;
