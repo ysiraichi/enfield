@@ -9,8 +9,12 @@
 namespace efd {
     typedef std::map<std::string, uint32_t> GateWeightMap;
     typedef std::vector<std::string> GateNameVector;
+    typedef std::pair<NDIfStmt::Ref, NDQOp::Ref> StatementPair;
+
     /// \brief Extracts only the gate names to a separate vector.
     GateNameVector ExtractGateNames(const GateWeightMap& map);
+    /// \brief Breakdowns the \p node into \em NDIfStmt and \em NDQOp pair.
+    StatementPair GetStatementPair(const Node::Ref node);
 
     /// \brief If found, inlines the gate that \p qop calls.
     void InlineGate(QModule::Ref qmod, NDQOp::Ref qop);

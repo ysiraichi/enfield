@@ -73,6 +73,7 @@ namespace efd {
         typedef NodeCandidatesGenerator* Ref;
         typedef std::unique_ptr<NodeCandidatesGenerator> uRef;
 
+        virtual ~NodeCandidatesGenerator() = default;
         NodeCandidatesGenerator();
 
         /// \brief Sets the `QModule` to be iterated.
@@ -103,6 +104,7 @@ namespace efd {
     struct CandidateSelector {
         typedef CandidateSelector* Ref;
         typedef std::unique_ptr<CandidateSelector> uRef;
+        virtual ~CandidateSelector() = default;
         /// \brief Selects \em maxCandidates from \em candidates.
         virtual bmt::MCandidateVector select(uint32_t maxCandidates,
                                             const bmt::MCandidateVector& candidates) = 0;
@@ -113,6 +115,7 @@ namespace efd {
         typedef SwapCostEstimator* Ref;
         typedef std::unique_ptr<SwapCostEstimator> uRef;
 
+        virtual ~SwapCostEstimator() = default;
         SwapCostEstimator();
 
         /// \brief Sets the `Graph`.
@@ -134,6 +137,7 @@ namespace efd {
     struct LiveQubitsPreProcessor {
         typedef LiveQubitsPreProcessor* Ref;
         typedef std::unique_ptr<LiveQubitsPreProcessor> uRef;
+        virtual ~LiveQubitsPreProcessor() = default;
         /// \brief Processes `Mapping` \em toM, based on the graph \em g and on the
         /// last `Mapping` \em fromM.
         virtual void process(const Graph::Ref g, Mapping& fromM, Mapping& toM) = 0;
@@ -143,6 +147,7 @@ namespace efd {
     struct MapSeqSelector {
         typedef MapSeqSelector* Ref;
         typedef std::unique_ptr<MapSeqSelector> uRef;
+        virtual ~MapSeqSelector() = default;
         /// \brief Returns a vector with the line indexes chosen to be tracebacked.
         virtual bmt::Vector select(const bmt::TIMatrix& mem) = 0;
     };

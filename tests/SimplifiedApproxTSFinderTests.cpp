@@ -1,13 +1,13 @@
 #include "gtest/gtest.h"
-#include "enfield/Support/ApproxTSFinder.h"
+#include "enfield/Support/SimplifiedApproxTSFinder.h"
 #include "enfield/Support/ExpTSFinder.h"
 #include "enfield/Support/Timer.h"
 
 using namespace efd;
 
 static ExpTSFinder::uRef expFinder;
-static ApproxTSFinder::uRef approxFinder5V;
-static ApproxTSFinder::uRef approxFinder16V;
+static SimplifiedApproxTSFinder::uRef approxFinder5V;
+static SimplifiedApproxTSFinder::uRef approxFinder16V;
 
 static Graph::sRef graph5V;
 static Graph::sRef graph16V;
@@ -54,8 +54,8 @@ struct TestEnvironment : public ::testing::Environment {
         graph16V = JsonParser<efd::Graph>::ParseString(graph16VStr);
 
         expFinder = ExpTSFinder::Create();
-        approxFinder5V = ApproxTSFinder::Create();
-        approxFinder16V = ApproxTSFinder::Create();
+        approxFinder5V = SimplifiedApproxTSFinder::Create();
+        approxFinder16V = SimplifiedApproxTSFinder::Create();
 
         expFinder->setGraph(graph5V.get());
         approxFinder5V->setGraph(graph5V.get());
@@ -66,7 +66,7 @@ struct TestEnvironment : public ::testing::Environment {
 ::testing::Environment* const env =
 ::testing::AddGlobalTestEnvironment(new TestEnvironment());
 
-static void CheckSwapSeq(ApproxTSFinder::Ref approx,
+static void CheckSwapSeq(SimplifiedApproxTSFinder::Ref approx,
                          const InverseMap& from,
                          const InverseMap& to,
                          bool hasUndef) {

@@ -1,7 +1,7 @@
 #include "enfield/Transform/QModuleQualityEvalPass.h"
 #include "enfield/Transform/LayersBuilderPass.h"
-#include "enfield/Transform/QModuleQualityEvalPass.h"
 #include "enfield/Transform/PassCache.h"
+#include "enfield/Transform/Utils.h"
 #include "enfield/Support/CommandLine.h"
 #include "enfield/Support/Defs.h"
 
@@ -17,8 +17,8 @@ bool QModuleQualityEvalPass::run(QModule::Ref qmod) {
     auto &layers = PassCache::Get<LayersBuilderPass>(qmod)->getData();
 
     for (auto it = qmod->stmt_begin(), e = qmod->stmt_end(); it != e; ++it) {
-        auto node = it->get();
-        auto nodeOp = node->getOperation();
+        auto qopNode = GetStatementPair(it->get()).second;
+        auto nodeOp = qopNode->getOperation();
 
         if (gatesQ.find(nodeOp) == gatesQ.end()) {
             gatesQ[nodeOp] = 0;

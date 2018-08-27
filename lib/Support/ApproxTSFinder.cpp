@@ -25,18 +25,6 @@ static uint32_t getUndefVertex(uint32_t start, uint32_t end, std::vector<uint32_
     return efd::_undef;
 }
 
-template <typename T>
-static std::string VecToString(std::vector<T> v) {
-    std::string s = "[";
-    uint32_t sz = v.size();
-    for (uint32_t i = 0; i < sz; ++i) {
-        s += std::to_string(v[i]);
-        if (i != sz - 1) s += "; ";
-    }
-    s += "]";
-    return s;
-}
-
 static void fixUndefAssignments(efd::Graph::Ref graph, 
                                 efd::InverseMap& from, efd::InverseMap& to) {
     uint32_t size = graph->size();
@@ -322,52 +310,59 @@ static std::vector<uint32_t> findCycleDFS(uint32_t src,
     return cycle;
 }
 
-static std::vector<uint32_t>
-findGoodVerticesBFS(efd::Graph::Ref graph, uint32_t src, uint32_t tgt) {
+static std::vector<std::vector<uint32_t>>
+findGoodVerticesBFS(efd::Graph::Ref graph, uint32_t src) {
     uint32_t size = graph->size();
     const uint32_t inf = std::numeric_limits<uint32_t>::max();
     // List of good vertices used to reach the 'i'-th vertex.
     // We say 'u' is a good vertex of 'v' iff the path 'src -> u -> v' results in the
     // smallest path from 'src' to 'v'.
-    std::vector<std::vector<bool>> goodvlist(size, std::vector<bool>(size, false));
+    std::vector<std::vector<uint8_t>> goodvlist(size, std::vector<uint8_t>(size, false));
     // Distance from the source.
     std::vector<uint32_t> d(size, inf);
     std::queue<uint32_t> q;
 
     d[src] = 0;
     q.push(src);
+    // Complexity: O(E(G) * V(G))
     while (!q.empty()) {
         uint32_t u = q.front();
         q.pop();
 
-        // Stop when we get to 'tgt', or we reach the distance of 'tgt'.
-        if (u == tgt || d[u] >= d[tgt]) continue;
-
+        // Complexity: O(Adj(u) * V(G))
         for (auto v : graph->adj(u)) {
-            // If we find a vertex 'v' already visited, but our distance is worse,
-            // then 'u' is not a good vertex of 'v'.
-            if (d[v] != inf && d[v] < d[u] + 1)
-                continue;
             // If it is our first time visiting 'v' or the distance of 'src -> u -> v'
             // is equal the best distance of 'v' ('d[v]'), then 'u' is a good vertex of
             // 'v'.
-            else if (d[v] == inf) {
+            // Complexity: O(1)
+            if (d[v] == inf) {
                 q.push(v);
                 d[v] = d[u] + 1;
             }
 
-            // Every good vertex of 'u' is also a good vertex of 'v'.
-            goodvlist[v] = goodvlist[u];
-            goodvlist[v][v] = true;
-            goodvlist[v][u] = true;
+            if (d[v] == d[u] + 1) {
+                goodvlist[v][v] = true;
+
+                // Every good vertex of 'u' is also a good vertex of 'v'.
+                // So, goodvlist[v] should be the union of goodvlist[v] and goodvlist[u],
+                // since we can have multiple shortest paths reaching 'v'.
+                // Complexity: O(V(G))
+                for (uint32_t i = 0; i < size; ++i) {
+                    goodvlist[v][i] |= goodvlist[u][i];
+                }
+            }
         }
     }
 
-    std::vector<uint32_t> goodv;
+    std::vector<std::vector<uint32_t>> goodv(size, std::vector<uint32_t>());
 
-    for (auto v : graph->adj(src))
-        if (goodvlist[tgt][v])
-            goodv.push_back(v);
+    // Complexity: O(V(G) * V(G))
+    for (uint32_t u = 0; u < size; ++u) {
+        for (auto v : graph->adj(src)) {
+            if (goodvlist[u][v])
+                goodv[u].push_back(v);
+        }
+    }
 
     return goodv;
 }
@@ -396,14 +391,9 @@ efd::SwapSeq efd::ApproxTSFinder::findImpl(const InverseMap& from, const Inverse
         else inplace[i] = false;
 
     // 2. Constructing the graph with the good neighbors.
-    for (uint32_t i = 0; i < size; ++i)
-        if (!inplace[i])
-            // For each vertex 'i' in 'graph', we want to find good vertices
-            // from 'i' to the vertex that should hold the label that is
-            // currently in 'i' ('from[i]').
-            gprime[i] = findGoodVerticesBFS(mG, i, toMap[fromInv[i]]);
-        else
-            gprime[i].clear();
+    for (uint32_t i = 0; i < size; ++i) {
+        gprime[i] = mMatrix[i][toMap[fromInv[i]]];
+    }
     // ---------------------------------------------------------
 
     // Main Loop -----------------------------------------------
@@ -455,8 +445,7 @@ efd::SwapSeq efd::ApproxTSFinder::findImpl(const InverseMap& from, const Inverse
                 if (fromInv[u] == toInv[u]) inplace[u] = true;
                 else inplace[u] = false;
 
-                if (!inplace[u]) gprime[u] = findGoodVerticesBFS(mG, u, toMap[fromInv[u]]);
-                else gprime[u].clear();
+                gprime[u] = mMatrix[u][toMap[fromInv[u]]];
             }
         } else {
             break;
@@ -467,7 +456,11 @@ efd::SwapSeq efd::ApproxTSFinder::findImpl(const InverseMap& from, const Inverse
     return swapseq;
 }
 
-void efd::ApproxTSFinder::preprocess() {}
+void efd::ApproxTSFinder::preprocess() {
+    for (uint32_t u = 0; u < mG->size(); ++u) {
+        mMatrix.push_back(findGoodVerticesBFS(mG, u));
+    }
+}
 
 efd::ApproxTSFinder::uRef efd::ApproxTSFinder::Create() {
     return uRef(new ApproxTSFinder());

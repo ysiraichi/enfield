@@ -10,6 +10,8 @@ namespace efd {
             typedef PathFinder* Ref;
             typedef std::shared_ptr<PathFinder> sRef;
 
+            virtual ~PathFinder() = default;
+
             /// \brief Searches for a path from \p u to \p v in the graph \p g.
             ///
             /// This function is to be implemented by the concrete classes. It should

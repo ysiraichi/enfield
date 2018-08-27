@@ -26,6 +26,8 @@ namespace efd {
             Pass(Kind k);
 
         public:
+            virtual ~Pass() = default;
+
             /// \brief Runs the pass in the given QModule and returns true if it has
             /// modified \p qmod.
             virtual bool run(QModule* qmod) = 0;

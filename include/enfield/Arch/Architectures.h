@@ -15,9 +15,9 @@ namespace efd {
         last
     };
 
-    typedef EnumString<Architecture,
-                       Architecture::first,
-                       Architecture::last> EnumArchitecture;
+    typedef EnumString<Architecture, Architecture::first, Architecture::last>
+            EnumArchitecture;
+    template <> std::vector<std::string> EnumArchitecture::mStrVal;
 
     typedef Registry<ArchGraph::uRef, int, EnumArchitecture> ArchRegistry;
 

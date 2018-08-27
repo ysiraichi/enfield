@@ -13,6 +13,8 @@ namespace efd {
             typedef MappingFinder* Ref;
             typedef std::shared_ptr<MappingFinder> sRef;
 
+            virtual ~MappingFinder() = default;
+
             /// \brief Returns a mapping generated from a set of dependencies.
             virtual Mapping find(ArchGraph::Ref g, DepsVector& deps) = 0;
     };
@@ -33,6 +35,8 @@ namespace efd {
             typedef std::shared_ptr<SolutionBuilder> sRef;
 
         public:
+            virtual ~SolutionBuilder() = default;
+
             SolutionBuilder() {
                 set(SolutionBuilderOptions::ImproveInitial);
                 set(SolutionBuilderOptions::KeepStats);
