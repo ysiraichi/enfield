@@ -16,11 +16,13 @@ static efd::yy::location loc;
 %option yyclass="efd::EfdScanner"
 %option nodefault
 
-id    [a-z][A-Za-z0-9_]*
-real  ([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?
+id      [a-z][A-Za-z0-9_]*
 integer [1-9]+[0-9]*|0
-blank [ \t]
-string \".*\"
+exp     [eE][-+]?[0-9]+
+frac    \.[0-9]*
+real    ({integer}{frac}?|{frac}){exp}?
+blank   [ \t]
+string  \".*\"
 
 %{
 #define YY_USER_ACTION loc.columns(yyleng);
@@ -78,9 +80,9 @@ string \".*\"
 ","         { return efd::yy::EfdParser::make_COMMA(loc); }
 ";"         { return efd::yy::EfdParser::make_SEMICOL(loc); }
 
-{real}      { return efd::yy::EfdParser::make_REAL(std::string(yytext), loc); }
-
 {integer}   { return efd::yy::EfdParser::make_INT(std::string(yytext), loc); }
+
+{real}      { return efd::yy::EfdParser::make_REAL(std::string(yytext), loc); }
 
 {string}    { return efd::yy::EfdParser::make_STRING(std::string(yytext), loc); }
 
