@@ -464,7 +464,7 @@ BoundedMappingTreeQAllocator::phase2(const MCandidateVCollection& collection) {
                 // uint32_t mappingCost = mem[i - 1][k].mappingCost;
                 // Should be this one.
                 uint32_t mappingCost = mem[i - 1][k].mappingCost + collection[i][j].cost;
-                uint32_t swapEstimatedCost = mCostEstimator->estimate(lastMapping, mapping) +
+                uint32_t swapEstimatedCost = mCostEstimator->estimate(lastMapping, mapping) * 30 +
                     mem[i - 1][k].swapEstimatedCost;
 
                 if (mappingCost + swapEstimatedCost < best.mappingCost + best.swapEstimatedCost) {
