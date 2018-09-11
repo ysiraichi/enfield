@@ -34,9 +34,9 @@ static Stat<double> Phase3Time
 static Stat<uint32_t> Partitions
 ("BMTPartitions", "Number of partitions split by *BMT allocators.");
 
-bool efd::bmt::operator<(const NodeCandidate& lhs, const NodeCandidate& rhs) {
-    if (lhs.mWeight != rhs.mWeight) return lhs.mWeight < rhs.mWeight;
-    return lhs.mNode < rhs.mNode;
+bool efd::bmt::operator>(const NodeCandidate& lhs, const NodeCandidate& rhs) {
+    if (lhs.mWeight != rhs.mWeight) return lhs.mWeight > rhs.mWeight;
+    return lhs.mNode > rhs.mNode;
 }
 
 // --------------------- NodeCandidatesGenerator ------------------------
@@ -244,11 +244,11 @@ BoundedMappingTreeQAllocator::extendCandidates(Dep& dep,
     return mPartialSolutionCSelector->select(mMaxPartial, newCandidates);
 }
 
-std::priority_queue<NodeCandidate>
+NCPQueue
 BoundedMappingTreeQAllocator::rankCandidates(const std::vector<Node::Ref>& nodeCandidates,
                                              const std::vector<bool>& mapped,
                                              const std::vector<std::set<uint32_t>>& neighbors) {
-    std::priority_queue<NodeCandidate> queue;
+    NCPQueue queue;
 
     for (auto node : nodeCandidates) {
         NodeCandidate nCand;
