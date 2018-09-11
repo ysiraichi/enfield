@@ -22,12 +22,10 @@ namespace efd {
         last
     };
 
-    typedef EnumString<Allocator, Allocator::first, Allocator::last>
-            EnumAllocator;
+    typedef EnumString<Allocator, Allocator::first, Allocator::last, 1> EnumAllocator;
     template <> std::vector<std::string> EnumAllocator::mStrVal;
 
-    typedef Registry<QbitAllocator::uRef, ArchGraph::sRef, EnumAllocator>
-            AllocatorRegistry;
+    typedef Registry<QbitAllocator::uRef, ArchGraph::sRef, EnumAllocator> AllocatorRegistry;
 
     void InitializeAllQbitAllocators();
     /// \brief Returns true if there is an allocator mapped by \p key;
