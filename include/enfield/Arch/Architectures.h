@@ -4,6 +4,7 @@
 #include "enfield/Arch/ArchGraph.h"
 #include "enfield/Support/Registry.h"
 #include "enfield/Support/EnumString.h"
+#include "enfield/Support/PossibleValuesListTrait.h"
 
 namespace efd {
     enum class Architecture {
@@ -15,8 +16,7 @@ namespace efd {
         last
     };
 
-    typedef EnumString<Architecture, Architecture::first, Architecture::last>
-            EnumArchitecture;
+    typedef EnumString<Architecture, Architecture::first, Architecture::last, 1> EnumArchitecture;
     template <> std::vector<std::string> EnumArchitecture::mStrVal;
 
     typedef Registry<ArchGraph::uRef, int, EnumArchitecture> ArchRegistry;

@@ -49,9 +49,6 @@ namespace efd {
             /// \brief Returns the std::string id of the vertex whose uid is \p i.
             std::string getSId(uint32_t i);
 
-            /// \brief Returns true if the edge (i, j) is a reverse edge.
-            /// i.e.: if (i, j) is not in the graph, but (j, i) is.
-            bool isReverseEdge(uint32_t i, uint32_t j); 
             /// \brief Returns true if this is a generic architechture graph,
             /// i.e.: it was not created by any of the architechtures compiled within
             /// the program.

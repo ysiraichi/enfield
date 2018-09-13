@@ -6,13 +6,13 @@
 namespace efd {
     typedef std::shared_ptr<ArchRegistry> ArchRegistryPtr;
 
-    template <> std::vector<std::string> efd::EnumArchitecture::mStrVal {
-        "None",
+    template <> std::vector<std::string> efd::EnumArchitecture::Self::mStrVal {
+        "first",
 #define EFD_ARCH(_Name_, _Json_) \
         "A_"#_Name_,
 #include "enfield/Arch/Architectures.def"
 #undef EFD_ARCH
-        "None"
+        "last"
     };
 
 // Creating functions for each architecture, so that it

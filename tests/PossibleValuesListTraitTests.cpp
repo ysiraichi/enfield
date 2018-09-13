@@ -16,5 +16,5 @@ template<> std::vector<std::string> EEnum::mStrVal {
 
 TEST(PossibleValuesListTraitTests, OnlyTest) {
     // This one test just checks if everything works as expected.
-    EXPECT_EQ(PossibleValuesListTrait<EEnum>::Get(), EEnum::List());
+    EXPECT_EQ(PossibleValuesListTrait<EEnum>::Get(), EEnum::StringList());
 }

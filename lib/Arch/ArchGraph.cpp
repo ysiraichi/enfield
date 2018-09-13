@@ -88,12 +88,6 @@ std::string ArchGraph::getSId(uint32_t i) {
     return mId[i];
 }
 
-bool ArchGraph::isReverseEdge(uint32_t i, uint32_t j) {
-    auto& succ = mSuccessors[i];
-    auto& pred = mPredecessors[i];
-    return succ.find(j) == succ.end() && pred.find(j) != pred.end();
-}
-
 bool ArchGraph::isGeneric() {
     return mGeneric;
 }
@@ -196,7 +190,9 @@ std::unique_ptr<ArchGraph> JsonBackendParser<ArchGraph>::Parse(const Json::Value
                                    JsonFields<ArchGraph>::_WeightLabel_,
                                    { Ty::intValue, Ty::uintValue, Ty::realValue });
                 auto w = jElem[JsonFields<ArchGraph>::_WeightLabel_].asDouble();
-                graph->setW(i, v, w);
+                // In the Json, the standard is to have the probability of error.
+                // What we want is the probability of succes.
+                graph->setW(i, v, 1 - w);
             }
         }
     }

@@ -66,7 +66,7 @@ efd::StdSolution efd::PathGuidedSolBuilder::build(Mapping initial,
             for (auto i = path.size() - 2; i >= 1; --i) {
                 uint32_t u = path[i], v = path[i+1];
 
-                if (g->isReverseEdge(u, v))
+                if (!g->hasEdge(u, v))
                     std::swap(u, v);
     
                 uint32_t a = inv[u], b = inv[v];

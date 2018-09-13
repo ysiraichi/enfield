@@ -100,10 +100,9 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
             // We don't use this configuration if (u, v) is neither a norma edge
             // nor a reverse edge of the physical graph nor is at a 2-edge distance
             // (u -> w -> v).
-            bool hasEdge = mArchGraph->hasEdge(u, v);
-            bool isReverse = mArchGraph->isReverseEdge(u, v);
+            bool hasEdge = mArchGraph->hasEdge(u, v) || mArchGraph->hasEdge(v, u);
             auto uvPath = finder->find(mArchGraph.get(), u, v);
-            if (!hasEdge && !isReverse && uvPath.size() != 3)
+            if (!hasEdge && uvPath.size() != 3)
                 continue;
 
             Val minimum { tgt, nullptr, UNREACH };
@@ -125,7 +124,7 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
                     }
                 }
 
-                if (!hasEdge && !isReverse) {
+                if (!hasEdge) {
                     finalCost += getBridgeCost(u, uvPath[1], v);
                 } else {
                     finalCost += getCXCost(u, v);
@@ -183,7 +182,7 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
                 for (auto swp : swaps) {
                     uint32_t u = swp.u, v = swp.v;
 
-                    if (mArchGraph->isReverseEdge(u, v))
+                    if (!mArchGraph->hasEdge(u, v))
                         std::swap(u, v);
 
                     ops.second.push_back({ Operation::K_OP_SWAP, srcInverseMap[u], srcInverseMap[v] });
@@ -200,7 +199,7 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
 
             if (mArchGraph->hasEdge(u, v))
                 operation = { Operation::K_OP_CNOT, a, b };
-            else if (mArchGraph->isReverseEdge(u, v))
+            else if (mArchGraph->hasEdge(v, u))
                 operation = { Operation::K_OP_REV, a, b };
             else {
                 auto path = finder->find(mArchGraph.get(), u, v);
