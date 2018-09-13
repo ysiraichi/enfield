@@ -158,7 +158,7 @@ Vector BestNMSSelector::select(const TIMatrix& mem) {
     uint32_t lastLayer = mem.size() - 1;
     std::priority_queue<UIntPair,
                         std::vector<UIntPair>,
-                        std::less<UIntPair>> pQueue;
+                        std::greater<UIntPair>> pQueue;
 
     for (uint32_t i = 0, e = mem[lastLayer].size(); i < e; ++i) {
         const auto &info = mem[lastLayer][i];

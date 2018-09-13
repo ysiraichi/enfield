@@ -16,11 +16,15 @@ namespace efd {
             Dependencies mDeps;
         };
 
+        typedef std::priority_queue<NodeCandidate,
+                                    std::vector<NodeCandidate>,
+                                    std::greater<NodeCandidate>> NCPQueue;
+
         /// \brief `LessThan` operator that orders `NodeCandidate`s.
         ///
         /// It compares the weights and the `Node` pointer only, since the
         /// `mDeps` depends on it.
-        bool operator<(const NodeCandidate& lhs, const NodeCandidate& rhs);
+        bool operator>(const NodeCandidate& lhs, const NodeCandidate& rhs);
 
         /// \brief Composition of each candidate in phase 1.
         struct MappingCandidate {
@@ -188,16 +192,14 @@ namespace efd {
             bmt::MappingSwapSequence phase2(const bmt::MCandidateVCollection& collection);
             Mapping phase3(QModule::Ref qmod, const bmt::MappingSwapSequence& mss);
 
-            bmt::MCandidateVector
-                extendCandidates(Dep& dep,
-                                 const std::vector<bool>& mapped,
-                                 const bmt::MCandidateVector& candidates,
-                                 bool ignoreChildrenLimit);
+            bmt::MCandidateVector extendCandidates(Dep& dep,
+                                                   const std::vector<bool>& mapped,
+                                                   const bmt::MCandidateVector& candidates,
+                                                   bool ignoreChildrenLimit);
 
-            std::priority_queue<bmt::NodeCandidate>
-                rankCandidates(const std::vector<Node::Ref>& nodeCandidates,
-                               const std::vector<bool>& mapped,
-                               const std::vector<std::set<uint32_t>>& neighbors);
+            bmt::NCPQueue rankCandidates(const std::vector<Node::Ref>& nodeCandidates,
+                                         const std::vector<bool>& mapped,
+                                         const std::vector<std::set<uint32_t>>& neighbors);
 
             bmt::MappingSeq tracebackPath(const bmt::TIMatrix& mem, uint32_t idx);
             SwapSeq getTransformingSwapsFor(const Mapping& fromM, Mapping toM);
