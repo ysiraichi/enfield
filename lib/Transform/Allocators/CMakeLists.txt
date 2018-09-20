@@ -9,4 +9,5 @@ add_library (EfdAllocator
     SimpleQAllocator.cpp
     GreedyCktQAllocator.cpp
     IBMQAllocator.cpp
-    BoundedMappingTreeQAllocator.cpp)
+    BoundedMappingTreeQAllocator.cpp
+    SabreQAllocator.cpp)
