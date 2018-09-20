@@ -1,5 +1,6 @@
 add_library (EfdSupport
     ApproxTSFinder.cpp
+    BFSCachedDistance.cpp
     BFSPathFinder.cpp
     CommandLine.cpp
     Defs.cpp
