@@ -58,9 +58,9 @@ Should be specified as <gate>:<w> between quotes.",
 {{"U", 1}, {"CX", 10}}, false);
 
 static Opt<std::string> InFilepath
-("i", "The input file.", "/dev/stdin", true);
+("i", "The input file.", "", true);
 static Opt<std::string> OutFilepath
-("o", "The output file.", "/dev/stdout", false);
+("o", "The output file.", "", false);
 static Opt<std::string> ArchFilepath
 ("arch-file", "An input file for using a custom architecture.", "", false);
 
@@ -96,9 +96,10 @@ static efd::Stat<uint32_t> WeightedCost
 ("WeightedCost", "Total weighted cost after allocating the qubits.");
 
 static void DumpToOutFile(QModule::Ref qmod) {
-    std::ofstream O(OutFilepath.getVal());
-    PrintToStream(qmod, O, !NoPretty.getVal());
-    O.close();
+    std::ofstream cmdOut(OutFilepath.getVal());
+    std::ostream& out = (OutFilepath.getVal() != "") ? cmdOut : std::cout;
+    PrintToStream(qmod, out, !NoPretty.getVal());
+    cmdOut.close();
 }
 
 static void ComputeStats(QModule::Ref qmod, ArchGraph::sRef archGraph) {
@@ -117,10 +118,7 @@ static void ComputeStats(QModule::Ref qmod, ArchGraph::sRef archGraph) {
 }
 
 int main(int argc, char** argv) {
-    InitializeAllQbitAllocators();
-    InitializeAllArchitectures();
-
-    ParseArguments(argc, argv);
+    Init(argc, argv);
     QModule::uRef qmod = ParseFile(InFilepath.getVal());
 
     if (qmod.get() != nullptr) {
