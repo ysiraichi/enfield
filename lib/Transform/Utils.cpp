@@ -370,19 +370,17 @@ void efd::ProcessAST(QModule::Ref qmod, Node::Ref root) {
 }
 
 // ==--------------- Inlining ---------------==
-static void QArgsReplaceVisitorVisit(NodeVisitor* visitor, NDQOp::Ref ref);
-
-typedef std::unordered_map<std::string, Node::Ref> VarMap;
-
 namespace efd {
-    class QArgsReplaceVisitor : public NodeVisitor {
+    class GateInlineVisitor : public NodeVisitor {
+        private:
+            const InlineArgMap& mArgMap;
+
         public:
-            VarMap& varMap;
+            GateInlineVisitor(const InlineArgMap& argMap) : mArgMap(argMap) {}
 
-            QArgsReplaceVisitor(VarMap& varMap) : varMap(varMap) {}
-
-            void substituteChildrem(Node::Ref ref);
             Node::uRef replaceChild(Node::Ref ref);
+            void substituteChildrem(Node::Ref ref);
+            void visitAllQOp(NDQOp::Ref ref);
 
             void visit(NDQOpU::Ref ref) override;
             void visit(NDQOpCX::Ref ref) override;
@@ -395,17 +393,17 @@ namespace efd {
     };
 }
 
-Node::uRef efd::QArgsReplaceVisitor::replaceChild(Node::Ref child) {
-    std::string _id = child->toString();
+Node::uRef efd::GateInlineVisitor::replaceChild(Node::Ref child) {
+    auto id = child->toString();
 
-    if (varMap.find(_id) != varMap.end()) {
-        return varMap[_id]->clone();
+    if (mArgMap.find(id) != mArgMap.end()) {
+        return mArgMap.at(id)->clone();
     }
 
     return Node::uRef(nullptr);
 }
 
-void efd::QArgsReplaceVisitor::substituteChildrem(Node::Ref ref) {
+void efd::GateInlineVisitor::substituteChildrem(Node::Ref ref) {
     for (uint32_t i = 0, e = ref->getChildNumber(); i < e; ++i) {
         auto newChild = replaceChild(ref->getChild(i));
         if (newChild.get() != nullptr) {
@@ -414,41 +412,80 @@ void efd::QArgsReplaceVisitor::substituteChildrem(Node::Ref ref) {
     }
 }
 
-void efd::QArgsReplaceVisitor::visit(NDList::Ref ref) {
+void efd::GateInlineVisitor::visitAllQOp(NDQOp::Ref ref) {
+    ref->getArgs()->apply(this);
+    ref->getQArgs()->apply(this);
+}
+
+void efd::GateInlineVisitor::visit(NDList::Ref ref) {
     visitChildren(ref);
     substituteChildrem(ref);
 }
 
-void efd::QArgsReplaceVisitor::visit(NDQOpU::Ref ref) {
-    QArgsReplaceVisitorVisit(this, (NDQOp::Ref) ref);
+void efd::GateInlineVisitor::visit(NDQOpU::Ref ref) {
+    visitAllQOp((NDQOp::Ref) ref);
 }
 
-void efd::QArgsReplaceVisitor::visit(NDQOpCX::Ref ref) {
-    QArgsReplaceVisitorVisit(this, (NDQOp::Ref) ref);
+void efd::GateInlineVisitor::visit(NDQOpCX::Ref ref) {
+    visitAllQOp((NDQOp::Ref) ref);
 }
 
-void efd::QArgsReplaceVisitor::visit(NDQOpBarrier::Ref ref) {
-    QArgsReplaceVisitorVisit(this, (NDQOp::Ref) ref);
+void efd::GateInlineVisitor::visit(NDQOpBarrier::Ref ref) {
+    visitAllQOp((NDQOp::Ref) ref);
 }
 
-void efd::QArgsReplaceVisitor::visit(NDQOpGen::Ref ref) {
-    QArgsReplaceVisitorVisit(this, (NDQOp::Ref) ref);
+void efd::GateInlineVisitor::visit(NDQOpGen::Ref ref) {
+    visitAllQOp((NDQOp::Ref) ref);
 }
 
-void efd::QArgsReplaceVisitor::visit(NDBinOp::Ref ref) {
+void efd::GateInlineVisitor::visit(NDBinOp::Ref ref) {
     ref->getLhs()->apply(this);
     ref->getRhs()->apply(this);
     substituteChildrem(ref);
 }
 
-void efd::QArgsReplaceVisitor::visit(NDUnaryOp::Ref ref) {
+void efd::GateInlineVisitor::visit(NDUnaryOp::Ref ref) {
     visitChildren(ref);
     substituteChildrem(ref);
 }
 
-void efd::QArgsReplaceVisitor::visit(NDIfStmt::Ref ref) {
+void efd::GateInlineVisitor::visit(NDIfStmt::Ref ref) {
     // We only need to visit the qop.
     ref->getQOp()->apply(this);
+}
+
+InlineArgMap efd::CreateInlineArgMap(NDGateDecl::Ref gateDecl, NDQOp::Ref call) {
+    InlineArgMap argMap;
+
+    Node::Ref gateQArgs = gateDecl->getQArgs();
+    Node::Ref callQArgs = call->getQArgs();
+    for (uint32_t i = 0, e = gateQArgs->getChildNumber(); i < e; ++i)
+        argMap[gateQArgs->getChild(i)->toString()] = callQArgs->getChild(i);
+    
+    Node::Ref gateArgs = gateDecl->getArgs();
+    Node::Ref callArgs = call->getArgs();
+    for (uint32_t i = 0, e = gateArgs->getChildNumber(); i < e; ++i)
+        argMap[gateArgs->getChild(i)->toString()] = callArgs->getChild(i);
+
+    return argMap;
+}
+
+void efd::ReplaceInlineArgMap(const InlineArgMap& argMap,
+                              std::vector<Node::uRef>& inlinedInstructions,
+                              NDIfStmt::Ref ifstmt) {
+    GateInlineVisitor visitor(argMap);
+
+    for (auto& qop : inlinedInstructions) {
+        // If its parent is an NDIfStmt, we wrap the the operation into
+        // a clone of the if.
+        if (ifstmt != nullptr) {
+            auto ifclone = uniqueCastForward<NDIfStmt>(ifstmt->clone());
+            ifclone->setQOp(uniqueCastForward<NDQOp>(std::move(qop)));
+            qop.reset(ifclone.release());
+        }
+
+        qop->apply(&visitor);
+    }
 }
 
 void efd::InlineGate(QModule::Ref qmod, NDQOp::Ref qop) {
@@ -466,49 +503,16 @@ void efd::InlineGate(QModule::Ref qmod, NDQOp::Ref qop) {
         EFD_ABORT();
     }
 
-    VarMap varMap;
-
-    Node::Ref gateQArgs = gateDecl->getQArgs();
-    Node::Ref qopQArgs = qop->getQArgs();
-    for (uint32_t i = 0, e = gateQArgs->getChildNumber(); i < e; ++i)
-        varMap[gateQArgs->getChild(i)->toString()] = qopQArgs->getChild(i);
-    
-    Node::Ref gateArgs = gateDecl->getArgs();
-    Node::Ref qopArgs = qop->getArgs();
-    for (uint32_t i = 0, e = gateArgs->getChildNumber(); i < e; ++i)
-        varMap[gateArgs->getChild(i)->toString()] = qopArgs->getChild(i);
-
-    // ------ Replacing
-    QArgsReplaceVisitor visitor(varMap);
-    auto gop = uniqueCastForward<NDGOpList>(gateDecl->getGOpList()->clone());
-
-    // 'stmt' is the node we are going to replace.
-    Node::Ref stmt = nullptr;
-    auto ifstmt = dynCast<NDIfStmt>(qop->getParent());
-    if (ifstmt != nullptr) stmt = ifstmt;
-    else stmt = qop;
-
     // Replace the arguments.
-    std::vector<Node::uRef> inlinedNodes;
-    for (auto& op : *gop) {
-        auto qop = std::move(op);
-        // If its parent is an NDIfStmt, we wrap the the operation into
-        // a clone of the if.
-        if (ifstmt != nullptr) {
-            auto ifclone = uniqueCastForward<NDIfStmt>(ifstmt->clone());
-            ifclone->setQOp(uniqueCastForward<NDQOp>(std::move(qop)));
-            qop.reset(ifclone.release());
-        }
+    std::vector<Node::uRef> inlinedInstructions;
+    auto argMap = CreateInlineArgMap(gateDecl, qop);
+    auto ifstmt = dynCast<NDIfStmt>(qop->getParent());
 
-        // The 'visitor' is applied only in the 'qop'.
-        qop->apply(&visitor);
-        inlinedNodes.push_back(std::move(qop));
+    for (auto& innerOp : *(gateDecl->getGOpList())) {
+        inlinedInstructions.push_back(innerOp->clone());
     }
 
-    qmod->replaceStatement(stmt, std::move(inlinedNodes));
-}
-
-static void QArgsReplaceVisitorVisit(NodeVisitor* visitor, NDQOp::Ref ref) {
-    ref->getArgs()->apply(visitor);
-    ref->getQArgs()->apply(visitor);
+    auto stmt = (ifstmt == nullptr) ? (Node::Ref) qop : (Node::Ref) ifstmt;
+    ReplaceInlineArgMap(argMap, inlinedInstructions, ifstmt);
+    qmod->replaceStatement(stmt, std::move(inlinedInstructions));
 }

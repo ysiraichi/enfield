@@ -7,15 +7,26 @@
 #include <map>
 
 namespace efd {
-    typedef std::map<std::string, uint32_t> GateWeightMap;
-    typedef std::vector<std::string> GateNameVector;
-    typedef std::pair<NDIfStmt::Ref, NDQOp::Ref> StatementPair;
+    using GateWeightMap = std::map<std::string, uint32_t>;
+    using GateNameVector = std::vector<std::string>;
+    using StatementPair = std::pair<NDIfStmt::Ref, NDQOp::Ref>;
+    using InlineArgMap = std::unordered_map<std::string, Node::Ref>;
 
     /// \brief Extracts only the gate names to a separate vector.
     GateNameVector ExtractGateNames(const GateWeightMap& map);
     /// \brief Breakdowns the \p node into \em NDIfStmt and \em NDQOp pair.
     StatementPair GetStatementPair(const Node::Ref node);
 
+    /// \brief Create an \em InlineArgMap for \p call and \p gateDecl.
+    ///
+    /// Creates a mapping from the qubits used in \p gateDecl to the qubits used
+    /// in \p call. It prepares for inlining.
+    InlineArgMap CreateInlineArgMap(NDGateDecl::Ref gateDecl, NDQOp::Ref call);
+    /// \brief Replace the qubits used in \p inlinedInstructions according to
+    /// the mapping \p argMap.
+    void ReplaceInlineArgMap(const InlineArgMap& argMap,
+                             std::vector<Node::uRef>& inlinedInstructions,
+                             NDIfStmt::Ref ifstmt = nullptr);
     /// \brief If found, inlines the gate that \p qop calls.
     void InlineGate(QModule::Ref qmod, NDQOp::Ref qop);
     /// \brief Processes the \p root node, and transform the entire AST into
