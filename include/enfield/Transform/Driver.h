@@ -31,6 +31,15 @@ namespace efd {
 
     /// \brief Print the dependency graph of the \p qmod in \p o.
     void PrintDependencyGraph(QModule::Ref qmod, std::ostream& o = std::cout);
+
+    /// \brief Initializes Enfield.
+    ///
+    /// This registers all architectures and allocators, as well as initializes the
+    /// log files. If you call this function, there is no need for calling:
+    ///     - ParseArguments;
+    ///     - InitializeAllArchitectures; and
+    ///     - InitializeAllQbitAllocators.
+    void Init(int argc, char** argv);
 }
 
 #endif

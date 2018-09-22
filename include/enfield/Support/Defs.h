@@ -23,14 +23,17 @@ namespace efd {
     typedef std::vector<Swap> SwapSeq;
 
     /// \brief Returns a stream object for logging errors.
-    std::ostream& ErrorLog(std::string file = "", uint32_t line = 0);
+    std::ostream& ErrorLog(const std::string& file = "", const uint32_t& line = 0);
     /// \brief Returns a stream object for logging warnings.
-    std::ostream& WarningLog(std::string file = "", uint32_t line = 0);
+    std::ostream& WarningLog(const std::string& file = "", const uint32_t& line = 0);
     /// \brief Returns a stream object for logging information.
-    std::ostream& InfoLog(std::string file = "", uint32_t line = 0);
+    std::ostream& InfoLog(const std::string& file = "", const uint32_t& line = 0);
+
+    /// \brief Initialize the log files.
+    void InitializeLogs();
 
     /// \brief Aborts reporting the file and the line.
-    void Abort [[noreturn]] (std::string file = "", uint32_t line = 0);
+    void Abort [[noreturn]] (const std::string& file = "", const uint32_t& line = 0);
 }
 
 #ifndef EFD_MESSAGE_LOG

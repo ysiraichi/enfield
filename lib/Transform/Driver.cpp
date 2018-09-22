@@ -122,3 +122,10 @@ void efd::PrintDependencyGraph(QModule::Ref qmod, std::ostream& o) {
     StatDepGraphDensity = ((double) StatNofEdges.getVal()) /
         ((double) StatNofVertices.getVal() * StatNofVertices.getVal());
 }
+
+void efd::Init(int argc, char** argv) {
+    InitializeAllQbitAllocators();
+    InitializeAllArchitectures();
+    ParseArguments(argc, argv);
+    InitializeLogs();
+}
