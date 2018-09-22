@@ -80,6 +80,7 @@ namespace efd {
             Iterator insertStatementFront(Node::uRef ref);
             /// \brief Inserts \p ref at the back, and returns a iterator to this node.
             Iterator insertStatementLast(Node::uRef ref);
+            Iterator insertStatementLast(std::vector<Node::uRef> stmts);
 
             /// \brief Replaces the \p stmt by the vector \p stmts.
             Iterator replaceStatement(Node::Ref stmt, std::vector<Node::uRef> stmts);
