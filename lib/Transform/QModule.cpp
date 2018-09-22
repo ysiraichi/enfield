@@ -105,8 +105,15 @@ efd::QModule::Iterator efd::QModule::insertStatementFront(Node::uRef ref) {
 }
 
 efd::QModule::Iterator efd::QModule::insertStatementLast(Node::uRef ref) {
+    auto oldChildNumber = mStatements->getChildNumber();
     mStatements->addChild(std::move(ref));
-    return mStatements->begin() + (mStatements->getChildNumber() - 1);
+    return mStatements->begin() + oldChildNumber;
+}
+
+efd::QModule::Iterator efd::QModule::insertStatementLast(std::vector<Node::uRef> stmts) {
+    auto oldChildNumber = mStatements->getChildNumber();
+    mStatements->addChildren(std::move(stmts));
+    return mStatements->begin() + oldChildNumber;
 }
 
 efd::QModule::Iterator efd::QModule::replaceStatement
