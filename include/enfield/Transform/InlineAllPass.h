@@ -19,6 +19,8 @@ namespace efd {
             std::unordered_map<std::string, NDGateDecl::Ref> mGateDeclarations;
             std::unordered_map<std::string, std::vector<Node::uRef>> mGateInlinedInstructions;
 
+            void appendInlinedInstructionsOfNode(Node::Ref node,
+                                                 std::vector<Node::uRef>& inlined);
             std::vector<Node::uRef> getInlinedInstructionForGate(const std::string& gateName);
             
         public:
