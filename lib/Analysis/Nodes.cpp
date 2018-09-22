@@ -364,6 +364,7 @@ efd::Node::Iterator efd::NDList::addChild(Iterator it, Node::uRef child) {
 }
 
 efd::Node::Iterator efd::NDList::addChildren(std::vector<Node::uRef> children) {
+    mChild.reserve(mChild.size() + children.size());
     auto it = addChildren(mChild.end(), std::move(children));
     return it;
 }
