@@ -292,9 +292,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
     }
 
     qmod->clearStatements();
-    for (auto& node : allocatedStatements) {
-        qmod->insertStatementLast(std::move(node));
-    }
+    qmod->insertStatementLast(std::move(allocatedStatements));
 
     return sol;
 }

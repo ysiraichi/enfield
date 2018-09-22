@@ -591,9 +591,7 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
     }
 
     qmod->clearStatements();
-    for (auto& instr : issuedInstructions) {
-        qmod->insertStatementLast(std::move(instr));
-    }
+    qmod->insertStatementLast(std::move(issuedInstructions));
 
     return initial;
 }

@@ -327,9 +327,7 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
     }
 
     qmod->clearStatements();
-    for (auto& node : newStatements) {
-        qmod->insertStatementLast(std::move(node));
-    }
+    qmod->insertStatementLast(std::move(newStatements));
 
     return sol;
 }
