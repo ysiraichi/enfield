@@ -122,6 +122,9 @@ efd_test (DynprogQAllocatorTests
 efd_test (IBMQAllocatorTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
+efd_test (SabreQAllocatorTests
+    EfdAllocator EfdSimpleImpl EfdTransform EfdArch EfdAnalysis EfdSupport)
+
 efd_test (BoundedMappingTreeQAllocatorTests
     EfdAllocator EfdBMTImpl EfdTransform EfdArch EfdAnalysis EfdSupport)
 
