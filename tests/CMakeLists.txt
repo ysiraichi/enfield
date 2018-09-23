@@ -112,6 +112,9 @@ efd_test (CircuitGraphTests
 efd_test (QModuleQualityEvalPassTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
+efd_test (QubitRemapPassTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
 # ==-------- Allocator ----------==
 efd_test (DynprogQAllocatorTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)

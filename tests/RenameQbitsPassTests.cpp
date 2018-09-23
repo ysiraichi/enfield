@@ -13,11 +13,13 @@ TEST(RenameQbitPassTests, PlainTest) {
     {
         const std::string program =
 "\
+include \"qelib1.inc\";\
 qreg q[5];\
 CX q[0], q[1];\
 ";
         const std::string result =
 "\
+include \"qelib1.inc\";\
 qreg q[5];\
 CX q[1], q[0];\
 ";
@@ -30,11 +32,13 @@ CX q[1], q[0];\
 
         RenameQbitPass::uRef pass = RenameQbitPass::Create(aMap);
         pass->run(qmod.get());
+        ASSERT_EQ(result, qmod->toString(false));
     }
 
     {
         const std::string program =
 "\
+include \"qelib1.inc\";\
 qreg q[5];\
 CX q[0], q[1];\
 CX q[1], q[2];\
@@ -44,6 +48,7 @@ CX q[4], q[0];\
 ";
         const std::string result =
 "\
+include \"qelib1.inc\";\
 qreg q[5];\
 CX q[4], q[3];\
 CX q[3], q[2];\
@@ -63,5 +68,6 @@ CX q[0], q[4];\
 
         RenameQbitPass::uRef pass = RenameQbitPass::Create(aMap);
         pass->run(qmod.get());
+        ASSERT_EQ(result, qmod->toString(false));
     }
 }
