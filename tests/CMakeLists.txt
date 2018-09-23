@@ -22,6 +22,9 @@ efd_test (SIFinderTests
 efd_test (BFSPathFinderTests
     EfdSupport)
 
+efd_test (BFSCachedDistanceTests
+    EfdSupport)
+
 efd_test (ApproxTSFinderTests
     EfdSupport)
 
