@@ -4,6 +4,7 @@
 #include "enfield/Transform/Allocators/IBMQAllocator.h"
 #include "enfield/Transform/Allocators/SimpleQAllocator.h"
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
+#include "enfield/Transform/Allocators/SabreQAllocator.h"
 
 #include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
 #include "enfield/Transform/Allocators/BMT/ImprovedBMTQAllocatorImpl.h"

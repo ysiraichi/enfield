@@ -22,6 +22,9 @@ efd_test (SIFinderTests
 efd_test (BFSPathFinderTests
     EfdSupport)
 
+efd_test (BFSCachedDistanceTests
+    EfdSupport)
+
 efd_test (ApproxTSFinderTests
     EfdSupport)
 
@@ -109,12 +112,18 @@ efd_test (CircuitGraphTests
 efd_test (QModuleQualityEvalPassTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
+efd_test (QubitRemapPassTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
 # ==-------- Allocator ----------==
 efd_test (DynprogQAllocatorTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 efd_test (IBMQAllocatorTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
+efd_test (SabreQAllocatorTests
+    EfdAllocator EfdSimpleImpl EfdTransform EfdArch EfdAnalysis EfdSupport)
 
 efd_test (BoundedMappingTreeQAllocatorTests
     EfdAllocator EfdBMTImpl EfdTransform EfdArch EfdAnalysis EfdSupport)
