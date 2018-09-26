@@ -2,6 +2,7 @@ EFD_ALLOCATOR(dynprog, DynprogQAllocator)
 EFD_ALLOCATOR(grdy, GreedyCktQAllocator)
 EFD_ALLOCATOR(ibm, IBMQAllocator)
 EFD_ALLOCATOR(sabre, SabreQAllocator)
+EFD_ALLOCATOR(jku, JKUQAllocator)
 EFD_ALLOCATOR_BMT(bmt, SeqNCandidatesGenerator,
                        FirstCandidateSelector,
                        FirstCandidateSelector,
