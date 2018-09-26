@@ -143,7 +143,8 @@ SabreQAllocator::allocateWithInitialMapping(const Mapping& initialMapping,
         for (uint32_t i = offset, maxI = offset + mLookAhead; i < stmtNumber && i < maxI; ++i) {
             auto node = qmod->getStatement(i);
             if (pastLookAhead.find(node) == pastLookAhead.end()) {
-                nextLayer.push_back(depBuilder.getDeps(node)[0]);
+                auto deps = depBuilder.getDeps(node);
+                if (!deps.empty()) nextLayer.push_back(deps[0]);
             }
         }
 
