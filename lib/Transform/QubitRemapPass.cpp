@@ -7,17 +7,31 @@ using namespace efd;
 QubitRemapVisitor::QubitRemapVisitor(const Mapping& m, const XbitToNumber& xtoN)
     : mMap(m), mXtoN(xtoN) {}
 
+bool QubitRemapVisitor::wasReplaced() {
+    return mWasReplaced;
+}
+
 void QubitRemapVisitor::visitNDQOp(NDQOp::Ref qop) {
+    mWasReplaced = true;
     auto qargs = qop->getQArgs();
     NDList::uRef newQArgs = NDList::Create();
 
     for (auto& qarg : *qargs) {
         uint32_t pseudoQUId = mXtoN.getQUId(qarg->toString(false));
         uint32_t physicalQUId = mMap[pseudoQUId];
-        newQArgs->addChild(mXtoN.getQNode(physicalQUId)->clone());
+
+        if (physicalQUId != _undef) {
+            newQArgs->addChild(mXtoN.getQNode(physicalQUId)->clone());
+        } else {
+            newQArgs->addChild(qarg->clone());
+            mWasReplaced = false;
+            break;
+        }
     }
 
-    qop->setQArgs(std::move(newQArgs));
+    if (mWasReplaced) {
+        qop->setQArgs(std::move(newQArgs));
+    }
 }
 
 void QubitRemapVisitor::visit(NDQOpMeasure::Ref ref) {
