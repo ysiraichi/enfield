@@ -11,9 +11,14 @@ namespace efd {
         private:
             const Mapping& mMap;
             const XbitToNumber& mXtoN;
+            bool mWasReplaced;
     
         public:
             QubitRemapVisitor(const Mapping& m, const XbitToNumber& xtoN);
+
+            /// \brief Returns whether the last call to \em visitNDQOp ended up
+            /// in replacing all qargs.
+            bool wasReplaced();
     
             /// \brief Every \em visit function calls this function.
             ///

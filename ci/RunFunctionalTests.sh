@@ -5,8 +5,10 @@
 ##     - EFD_EXE
 ##     - EFD_HOME
 ##
+## Even though `Q_jku` can be executed on 'A_ibmqx3', it uses up all
+## travis available memory (3GB) when compiling 'adder.qasm'.
 
-ALGS_QX2="Q_dynprog Q_bmt Q_grdy Q_ibm Q_wpm Q_random Q_qubiter Q_wqubiter"
+ALGS_QX2="Q_dynprog Q_bmt Q_grdy Q_ibm Q_wpm Q_random Q_qubiter Q_wqubiter Q_jku"
 ALGS_QX3="Q_bmt Q_grdy Q_ibm Q_wpm Q_random"
 
 ARCH_QX2="A_ibmqx2"

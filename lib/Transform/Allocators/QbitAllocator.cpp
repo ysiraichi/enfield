@@ -223,6 +223,7 @@ bool QbitAllocator::run(QModule::Ref qmod) {
     AllocTime = ((double) timer.getMicroseconds() / 1000000.0);
     // -----------------------------------------------------
 
+    INF << "Initial Configuration: " << MappingToString(mData) << std::endl;
     return true;
 }
 

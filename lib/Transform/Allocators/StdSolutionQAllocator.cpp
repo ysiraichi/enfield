@@ -121,7 +121,6 @@ void efd::StdSolutionImplPass::applyOperations(NDQOp::Ref qop, NDIfStmt::Ref ifs
 }
 
 bool efd::StdSolutionImplPass::run(QModule::Ref qmod) {
-    INF << "Initial Configuration: " << MappingToString(mData.mInitial) << std::endl;
     auto xtonpass = PassCache::Get<XbitToNumberWrapperPass>(qmod);
 
     mXbitToNumber = xtonpass->getData();
