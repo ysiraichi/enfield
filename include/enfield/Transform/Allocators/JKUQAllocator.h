@@ -15,7 +15,11 @@ namespace efd {
         class ExpandNodeState;
     }
 
-    /// \brief Port of JKU's allocator.
+    /// \brief JKU QAllocator.
+    ///
+    /// Implemented from Zulehner et. al.:
+    /// An Efficient Methodology for Mapping Quantum Circuits to the
+    /// IBM QX Architectures
     class JKUQAllocator : public QbitAllocator {
         public:
             typedef JKUQAllocator* Ref;
