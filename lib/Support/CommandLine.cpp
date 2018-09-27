@@ -249,11 +249,10 @@ void efd::ParseArguments(const int argc, const char **argv) {
             std::vector<OptBase*>& optVector = Parser->mArgMap[arg];
 
             int32_t toBeConsumed = optVector[0]->argsConsumed();
-            if (i + toBeConsumed >= argc) {
-                ERR << "There should be " << toBeConsumed << " arguments for -" << arg
-                    << ", but there was only " << argc - i << "." << std::endl;
-                EFD_ABORT();
-            }
+
+            EfdAbortIf(i + toBeConsumed >= argc,
+                       "There should be " << toBeConsumed << " arguments for -"
+                       << arg << ", but there was only " << argc - i << ".");
 
             std::vector<std::string> optArgs;
             for (int32_t j = 0; j < toBeConsumed; ++j) {

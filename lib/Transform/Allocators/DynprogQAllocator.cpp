@@ -83,11 +83,9 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
             vals[i][j] = { i, nullptr, UNREACH };
 
     for (uint32_t i = 1; i <= depN; ++i) {
-        if (deps[i-1].size() > 1) {
-            ERR << "Trying to allocate qbits to a gate with more than one dependency."
-                << " Gate: `" << deps[i-1].mCallPoint->toString(false) << "`." << std::endl;
-            EFD_ABORT();
-        }
+        EfdAbortIf(deps[i-1].size() > 1,
+                   "Trying to allocate qbits to a gate with more than one dependency."
+                   << " Gate: `" << deps[i-1].mCallPoint->toString(false) << "`.");
 
         efd::Dep dep = deps[i-1].mDeps[0];
 
@@ -152,11 +150,7 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
     std::vector<std::pair<uint32_t, Mapping>> mappings(depN);
 
     for (int i = depN-1; i >= 0; --i) {
-        if (val->parent == nullptr) {
-            ERR << "Nullptr reached too soon." << std::endl;
-            EFD_ABORT();
-        }
-
+        EfdAbortIf(val->parent == nullptr, "Nullptr reached too soon.");
         mappings[i] = std::make_pair(val->pId, permutations[val->pId]);
         val = val->parent;
     }
@@ -204,11 +198,8 @@ efd::StdSolution efd::DynprogQAllocator::buildStdSolution(QModule::Ref qmod) {
             else {
                 auto path = finder->find(mArchGraph.get(), u, v);
 
-                if (path.size() != 3) {
-                    ERR << "Can't apply a long cnot. Actual path size: `"
-                        << path.size() << "`." << std::endl;
-                    EFD_ABORT();
-                }
+                EfdAbortIf(path.size() != 3,
+                           "Can't apply a long cnot. Actual path size: `" << path.size() << "`.");
 
                 operation = { Operation::K_OP_LCNOT, a, b };
                 operation.mW = inv[path[1]];

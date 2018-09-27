@@ -17,11 +17,9 @@ void efd::ExpTSFinder::genAllAssigns(uint32_t n) {
 
 uint32_t efd::ExpTSFinder::getTargetId(const InverseMap& source,
                                        const InverseMap& target) {
-    if (source.size() != target.size()) {
-        ERR << "The assignment map must be of same size: `"
-            << source.size() << "` and `" << target.size() << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(source.size() != target.size(),
+               "The assignment map must be of same size: `" << source.size()
+               << "` and `" << target.size() << "`.");
 
     int size = source.size();
 

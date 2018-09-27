@@ -216,8 +216,7 @@ AStarNode JKUQAllocator::astar(std::queue<uint32_t>& cnotLayersIdQ,
                 inverse[pair.first] = a;
                 inverse[pair.second] = b;
             } else {
-                ERR << "No available edges!" << std::endl;
-                EFD_ABORT();
+                EfdAbortIf(true, "No available edges!");
             }
         } else if (mapping[a] == _undef || mapping[b] == _undef) {
             uint32_t unmapped;

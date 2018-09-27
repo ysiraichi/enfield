@@ -29,11 +29,8 @@ efd::StdSolution efd::QbitterSolBuilder::build
 
             auto path = finder->find(g, u, v);
 
-            if (path.size() != 3) {
-                ERR << "Can't apply a long cnot. Path size: `"
-                    << path.size() << "`." << std::endl;
-                EFD_ABORT();
-            }
+            EfdAbortIf(path.size() != 3,
+                       "Can't apply a long cnot. Path size: `" << path.size() << "`.");
 
             operation.mW = inv[path[1]];
         }

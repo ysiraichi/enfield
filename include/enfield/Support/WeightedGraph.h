@@ -94,12 +94,7 @@ void efd::WeightedGraph<T>::putEdge(uint32_t i, uint32_t j, T w) {
 template <typename T>
 void efd::WeightedGraph<T>::setW(uint32_t i, uint32_t j, T w) {
     auto pair = std::make_pair(i, j);
-
-    if (mW.find(pair) == mW.end()) {
-        ERR << "Edge not found: `(" << i << ", " << j << ")`." << std::endl;
-        EFD_ABORT();
-    }
-
+    EfdAbortIf(mW.find(pair) == mW.end(), "Edge not found: `(" << i << ", " << j << ")`.");
     mW[pair] = w;
 }
 
@@ -107,10 +102,8 @@ template <typename T>
 T efd::WeightedGraph<T>::getW(uint32_t i, uint32_t j) const {
     auto pair = std::make_pair(i, j);
 
-    if (mW.find(pair) == mW.end()) {
-        ERR << "Edge weight not found for edge: `(" << i << ", " << j << ")`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(mW.find(pair) == mW.end(),
+               "Edge weight not found for edge: `(" << i << ", " << j << ")`.");
 
     return mW.at(pair);
 }
@@ -132,17 +125,13 @@ std::string efd::JsonFields<efd::WeightedGraph<T>>::_WeightLabel_ = "w";
 // ----------------------------- JsonBackendParser -------------------------------
 template <class T>
 T efd::JsonBackendParser<efd::WeightedGraph<T>>::ParseWeight(const Json::Value& v) {
-    ERR << "ParseWeight not implemented for `" << typeid(T).name() << "`."
-        << std::endl;
-    EFD_ABORT();
+    EfdAbortIf(true, "ParseWeight not implemented for `" << typeid(T).name() << "`.");
 }
 
 template <class T>
 std::vector<Json::ValueType>
 efd::JsonBackendParser<efd::WeightedGraph<T>>::GetTysForT() {
-    ERR << "ParseWeight not implemented for `" << typeid(T).name() << "`."
-        << std::endl;
-    EFD_ABORT();
+    EfdAbortIf(true, "ParseWeight not implemented for `" << typeid(T).name() << "`.");
 }
 
 template <class T>

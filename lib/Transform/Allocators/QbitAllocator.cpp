@@ -151,9 +151,7 @@ uint32_t QbitAllocator::getCXCost(uint32_t u, uint32_t v) {
     if (mArchGraph->hasEdge(u, v)) return mCXCost;
     if (mArchGraph->hasEdge(v, u)) return mCXCost + (4 * mHCost);
 
-    ERR << "There is no edge (" << u << ", " << v << ") in the architecture graph."
-        << std::endl;
-    EFD_ABORT();
+    EfdAbortIf(true, "There is no edge (" << u << ", " << v << ") in the architecture graph.");
 }
 
 uint32_t QbitAllocator::getSwapCost(uint32_t u, uint32_t v) {

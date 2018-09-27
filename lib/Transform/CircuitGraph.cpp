@@ -19,9 +19,9 @@ Xbit::Xbit(uint32_t realId, uint32_t qubits, uint32_t cbits) {
         mId = qubits - realId;
         mType = Type::CLASSIC;
     } else {
-        ERR << "Bit `" << realId << "` is not quantum (until `" << qubits << "`) nor "
-            << "classical (until `" << qubits + cbits << "`)." << std::endl;
-        EFD_ABORT();
+        EfdAbortIf(true,
+                   "Bit `" << realId << "` is not quantum (until `" << qubits
+                   << "`) nor classical (until `" << qubits + cbits << "`).");
     }
 }
 
@@ -33,20 +33,15 @@ uint32_t Xbit::getRealId(uint32_t qubits, uint32_t cbits) {
 
     switch (mType) {
         case Type::QUANTUM:
-            if (id >= qubits) {
-                ERR <<  "Qubit with id `" << id << "`, but max `"
-                    << qubits - 1 << "`." << std::endl;
-                EFD_ABORT();
-            }
+            EfdAbortIf(id >= qubits,
+                       "Qubit with id `" << id << "`, but max `" << qubits - 1 << "`.");
             break;
 
         case Type::CLASSIC:
             id = id + qubits;
-            if (id >= qubits + cbits) {
-                ERR <<  "Classical bit with id `" << id << "`, but max `"
-                    << qubits + cbits - 1 << "`." << std::endl;
-                EFD_ABORT();
-            }
+            EfdAbortIf(id >= qubits + cbits,
+                       "Classical bit with id `" << id << "`, but max `"
+                       << qubits + cbits - 1 << "`.");
             break;
     }
 
@@ -186,10 +181,7 @@ void CircuitGraph::init(uint32_t qubits, uint32_t cbits) {
 }
 
 void CircuitGraph::checkInitialized() {
-    if (!mInit) {
-        ERR << "Trying to append a node to an uninitialized CircuitGraph." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(!mInit, "Trying to append a node to an uninitialized CircuitGraph.");
 }
 
 uint32_t CircuitGraph::getQSize() const {

@@ -75,12 +75,10 @@ SabreQAllocator::allocateWithInitialMapping(const Mapping& initialMapping,
                             if (cNode->numberOfXbits() > 1) {
                                 auto deps = depBuilder.getDeps(node);
 
-                                if (deps.size() != 1) {
-                                    ERR << "Unable to handle `" << deps.size() << "` dependencies "
-                                        << "in: `" << node->toString(false) << "`."
-                                        << std::endl;
-                                    EFD_ABORT();
-                                }
+                                EfdAbortIf(deps.size() != 1,
+                                           "Unable to handle `" << deps.size()
+                                           << "` dependencies in: `" << node->toString(false)
+                                           << "`.");
 
                                 auto dep = deps[0];
                                 uint32_t u = mapping[dep.mFrom], v = mapping[dep.mTo];
