@@ -8,8 +8,8 @@
 ## Even though `Q_jku` can be executed on 'A_ibmqx3', it uses up all
 ## travis available memory (3GB) when compiling 'adder.qasm'.
 
-ALGS_QX2="Q_dynprog Q_bmt Q_grdy Q_ibm Q_wpm Q_random Q_qubiter Q_wqubiter Q_jku"
-ALGS_QX3="Q_bmt Q_grdy Q_ibm Q_wpm Q_random"
+ALGS_QX2="Q_dynprog Q_bmt Q_grdy Q_ibm Q_wpm Q_random Q_qubiter Q_wqubiter Q_jku Q_sabre"
+ALGS_QX3="Q_bmt Q_grdy Q_ibm Q_wpm Q_random Q_sabre"
 
 ARCH_QX2="A_ibmqx2"
 ARCH_QX3="A_ibmqx3"
@@ -44,13 +44,13 @@ for i in `seq 1 $EXECUTION_TIMES`; do
 
             if echo "$FAIL_QX2" | grep -q "\<$filename\>"; then
                 if [ $ret -eq 0 ]; then
-                    echo "[ERROR]: benchmark \`$filename\` did NOT FAIL!"
+                    echo "[ERROR]: compiling benchmark \`$filename\` with \`$alg\` did NOT FAIL!"
                     cat $LOG
                     RET=1
                 fi
             else
                 if [ $ret -ne 0 ]; then
-                    echo "[ERROR]: benchmark \`$filename\` did FAILED!"
+                    echo "[ERROR]: compiling benchmark \`$filename\` with \`$alg\` did FAILED!"
                     cat $LOG
                     RET=1
                 fi
@@ -77,13 +77,13 @@ for i in `seq 1 $EXECUTION_TIMES`; do
 
             if echo "$FAIL_QX3" | grep -q "\<$filename\>"; then
                 if [ $ret -eq 0 ]; then
-                    echo "[ERROR]: benchmark \`$filename\` did NOT FAIL!"
+                    echo "[ERROR]: compiling benchmark \`$filename\` with \`$alg\` did NOT FAIL!"
                     cat $LOG
                     RET=1
                 fi
             else
                 if [ $ret -ne 0 ]; then
-                    echo "[ERROR]: benchmark \`$filename\` did FAILED!"
+                    echo "[ERROR]: compiling benchmark \`$filename\` with \`$alg\` did FAILED!"
                     cat $LOG
                     RET=1
                 fi
