@@ -8,6 +8,7 @@
 #include "enfield/Support/Defs.h"
 
 #include <numeric>
+#include <unordered_map>
 
 using namespace efd;
 
@@ -43,6 +44,12 @@ SabreQAllocator::allocateWithInitialMapping(const Mapping& initialMapping,
     auto it = cGraph.build_iterator();
     auto xbitNumber = cGraph.size();
 
+    std::unordered_map<Node::Ref, uint32_t> indexMap;
+    for (auto it = qmod->stmt_begin(), end = qmod->stmt_end(); it != end; ++it) {
+        uint32_t indexMapSize = indexMap.size();
+        indexMap[it->get()] = indexMapSize;
+    }
+
     std::map<Node::Ref, uint32_t> reached;
     std::set<Node::Ref> pastLookAhead;
 
@@ -69,28 +76,30 @@ SabreQAllocator::allocateWithInitialMapping(const Mapping& initialMapping,
 
                 if (cNode->isGateNode() && cNode->numberOfXbits() == reached[node]) {
                     switch (node->getKind()) {
+                        case Node::Kind::K_IF_STMT:
                         case Node::Kind::K_QOP_U:
                         case Node::Kind::K_QOP_CX:
                         case Node::Kind::K_QOP_GEN:
                             if (cNode->numberOfXbits() > 1) {
                                 auto deps = depBuilder.getDeps(node);
 
-                                if (deps.size() != 1) {
+                                if (deps.size() > 1) {
                                     ERR << "Unable to handle `" << deps.size() << "` dependencies "
                                         << "in: `" << node->toString(false) << "`."
                                         << std::endl;
                                     EFD_ABORT();
-                                }
+                                } else if (!deps.empty()) {
+                                    auto dep = deps[0];
+                                    uint32_t u = mapping[dep.mFrom], v = mapping[dep.mTo];
 
-                                auto dep = deps[0];
-                                uint32_t u = mapping[dep.mFrom], v = mapping[dep.mTo];
-
-                                if (!mArchGraph->hasEdge(u, v) &&
-                                    !mArchGraph->hasEdge(v, u)) {
-                                    break;
+                                    if (!mArchGraph->hasEdge(u, v) &&
+                                        !mArchGraph->hasEdge(v, u)) {
+                                        break;
+                                    }
                                 }
                             }
 
+                        case Node::Kind::K_QOP_RESET:
                         case Node::Kind::K_QOP_BARRIER:
                         case Node::Kind::K_QOP_MEASURE:
                             issueNodes.insert(cNode.get());
@@ -130,8 +139,7 @@ SabreQAllocator::allocateWithInitialMapping(const Mapping& initialMapping,
                 pastLookAhead.insert(node);
                 currentLayer.push_back(dep);
 
-                offset = std::min(offset, (uint32_t) std::distance(qmod->stmt_begin(),
-                                                                   qmod->findStatement(node)));
+                offset = std::min(offset, indexMap[node]);
             }
         }
 
