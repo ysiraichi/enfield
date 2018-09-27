@@ -40,18 +40,12 @@ void efd::DistanceGetter<T>::initImpl() {}
 
 template <typename T>
 void efd::DistanceGetter<T>::checkInitialized() {
-    if (mG == nullptr) {
-        ERR << "Set `Graph` for the DistanceGetter!" << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(mG == nullptr, "Set `Graph` for the DistanceGetter!");
 }
 
 template <typename T>
 void efd::DistanceGetter<T>::checkVertexInGraph(uint32_t u) {
-    if (u >= mG->size()) {
-        ERR << "Out of Bounds: can't calculate distance for: `" << u << "`" << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(u >= mG->size(), "Out of Bounds: can't calculate distance for: `" << u << "`");
 }
 
 template <typename T>

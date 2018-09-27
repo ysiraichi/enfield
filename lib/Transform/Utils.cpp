@@ -27,10 +27,8 @@ StatementPair efd::GetStatementPair(const Node::Ref node) {
     if (pair.second == nullptr) {
         pair.first = dynCast<NDIfStmt>(node);
 
-        if (pair.first == nullptr) {
-            ERR << "Unknown instruction type: `" << node->toString(false) << "`." << std::endl;
-            EFD_ABORT();
-        }
+        EfdAbortIf(pair.first == nullptr,
+                   "Unknown instruction type: `" << node->toString(false) << "`.");
 
         pair.second = pair.first->getQOp();
     }
@@ -49,21 +47,10 @@ static const std::string IntrinsicGatesStr =
 static void ProcessIntrinsicGates() {
     if (IntrinsicGates.empty()) {
         auto ast = ParseString(IntrinsicGatesStr, false);
-        if (!instanceOf<NDStmtList>(ast.get())) {
-            ERR << "Intrinsic gates root node of wrong type." << std::endl;
-            EFD_ABORT();
-        }
+        EfdAbortIf(!instanceOf<NDStmtList>(ast.get()), "Intrinsic gates root node of wrong type.");
 
         for (auto& gate : *ast) {
             auto gateNode = uniqueCastForward<NDGateSign>(std::move(gate));
-
-            if (gateNode.get() == nullptr) {
-                std::string str = (gate == nullptr) ? "nullptr" : gate->toString(false);
-                ERR << "Statement is not a gate declaration: `" << str
-                    << "`." << std::endl;
-                EFD_ABORT();
-            }
-
             IntrinsicGates.push_back(std::move(gateNode));
         }
     }
@@ -153,11 +140,10 @@ bool efd::IsIntrinsicGateCall(Node::Ref ref) {
 }
 
 NDQOpGen::IntrinsicKind efd::GetIntrinsicKind(Node::Ref ref) {
-    if (!IsIntrinsicGateCall(ref)) {
-        std::string str = (ref == nullptr) ? "nullptr" : ref->toString(false);
-        ERR << "Node must be an intrinsic gate call: `" << str << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(!IsIntrinsicGateCall(ref),
+               "Node must be an intrinsic gate call: `"
+               << ((ref == nullptr) ? "nullptr" : ref->toString(false))
+               << "`.");
 
     std::string gateid = ref->getOperation();
 
@@ -165,7 +151,7 @@ NDQOpGen::IntrinsicKind efd::GetIntrinsicKind(Node::Ref ref) {
     if (gateid == efd::NDQOpSwap::IdStr)          kind = NDQOpGen::K_INTRINSIC_SWAP;
     else if (gateid == efd::NDQOpLongCX::IdStr)   kind = NDQOpGen::K_INTRINSIC_LCX;
     else if (gateid == efd::NDQOpRevCX::IdStr)    kind = NDQOpGen::K_INTRINSIC_REV_CX;
-    else ERR << "Unreachable." << std::endl;
+    else EfdAbortIf(true, "Unreachable.");
 
     return kind;
 }
@@ -174,34 +160,28 @@ NDQOp::uRef efd::CreateIntrinsicGate(NDQOpGen::IntrinsicKind kind,
                                      std::vector<Node::uRef> qargs) {
     switch (kind) {
         case NDQOpGen::K_INTRINSIC_SWAP:
-            if (qargs.size() != 2) {
-                ERR << "Intrinsic swap instructions must have 2 qargs. Actual: `"
-                    << qargs.size() << "`." << std::endl;
-                EFD_ABORT();
-            }
+            EfdAbortIf(qargs.size() != 2,
+                       "Intrinsic swap instructions must have 2 qargs. Actual: `"
+                       << qargs.size() << "`.");
 
             return CreateISwap(std::move(qargs[0]), std::move(qargs[1]));
 
         case NDQOpGen::K_INTRINSIC_REV_CX:
-            if (qargs.size() != 2) {
-                ERR << "Intrinsic reverse-cnot instructions must 2 qargs. Actual:"
-                    << qargs.size() << "`." << std::endl;
-                EFD_ABORT();
-            }
+            EfdAbortIf(qargs.size() != 2,
+                       "Intrinsic reverse-cnot instructions must 2 qargs. Actual:"
+                       << qargs.size() << "`.");
 
             return CreateIRevCX(std::move(qargs[0]), std::move(qargs[1]));
 
         case NDQOpGen::K_INTRINSIC_LCX:
-            if (qargs.size() != 3) {
-                ERR << "Intrinsic long-cnot instructions must have 3 qargs. Actual:"
-                    << qargs.size() << "`." << std::endl;
-                EFD_ABORT();
-            }
+            EfdAbortIf(qargs.size() != 3,
+                       "Intrinsic long-cnot instructions must have 3 qargs. Actual:"
+                       << qargs.size() << "`.");
 
             return CreateILongCX(std::move(qargs[0]), std::move(qargs[1]), std::move(qargs[2]));
 
         default:
-            EFD_ABORT();
+            EfdAbortIf(true, "Intrinsic kind not found.");
     }
 }
 
@@ -261,11 +241,8 @@ efd::Node::uRef efd::QModulefyVisitor::getClonedOrIntrinsic(Node::Ref ref) {
         qop = ifstmt->getQOp();
     }
 
-    if (qop == nullptr) {
-        std::string str = (ref == nullptr) ? "nullptr" : ref->toString(false);
-        ERR << "Node is neither NDQOp nor NDIfStmt. Actual: `" << str << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(qop == nullptr,
+               "Node is neither NDQOp nor NDIfStmt. Actual: `" << ref->toString(false) << "`.");
 
     NDQOp::uRef intrinsic(nullptr);
     if (IsIntrinsicGateCall(qop)) {
@@ -492,16 +469,10 @@ void efd::InlineGate(QModule::Ref qmod, NDQOp::Ref qop) {
     std::string gateId = qop->getId()->getVal();
     
     auto gate = qmod->getQGate(gateId);
-    if (gate->isOpaque()) {
-        ERR << "Trying to inline opaque gate: `" << gateId << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(gate->isOpaque(), "Trying to inline opaque gate: `" << gateId << "`.");
 
     NDGateDecl::Ref gateDecl = dynCast<NDGateDecl>(gate);
-    if (gateDecl == nullptr) {
-        ERR << "No gate with such id found: `" << gateId << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(gateDecl == nullptr, "No gate with such id found: `" << gateId << "`.");
 
     // Replace the arguments.
     std::vector<Node::uRef> inlinedInstructions;

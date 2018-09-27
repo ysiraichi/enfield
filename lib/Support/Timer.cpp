@@ -19,38 +19,22 @@ void efd::Timer::stop() {
 }
 
 uint64_t efd::Timer::getNanoseconds() {
-    if (!mTimed) {
-        ERR << "Trying to get elapsed time from dataless timer." << std::endl;
-        EFD_ABORT();
-    }
-
+    EfdAbortIf(!mTimed, "Trying to get elapsed time from dataless timer.");
     return mDuration.count();
 }
 
 uint64_t efd::Timer::getMicroseconds() {
-    if (!mTimed) {
-        ERR << "Trying to get elapsed time from dataless timer." << std::endl;
-        EFD_ABORT();
-    }
-
+    EfdAbortIf(!mTimed, "Trying to get elapsed time from dataless timer.");
     return std::chrono::duration_cast<std::chrono::microseconds>(mDuration).count();
 }
 
 uint64_t efd::Timer::getMilliseconds() {
-    if (!mTimed) {
-        ERR << "Trying to get elapsed time from dataless timer." << std::endl;
-        EFD_ABORT();
-    }
-
+    EfdAbortIf(!mTimed, "Trying to get elapsed time from dataless timer.");
     return std::chrono::duration_cast<std::chrono::milliseconds>(mDuration).count();
 }
 
 uint64_t efd::Timer::getSeconds() {
-    if (!mTimed) {
-        ERR << "Trying to get elapsed time from dataless timer." << std::endl;
-        EFD_ABORT();
-    }
-
+    EfdAbortIf(!mTimed, "Trying to get elapsed time from dataless timer.");
     return std::chrono::duration_cast<std::chrono::seconds>(mDuration).count();
 }
 

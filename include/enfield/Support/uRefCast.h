@@ -23,10 +23,9 @@ namespace efd {
                 return std::unique_ptr<T>(toRef);
             }
 
-            ERR << "Failed when casting a std::unique_ptr. `"
-                << typeid(T).name() << "` not a base class of `" << typeid(U).name()
-                << "`." << std::endl;
-            EFD_ABORT();
+            EfdAbortIf(true,
+                       "Failed when casting a std::unique_ptr. `" << typeid(T).name()
+                       << "` not a base class of `" << typeid(U).name() << "`.");
         }
 
     /// \brief Uses the RTTI framework to cast forwardly an unique_ptr.
@@ -42,10 +41,9 @@ namespace efd {
             if (auto toRef = dynCast<T>(fromRef))
                 return std::unique_ptr<T>(toRef);
 
-            ERR << "Failed when casting a std::unique_ptr: from `"
-                << typeid(U).name() << "` to `" << typeid(T).name()
-                << "`." << std::endl;
-            EFD_ABORT();
+            EfdAbortIf(true,
+                       "Failed when casting a std::unique_ptr: from `" << typeid(U).name()
+                       << "` to `" << typeid(T).name() << "`.");
         }
 
     /// \brief Wrapper function that "transforms" a \em std::unique_ptr

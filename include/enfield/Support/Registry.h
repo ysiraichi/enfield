@@ -59,11 +59,7 @@ bool efd::Registry<RetTy, ArgTy, KeyTy, CmpTy>::hasObj(KeyTy key) const {
 
 template <typename RetTy, typename ArgTy, typename KeyTy, typename CmpTy>
 RetTy efd::Registry<RetTy, ArgTy, KeyTy, CmpTy>::createObj(KeyTy key, ArgTy arg) const {
-    if (!hasObj(key)) {
-        ERR << "Trying to create an object not registered." << std::endl; 
-        EFD_ABORT();
-    }
-
+    EfdAbortIf(!hasObj(key), "Trying to create an object not registered." );
     return mCtorMap.at(key)(arg);
 }
 

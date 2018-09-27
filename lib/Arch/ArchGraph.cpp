@@ -34,11 +34,8 @@ std::string ArchGraph::vertexToString(uint32_t i) const {
 }
 
 Node::Ref ArchGraph::getNode(uint32_t i) const {
-    if (i >= mNodes.size()) {
-        ERR << "Node index out of bounds (of `" << mNodes.size()
-            << "`): `" << i << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(i >= mNodes.size(),
+               "Node index out of bounds (of `" << mNodes.size() << "`): `" << i << "`.");
     return mNodes[i].get();
 }
 
@@ -68,10 +65,7 @@ void ArchGraph::putReg(std::string id, std::string size) {
 }
 
 uint32_t ArchGraph::getUId(std::string s) {
-    if (!hasSId(s)) {
-        ERR << "No such vertex with this string id: `" << s << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(!hasSId(s), "No such vertex with this string id: `" << s << "`.");
     return mStrToId[s];
 }
 
@@ -80,11 +74,8 @@ bool ArchGraph::hasSId(std::string s) const {
 }
 
 std::string ArchGraph::getSId(uint32_t i) {
-    if (i >= mId.size()) {
-        ERR << "Vertex index out of bounds (of `" << mId.size() << "`): `"
-            << i << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(i >= mId.size(),
+               "Vertex index out of bounds (of `" << mId.size() << "`): `" << i << "`.");
     return mId[i];
 }
 
@@ -162,11 +153,9 @@ std::unique_ptr<ArchGraph> JsonBackendParser<ArchGraph>::Parse(const Json::Value
         }
     }
 
-    if (totalQubits != qubits) {
-        ERR << "Sum of qubits doesn't match total provided. "
-            << "Sum: " << totalQubits << " != Total: " << qubits << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(totalQubits != qubits,
+               "Sum of qubits doesn't match total provided. Sum: " << totalQubits
+               << " != Total: " << qubits);
     
     auto &adj = root[JsonFields<ArchGraph>::_AdjListLabel_];
     for (uint32_t i = 0; i < qubits; ++i) {

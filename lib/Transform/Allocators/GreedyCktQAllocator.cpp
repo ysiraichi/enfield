@@ -110,10 +110,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             }
         }
 
-        if (allocatable.empty()) {
-            ERR << "Every step has to process at least one gate." << std::endl;
-            EFD_ABORT();
-        }
+        EfdAbortIf(allocatable.empty(), "Every step has to process at least one gate.");
 
         // Removing instructions that don't use only one qubit, but do not have any dependencies
         for (auto cnode : allocatable) {
@@ -144,11 +141,9 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
             auto node = cnode->node();
             auto dep = depBuilder.getDeps(node);
 
-            if (dep.size() > 1) {
-                ERR << "Can only allocate gates with at most one depenency."
-                    << " Gate: `" << dep.mCallPoint->toString(false) << "`." << std::endl;
-                EFD_ABORT();
-            }
+            EfdAbortIf(dep.size() > 1,
+                       "Can only allocate gates with at most one depenency."
+                       << " Gate: `" << dep.mCallPoint->toString(false) << "`.");
 
             uint32_t a = dep[0].mFrom, b = dep[0].mTo;
             uint32_t u = mapping[a], v = mapping[b];
@@ -232,10 +227,7 @@ StdSolution GreedyCktQAllocator::buildStdSolution(QModule::Ref qmod) {
                 best = props;
         }
 
-        if (best.cnode.get() == nullptr) {
-            ERR << "There must be a 'best' node." << std::endl;
-            EFD_ABORT();
-        }
+        EfdAbortIf(best.cnode.get() == nullptr, "There must be a 'best' node.");
 
         // Allocate best node;
         // Setting the 'stop' flag;

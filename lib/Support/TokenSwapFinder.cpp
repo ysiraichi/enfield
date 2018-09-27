@@ -5,10 +5,7 @@ using namespace efd;
 TokenSwapFinder::TokenSwapFinder() : mG(nullptr) {}
 
 void TokenSwapFinder::checkGraphSet() {
-    if (mG == nullptr) {
-        ERR << "Set the `Graph` for TokenSwapFinder." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(mG == nullptr, "Set the `Graph` for TokenSwapFinder.");
 }
 
 void TokenSwapFinder::setGraph(Graph::Ref graph) {

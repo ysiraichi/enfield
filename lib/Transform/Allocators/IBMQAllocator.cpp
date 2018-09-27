@@ -31,11 +31,11 @@ IBMQAllocator::AllocationResult IBMQAllocator::tryAllocateLayer
     for (auto node : layer) {
         auto _deps = depData.getDeps(node);
 
-        if (_deps.size() > 1) {
-            ERR << "Not suporting gates with more than 1 dependency ("
-                << node->toString(false) << ")." << std::endl;
-            EFD_ABORT();
-        } else if (_deps.size() == 1) {
+        EfdAbortIf(_deps.size() > 1,
+                   "Not suporting gates with more than 1 dependency ("
+                   << node->toString(false) << ").");
+
+        if (_deps.size() == 1) {
             deps.push_back(_deps[0]);
         }
     }
@@ -242,9 +242,9 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                     } else if (mArchGraph->hasEdge(v, u)) {
                         op = { Operation::K_OP_REV, dep.mFrom, dep.mTo };
                     } else {
-                        ERR << "If we found one configuration, it should not reach this point."
-                            << std::endl;
-                        EFD_ABORT();
+                        EfdAbortIf(true,
+                                   "If we found one configuration, it should not "
+                                   << "reach this point.");
                     }
 
                     sol.mOpSeqs.push_back(std::make_pair(clone.get(), StdSolution::OpVector{ op }));
@@ -256,9 +256,9 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
             if (sol.mOpSeqs.size() != opsSeqIdx) {
                 sol.mOpSeqs[opsSeqIdx].second.insert(sol.mOpSeqs[opsSeqIdx].second.begin(),
                                                      result.opv.begin(), result.opv.end());
-            } else if (!result.opv.empty()) {
-                ERR << "Swap operations but there were no dependencies to satisfy." << std::endl;
-                EFD_ABORT();
+            } else {
+                EfdAbortIf(!result.opv.empty(),
+                           "Swap operations but there were no dependencies to satisfy.");
             }
         } else {
             INF << "Serializing this layer!" << std::endl;
@@ -268,11 +268,9 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
 
                 auto result = tryAllocateLayer(sublayer, current, qubitsSet, depData);
 
-                if (!result.success) {
-                    ERR << "Could not allocate sublayer " << node->toString(false)
-                        << " on mapping: " << MappingToString(current) << "." << std::endl;
-                    EFD_ABORT();
-                }
+                EfdAbortIf(!result.success,
+                           "Could not allocate sublayer " << node->toString(false)
+                           << " on mapping: " << MappingToString(current) << ".");
 
                 current = result.map;
 
@@ -302,9 +300,9 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
                     } else if (mArchGraph->hasEdge(v, u)) {
                         op = { Operation::K_OP_REV, dep.mFrom, dep.mTo };
                     } else {
-                        ERR << "If we found one configuration, it should not reach this point."
-                            << std::endl;
-                        EFD_ABORT();
+                        EfdAbortIf(true,
+                                   "If we found one configuration, it should not "
+                                   << "reach this point.");
                     }
 
                     opVector.push_back(op);
@@ -321,11 +319,7 @@ StdSolution IBMQAllocator::buildStdSolution(QModule::Ref qmod) {
         }
     }
 
-    if (firstLayer) {
-        ERR << "No first layer found." << std::endl;
-        EFD_ABORT();
-    }
-
+    EfdAbortIf(firstLayer, "No first layer found.");
     qmod->clearStatements();
     qmod->insertStatementLast(std::move(newStatements));
 

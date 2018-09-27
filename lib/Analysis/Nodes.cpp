@@ -236,9 +236,7 @@ std::string efd::NDRegDecl::getOperation() const {
     switch (mT) {
         case CONCRETE: return "creg";
         case QUANTUM:  return "qreg";
-        default: 
-                       efd::ERR << "Unknown register type." << std::endl;
-                       efd::EFD_ABORT();
+        default: EfdAbortIf(true, "Unknown register type.");
     }
 }
 
@@ -397,11 +395,7 @@ void efd::NDList::clear() {
 
 void efd::NDList::removeChild(Node::Ref ref) {
     auto it = findChild(ref);
-
-    if (it == end()) {
-		efd::ERR << "Can't remove inexistent child." << std::endl;
-		efd::EFD_ABORT();
-	}
+    EfdAbortIf(it == end(), "Can't remove inexistent child.");
 
     removeChild(it);
     if (mChild.empty())
@@ -1147,11 +1141,7 @@ void efd::NDQOpGen::apply(NodeVisitor::Ref visitor) {
 }
 
 efd::NDQOpGen::IntrinsicKind efd::NDQOpGen::getIntrinsicKind() const {
-    if (!mIsIntrinsic) {
-		efd::ERR << "Trying to get IntrinsicKind of non-intrinsic node." << std::endl;
-		efd::EFD_ABORT();
-	}
-
+    EfdAbortIf(!mIsIntrinsic, "Trying to get IntrinsicKind of non-intrinsic node.");
     return mIK;
 }
 
@@ -1237,9 +1227,7 @@ std::string efd::NDBinOp::getOperation() const {
         case OP_MUL: return "*";
         case OP_DIV: return "/";
         case OP_POW: return "^";
-        default:
-                     efd::ERR << "Unknown binary operation." << std::endl;
-                     efd::EFD_ABORT();
+        default: EfdAbortIf(true, "Unknown binary operation.");
     }
 }
 
@@ -1349,9 +1337,7 @@ std::string efd::NDUnaryOp::getOperation() const {
         case UOP_LN:    return "ln";
         case UOP_SQRT:  return "sqrt";
         case UOP_NEG:   return "-";
-        default:
-                        efd::ERR << "Unknown unary operation." << std::endl;
-                        efd::EFD_ABORT();
+        default: EfdAbortIf(true, "Unknown unary operation.");
     }
 }
 
