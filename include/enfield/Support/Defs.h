@@ -36,12 +36,21 @@ namespace efd {
     void Abort [[noreturn]] (const std::string& file = "", const uint32_t& line = 0);
 }
 
+// Beginning of EFD_MESSAGE_LOG ifdef
 #ifndef EFD_MESSAGE_LOG
 #define EFD_MESSAGE_LOG
-#define EFD_ABORT() Abort(__FILE__, __LINE__)
-#define ERR ErrorLog(__FILE__, __LINE__)
-#define WAR WarningLog(__FILE__, __LINE__)
-#define INF InfoLog(__FILE__, __LINE__)
+
+#define ERR efd::ErrorLog(__FILE__, __LINE__)
+#define WAR efd::WarningLog(__FILE__, __LINE__)
+#define INF efd::InfoLog(__FILE__, __LINE__)
+
+#define EfdAbortIf(_Cond_, _Message_)   \
+    if (_Cond_) {                       \
+        ERR << _Message_ << std::endl;  \
+        efd::Abort(__FILE__, __LINE__); \
+    }
+
 #endif
+// End of EFD_MESSAGE_LOG ifdef
 
 #endif

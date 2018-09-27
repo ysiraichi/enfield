@@ -409,7 +409,7 @@ static int Parse(std::istream& istr, efd::ASTWrapper& ast, bool forceStdLib) {
             // One should not be able to reach this point.
             // This means that the first node of the AST is neither a
             // statements list nor a qasm version node.
-            efd::EFD_ABORT();
+            EfdAbortIf(true, "AST Root node is neither a `NDQasmVersion` nor a `NDStmtList`.");
         }
 
         for (auto pair : StdLib) {

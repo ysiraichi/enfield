@@ -77,11 +77,8 @@ template <typename T, T first, T last, uint32_t padding>
 efd::EnumString<T, first, last, padding>::EnumString(T init) {
     mValue = static_cast<uint32_t>(init);
 
-    if (mValue > static_cast<uint32_t>(last) || mValue < static_cast<uint32_t>(first)) {
-        ERR << "Enum '" << typeid(T).name() << "' doesn't have such value '"
-            << mValue << "'." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(mValue > static_cast<uint32_t>(last) || mValue < static_cast<uint32_t>(first),
+               "Enum '" << typeid(T).name() << "' doesn't have such value '" << mValue << "'.");
 
     mValue = mValue - static_cast<uint32_t>(first);
 }
@@ -98,11 +95,8 @@ efd::EnumString<T, first, last, padding>::EnumString(std::string init) {
 
 template <typename T, T first, T last, uint32_t padding>
 void efd::EnumString<T, first, last, padding>::initImpl(std::string init) {
-    if (!EnumString<T, first, last, padding>::Has(init)) {
-        ERR << "Enum '" << typeid(T).name() << "' doesn't have string '"
-            << init << "'." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf((!EnumString<T, first, last, padding>::Has(init)),
+               "Enum '" << typeid(T).name() << "' doesn't have string '" << init << "'.");
 
     auto it = std::find(mStrVal.begin(), mStrVal.end(), init);
     mValue = std::distance(mStrVal.begin(), it);
@@ -112,11 +106,9 @@ template <typename T, T first, T last, uint32_t padding>
 std::string efd::EnumString<T, first, last, padding>::getStringValue() const {
     auto strSize = mStrVal.size();
 
-    if (strSize < mValue) {
-        ERR << "Enum '" << typeid(T).name() << "' does not have value over "
-            << strSize << ": " << mValue << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(strSize < mValue,
+               "Enum '" << typeid(T).name() << "' does not have value over "
+               << strSize << ": " << mValue);
 
     if (static_cast<uint32_t>(last) - static_cast<uint32_t>(first) + 1 != strSize) {
         WAR << "Enum '" << typeid(T).name() << "' segmented. "

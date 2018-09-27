@@ -40,11 +40,7 @@ template <typename T>
 std::vector<uint32_t>
 efd::DijkstraPathFinder<T>::find(Graph::Ref g, uint32_t u, uint32_t v) {
     auto wg = dynCast<WeightedGraph<T>>(g);
-
-    if (wg == nullptr) {
-        ERR << "Invalid weighted graph for this Dijkstra implementation." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(wg == nullptr, "Invalid weighted graph for this Dijkstra implementation.");
 
     uint32_t size = wg->size();
     uint32_t from = u;
@@ -78,11 +74,7 @@ efd::DijkstraPathFinder<T>::find(Graph::Ref g, uint32_t u, uint32_t v) {
     }
 
     // Reconstructing the path
-    if (equal(dist[to], infw)) {
-        ERR << "No existing path in this graph." << std::endl;
-        EFD_ABORT();
-    }
-
+    EfdAbortIf(equal(dist[to], infw), "No existing path in this graph.");
     std::vector<uint32_t> path;
 
     // If the path is "from -> x -> y -> to", the swap vector will contain

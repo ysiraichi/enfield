@@ -140,21 +140,13 @@ static bool HasAnyNDIdChild(Node::Ref ref) {
 
 static NDRegDecl::Ref GetDeclFromId(const QModule::Ref qmod, Node::Ref ref) {
     NDId::Ref refId = dynCast<NDId>(ref);
-
-    if (refId == nullptr) {
-        std::string refStr = (ref == nullptr) ? "nullptr" : ref->toString(false);
-        ERR << "Not an Id: `" << refStr << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(refId == nullptr, "Not an Id: `" << ref->toString(false) << "`.");
 
     auto node = qmod->getQVar(refId->getVal());
     NDRegDecl::Ref refDecl = dynCast<NDRegDecl>(node);
 
-    if (refDecl == nullptr) {
-        std::string nodeStr = (node == nullptr) ? "nullptr" : node->toString(false);
-        ERR << "Not an NDRegDecl: `" << nodeStr << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(refDecl == nullptr,
+               "Not an NDRegDecl: `" << node->toString(false) << "`.");
 
     return refDecl;
 }

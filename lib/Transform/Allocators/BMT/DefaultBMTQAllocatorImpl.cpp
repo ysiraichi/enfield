@@ -22,12 +22,9 @@ std::vector<Node::Ref> SeqNCandidatesGenerator::generateImpl() {
 }
 
 void SeqNCandidatesGenerator::signalProcessed(Node::Ref node) {
-    if (node != mIt->get()) {
-        ERR << "Node `" << node->toString(false) << "` not the one processed. "
-            << "Actual: `" << (*mIt)->toString(false) << "`." << std::endl;
-        EFD_ABORT();
-    }
-
+    EfdAbortIf(node != mIt->get(),
+               "Node `" << node->toString(false) << "` not the one processed. Actual: `"
+               << (*mIt)->toString(false) << "`.");
     ++mIt;
 }
 
@@ -121,8 +118,7 @@ uint32_t GeoNearestLQPProcessor::getNearest(const Graph::Ref g, uint32_t u, cons
     }
 
     // There is no way we can not find anyone!!
-    ERR << "Can't find any vertice connected to v:" << u << "." << std::endl;
-    EFD_ABORT();
+    EfdAbortIf(true, "Can't find any vertice connected to v:" << u << ".");
 }
 
 void GeoNearestLQPProcessor::process(const Graph::Ref g, Mapping& fromM, Mapping& toM) {

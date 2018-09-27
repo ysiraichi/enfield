@@ -39,11 +39,7 @@ efd::BitOptions<ETy, last>::BitOptions() {
 template <typename ETy, ETy last>
 std::pair<uint32_t, uint32_t> efd::BitOptions<ETy, last>::getBlkAndBit(ETy option) const {
     uint32_t iOpt = static_cast<uint32_t>(option);
-
-    if (iOpt > Last) {
-        ERR << "Invalid Option: " << iOpt << ". Max: " << Last << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(iOpt > Last, "Invalid Option: " << iOpt << ". Max: " << Last);
 
     uint32_t blk = iOpt / ElemSize;
     uint32_t bit = iOpt % ElemSize;

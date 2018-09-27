@@ -53,11 +53,10 @@ void efd::QModule::removeAllQRegs() {
 efd::QModule::Iterator efd::QModule::findStatement(Node::Ref ref) {
     auto it = mStatements->findChild(ref);
 
-    if (it == mStatements->end()) {
-        std::string nodeStr = (ref == nullptr) ? "nullptr" : ref->toString(false);
-        ERR << "Node not in the main statement list: `" << nodeStr << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(it == mStatements->end(),
+               "Node not in the main statement list: `"
+               << ((ref == nullptr) ? "nullptr" : ref->toString(false))
+               << "`.");
 
     return it;
 }
@@ -67,11 +66,8 @@ void efd::QModule::removeStatement(Iterator it) {
 }
 
 efd::QModule::Iterator efd::QModule::inlineCall(NDQOp::Ref call) {
-    if (!call->isGeneric()) {
-        ERR << "Trying to inline a non-generic call: `" << call->toString(false)
-            << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(!call->isGeneric(),
+               "Trying to inline a non-generic call: `" << call->toString(false) << "`.");
 
     Node::Ref stmt = call;
     auto parent = call->getParent();
@@ -120,11 +116,10 @@ efd::QModule::Iterator efd::QModule::replaceStatement
 (Node::Ref stmt, std::vector<Node::uRef> stmts) {
     auto it = mStatements->findChild(stmt);
 
-    if (it == mStatements->end()) {
-        std::string stmtStr = (stmt == nullptr) ? "nullptr" : stmt->toString(false);
-        ERR << "Trying to replace a non-existing statement: `" << stmtStr << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(it == mStatements->end(),
+               "Trying to replace a non-existing statement: `"
+               << ((stmt == nullptr) ? "nullptr" : stmt->toString(false))
+               << "`.");
 
     uint32_t stmtsSize = stmts.size();
     if (!stmts.empty()) {
@@ -140,24 +135,15 @@ void efd::QModule::clearStatements() {
 }
 
 efd::Node::Ref efd::QModule::getStatement(uint32_t i) {
-    if (i >= mStatements->getChildNumber()) {
-        ERR << "Out of bounds access (of `" << mStatements->getChildNumber()
-            << "`): `" << i << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(i >= mStatements->getChildNumber(),
+               "Out of bounds access (of `" << mStatements->getChildNumber()
+               << "`): `" << i << "`.");
     return mStatements->getChild(i);
 }
 
 void efd::QModule::insertGate(NDGateSign::uRef gate) {
-    if (gate.get() == nullptr) {
-        ERR << "Trying to insert a 'nullptr' gate." << std::endl;
-        EFD_ABORT();
-    }
-
-    if (gate->getId() == nullptr) {
-        ERR << "Trying to insert a gate with 'nullptr' id." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(gate.get() == nullptr, "Trying to insert a 'nullptr' gate.");
+    EfdAbortIf(gate->getId() == nullptr, "Trying to insert a gate with 'nullptr' id.");
 
     std::string id = gate->getId()->getVal();
 
@@ -306,17 +292,13 @@ std::string efd::QModule::toString(bool pretty, bool printGates) const {
 
 efd::Node::Ref efd::QModule::getQVar(std::string id, NDGateDecl::Ref gate) const {
     if (gate != nullptr) {
-        if (mGateIdMap.find(gate) == mGateIdMap.end()) {
-            ERR << "No such gate found: `" << gate->getId()->getVal() << "`." << std::endl;
-            EFD_ABORT();
-        }
+        EfdAbortIf(mGateIdMap.find(gate) == mGateIdMap.end(),
+                   "No such gate found: `" << gate->getId()->getVal() << "`.");
 
         const IdMap& idMap = mGateIdMap.at(gate);
-        if (idMap.find(id) == idMap.end()) {
-            ERR << "No such id inside this gate (`" << gate->getId()->getVal()
-                << "`): `" << id << "`." << std::endl;
-            EFD_ABORT();
-        }
+        EfdAbortIf(idMap.find(id) == idMap.end(),
+                   "No such id inside this gate (`" << gate->getId()->getVal()
+                   << "`): `" << id << "`.");
 
         return idMap.at(id);
     }
@@ -341,10 +323,7 @@ bool efd::QModule::hasQVar(std::string id, NDGateDecl::Ref gate) const {
 }
 
 efd::NDGateSign::Ref efd::QModule::getQGate(std::string id) const {
-    if (mGatesMap.find(id) == mGatesMap.end()) {
-        ERR << "Gate not found: `" << id << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(mGatesMap.find(id) == mGatesMap.end(), "Gate not found: `" << id << "`.");
     return mGatesMap.at(id).get();
 }
 

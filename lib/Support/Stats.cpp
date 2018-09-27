@@ -20,11 +20,8 @@ namespace efd {
 }
 
 void efd::StatsPool::addStat(StatBase* stat) {
-    if (hasStat(stat->getName())) {
-        ERR << "Stat with the same name already defined: `" << stat->getName()
-            << "`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(hasStat(stat->getName()),
+               "Stat with the same name already defined: `" << stat->getName() << "`.");
 
     mMap[stat->getName()] = stat;
 }

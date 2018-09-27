@@ -8,10 +8,8 @@ uint8_t efd::ErrorRateCalculationPass::ID = 0;
 ErrorRateCalculationPass::ErrorRateCalculationPass(ArchGraph::sRef arch) : mArchGraph(arch) {}
 
 bool ErrorRateCalculationPass::run(QModule::Ref qmod) {
-    if (mArchGraph.get() == nullptr) {
-        ERR << "mArchGraph not defined for `ErrorRateCalculationPass`." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(mArchGraph.get() == nullptr,
+               "mArchGraph not defined for `ErrorRateCalculationPass`.");
 
     double result = 1;
 

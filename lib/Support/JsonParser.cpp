@@ -15,7 +15,7 @@ std::string efd::JsonTypeString(const Json::ValueType& ty) {
         case Json::ValueType::objectValue:  return "object";
     }
 
-    EFD_ABORT();
+    EfdAbortIf(true, "Bad JsonCpp ValueType.");
 }
 
 std::string efd::JsonTypeVectorString(const std::vector<Json::ValueType>& tys) {

@@ -58,20 +58,12 @@ bool NodeCandidatesGenerator::finished() {
 }
 
 void NodeCandidatesGenerator::checkInitialized() {
-    if (!mInitialized) {
-        ERR << "`NodeCandidatesGenerator` not initialized." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(!mInitialized, "`NodeCandidatesGenerator` not initialized.");
 }
 
 void NodeCandidatesGenerator::initialize() {
     mInitialized = true;
-
-    if (mMod == nullptr) {
-        ERR << "Set the `QModule` for NodeCandidatesGenerator." << std::endl;
-        EFD_ABORT();
-    }
-
+    EfdAbortIf(mMod == nullptr, "Set the `QModule` for NodeCandidatesGenerator.");
     initializeImpl();
 }
 
@@ -91,10 +83,7 @@ uint32_t SwapCostEstimator::estimate(const Mapping& fromM, const Mapping& toM) {
 }
 
 void SwapCostEstimator::checkGraphSet() {
-    if (mG == nullptr) {
-        ERR << "Set the `Graph` for SwapCostEstimator." << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(mG == nullptr, "Set the `Graph` for SwapCostEstimator.");
 }
 
 // --------------------- BoundedMappingTreeQAllocator ------------------------
@@ -273,19 +262,15 @@ BoundedMappingTreeQAllocator::rankCandidates(const std::vector<Node::Ref>& nodeC
                 nCand.mWeight = 4;
             }
         } else {
-            ERR << "Instructions with more than one dependency not supported "
-                << "(" << node->toString(false) << ")" << std::endl;
-            EFD_ABORT();
+            EfdAbortIf(true,
+                       "Instructions with more than one dependency not supported ("
+                       << node->toString(false) << ")");
         }
 
         queue.push(nCand);
     }
 
-    if (queue.empty()) {
-        ERR << "`pQueue` empty." << std::endl;
-        EFD_ABORT();
-    }
-
+    EfdAbortIf(queue.empty(), "`pQueue` empty.");
     return queue;
 }
 
@@ -383,11 +368,11 @@ SwapSeq BoundedMappingTreeQAllocator::getTransformingSwapsFor(const Mapping& fro
                                                               Mapping toM) {
 
     for (uint32_t i = 0; i < mVQubits; ++i) {
-        if (fromM[i] != _undef && toM[i] == _undef) {
-            ERR << "Assumption that previous mappings have same mapped qubits "
-                << "than current mapping broken." << std::endl;
-            EFD_ABORT();
-        } else if (fromM[i] == _undef && toM[i] != _undef) {
+        EfdAbortIf(fromM[i] != _undef && toM[i] == _undef,
+                   "Assumption that previous mappings have same mapped qubits "
+                   << "than current mapping broken.");
+
+        if (fromM[i] == _undef && toM[i] != _undef) {
             toM[i] = _undef;
         }
     }
@@ -549,12 +534,9 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
             if ((u == _undef || v == _undef) ||
                 (!mArchGraph->hasEdge(u, v) && !mArchGraph->hasEdge(v, u))) {
 
-                if (++idx >= mss.mappingV.size()) {
-                    ERR << "Not enough mappings were generated, maybe!?" << std::endl;
-                    ERR << "Mapping for '" << iDependencies.mCallPoint->toString(false)
-                        << "'." << std::endl;
-                    EFD_ABORT();
-                }
+                EfdAbortIf(++idx >= mss.mappingV.size(),
+                           "Not enough mappings were generated, maybe!? "
+                           << "Mapping for '" << iDependencies.mCallPoint->toString(false) << "'.");
 
                 mapping = mss.mappingV[idx];
                 auto swaps = mss.swapSeqCollection[idx - 1];
@@ -581,9 +563,11 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
                 newNode = CreateIRevCX(mArchGraph->getNode(u)->clone(),
                                        mArchGraph->getNode(v)->clone());
             } else {
-                ERR << "Mapping " << MappingToString(mapping) << " not able to satisfy dependency "
-                    << "(" << a << "{" << u << "}, " << b << "{" << v << "})" << std::endl;
-                EFD_ABORT();
+                EfdAbortIf(true,
+                           "Mapping " << MappingToString(mapping) <<
+                           " not able to satisfy dependency ("
+                           << a << "{" << u << "}, "
+                           << b << "{" << v << "})");
             }
 
             issuedInstructions.push_back(std::move(newNode));
@@ -597,23 +581,28 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
 }
 
 Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
-    if (mNCGenerator.get() == nullptr ||
-                mChildrenCSelector.get() == nullptr ||
-                mPartialSolutionCSelector.get() == nullptr ||
-                mCostEstimator.get() == nullptr ||
-                mLQPProcessor.get() == nullptr ||
-                mMSSelector.get() == nullptr ||
-                mTSFinder.get() == nullptr) {
-        ERR << "Define the `BoundedMappingTreeQAllocator` interfaces:" << std::endl;
-        ERR << "    NodeCandidatesGenerator: " << mNCGenerator.get() << std::endl;
-        ERR << "    mChildrenCSelector: " << mChildrenCSelector.get() << std::endl;
-        ERR << "    mPartialSolutionCSelector: " << mPartialSolutionCSelector.get() << std::endl;
-        ERR << "    mCostEstimator: " << mCostEstimator.get() << std::endl;
-        ERR << "    mLQPProcessor: " << mLQPProcessor.get() << std::endl;
-        ERR << "    mMSSelector: " << mMSSelector.get() << std::endl;
-        ERR << "    mTSFinder: " << mTSFinder.get() << std::endl;
-        EFD_ABORT();
-    }
+    EfdAbortIf(mNCGenerator.get() == nullptr                ||
+               mChildrenCSelector.get() == nullptr          ||
+               mPartialSolutionCSelector.get() == nullptr   ||
+               mCostEstimator.get() == nullptr              ||
+               mLQPProcessor.get() == nullptr               ||
+               mMSSelector.get() == nullptr                 ||
+               mTSFinder.get() == nullptr,
+               "Define the `BoundedMappingTreeQAllocator` interfaces:"
+               << std::endl
+               << "    NodeCandidatesGenerator: " << mNCGenerator.get()
+               << std::endl
+               << "    mChildrenCSelector: " << mChildrenCSelector.get()
+               << std::endl
+               << "    mPartialSolutionCSelector: " << mPartialSolutionCSelector.get()
+               << std::endl
+               << "    mCostEstimator: " << mCostEstimator.get()
+               << std::endl
+               << "    mLQPProcessor: " << mLQPProcessor.get()
+               << std::endl
+               << "    mMSSelector: " << mMSSelector.get()
+               << std::endl
+               << "    mTSFinder: " << mTSFinder.get());
 
     mNCGenerator->setQModule(qmod);
     mNCGenerator->initialize();

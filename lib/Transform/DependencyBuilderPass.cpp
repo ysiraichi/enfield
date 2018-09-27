@@ -53,11 +53,8 @@ const efd::DependencyBuilder::DepsVector* efd::DependencyBuilder::getDepsVector
     const DepsVector* deps = &mGDeps;
 
     if (gate != nullptr) {
-        if (mLDeps.find(gate) == mLDeps.end()) {
-            efd::ERR << "No dependencies for this gate: `"
-                << gate->getId()->getVal() << "`." << std::endl;
-            efd::EFD_ABORT();
-        }
+        EfdAbortIf(mLDeps.find(gate) == mLDeps.end(),
+                   "No dependencies for this gate: `" << gate->getId()->getVal() << "`.");
 
         deps = &mLDeps.at(gate);
     }
@@ -91,11 +88,10 @@ efd::DependencyBuilder::DepsVector& efd::DependencyBuilder::getDependencies
 }
 
 const efd::Dependencies efd::DependencyBuilder::getDeps(Node* ref) const {
-    if (mIDeps.find(ref) == mIDeps.end()) {
-        std::string refStr = (ref == nullptr) ? "nullptr" : ref->toString(false);
-        efd::ERR << "Instruction never seen before: `" << refStr << "`." << std::endl;
-        efd::EFD_ABORT();
-    }
+    EfdAbortIf(mIDeps.find(ref) == mIDeps.end(),
+               "Instruction never seen before: `" <<
+               ((ref == nullptr) ? "nullptr" : ref->toString(false))
+               << "`.");
 
     return mIDeps.at(ref);
 }
@@ -145,12 +141,7 @@ efd::NDGateDecl::Ref efd::DependencyBuilderVisitor::getParentGate(Node::Ref ref)
     }
 
     auto gate = dynCast<NDGateDecl>(goplist->getParent());
-
-    if (gate == nullptr) {
-        efd::ERR << "NDGOpList is owned by a no node." << std::endl;
-        efd::EFD_ABORT();
-    }
-
+    EfdAbortIf(gate == nullptr, "NDGOpList is owned by a no node.");
     return gate;
 }
 
@@ -189,11 +180,8 @@ void efd::DependencyBuilderVisitor::visit(NDQOpGen::Ref ref) {
     Node::Ref node = mMod.getQGate(ref->getId()->getVal());
     NDGateDecl::Ref gRef = dynCast<NDGateDecl>(node);
 
-    if (gRef == nullptr) {
-        std::string nodeStr = (node == nullptr) ? "nullptr" : node->toString(false);
-        efd::ERR << "There is no quantum gate with this id: `" << nodeStr << "`." << std::endl;
-        efd::EFD_ABORT();
-    }
+    EfdAbortIf(gRef == nullptr,
+               "There is no quantum gate with this id: `" << node->toString(false) << "`.");
 
     auto& gDeps = mDepBuilder.mLDeps[gRef];
     Dependencies thisDeps { {}, ref };

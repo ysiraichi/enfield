@@ -34,18 +34,15 @@ namespace efd {
                 }
             }
 
-            if (!check) {
-                ERR << prefix << ": incorrect type for " << JsonTypeVectorString(tys) << ". "
-                    << "Actual: `" << JsonTypeString(keyTy) << "`." << std::endl;
-                EFD_ABORT();
-            }
+            EfdAbortIf(!check,
+                       prefix << ": incorrect type for " << JsonTypeVectorString(tys)
+                       << ". Actual: `" << JsonTypeString(keyTy) << "`.");
         }
 
     /// \brief Gets a \em T instance (wrapped in a \em std::unique_ptr) from the \em Json::Value.
     template <class T> struct JsonBackendParser {
         static std::unique_ptr<T> Parse(const Json::Value& root) {
-            ERR << "Parse method not implemented for '" << typeid(T).name() << "'." << std::endl;
-            EFD_ABORT();
+            EfdAbortIf(true, "Parse method not implemented for '" << typeid(T).name() << "'.");
         }
     };
 
