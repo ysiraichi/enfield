@@ -2,6 +2,7 @@
 #include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Transform/CircuitGraphBuilderPass.h"
+#include "enfield/Transform/QubitRemapPass.h"
 #include "enfield/Transform/Utils.h"
 #include "enfield/Analysis/NodeVisitor.h"
 #include "enfield/Support/ApproxTSFinder.h"
@@ -25,77 +26,6 @@ extern Stat<double> Phase1Time;
 extern Stat<double> Phase2Time;
 extern Stat<double> Phase3Time;
 extern Stat<uint32_t> Partitions;
-
-// --------------------- OptNodeRenameVisitor ------------------------
-namespace efd {
-    class OptNodeRenameVisitor : public NodeVisitor {
-        private:
-            Mapping& mMap;
-            XbitToNumber& mXtoN;
-            ArchGraph::Ref mArchGraph;
-
-        public:
-            OptNodeRenameVisitor(Mapping& m,
-                              XbitToNumber& xtoN,
-                              ArchGraph::Ref archGraph);
-
-            void visitNDQOp(NDQOp::Ref qop);
-
-            void visit(NDQOpMeasure::Ref ref) override;
-            void visit(NDQOpReset::Ref ref) override;
-            void visit(NDQOpU::Ref ref) override;
-            void visit(NDQOpCX::Ref ref) override;
-            void visit(NDQOpBarrier::Ref ref) override;
-            void visit(NDQOpGen::Ref ref) override;
-            void visit(NDIfStmt::Ref ref) override;
-    };
-}
-
-OptNodeRenameVisitor::OptNodeRenameVisitor(Mapping& m,
-                                     XbitToNumber& xtoN,
-                                     ArchGraph::Ref archGraph)
-    : mMap(m), mXtoN(xtoN), mArchGraph(archGraph) {}
-
-void OptNodeRenameVisitor::visitNDQOp(NDQOp::Ref qop) {
-    auto qargs = qop->getQArgs();
-    NDList::uRef newQArgs = NDList::Create();
-
-    for (auto& qarg : *qargs) {
-        uint32_t pseudoQUId = mXtoN.getQUId(qarg->toString(false));
-        uint32_t physicalQUId = mMap[pseudoQUId];
-        newQArgs->addChild(mArchGraph->getNode(physicalQUId)->clone());
-    }
-
-    qop->setQArgs(std::move(newQArgs));
-}
-
-void OptNodeRenameVisitor::visit(NDQOpMeasure::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void OptNodeRenameVisitor::visit(NDQOpReset::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void OptNodeRenameVisitor::visit(NDQOpU::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void OptNodeRenameVisitor::visit(NDQOpCX::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void OptNodeRenameVisitor::visit(NDQOpBarrier::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void OptNodeRenameVisitor::visit(NDQOpGen::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void OptNodeRenameVisitor::visit(NDIfStmt::Ref ref) {
-    ref->getQOp()->apply(this);
-}
 
 // --------------------- OptBMTQAllocator:POD ------------------------
 namespace efd {
@@ -396,39 +326,20 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
 }
 
 uint32_t OptBMTQAllocator::getNearest(uint32_t u, const InverseMap& inv) {
-    std::vector<bool> visited(mPQubits, false);
-    std::queue<uint32_t> q;
-    q.push(u);
-    visited[u] = true;
+    uint32_t minV = 0;
+    uint32_t minDist = _undef;
 
-    while (!q.empty()) {
-        uint32_t v = q.front();
-        q.pop();
-
-        if (inv[v] == _undef) return v;
-
-        for (uint32_t w : mArchGraph->succ(v)) {
-            if (!visited[w]) {
-                visited[w] = true;
-                q.push(w);
-            }
-        }
-
-        for (uint32_t w : mArchGraph->pred(v)) {
-            if (!visited[w]) {
-                visited[w] = true;
-                q.push(w);
-            }
+    for (uint32_t v = 0; v < mPQubits; ++v) {
+        if (inv[v] == _undef && mDistance[u][v] < minDist) {
+            minDist = mDistance[u][v];
+            minV = v;
         }
     }
 
-    // There is no way we can not find anyone!!
-    ERR << "Can't find any vertice connected to v:" << u << "." << std::endl;
-    EFD_ABORT();
+    return minV;
 }
 
-void OptBMTQAllocator::propagateLiveQubits(Mapping& fromM, Mapping& toM) {
-    auto fromInv = InvertMapping(mPQubits, fromM, false);
+void OptBMTQAllocator::propagateLiveQubits(const Mapping& fromM, Mapping& toM) {
     auto toInv = InvertMapping(mPQubits, toM, false);
 
     for (uint32_t i = 0; i < mVQubits; ++i) {
@@ -444,36 +355,11 @@ void OptBMTQAllocator::propagateLiveQubits(Mapping& fromM, Mapping& toM) {
     }
 }
 
-std::vector<uint32_t> OptBMTQAllocator::distanceFrom(uint32_t u) {
-    std::vector<uint32_t> distance(mPQubits, _undef);
-    std::queue<uint32_t> q;
-    std::vector<bool> visited(mPQubits, false);
-
-    q.push(u);
-    visited[u] = true;
-    distance[u] = 0;
-
-    while (!q.empty()) {
-        uint32_t u = q.front();
-        q.pop();
-
-        for (uint32_t v : mArchGraph->adj(u)) {
-            if (!visited[v]) {
-                visited[v] = true;
-                distance[v] = distance[u] + 1;
-                q.push(v);
-            }
-        }
-    }
-
-    return distance;
-}
-
 uint32_t OptBMTQAllocator::estimateSwapCost(const Mapping& fromM, const Mapping& toM) {
     uint32_t totalDistance = 0;
 
     for (uint32_t i = 0, e = fromM.size(); i < e; ++i) {
-        if (fromM[i] != _undef) {
+        if (fromM[i] != _undef && toM[i] != _undef) {
             totalDistance += mDistance[fromM[i]][toM[i]];
         }
     }
@@ -498,14 +384,14 @@ OptBMTQAllocator::tracebackPath(const std::vector<std::vector<TracebackInfo>>& m
 }
 
 SwapSeq OptBMTQAllocator::getTransformingSwapsFor(const Mapping& fromM,
-                                                              Mapping toM) {
+                                                  Mapping toM) {
 
     for (uint32_t i = 0; i < mVQubits; ++i) {
-        if (fromM[i] != _undef && toM[i] == _undef) {
-            ERR << "Assumption that previous mappings have same mapped qubits "
-                << "than current mapping broken." << std::endl;
-            EFD_ABORT();
-        } else if (fromM[i] == _undef && toM[i] != _undef) {
+        EfdAbortIf(fromM[i] != _undef && toM[i] == _undef,
+                   "Assumption that previous mappings have same mapped qubits "
+                   << "than current mapping broken.");
+
+        if (fromM[i] == _undef && toM[i] != _undef) {
             toM[i] = _undef;
         }
     }
@@ -574,14 +460,11 @@ OptBMTQAllocator::phase2(const std::vector<std::vector<MappingCandidate>>& colle
 
             for (uint32_t k = 0; k < kLayerSize; ++k) {
                 auto mapping = collection[i][j].m;
-                auto lastMapping = mem[i - 1][k].m;
 
-                propagateLiveQubits(lastMapping, mapping);
+                propagateLiveQubits(mem[i - 1][k].m, mapping);
 
-                // uint32_t mappingCost = mem[i - 1][k].mappingCost;
-                // Should be this one.
                 uint32_t mappingCost = mem[i - 1][k].mappingCost + collection[i][j].cost;
-                uint32_t swapEstimatedCost = estimateSwapCost(lastMapping, mapping) +
+                uint32_t swapEstimatedCost = estimateSwapCost(mem[i - 1][k].m, mapping) +
                                              mem[i - 1][k].swapEstimatedCost;
                 uint32_t estimatedCost = mappingCost + swapEstimatedCost;
 
@@ -597,7 +480,7 @@ OptBMTQAllocator::phase2(const std::vector<std::vector<MappingCandidate>>& colle
             //     << ((double) jt.getMilliseconds()) / 1000.0 << std::endl;
         }
 
-        INF << "End: " << i << " of " << layers << " layers." << std::endl;
+        INF << "End: " << i + 1 << " of " << layers << " layers." << std::endl;
     }
 
     MappingSwapSequence best = { {}, {}, _undef };
@@ -638,19 +521,36 @@ Mapping OptBMTQAllocator::phase3(QModule::Ref qmod, const MappingSwapSequence& m
     auto initial = mss.mappings[idx];
     auto mapping = initial;
 
-    OptNodeRenameVisitor renameVisitor(mapping, mXtoN, mArchGraph.get());
+    QubitRemapVisitor visitor(mapping, mXtoN);
     std::vector<Node::uRef> issuedInstructions;
 
     for (auto& partition : mPP) {
+        if (idx > 0) {
+            auto swaps = mss.swapSeqs[idx - 1];
+
+            for (auto swp : swaps) {
+                uint32_t u = swp.u, v = swp.v;
+
+                if (!mArchGraph->hasEdge(u, v)) {
+                    std::swap(u, v);
+                }
+
+                issuedInstructions.push_back(
+                        CreateISwap(mArchGraph->getNode(u)->clone(),
+                                    mArchGraph->getNode(v)->clone()));
+            }
+        }
+
+        mapping = mss.mappings[idx++];
+
         for (auto& node : partition) {
-        // for (auto& iDependencies : deps) {
             // We are sure that there are no instruction dependency that has more than
             // one dependency.
             auto iDependencies = mDBuilder.getDeps(node);
 
             if (iDependencies.size() < 1) {
                 auto cloned = node->clone();
-                cloned->apply(&renameVisitor);
+                cloned->apply(&visitor);
                 issuedInstructions.push_back(std::move(cloned));
                 continue;
             }
@@ -660,49 +560,23 @@ Mapping OptBMTQAllocator::phase3(QModule::Ref qmod, const MappingSwapSequence& m
             uint32_t a = dep.mFrom, b = dep.mTo;
             uint32_t u = mapping[a], v = mapping[b];
 
-            // If we can't satisfy (u, v) with the current mapping, it can only mean
-            // that we must go to the next one.
-            if ((u == _undef || v == _undef) ||
-                (!mArchGraph->hasEdge(u, v) && !mArchGraph->hasEdge(v, u))) {
-
-                if (++idx >= mss.mappings.size()) {
-                    ERR << "Not enough mappings were generated, maybe!?" << std::endl;
-                    ERR << "Mapping for '" << iDependencies.mCallPoint->toString(false)
-                        << "'." << std::endl;
-                    EFD_ABORT();
-                }
-
-                mapping = mss.mappings[idx];
-                auto swaps = mss.swapSeqs[idx - 1];
-
-                for (auto swp : swaps) {
-                    uint32_t u = swp.u, v = swp.v;
-
-                    if (!mArchGraph->hasEdge(u, v)) {
-                        std::swap(u, v);
-                    }
-
-                    issuedInstructions.push_back(
-                            CreateISwap(mArchGraph->getNode(u)->clone(),
-                                        mArchGraph->getNode(v)->clone()));
-                }
-
-                u = mapping[a];
-                v = mapping[b];
-            }
+            EfdAbortIf((u == _undef || v == _undef) ||
+                       (!mArchGraph->hasEdge(u, v) && !mArchGraph->hasEdge(v, u)),
+                       "Can't satisfy dependency (" << u << ", " << v << ") "
+                       << "with mapping: " << MappingToString(mapping));
 
             Node::uRef newNode;
-
             if (mArchGraph->hasEdge(u, v)) {
                 newNode = node->clone();
-                newNode->apply(&renameVisitor);
+                newNode->apply(&visitor);
             } else if (mArchGraph->hasEdge(v, u)) {
                 newNode = CreateIRevCX(mArchGraph->getNode(u)->clone(),
                                        mArchGraph->getNode(v)->clone());
             } else {
-                ERR << "Mapping " << MappingToString(mapping) << " not able to satisfy dependency "
-                    << "(" << a << "{" << u << "}, " << b << "{" << v << "})" << std::endl;
-                EFD_ABORT();
+                EfdAbortIf(true,
+                           "Mapping " << MappingToString(mapping)
+                           << " not able to satisfy dependency "
+                           << "(" << a << "{" << u << "}, " << b << "{" << v << "})");
             }
 
             issuedInstructions.push_back(std::move(newNode));
@@ -710,9 +584,7 @@ Mapping OptBMTQAllocator::phase3(QModule::Ref qmod, const MappingSwapSequence& m
     }
 
     qmod->clearStatements();
-    for (auto& instr : issuedInstructions) {
-        qmod->insertStatementLast(std::move(instr));
-    }
+    qmod->insertStatementLast(std::move(issuedInstructions));
 
     return initial;
 }
@@ -726,8 +598,15 @@ void OptBMTQAllocator::init(QModule::Ref qmod) {
     mTSFinder = SimplifiedApproxTSFinder::Create();
     mTSFinder->setGraph(mArchGraph.get());
 
+    mBFSDistance.init(mArchGraph.get());
+    mDistance.assign(mPQubits, std::vector<uint32_t>(mPQubits, 0));
+
     for (uint32_t i = 0; i < mPQubits; ++i) {
-        mDistance.push_back(distanceFrom(i));
+        for (uint32_t j = i + 1; j < mPQubits; ++j) {
+            auto dist = mBFSDistance.get(i, j);
+            mDistance[i][j] = dist;
+            mDistance[j][i] = dist;
+        }
     }
 }
 

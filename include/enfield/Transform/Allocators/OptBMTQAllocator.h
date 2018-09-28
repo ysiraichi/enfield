@@ -3,6 +3,7 @@
 
 #include "enfield/Transform/Allocators/QbitAllocator.h"
 #include "enfield/Transform/XbitToNumberPass.h"
+#include "enfield/Support/BFSCachedDistance.h"
 #include "enfield/Support/TokenSwapFinder.h"
 
 #include <random>
@@ -33,6 +34,7 @@ namespace efd {
 
             DependencyBuilder mDBuilder;
             XbitToNumber mXtoN;
+            BFSCachedDistance mBFSDistance;
 
             std::vector<std::vector<Node::Ref>> mPP;
             std::vector<std::vector<uint32_t>> mDistance;
@@ -60,9 +62,7 @@ namespace efd {
 
             uint32_t getNearest(uint32_t u, const InverseMap& inv);
 
-            void propagateLiveQubits(Mapping& fromM, Mapping& toM);
-
-            std::vector<uint32_t> distanceFrom(uint32_t u);
+            void propagateLiveQubits(const Mapping& fromM, Mapping& toM);
 
             uint32_t estimateSwapCost(const Mapping& fromM, const Mapping& toM);
 
