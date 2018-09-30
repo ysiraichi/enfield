@@ -6,6 +6,7 @@
 #include "enfield/Transform/Utils.h"
 #include "enfield/Support/CommandLine.h"
 #include "enfield/Support/Defs.h"
+#include "enfield/Support/Timer.h"
 
 #include <numeric>
 #include <unordered_map>
@@ -19,14 +20,6 @@ static Opt<uint32_t> LookAhead
 ("-sabre-lookahead", "Sets the number of instructions to peek.", 20, false);
 static Opt<uint32_t> Iterations
 ("-sabre-iterations", "Sets the number of times to run SABRE.", 5, false);
-
-namespace {
-    struct WeightedSwapCompare {
-        bool operator()(const WeightedSwap& lhs, const WeightedSwap& rhs) {
-            return lhs.first < rhs.first;
-        }
-    };
-}
 
 SabreQAllocator::SabreQAllocator(ArchGraph::sRef ag)
     : QbitAllocator(ag) {}
@@ -102,6 +95,7 @@ SabreQAllocator::allocateWithInitialMapping(const Mapping& initialMapping,
                         case Node::Kind::K_QOP_RESET:
                         case Node::Kind::K_QOP_BARRIER:
                         case Node::Kind::K_QOP_MEASURE:
+                            // INF << "Issue: " << node->toString(false) << std::endl;
                             issueNodes.insert(cNode.get());
                             changed = true;
                             break;
@@ -126,7 +120,7 @@ SabreQAllocator::allocateWithInitialMapping(const Mapping& initialMapping,
             }
         } while (changed);
 
-        std::vector<Dep> currentLayer;
+        std::unordered_map<Node::Ref, Dep> currentLayer;
         std::vector<Dep> nextLayer;
 
         uint32_t offset = std::numeric_limits<uint32_t>::max();
@@ -137,7 +131,7 @@ SabreQAllocator::allocateWithInitialMapping(const Mapping& initialMapping,
                 auto dep = depBuilder.getDeps(node)[0];
 
                 pastLookAhead.insert(node);
-                currentLayer.push_back(dep);
+                currentLayer[node] = dep;
 
                 offset = std::min(offset, indexMap[node]);
             }
@@ -148,8 +142,8 @@ SabreQAllocator::allocateWithInitialMapping(const Mapping& initialMapping,
         // all nodes already.
         if (currentLayer.empty()) break;
 
-        for (uint32_t i = offset, maxI = offset + mLookAhead; i < stmtNumber && i < maxI; ++i) {
-            auto node = qmod->getStatement(i);
+        while (nextLayer.size() < mLookAhead && offset < stmtNumber) {
+            auto node = qmod->getStatement(offset++);
             if (pastLookAhead.find(node) == pastLookAhead.end()) {
                 auto deps = depBuilder.getDeps(node);
                 if (!deps.empty()) nextLayer.push_back(deps[0]);
@@ -157,14 +151,14 @@ SabreQAllocator::allocateWithInitialMapping(const Mapping& initialMapping,
         }
 
         std::set<uint32_t> usedQubits;
-        std::set<WeightedSwap, WeightedSwapCompare> swapCandidates;
 
-        for (const auto& dep : currentLayer) {
-            usedQubits.insert(mapping[dep.mFrom]);
-            usedQubits.insert(mapping[dep.mTo]);
+        for (auto pair : currentLayer) {
+            usedQubits.insert(mapping[pair.second.mFrom]);
+            usedQubits.insert(mapping[pair.second.mTo]);
         }
 
         auto invM = InvertMapping(mPQubits, mapping);
+        auto best = WeightedSwap(_undef, Swap { 0, 0 });
 
         for (auto u : usedQubits) {
             for (auto v : mArchGraph->adj(u)) {
@@ -174,20 +168,26 @@ SabreQAllocator::allocateWithInitialMapping(const Mapping& initialMapping,
                 double currentLCost = 0;
                 double nextLCost = 0;
 
-                for (const auto& dep : currentLayer) {
-                    currentLCost += mBFSDistance.get(cpy[dep.mFrom], cpy[dep.mTo]);
+                for (auto pair : currentLayer) {
+                    currentLCost += mBFSDistance.get(cpy[pair.second.mFrom], cpy[pair.second.mTo]);
                 }
 
                 for (const auto& dep : nextLayer) {
                     nextLCost += mBFSDistance.get(cpy[dep.mFrom], cpy[dep.mTo]);
                 }
 
+                currentLCost = currentLCost / currentLayer.size();
+                if (!nextLayer.empty()) nextLCost = nextLCost / nextLayer.size();
                 double cost = currentLCost + 0.5 * nextLCost;
-                swapCandidates.insert(WeightedSwap(cost, Swap { u, v }));
+
+                if (cost < best.first) {
+                    best.first = cost;
+                    best.second = Swap { u, v };
+                }
             }
         }
 
-        auto swap = swapCandidates.begin()->second;
+        auto swap = best.second;
         std::swap(mapping[invM[swap.u]], mapping[invM[swap.v]]);
 
         if (issueInstructions) {
@@ -233,10 +233,24 @@ Mapping SabreQAllocator::allocate(QModule::Ref qmod) {
 
     MappingAndNSwaps best(initialM, std::numeric_limits<uint32_t>::max());
 
+    INF << "Starting SABRE Algorithm." << std::endl;
     for (uint32_t i = 0; i < mIterations; ++i) {
+        Timer t;
+
+        t.start();
         auto resultFinal = allocateWithInitialMapping(initialM, qmod, false);
+        t.stop();
+        INF << "[" << i << "] First round: " << t.getMilliseconds() / 1000.0 << std::endl;
+
+        t.start();
         auto resultInit = allocateWithInitialMapping(resultFinal.first, qmodReverse.get(), false);
+        t.stop();
+        INF << "[" << i << "] Second round: " << t.getMilliseconds() / 1000.0 << std::endl;
+
+        t.start();
         resultFinal = allocateWithInitialMapping(resultInit.first, qmod, false);
+        t.stop();
+        INF << "[" << i << "] Third round: " << t.getMilliseconds() / 1000.0 << std::endl;
 
         if (resultFinal.second < best.second) {
             best = MappingAndNSwaps(resultInit.first, resultFinal.second);
