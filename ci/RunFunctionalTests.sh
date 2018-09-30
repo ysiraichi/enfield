@@ -8,8 +8,33 @@
 ## Even though `Q_jku` can be executed on 'A_ibmqx3', it uses up all
 ## travis available memory (3GB) when compiling 'adder.qasm'.
 
-ALGS_QX2="Q_dynprog Q_bmt Q_grdy Q_ibm Q_wpm Q_random Q_qubiter Q_wqubiter Q_jku Q_sabre"
-ALGS_QX3="Q_bmt Q_grdy Q_ibm Q_wpm Q_random Q_sabre"
+ALGS_QX2=""
+ALGS_QX2="${ALGS_QX2} Q_dynprog"
+ALGS_QX2="${ALGS_QX2} Q_grdy"
+ALGS_QX2="${ALGS_QX2} Q_bmt"
+ALGS_QX2="${ALGS_QX2} Q_simplified_bmt"
+ALGS_QX2="${ALGS_QX2} Q_ibmt"
+ALGS_QX2="${ALGS_QX2} Q_simplified_ibmt"
+ALGS_QX2="${ALGS_QX2} Q_opt_bmt"
+ALGS_QX2="${ALGS_QX2} Q_ibm"
+ALGS_QX2="${ALGS_QX2} Q_wpm"
+ALGS_QX2="${ALGS_QX2} Q_random"
+ALGS_QX2="${ALGS_QX2} Q_qubiter"
+ALGS_QX2="${ALGS_QX2} Q_wqubiter"
+ALGS_QX2="${ALGS_QX2} Q_jku"
+ALGS_QX2="${ALGS_QX2} Q_sabre"
+
+ALGS_QX3=""
+ALGS_QX3="${ALGS_QX3} Q_bmt"
+ALGS_QX3="${ALGS_QX3} Q_simplified_bmt"
+ALGS_QX3="${ALGS_QX3} Q_ibmt"
+ALGS_QX3="${ALGS_QX3} Q_simplified_ibmt"
+ALGS_QX3="${ALGS_QX3} Q_opt_bmt"
+ALGS_QX3="${ALGS_QX3} Q_grdy"
+ALGS_QX3="${ALGS_QX3} Q_ibm"
+ALGS_QX3="${ALGS_QX3} Q_wpm"
+ALGS_QX3="${ALGS_QX3} Q_random"
+ALGS_QX3="${ALGS_QX3} Q_sabre"
 
 ARCH_QX2="A_ibmqx2"
 ARCH_QX3="A_ibmqx3"
@@ -38,8 +63,8 @@ for i in `seq 1 $EXECUTION_TIMES`; do
 
             ## Executing EFD
             $EFD_EXE -i $f -o $OUTPUT -alloc $alg -arch $ARCH_QX2 -stats -ord \
-                --bsi-max-children $BMT_CHILDREN \
-                --bsi-max-partial $BMT_PARTIAL > $LOG 2>&1
+                --bmt-max-children $BMT_CHILDREN \
+                --bmt-max-partial $BMT_PARTIAL > $LOG 2>&1
             ret=$?
 
             if echo "$FAIL_QX2" | grep -q "\<$filename\>"; then
@@ -71,8 +96,8 @@ for i in `seq 1 $EXECUTION_TIMES`; do
 
             ## Executing EFD
             $EFD_EXE -i $f -o $OUTPUT -alloc $alg -arch $ARCH_QX3 -stats -ord \
-                --bsi-max-children $BMT_CHILDREN \
-                --bsi-max-partial $BMT_PARTIAL > $LOG 2>&1
+                --bmt-max-children $BMT_CHILDREN \
+                --bmt-max-partial $BMT_PARTIAL > $LOG 2>&1
             ret=$?
 
             if echo "$FAIL_QX3" | grep -q "\<$filename\>"; then

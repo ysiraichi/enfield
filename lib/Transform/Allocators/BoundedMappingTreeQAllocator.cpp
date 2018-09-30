@@ -22,16 +22,16 @@ static Opt<uint32_t> MaxPartialSolutions
 ("-bmt-max-partial", "Limits the max number of partial solutions per step.",
  std::numeric_limits<uint32_t>::max(), false);
 
-static Stat<double> Phase1Time
+Stat<double> Phase1Time
 ("Phase1Time", "Time spent by the 1st phase of BMT allocators.");
 
-static Stat<double> Phase2Time
+Stat<double> Phase2Time
 ("Phase2Time", "Time spent by the 2nd phase of BMT allocators.");
 
-static Stat<double> Phase3Time
+Stat<double> Phase3Time
 ("Phase3Time", "Time spent by the 3rd phase of BMT allocators.");
 
-static Stat<uint32_t> Partitions
+Stat<uint32_t> Partitions
 ("BMTPartitions", "Number of partitions split by *BMT allocators.");
 
 bool efd::bmt::operator>(const NodeCandidate& lhs, const NodeCandidate& rhs) {
@@ -312,8 +312,9 @@ MCandidateVCollection BoundedMappingTreeQAllocator::phase1() {
                                                  candidates,
                                                  first);
                 first = false;
-                if (!newCandidates.empty())
+                if (!newCandidates.empty()) {
                     break;
+                }
             }
         }
 

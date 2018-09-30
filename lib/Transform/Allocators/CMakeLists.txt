@@ -11,4 +11,5 @@ add_library (EfdAllocator
     IBMQAllocator.cpp
     BoundedMappingTreeQAllocator.cpp
     SabreQAllocator.cpp
-    JKUQAllocator.cpp)
+    JKUQAllocator.cpp
+    OptBMTQAllocator.cpp)
