@@ -10,10 +10,10 @@
 #include <queue>
 
 namespace efd {
-    namespace jku {
-        class AStarNode;
-        class ExpandNodeState;
-    }
+namespace jku {
+    struct AStarNode;
+    struct ExpandNodeState;
+}
 
     /// \brief JKU QAllocator.
     ///
