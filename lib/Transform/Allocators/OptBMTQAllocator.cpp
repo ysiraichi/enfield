@@ -48,8 +48,7 @@ namespace opt_bmt {
     };
 
     bool operator>(const CNodeCandidate& lhs, const CNodeCandidate& rhs) {
-        if (lhs.weight != rhs.weight) return lhs.weight > rhs.weight;
-        return lhs.cNode->node() > rhs.cNode->node();
+        return lhs.weight > rhs.weight;
     }
 
     struct TracebackInfo {
@@ -270,7 +269,12 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
         } while (changed);
 
         bool redo = false;
-        std::set<CircuitNode::Ref> nodeCandidateSet;
+
+        // It sounds dumb to have this kind of thing, but we do it so that
+        // we can ensure deterministic behaviour. Otherwise, we will be susceptible
+        // to different results if we change the the order of CircuitNodes.
+        std::set<CircuitNode::Ref> circuitNodeCandidatesSet;
+        std::vector<CircuitNode::Ref> circuitNodeCandidatesVector;
 
         for (uint32_t i = 0; i < mXbitSize; ++i) {
             if (it[i]->isGateNode() && reached[it.get(i)] == it[i]->numberOfXbits()) {
@@ -280,7 +284,11 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
                     ++reached[it.get(i)];
                     redo = true;
                 } else {
-                    nodeCandidateSet.insert(it[i].get());
+                    auto node = it[i].get();
+                    if (circuitNodeCandidatesSet.find(node) == circuitNodeCandidatesSet.end()) {
+                        circuitNodeCandidatesSet.insert(it[i].get());
+                        circuitNodeCandidatesVector.push_back(it[i].get());
+                    }
                 }
             }
         }
@@ -292,13 +300,13 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
 
         // If there is no node candidate, it means that we have finished processing
         // all nodes in the circuit.
-        if (nodeCandidateSet.empty()) break;
+        if (circuitNodeCandidatesVector.empty()) break;
 
         std::priority_queue<CNodeCandidate,
                             std::vector<CNodeCandidate>,
                             std::greater<CNodeCandidate>> nodeQueue;
 
-        for (auto cnode : nodeCandidateSet) {
+        for (auto cnode : circuitNodeCandidatesVector) {
             CNodeCandidate cNCand;
 
             cNCand.cNode = cnode;
