@@ -21,6 +21,9 @@ static Opt<uint32_t> LookAhead
 static Opt<uint32_t> Iterations
 ("-sabre-iterations", "Sets the number of times to run SABRE.", 5, false);
 
+Stat<uint32_t> Swaps
+("Swaps", "Number of swaps found.");
+
 SabreQAllocator::SabreQAllocator(ArchGraph::sRef ag)
     : QbitAllocator(ag) {}
 
@@ -229,13 +232,13 @@ Mapping SabreQAllocator::allocate(QModule::Ref qmod) {
 
     RandomMappingFinder mappingFinder;
     auto dummyDependencies = depBuilder.getDependencies();
-    initialM = mappingFinder.find(mArchGraph.get(), dummyDependencies);
 
     MappingAndNSwaps best(initialM, std::numeric_limits<uint32_t>::max());
 
     INF << "Starting SABRE Algorithm." << std::endl;
     for (uint32_t i = 0; i < mIterations; ++i) {
         Timer t;
+        initialM = mappingFinder.find(mArchGraph.get(), dummyDependencies);
 
         t.start();
         auto resultFinal = allocateWithInitialMapping(initialM, qmod, false);
@@ -257,7 +260,8 @@ Mapping SabreQAllocator::allocate(QModule::Ref qmod) {
         }
     }
 
-    allocateWithInitialMapping(best.first, qmod, true);
+    auto r = allocateWithInitialMapping(best.first, qmod, true);
+    Swaps = r.second;
 
     return best.first;
 }
