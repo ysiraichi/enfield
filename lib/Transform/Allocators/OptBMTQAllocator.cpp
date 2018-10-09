@@ -172,45 +172,6 @@ OptBMTQAllocator::filterCandidates(const std::vector<MappingCandidate>& candidat
         queue.pop();
     }
 
-    // uint32_t sqSum = 0;
-    // uint32_t wSum = 0;
-
-    // std::vector<uint32_t> weight;
-    // std::vector<bool> wasSelected(candidates.size(), false);
-
-    // for (const auto& cand : candidates) {
-    //     sqSum += (cand.cost * cand.cost);
-    // }
-
-    // if (sqSum == 0) {
-    //     weight.assign(candidates.size(), 1);
-    // } else {
-    //     for (const auto& cand : candidates) {
-    //         weight.push_back(sqSum - (cand.cost * cand.cost));
-    //     }
-    // }
-
-    // for (auto w : weight) {
-    //     wSum += w;
-    // }
-
-    // for (uint32_t i = 0; i < selectionNumber; ++i) {
-    //     double r = mDistribution(mGen);
-    //     double cummulativeProbability = 0;
-    //     uint32_t j = 0;
-
-    //     while (cummulativeProbability < r && j < weight.size()) {
-    //         if (!wasSelected[j]) cummulativeProbability += (double) weight[j] /
-    //                                                        ((double) wSum);
-    //         ++j;
-    //     }
-
-    //     --j;
-    //     wSum -= weight[j];
-    //     wasSelected[j] = true;
-    //     selected.push_back(candidates[j]);
-    // }
-
     return selected;
 }
 
