@@ -128,6 +128,9 @@ efd_test (SabreQAllocatorTests
 efd_test (BoundedMappingTreeQAllocatorTests
     EfdAllocator EfdBMTImpl EfdTransform EfdArch EfdAnalysis EfdSupport)
 
+efd_test (OptBMTQAllocatorTests
+    EfdAllocator EfdBMTImpl EfdTransform EfdArch EfdAnalysis EfdSupport)
+
 efd_test (GreedyCktQAllocatorTests
     EfdAllocator EfdSimpleImpl EfdTransform EfdArch EfdAnalysis EfdSupport)
 

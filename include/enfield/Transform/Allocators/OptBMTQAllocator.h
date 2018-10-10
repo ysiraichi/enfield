@@ -10,9 +10,11 @@
 #include <queue>
 
 namespace efd {
+namespace opt_bmt {
     struct MappingCandidate;
     struct MappingSwapSequence;
     struct TracebackInfo;
+}
     /// \brief Subgraph Isomorphism based Qubit Allocator.
     ///
     /// This QAllocator is split into 3 phases:
@@ -45,20 +47,23 @@ namespace efd {
             std::uniform_real_distribution<double> mDistribution;
 
         private:
-            std::vector<std::vector<MappingCandidate>>
+            std::vector<std::vector<opt_bmt::MappingCandidate>>
                 phase1(QModule::Ref qmod);
-            MappingSwapSequence
-                phase2(const std::vector<std::vector<MappingCandidate>>& collection);
+            opt_bmt::MappingSwapSequence
+                phase2(const std::vector<std::vector<opt_bmt::MappingCandidate>>& collection);
             Mapping
-                phase3(QModule::Ref qmod, const MappingSwapSequence& mss);
+                phase3(QModule::Ref qmod, const opt_bmt::MappingSwapSequence& mss);
 
-            std::vector<MappingCandidate>
+            std::vector<opt_bmt::MappingCandidate>
                 extendCandidates(const Dep& dep,
                                  const std::vector<bool>& mapped,
-                                 const std::vector<MappingCandidate>& candidates);
+                                 const std::vector<opt_bmt::MappingCandidate>& candidates);
 
-            std::vector<MappingCandidate>
-                filterCandidates(const std::vector<MappingCandidate>& candidates);
+            void setCandidatesWeight(std::vector<opt_bmt::MappingCandidate>& candidates,
+                                     Graph& lastPartitionGraph);
+
+            std::vector<opt_bmt::MappingCandidate>
+                filterCandidates(const std::vector<opt_bmt::MappingCandidate>& candidates);
 
             uint32_t getNearest(uint32_t u, const InverseMap& inv);
 
@@ -67,12 +72,12 @@ namespace efd {
             uint32_t estimateSwapCost(const Mapping& fromM, const Mapping& toM);
 
             std::vector<Mapping>
-                tracebackPath(const std::vector<std::vector<TracebackInfo>>& mem,
+                tracebackPath(const std::vector<std::vector<opt_bmt::TracebackInfo>>& mem,
                               uint32_t idx);
 
             SwapSeq getTransformingSwapsFor(const Mapping& fromM, Mapping toM);
 
-            void normalize(MappingSwapSequence& mss);
+            void normalize(opt_bmt::MappingSwapSequence& mss);
 
             void init(QModule::Ref qmod);
 

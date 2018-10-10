@@ -15,6 +15,7 @@
 #include <algorithm>
 
 using namespace efd;
+using namespace opt_bmt;
 
 using CircuitNode = CircuitGraph::CircuitNode;
 
@@ -29,10 +30,16 @@ extern Stat<uint32_t> Partitions;
 
 // --------------------- OptBMTQAllocator:POD ------------------------
 namespace efd {
+namespace opt_bmt {
     struct MappingCandidate {
         Mapping m;
         uint32_t cost;
+        uint32_t weight;
     };
+
+    bool operator>(const MappingCandidate& lhs, const MappingCandidate& rhs) {
+        return lhs.weight > rhs.weight;
+    }
     
     struct CNodeCandidate {
         Dep dep;
@@ -41,8 +48,7 @@ namespace efd {
     };
 
     bool operator>(const CNodeCandidate& lhs, const CNodeCandidate& rhs) {
-        if (lhs.weight != rhs.weight) return lhs.weight > rhs.weight;
-        return lhs.cNode->node() > rhs.cNode->node();
+        return lhs.weight > rhs.weight;
     }
 
     struct TracebackInfo {
@@ -57,6 +63,7 @@ namespace efd {
         std::vector<SwapSeq> swapSeqs;
         uint32_t cost;
     };
+}
 }
 
 // --------------------- OptBMTQAllocator ------------------------
@@ -123,6 +130,25 @@ OptBMTQAllocator::extendCandidates(const Dep& dep,
     return newCandidates;
 }
 
+void OptBMTQAllocator::setCandidatesWeight(std::vector<MappingCandidate>& candidates,
+                                           Graph& lastPartitionGraph) {
+    for (auto& candidate : candidates) {
+        candidate.weight = 0;
+    }
+
+    for (uint32_t a = 0; a < mVQubits; ++a) {
+        if (candidates[0].m[a] == _undef) continue;
+
+        for (uint32_t b : lastPartitionGraph.succ(a)) {
+            if (candidates[0].m[b] == _undef) continue;
+
+            for (auto& candidate : candidates) {
+                candidate.weight += mDistance[candidate.m[a]][candidate.m[b]];
+            }
+        }
+    }
+}
+
 std::vector<MappingCandidate>
 OptBMTQAllocator::filterCandidates(const std::vector<MappingCandidate>& candidates) {
     uint32_t selectionNumber = std::min(mMaxPartial, (uint32_t) candidates.size());
@@ -130,44 +156,20 @@ OptBMTQAllocator::filterCandidates(const std::vector<MappingCandidate>& candidat
     if (selectionNumber >= (uint32_t) candidates.size())
         return candidates;
 
-    uint32_t sqSum = 0;
-    uint32_t wSum = 0;
+    INF << "Filtering " << candidates.size() << " candidates." << std::endl;
 
     std::vector<MappingCandidate> selected;
-    std::vector<uint32_t> weight;
-    std::vector<bool> wasSelected(candidates.size(), false);
 
-    for (const auto& cand : candidates) {
-        sqSum += (cand.cost * cand.cost);
-    }
-
-    if (sqSum == 0) {
-        weight.assign(candidates.size(), 1);
-    } else {
-        for (const auto& cand : candidates) {
-            weight.push_back(sqSum - (cand.cost * cand.cost));
-        }
-    }
-
-    for (auto w : weight) {
-        wSum += w;
+    std::priority_queue<MappingCandidate,
+                        std::vector<MappingCandidate>,
+                        std::greater<MappingCandidate>> queue;
+    for (auto candidate : candidates) {
+        queue.push(candidate);
     }
 
     for (uint32_t i = 0; i < selectionNumber; ++i) {
-        double r = mDistribution(mGen);
-        double cummulativeProbability = 0;
-        uint32_t j = 0;
-
-        while (cummulativeProbability < r && j < weight.size()) {
-            if (!wasSelected[j]) cummulativeProbability += (double) weight[j] /
-                                                           ((double) wSum);
-            ++j;
-        }
-
-        --j;
-        wSum -= weight[j];
-        wasSelected[j] = true;
-        selected.push_back(candidates[j]);
+        selected.push_back(queue.top());
+        queue.pop();
     }
 
     return selected;
@@ -183,7 +185,9 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
     std::vector<std::vector<MappingCandidate>> collection;
     std::vector<MappingCandidate> candidates { { Mapping(mVQubits, _undef), 0 } };
     std::vector<bool> mapped(mVQubits, false);
-    std::vector<std::set<uint32_t>> neighbors(mVQubits);
+
+    Graph lastPartitionGraph(mVQubits);
+    Graph partitionGraph(mVQubits);
 
     INF << "PHASE 1 >>>> Solving SIP Instances" << std::endl;
 
@@ -226,7 +230,12 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
         } while (changed);
 
         bool redo = false;
-        std::set<CircuitNode::Ref> nodeCandidateSet;
+
+        // It sounds dumb to have this kind of thing, but we do it so that
+        // we can ensure deterministic behaviour. Otherwise, we will be susceptible
+        // to different results if we change the the order of CircuitNodes.
+        std::set<CircuitNode::Ref> circuitNodeCandidatesSet;
+        std::vector<CircuitNode::Ref> circuitNodeCandidatesVector;
 
         for (uint32_t i = 0; i < mXbitSize; ++i) {
             if (it[i]->isGateNode() && reached[it.get(i)] == it[i]->numberOfXbits()) {
@@ -236,7 +245,11 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
                     ++reached[it.get(i)];
                     redo = true;
                 } else {
-                    nodeCandidateSet.insert(it[i].get());
+                    auto node = it[i].get();
+                    if (circuitNodeCandidatesSet.find(node) == circuitNodeCandidatesSet.end()) {
+                        circuitNodeCandidatesSet.insert(it[i].get());
+                        circuitNodeCandidatesVector.push_back(it[i].get());
+                    }
                 }
             }
         }
@@ -248,13 +261,13 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
 
         // If there is no node candidate, it means that we have finished processing
         // all nodes in the circuit.
-        if (nodeCandidateSet.empty()) break;
+        if (circuitNodeCandidatesVector.empty()) break;
 
         std::priority_queue<CNodeCandidate,
                             std::vector<CNodeCandidate>,
                             std::greater<CNodeCandidate>> nodeQueue;
 
-        for (auto cnode : nodeCandidateSet) {
+        for (auto cnode : circuitNodeCandidatesVector) {
             CNodeCandidate cNCand;
 
             cNCand.cNode = cnode;
@@ -262,14 +275,26 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
 
             uint32_t a = cNCand.dep.mFrom, b = cNCand.dep.mTo;
 
-            if (mapped[a] && mapped[b] && neighbors[a].find(b) != neighbors[a].end()) {
-                cNCand.weight = 1;
-            } else if (!mapped[a] && !mapped[b]) {
-                cNCand.weight = 3;
-            } else if (!mapped[a] || !mapped[b]) {
-                cNCand.weight = 2;
+            // If we have the edge (a, b), so either:
+            //     - `a` and `b` are close to each other in this partition; or
+            //     - `a` and `b` were close to each other in the previous partition,
+            //     and now up to one of them is mapped.
+            //
+            // Even though `partitionGraph` is an undirected graph, when we clear the
+            // successors and predecessors later, we can't really be sure that
+            // (a, b) => (b, a).
+            if (partitionGraph.hasEdge(a, b) || partitionGraph.hasEdge(b, a)) {
+                // We don't need to do nothing if we find this case, since we know
+                // that both are mapped and close to each other.
+                if (mapped[a] && mapped[b]) cNCand.weight = 1;
+                else if (mapped[a] || mapped[b]) cNCand.weight = 2;
+                else cNCand.weight = 3;
             } else {
-                cNCand.weight = 4;
+                // The order here is a bit different, since we want to delay the creation
+                // of a new partition as much as we can.
+                if (mapped[a] && mapped[b]) cNCand.weight = 6;
+                else if (mapped[a] || mapped[b]) cNCand.weight = 4;
+                else cNCand.weight = 5;
             }
 
             nodeQueue.push(cNCand);
@@ -288,6 +313,7 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
             newCandidates = extendCandidates(cNCand.dep, mapped, candidates);
 
             if (!newCandidates.empty()) {
+                setCandidatesWeight(newCandidates, lastPartitionGraph);
                 newCandidates = filterCandidates(newCandidates);
                 break;
             }
@@ -301,14 +327,26 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
             mapped.assign(mVQubits, false);
             mPP.push_back(std::vector<Node::Ref>());
 
+            lastPartitionGraph = partitionGraph;
         } else {
             auto dep = cNCand.dep;
             uint32_t a = dep.mFrom, b = dep.mTo;
 
+            if (!mapped[b]) {
+                partitionGraph.succ(b).clear();
+                partitionGraph.pred(b).clear();
+                mapped[b] = true;
+            }
+
+            if (!mapped[a]) {
+                partitionGraph.succ(a).clear();
+                partitionGraph.pred(a).clear();
+                mapped[a] = true;
+            }
+
             mapped[a] = true;
             mapped[b] = true;
-            neighbors[a].insert(b);
-            neighbors[b].insert(a);
+            partitionGraph.putEdge(a, b);
 
             candidates = newCandidates;
             mPP.back().push_back(cNCand.cNode->node());
@@ -563,7 +601,7 @@ Mapping OptBMTQAllocator::phase3(QModule::Ref qmod, const MappingSwapSequence& m
             EfdAbortIf((u == _undef || v == _undef) ||
                        (!mArchGraph->hasEdge(u, v) && !mArchGraph->hasEdge(v, u)),
                        "Can't satisfy dependency (" << u << ", " << v << ") "
-                       << "with mapping: " << MappingToString(mapping));
+                       << "with " << idx << "-th mapping: " << MappingToString(mapping));
 
             Node::uRef newNode;
             if (mArchGraph->hasEdge(u, v)) {
