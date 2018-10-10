@@ -1,5 +1,6 @@
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
 #include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
+#include "enfield/Transform/QubitRemapPass.h"
 #include "enfield/Transform/PassCache.h"
 #include "enfield/Transform/Utils.h"
 #include "enfield/Analysis/NodeVisitor.h"
@@ -42,10 +43,6 @@ bool efd::bmt::operator>(const NodeCandidate& lhs, const NodeCandidate& rhs) {
 // --------------------- NodeCandidatesGenerator ------------------------
 NodeCandidatesGenerator::NodeCandidatesGenerator() : mInitialized(false), mMod(nullptr) {}
 
-void NodeCandidatesGenerator::setQModule(QModule::Ref qmod) {
-    mMod = qmod;
-}
-
 std::vector<Node::Ref> NodeCandidatesGenerator::generate() {
     checkInitialized();
     if (finished()) return {};
@@ -61,100 +58,48 @@ void NodeCandidatesGenerator::checkInitialized() {
     EfdAbortIf(!mInitialized, "`NodeCandidatesGenerator` not initialized.");
 }
 
-void NodeCandidatesGenerator::initialize() {
+void NodeCandidatesGenerator::init(QModule::Ref qmod) {
+    EfdAbortIf(qmod == nullptr, "Set the `QModule` for NodeCandidatesGenerator.");
     mInitialized = true;
-    EfdAbortIf(mMod == nullptr, "Set the `QModule` for NodeCandidatesGenerator.");
-    initializeImpl();
+    mMod = qmod;
+    initImpl();
 }
 
+void NodeCandidatesGenerator::initImpl() {}
 void NodeCandidatesGenerator::signalProcessed(Node::Ref node) {}
 
 // --------------------- SwapCostEstimator ------------------------
 SwapCostEstimator::SwapCostEstimator() : mG(nullptr) {}
 
-void SwapCostEstimator::setGraph(Graph::Ref g) {
+void SwapCostEstimator::init(Graph::Ref g) {
     mG = g;
-    preprocess();
+    initImpl();
 }
 
 uint32_t SwapCostEstimator::estimate(const Mapping& fromM, const Mapping& toM) {
-    checkGraphSet();
+    checkInitialized();
     return estimateImpl(fromM, toM);
 }
 
-void SwapCostEstimator::checkGraphSet() {
+void SwapCostEstimator::checkInitialized() {
     EfdAbortIf(mG == nullptr, "Set the `Graph` for SwapCostEstimator.");
 }
 
-// --------------------- BoundedMappingTreeQAllocator ------------------------
-namespace efd {
-    class NodeRenameVisitor : public NodeVisitor {
-        private:
-            Mapping& mMap;
-            XbitToNumber& mXtoN;
-            ArchGraph::Ref mArchGraph;
+// --------------------- LiveQubitsPreProcessor ------------------------
+LiveQubitsPreProcessor::LiveQubitsPreProcessor() : mG(nullptr) {}
 
-        public:
-            NodeRenameVisitor(Mapping& m,
-                              XbitToNumber& xtoN,
-                              ArchGraph::Ref archGraph);
-
-            void visitNDQOp(NDQOp::Ref qop);
-
-            void visit(NDQOpMeasure::Ref ref) override;
-            void visit(NDQOpReset::Ref ref) override;
-            void visit(NDQOpU::Ref ref) override;
-            void visit(NDQOpCX::Ref ref) override;
-            void visit(NDQOpBarrier::Ref ref) override;
-            void visit(NDQOpGen::Ref ref) override;
-            void visit(NDIfStmt::Ref ref) override;
-    };
+void LiveQubitsPreProcessor::init(Graph::Ref g) {
+    mG = g;
+    initImpl();
 }
 
-NodeRenameVisitor::NodeRenameVisitor(Mapping& m,
-                                     XbitToNumber& xtoN,
-                                     ArchGraph::Ref archGraph)
-    : mMap(m), mXtoN(xtoN), mArchGraph(archGraph) {}
-
-void NodeRenameVisitor::visitNDQOp(NDQOp::Ref qop) {
-    auto qargs = qop->getQArgs();
-    NDList::uRef newQArgs = NDList::Create();
-
-    for (auto& qarg : *qargs) {
-        uint32_t pseudoQUId = mXtoN.getQUId(qarg->toString(false));
-        uint32_t physicalQUId = mMap[pseudoQUId];
-        newQArgs->addChild(mArchGraph->getNode(physicalQUId)->clone());
-    }
-
-    qop->setQArgs(std::move(newQArgs));
+void LiveQubitsPreProcessor::process(Mapping& fromM, Mapping& toM) {
+    checkInitialized();
+    return processImpl(fromM, toM);
 }
 
-void NodeRenameVisitor::visit(NDQOpMeasure::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void NodeRenameVisitor::visit(NDQOpReset::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void NodeRenameVisitor::visit(NDQOpU::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void NodeRenameVisitor::visit(NDQOpCX::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void NodeRenameVisitor::visit(NDQOpBarrier::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void NodeRenameVisitor::visit(NDQOpGen::Ref ref) {
-    visitNDQOp((NDQOp::Ref) ref);
-}
-
-void NodeRenameVisitor::visit(NDIfStmt::Ref ref) {
-    ref->getQOp()->apply(this);
+void LiveQubitsPreProcessor::checkInitialized() {
+    EfdAbortIf(mG == nullptr, "Set the `Graph` for LiveQubitsPreProcessor.");
 }
 
 // --------------------- BoundedMappingTreeQAllocator ------------------------
@@ -445,7 +390,7 @@ BoundedMappingTreeQAllocator::phase2(const MCandidateVCollection& collection) {
                 auto mapping = collection[i][j].m;
                 auto lastMapping = mem[i - 1][k].m;
 
-                mLQPProcessor->process(mArchGraph.get(), lastMapping, mapping);
+                mLQPProcessor->process(lastMapping, mapping);
 
                 // uint32_t mappingCost = mem[i - 1][k].mappingCost;
                 // Should be this one.
@@ -508,7 +453,7 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
     auto initial = mss.mappingV[idx];
     auto mapping = initial;
 
-    NodeRenameVisitor renameVisitor(mapping, mXtoN, mArchGraph.get());
+    QubitRemapVisitor visitor(mapping, mXtoN);
     std::vector<Node::uRef> issuedInstructions;
 
     for (auto& partition : mPP) {
@@ -520,7 +465,7 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
 
             if (iDependencies.size() < 1) {
                 auto cloned = node->clone();
-                cloned->apply(&renameVisitor);
+                cloned->apply(&visitor);
                 issuedInstructions.push_back(std::move(cloned));
                 continue;
             }
@@ -559,7 +504,7 @@ Mapping BoundedMappingTreeQAllocator::phase3(QModule::Ref qmod, const MappingSwa
 
             if (mArchGraph->hasEdge(u, v)) {
                 newNode = node->clone();
-                newNode->apply(&renameVisitor);
+                newNode->apply(&visitor);
             } else if (mArchGraph->hasEdge(v, u)) {
                 newNode = CreateIRevCX(mArchGraph->getNode(u)->clone(),
                                        mArchGraph->getNode(v)->clone());
@@ -605,10 +550,10 @@ Mapping BoundedMappingTreeQAllocator::allocate(QModule::Ref qmod) {
                << std::endl
                << "    mTSFinder: " << mTSFinder.get());
 
-    mNCGenerator->setQModule(qmod);
-    mNCGenerator->initialize();
+    mNCGenerator->init(qmod);
+    mLQPProcessor->init(mArchGraph.get());
+    mCostEstimator->init(mArchGraph.get());
 
-    mCostEstimator->setGraph(mArchGraph.get());
     mTSFinder->setGraph(mArchGraph.get());
 
     mMaxChildren = MaxChildren.getVal();

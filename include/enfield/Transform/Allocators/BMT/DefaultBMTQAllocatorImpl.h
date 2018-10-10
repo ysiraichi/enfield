@@ -13,7 +13,7 @@ namespace efd {
             Node::Iterator mIt;
 
         protected:
-            void initializeImpl() override;
+            void initImpl() override;
             bool finishedImpl() override;
             std::vector<Node::Ref> generateImpl() override;
 
@@ -48,7 +48,7 @@ namespace efd {
             bmt::Vector distanceFrom(Graph::Ref g, uint32_t u);
 
         protected:
-            void preprocess() override;
+            void initImpl() override;
             uint32_t estimateImpl(const Mapping& fromM, const Mapping& toM) override;
 
         public:
@@ -61,16 +61,19 @@ namespace efd {
     /// \brief Forces \em toM to map all qubits mapped in \em fromM.
     class GeoNearestLQPProcessor : public LiveQubitsPreProcessor {
         private:
+            bmt::Matrix mDist;
             uint32_t mPQubits;
             uint32_t mVQubits;
 
-            uint32_t getNearest(const Graph::Ref g, uint32_t u, const InverseMap& inv);
+            uint32_t getNearest(uint32_t u, const InverseMap& inv);
+
+        protected:
+            void initImpl() override;
+            void processImpl(Mapping& fromM, Mapping& toM) override;
 
         public:
             typedef GeoNearestLQPProcessor* Ref;
             typedef std::unique_ptr<GeoNearestLQPProcessor> uRef;
-
-            void process(const Graph::Ref g, Mapping& fromM, Mapping& toM) override;
 
             static uRef Create();
     };

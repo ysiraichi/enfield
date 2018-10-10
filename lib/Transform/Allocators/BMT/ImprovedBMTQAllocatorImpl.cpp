@@ -20,7 +20,7 @@ void CircuitCandidatesGenerator::advanceCNode(CircuitGraph::CircuitNode::Ref cno
     }
 }
 
-void CircuitCandidatesGenerator::initializeImpl() {
+void CircuitCandidatesGenerator::initImpl() {
     mCGraph = PassCache::Get<CircuitGraphBuilderPass>(mMod)->getData();
     mIt = mCGraph.build_iterator();
     mXbitSize = mCGraph.size();

@@ -35,7 +35,7 @@ namespace efd {
             void advanceCNode(CircuitGraph::CircuitNode::Ref cnode);
 
         protected:
-            void initializeImpl() override;
+            void initImpl() override;
             bool finishedImpl() override;
             std::vector<Node::Ref> generateImpl() override;
 

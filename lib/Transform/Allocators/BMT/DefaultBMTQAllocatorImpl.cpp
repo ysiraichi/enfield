@@ -1,4 +1,5 @@
 #include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
+#include "enfield/Support/BFSCachedDistance.h"
 
 using namespace efd;
 using namespace bmt;
@@ -9,7 +10,7 @@ static Opt<uint32_t> MaxMapSeqCandidates
 ("-bmt-max-mapseq", "Select the best N mapping sequences from phase 2.", 1, false);
 
 // --------------------- SeqNCandidatesGenerator ------------------------
-void SeqNCandidatesGenerator::initializeImpl() {
+void SeqNCandidatesGenerator::initImpl() {
     mIt = mMod->stmt_begin();
 }
 
@@ -45,38 +46,20 @@ FirstCandidateSelector::uRef FirstCandidateSelector::Create() {
 }
 
 // --------------------- GeoDistanceSwapCEstimator ------------------------
-Vector GeoDistanceSwapCEstimator::distanceFrom(Graph::Ref g, uint32_t u) {
-    uint32_t size = g->size();
+void GeoDistanceSwapCEstimator::initImpl() {
+    BFSCachedDistance bfs;
+    bfs.init(mG);
 
-    Vector distance(size, _undef);
-    std::queue<uint32_t> q;
-    std::vector<bool> visited(size, false);
+    uint32_t mPQubits = mG->size();
+    mDist.assign(mPQubits, Vector());
 
-    q.push(u);
-    visited[u] = true;
-    distance[u] = 0;
+    mDist.assign(mPQubits, Vector(mPQubits, 0));
 
-    while (!q.empty()) {
-        uint32_t u = q.front();
-        q.pop();
-
-        for (uint32_t v : g->adj(u)) {
-            if (!visited[v]) {
-                visited[v] = true;
-                distance[v] = distance[u] + 1;
-                q.push(v);
-            }
+    for (uint32_t i = 0; i < mPQubits; ++i) {
+        for (uint32_t j = i + 1; j < mPQubits; ++j) {
+            mDist[i][j] = bfs.get(i, j);
+            mDist[j][i] = mDist[i][j];
         }
-    }
-
-    return distance;
-}
-
-void GeoDistanceSwapCEstimator::preprocess() {
-    uint32_t size = mG->size();
-    mDist.assign(size, Vector());
-    for (uint32_t i = 0; i < size; ++i) {
-        mDist[i] = distanceFrom(mG, i);
     }
 }
 
@@ -98,31 +81,36 @@ GeoDistanceSwapCEstimator::uRef GeoDistanceSwapCEstimator::Create() {
 }
 
 // --------------------- GeoNearestLQPProcessor ------------------------
-uint32_t GeoNearestLQPProcessor::getNearest(const Graph::Ref g, uint32_t u, const InverseMap& inv) {
-    std::vector<bool> visited(mPQubits, false);
-    std::queue<uint32_t> q;
-    q.push(u);
-    visited[u] = true;
+void GeoNearestLQPProcessor::initImpl() {
+    BFSCachedDistance bfs;
+    bfs.init(mG);
 
-    while (!q.empty()) {
-        uint32_t v = q.front();
-        q.pop();
+    mPQubits = mG->size();
+    mDist.assign(mPQubits, Vector(mPQubits, 0));
 
-        if (inv[v] == _undef) return v;
-
-        for (uint32_t w : g->adj(v))
-            if (!visited[w]) {
-                visited[w] = true;
-                q.push(w);
-            }
+    for (uint32_t i = 0; i < mPQubits; ++i) {
+        for (uint32_t j = i + 1; j < mPQubits; ++j) {
+            mDist[i][j] = bfs.get(i, j);
+            mDist[j][i] = mDist[i][j];
+        }
     }
-
-    // There is no way we can not find anyone!!
-    EfdAbortIf(true, "Can't find any vertice connected to v:" << u << ".");
 }
 
-void GeoNearestLQPProcessor::process(const Graph::Ref g, Mapping& fromM, Mapping& toM) {
-    mPQubits = g->size();
+uint32_t GeoNearestLQPProcessor::getNearest(uint32_t u, const InverseMap& inv) {
+    uint32_t minV = 0;
+    uint32_t minDist = _undef;
+
+    for (uint32_t v = 0; v < mPQubits; ++v) {
+        if (inv[v] == _undef && mDist[u][v] < minDist) {
+            minDist = mDist[u][v];
+            minV = v;
+        }
+    }
+
+    return minV;
+}
+
+void GeoNearestLQPProcessor::processImpl(Mapping& fromM, Mapping& toM) {
     mVQubits = fromM.size();
 
     auto fromInv = InvertMapping(mPQubits, fromM, false);
@@ -133,7 +121,7 @@ void GeoNearestLQPProcessor::process(const Graph::Ref g, Mapping& fromM, Mapping
             if (toInv[fromM[i]] == _undef) {
                 toM[i] = fromM[i];
             } else {
-                toM[i] = getNearest(g, fromM[i], toInv);
+                toM[i] = getNearest(fromM[i], toInv);
             }
 
             toInv[toM[i]] = i;
