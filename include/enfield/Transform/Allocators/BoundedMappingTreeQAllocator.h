@@ -80,14 +80,12 @@ namespace efd {
         virtual ~NodeCandidatesGenerator() = default;
         NodeCandidatesGenerator();
 
-        /// \brief Sets the `QModule` to be iterated.
-        void setQModule(QModule::Ref qmod);
         /// \brief Returns the next collection of candidates.
         std::vector<Node::Ref> generate();
         /// \brief Returns whether we have finished processing the nodes.
         bool finished();
         /// \brief Initializes the generator.
-        void initialize();
+        void init(QModule::Ref qmod);
         /// \brief Signals the generator which node has been selected.
         virtual void signalProcessed(Node::Ref node);
 
@@ -98,7 +96,7 @@ namespace efd {
         protected:
             QModule::Ref mMod;
 
-            virtual void initializeImpl() = 0;
+            virtual void initImpl();
             virtual bool finishedImpl() = 0;
             virtual std::vector<Node::Ref> generateImpl() = 0;
     };
@@ -111,7 +109,7 @@ namespace efd {
         virtual ~CandidateSelector() = default;
         /// \brief Selects \em maxCandidates from \em candidates.
         virtual bmt::MCandidateVector select(uint32_t maxCandidates,
-                                            const bmt::MCandidateVector& candidates) = 0;
+                                             const bmt::MCandidateVector& candidates) = 0;
     };
 
     /// \brief Interface for estimating the number of swaps in phase 2.
@@ -122,16 +120,16 @@ namespace efd {
         virtual ~SwapCostEstimator() = default;
         SwapCostEstimator();
 
-        /// \brief Sets the `Graph`.
-        void setGraph(Graph::Ref g);
+        /// \brief Initializes the structure with \p g.
+        void init(Graph::Ref g);
         /// \brief Estimates the number of swaps to go from \em fromM to \toM.
         uint32_t estimate(const Mapping& fromM, const Mapping& toM);
 
         protected:
             Graph::Ref mG;
 
-            void checkGraphSet();
-            virtual void preprocess() = 0;
+            void checkInitialized();
+            virtual void initImpl() = 0;
             virtual uint32_t estimateImpl(const Mapping& fromM,
                                           const Mapping& toM) = 0;
     };
@@ -141,10 +139,22 @@ namespace efd {
     struct LiveQubitsPreProcessor {
         typedef LiveQubitsPreProcessor* Ref;
         typedef std::unique_ptr<LiveQubitsPreProcessor> uRef;
+
         virtual ~LiveQubitsPreProcessor() = default;
+        LiveQubitsPreProcessor();
+
+        /// \brief Initializes the structure with \p g.
+        void init(Graph::Ref g);
         /// \brief Processes `Mapping` \em toM, based on the graph \em g and on the
         /// last `Mapping` \em fromM.
-        virtual void process(const Graph::Ref g, Mapping& fromM, Mapping& toM) = 0;
+        void process(Mapping& fromM, Mapping& toM);
+
+        protected:
+            Graph::Ref mG;
+
+            void checkInitialized();
+            virtual void initImpl() = 0;
+            virtual void processImpl(Mapping& fromM, Mapping& toM) = 0;
     };
 
     /// \brief Selects a number of line numbers from the memoized matrix. 
