@@ -111,7 +111,7 @@ void JKUQAllocator::expandNodeRecursively(const AStarNode& aNode,
         }
 
         if (state.nextLayer != _undef) {
-            for (auto node : state.layers[state.currentLayer]) {
+            for (auto node : state.layers[state.nextLayer]) {
                 auto deps = mDBuilder.getDeps(node);
 
                 if (deps.empty()) continue;
