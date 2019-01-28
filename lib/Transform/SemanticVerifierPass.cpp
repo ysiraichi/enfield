@@ -55,7 +55,10 @@ namespace efd {
             void visitNDQOp(NDQOp::Ref qop, NDIfStmt::Ref ifstmt = nullptr);
 
         public:
-            SemanticVerifierVisitor(XbitToNumber& xtonsrc,
+            ResultMsg& mResult;
+
+            SemanticVerifierVisitor(ResultMsg& result,
+                                    XbitToNumber& xtonsrc,
                                     XbitToNumber& xtontgt,
                                     CircuitGraph::Iterator& it,
                                     Mapping initial);
@@ -67,12 +70,11 @@ namespace efd {
             void visit(NDQOpBarrier::Ref ref) override;
             void visit(NDQOpGen::Ref ref) override;
             void visit(NDIfStmt::Ref ref) override;
-
-            bool mSuccess;
     };
 }
 
-SemanticVerifierVisitor::SemanticVerifierVisitor(XbitToNumber& xtonsrc,
+SemanticVerifierVisitor::SemanticVerifierVisitor(ResultMsg& result,
+                                                 XbitToNumber& xtonsrc,
                                                  XbitToNumber& xtontgt,
                                                  CircuitGraph::Iterator& iterator,
                                                  Mapping initial) :
@@ -84,7 +86,7 @@ SemanticVerifierVisitor::SemanticVerifierVisitor(XbitToNumber& xtonsrc,
     mIt(iterator),
     mMap(initial),
     mMarked(mXbitsSrc, false),
-    mSuccess(true) {
+    mResult(result) {
     
 
     mInverseMap.assign(mQubitsTgt, 0);
@@ -149,6 +151,9 @@ void SemanticVerifierVisitor::visitNDQOp(NDQOp::Ref tgtQOp, NDIfStmt::Ref tgtIfS
     std::vector<uint32_t> tgtOpQubits;
     std::vector<uint32_t> tgtOpCbits;
 
+    Node::Ref mainNode = tgtQOp;
+    if (tgtIfStmt != nullptr) mainNode = tgtIfStmt;
+
     auto tgtQArgs = tgtQOp->getQArgs();
     uint32_t tgtQArgsChildrem = tgtQArgs->getChildNumber();
 
@@ -168,26 +173,40 @@ void SemanticVerifierVisitor::visitNDQOp(NDQOp::Ref tgtQOp, NDIfStmt::Ref tgtIfS
 
     auto srcCNode = mIt[getSrcUId(tgtOpQubits[0])];
 
-    if (!srcCNode->isGateNode()) { mSuccess = false; return; }
+    if (!srcCNode->isGateNode()) {
+        mResult = ResultMsg::Error(
+                "Original program has reached the end while processing `" +
+                mainNode->toString(false) + "` of the target program.");
+        return;
+    }
 
     auto srcNode = srcCNode->node();
     NDQOp::Ref srcQOp = nullptr;
 
-    if (tgtIfStmt != nullptr && tgtIfStmt->getKind() == srcNode->getKind()) {
+    if (tgtIfStmt != nullptr) {
+        if (tgtIfStmt->getKind() != srcNode->getKind()) {
+            mResult = ResultMsg::Error(
+                    "Source instruction `" + srcNode->toString(false) + "` " +
+                    "is not an NDIfStmt: " + mainNode->toString(false) + ".");
+            return;
+        }
+
         auto srcIfStmt = static_cast<NDIfStmt*>(srcNode);
         srcQOp = srcIfStmt->getQOp();
 
         for (auto cbit : mXtoNSrc.getRegUIds(srcIfStmt->getCondId()->getVal()))
             srcOpCbits.push_back(getTgtUId(getRealSrcCUId(cbit)));
-
-    } else if (tgtIfStmt == nullptr) {
+    } else {
         srcQOp = dynCast<NDQOp>(srcNode);
     }
 
     if (srcQOp == nullptr) {
         // Either the current node \em tgtQOp is a NDIfStmt and the circuit one is not or
         // the other way around.
-        mSuccess = false;
+        mResult = ResultMsg::Error(
+                "Expected `" + srcNode->toString(false) +
+                "` from source program. Got `" + mainNode->toString(false) +
+                "` from target program.");
         return;
     }
 
@@ -201,25 +220,48 @@ void SemanticVerifierVisitor::visitNDQOp(NDQOp::Ref tgtQOp, NDIfStmt::Ref tgtIfS
 
     // All qubits involved in the current circuit node must also be involved in the current node.
     for (uint32_t q : srcOpQubits) {
-        mSuccess = mSuccess &&
-            std::find(tgtOpQubits.begin(), tgtOpQubits.end(), q) != tgtOpQubits.end();
+        if (std::find(tgtOpQubits.begin(), tgtOpQubits.end(), q) == tgtOpQubits.end()) {
+            mResult = ResultMsg::Error(
+                    "Qubit `" + std::to_string(getSrcUId(q)) + " => " +
+                    std::to_string(q) + "` not being used in " +
+                    "target program (" + mainNode->toString(false) +
+                    "). Expected: `" + srcNode->toString(false) + "`.");
+            return;
+        }
     }
 
     // All qubits and cbits have reached this node (and they are not null).
     auto firstSrcCNode = mIt[getSrcUId(srcOpQubits[0])];
     auto firstSrcNode = firstSrcCNode->node();
-    mSuccess = mSuccess && firstSrcCNode->isGateNode() && !mReached[firstSrcNode];
+
+    if (!firstSrcCNode->isGateNode()) {
+        mResult = ResultMsg::Error(
+                "Qubit `" + std::to_string(getSrcUId(srcOpQubits[0])) + " => " +
+                std::to_string(srcOpQubits[0]) + "` has already reached its end " +
+                "while processing: " + mainNode->toString(false) + ".");
+        return;
+    }
+
+    if (mReached[firstSrcNode]) {
+        mResult = ResultMsg::Error(
+                "Node `" + firstSrcNode->toString(false) + "` still lacks some " +
+                "dependencies.");
+        return;
+    }
 
     // All used qubits have reached the same node (there is no instruction that is dependent
     // of others that is being executed before its dependencies) 
-    for (uint32_t i = 1; i < srcQArgsChildrem; ++i) {
-        mSuccess = mSuccess && mIt[getSrcUId(srcOpQubits[i])]->node() == firstSrcNode;
+    // for (uint32_t i = 1; i < srcQArgsChildrem; ++i) {
+    //     mSuccess = mSuccess && mIt[getSrcUId(srcOpQubits[i])]->node() == firstSrcNode;
+    // }
+
+    if (srcOpCbits.size() != tgtOpCbits.size()) {
+        mResult = ResultMsg::Error(
+                "Nodes `" + srcNode->toString(false) + "` (source) and " +
+                "`" + mainNode->toString(false) + "` (target) have different " +
+                "number of concrete bits.");
+        return;
     }
-
-    if (srcOpCbits.size() != tgtOpCbits.size())
-        mSuccess = false;
-
-    if (!mSuccess) return;
 
     // If this operation deals with more than one qubit, we assume it deals with exactly two
     // qubits, and that it is a CNOT gate.
@@ -242,46 +284,52 @@ void SemanticVerifierVisitor::visitNDQOp(NDQOp::Ref tgtQOp, NDIfStmt::Ref tgtIfS
             }
 
             // Check if, semanticaly, CNOTs are applied to the same qubits in the same order.
-            mSuccess = mSuccess && srcCNOT == tgtCNOT;
+            if (srcCNOT != tgtCNOT) {
+                mResult = ResultMsg::Error(
+                        "CNOT error. Expected (" + std::to_string(srcCNOT.u) + ", " +
+                        std::to_string(srcCNOT.v) + "). Got (" +
+                        std::to_string(tgtCNOT.u) + ", " +
+                        std::to_string(tgtCNOT.v) + ").");
+                return;
+            }
 
-        } else if (instanceOf<NDQOpBarrier>(srcQOp)) {
-
-            auto src = dynCast<NDQOpBarrier>(srcQOp);
-            auto tgt = dynCast<NDQOpBarrier>(tgtQOp);
-
-            mSuccess = src->getQArgs()->getChildNumber() == tgt->getQArgs()->getChildNumber();
-
-        } else {
+        } else if (!instanceOf<NDQOpBarrier>(srcQOp)) {
             EfdAbortIf(true,
                        "Node is neither CNOT nor Barrier. Actual: `"
                        << srcQOp->toString(false) << "`.");
         }
 
     } else {
-        if (tgtIfStmt != nullptr)
-            mSuccess = mSuccess && firstSrcCNode->node()->getKind() == tgtIfStmt->getKind();
-        else
-            mSuccess = mSuccess && firstSrcCNode->node()->getKind() == tgtQOp->getKind();
+        if (firstSrcCNode->node()->getKind() != mainNode->getKind()) {
+            mResult = ResultMsg::Error(
+                    "Wrong kind between source (" + srcNode->toString(false) + ") " +
+                    "and target (" + mainNode->toString(false) + ").");
+            return;
+        }
 
         // Checking all real arguments.
         auto tgtArgs = tgtQOp->getArgs();
         auto srcArgs = srcQOp->getArgs();
-        mSuccess = mSuccess && tgtArgs->equals(srcArgs);
-    }
 
-    if (mSuccess) {
-        std::vector<uint32_t> all;
-        std::vector<uint32_t> toBeAdvanced;
-
-        all.insert(all.begin(), srcOpQubits.begin(), srcOpQubits.end());
-        all.insert(all.begin(), srcOpCbits.begin(), srcOpCbits.end());
-
-        for (auto q : all) {
-            toBeAdvanced.push_back(getSrcUId(q));
+        if (!tgtArgs->equals(srcArgs)) {
+            mResult = ResultMsg::Error(
+                    "Real arguments do not match: `" + srcArgs->toString(false) +
+                    "`(source) and `" + tgtArgs->toString(false) + "`(target).");
+            return;
         }
-
-        postprocessing(toBeAdvanced);
     }
+
+    std::vector<uint32_t> all;
+    std::vector<uint32_t> toBeAdvanced;
+
+    all.insert(all.begin(), srcOpQubits.begin(), srcOpQubits.end());
+    all.insert(all.begin(), srcOpCbits.begin(), srcOpCbits.end());
+
+    for (auto q : all) {
+        toBeAdvanced.push_back(getSrcUId(q));
+    }
+
+    postprocessing(toBeAdvanced);
 }
 
 void SemanticVerifierVisitor::visit(NDQOpMeasure::Ref ref) {
@@ -289,21 +337,36 @@ void SemanticVerifierVisitor::visit(NDQOpMeasure::Ref ref) {
     uint32_t tgtCUId = getRealTgtCUId(mXtoNTgt.getCUId(ref->getCBit()->toString(false)));
 
     auto srcCNode = mIt[getSrcUId(tgtQUId)];
+
+    if (!srcCNode->isGateNode()) {
+        mResult = ResultMsg::Error(
+                "Source has reached the end while processing: " +
+                ref->toString(false) + ".");
+        return;
+    }
+
     auto srcNode = dynCast<NDQOpMeasure>(srcCNode->node());
 
     if (srcNode != nullptr) {
         uint32_t srcQUId = mXtoNSrc.getQUId(srcNode->getQBit()->toString(false));
         uint32_t srcCUId = getRealSrcCUId(mXtoNSrc.getCUId(srcNode->getCBit()->toString(false)));
 
-        mSuccess = mSuccess && tgtQUId == getTgtUId(srcQUId);
-        mSuccess = mSuccess && tgtCUId == getTgtUId(srcCUId);
+        if (tgtQUId != getTgtUId(srcQUId) || tgtCUId != getTgtUId(srcCUId)) {
+            mResult = ResultMsg::Error(
+                    "Measure instruction does not match: `" +
+                    srcNode->toString(false) + "`(source) and `" +
+                    ref->toString(false) + "`(target).");
+            return;
+        }
 
-        mSuccess = mSuccess && srcCNode->isGateNode();
-        mSuccess = mSuccess && !mReached[srcNode];
-        mSuccess = mSuccess && mIt[srcQUId]->node() == mIt[srcCUId]->node();
-        mSuccess = mSuccess && srcNode->getKind() == ref->getKind();
+        if (mReached[srcNode] && mIt[srcQUId]->node() != mIt[srcCUId]->node()) {
+            mResult = ResultMsg::Error(
+                    "Node `" + ref->toString(false) + "` still lacks some " +
+                    "dependencies.");
+            return;
+        }
 
-        if (mSuccess) postprocessing({ srcQUId, srcCUId });
+        postprocessing({ srcQUId, srcCUId });
     }
 }
 
@@ -348,7 +411,7 @@ void SemanticVerifierVisitor::visit(NDIfStmt::Ref ref) {
 
 SemanticVerifierPass::SemanticVerifierPass(QModule::uRef src, Mapping initial)
     : mSrc(std::move(src)), mInitial(initial) {
-    mData = false;
+    mData = ResultMsg::Success();
 }
 
 bool SemanticVerifierPass::run(QModule* tgt) {
@@ -363,20 +426,26 @@ bool SemanticVerifierPass::run(QModule* tgt) {
     auto xtonpassSrc = PassCache::Get<XbitToNumberWrapperPass>(mSrc.get());
     auto xtonpassTgt = PassCache::Get<XbitToNumberWrapperPass>(tgt);
 
-    mData = true;
+    mData = ResultMsg::Success();
     auto it = ckt.build_iterator();
-    SemanticVerifierVisitor visitor(xtonpassSrc->getData(),
+    SemanticVerifierVisitor visitor(mData,
+                                    xtonpassSrc->getData(),
                                     xtonpassTgt->getData(),
                                     it,
                                     mInitial);
-    for (auto it = tgt->stmt_begin(), end = tgt->stmt_end();
-            it != end && mData; ++it) {
+
+    for (auto it = tgt->stmt_begin(), end = tgt->stmt_end(); it != end; ++it) {
         (*it)->apply(&visitor);
-        mData = mData && visitor.mSuccess;
+        if (mData.isError()) return false;
     }
 
     for (uint32_t i = 0, e = ckt.size(); i < e; ++i) {
-        if (!it[i]->isOutputNode()) { mData = false; break; }
+        if (!it[i]->isOutputNode()) {
+            mData = ResultMsg::Error(
+                    "Stopped at `" + it.get(i)->toString(false) +
+                    "` on qubit `" + std::to_string(i) + "`.");
+            break;
+        }
     }
 
     return false;

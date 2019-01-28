@@ -14,7 +14,11 @@ bool CheckSemanticVerifier(const std::string progBefore, const std::string progA
     SemanticVerifierPass verifier(std::move(qmodBefore), map);
     verifier.run(qmodAfter.get());
 
-    return verifier.getData();
+    if (!verifier.getData().isSuccess()) {
+        ERR << verifier.getData().getErrorMessage() << std::endl;
+    }
+
+    return verifier.getData().isSuccess();
 }
 
 TEST(SemanticVerifierPassTests, SimpleProgram) {
