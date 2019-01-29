@@ -142,3 +142,6 @@ efd_test (QbitterQbitAllocatorTests
 
 efd_test (JKUQAllocatorTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
+efd_test (ChallengeWinnerQAllocatorTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
