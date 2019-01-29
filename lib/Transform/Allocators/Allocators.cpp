@@ -6,6 +6,7 @@
 #include "enfield/Transform/Allocators/BoundedMappingTreeQAllocator.h"
 #include "enfield/Transform/Allocators/SabreQAllocator.h"
 #include "enfield/Transform/Allocators/JKUQAllocator.h"
+#include "enfield/Transform/Allocators/ChallengeWinnerQAllocator.h"
 #include "enfield/Transform/Allocators/OptBMTQAllocator.h"
 
 #include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
