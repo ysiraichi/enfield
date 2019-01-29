@@ -20,6 +20,17 @@ namespace efd {
         uint32_t v;
     };
 
+    /// \brief Two \p Swap objects are considered equal if they occur
+    /// on equal qubits (order is irrelevant).
+    inline bool operator==(const Swap& lhs, const Swap& rhs) {
+        return (lhs.u == rhs.u && lhs.v == rhs.v) ||
+               (lhs.u == rhs.v && lhs.v == rhs.u);
+    }
+
+    inline bool operator!=(const Swap& lhs, const Swap& rhs) {
+        return !(lhs == rhs);
+    }
+
     typedef std::vector<Swap> SwapSeq;
 
     /// \brief Returns a stream object for logging errors.
