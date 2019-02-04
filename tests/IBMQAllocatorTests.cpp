@@ -54,7 +54,7 @@ void TestAllocation(const std::string program) {
     auto sVerifierPass = SemanticVerifierPass::Create(std::move(qmodCopy), mapping);
     sVerifierPass->setInlineAll({ "cx" });
     PassCache::Run(qmod.get(), sVerifierPass.get());
-    EXPECT_TRUE(sVerifierPass->getData());
+    EXPECT_TRUE(sVerifierPass->getData().isSuccess());
 }
 
 TEST(IBMQAllocatorTests, SimpleNoSwapProgram) {

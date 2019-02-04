@@ -1,7 +1,8 @@
 
 #include "gtest/gtest.h"
 
-#include "enfield/Transform/Allocators/JKUQAllocator.h"
+#include "enfield/Transform/Allocators/ChallengeWinnerQAllocator.h"
+#include "enfield/Transform/ReverseEdgesPass.h"
 #include "enfield/Transform/SemanticVerifierPass.h"
 #include "enfield/Transform/ArchVerifierPass.h"
 #include "enfield/Transform/PassCache.h"
@@ -40,8 +41,10 @@ void TestAllocation(const std::string program) {
     auto qmod = QModule::ParseString(program);
     auto qmodCopy = qmod->clone();
 
-    auto allocator = JKUQAllocator::Create(g);
+    auto reverse = ReverseEdgesPass::Create(g);
+    auto allocator = ChallengeWinnerQAllocator::Create(g);
     allocator->run(qmod.get());
+    reverse->run(qmod.get());
 
     auto mapping = allocator->getData();
 
@@ -58,7 +61,7 @@ void TestAllocation(const std::string program) {
     EXPECT_TRUE(sVerifierPass->getData().isSuccess());
 }
 
-TEST(JKUQAllocatorTests, SimpleNoSwapProgram) {
+TEST(ChallengeWinnerQAllocatorTests, SimpleNoSwapProgram) {
     {
         const std::string program =
 "\
@@ -84,7 +87,7 @@ CX q[3], q[0];\
     }
 }
 
-TEST(JKUQAllocatorTests, GatesTest) {
+TEST(ChallengeWinnerQAllocatorTests, GatesTest) {
     {
         const std::string program =
 "\
@@ -107,7 +110,7 @@ test q[3], q[4], q[2];\
     }
 }
 
-TEST(JKUQAllocatorTests, GatesSwapTest) {
+TEST(ChallengeWinnerQAllocatorTests, GatesSwapTest) {
     {
         const std::string program =
 "\
@@ -121,7 +124,7 @@ test q[4], q[1], q[0];\
     }
 }
 
-TEST(JKUQAllocatorTests, BarrierTest) {
+TEST(ChallengeWinnerQAllocatorTests, BarrierTest) {
     {
         const std::string program =
 "\

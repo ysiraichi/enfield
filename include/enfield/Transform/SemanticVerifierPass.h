@@ -3,6 +3,7 @@
 
 #include "enfield/Transform/Pass.h"
 #include "enfield/Transform/QModule.h"
+#include "enfield/Support/Result.h"
 #include "enfield/Support/Defs.h"
 
 namespace efd {
@@ -13,7 +14,7 @@ namespace efd {
     /// Note that it only knows how to verify CNOT gates (for gates that use more than one
     /// qubit). If it is not the case for the given module, one should either \em flatten it
     /// or transform the gate into single qubit gates.
-    class SemanticVerifierPass : public PassT<bool> {
+    class SemanticVerifierPass : public PassT<ResultMsg> {
         public:
             typedef SemanticVerifierPass* Ref;
             typedef std::unique_ptr<SemanticVerifierPass> uRef;

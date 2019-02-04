@@ -71,7 +71,7 @@ void TestAllocator(QModule::Ref qmod, ArchGraph::sRef g, QbitAllocator::Ref allo
     auto sVerifierPass = SemanticVerifierPass::Create(std::move(qmodCopy), mapping);
     sVerifierPass->setInlineAll({ "cx" });
     PassCache::Run(qmod, sVerifierPass.get());
-    EXPECT_TRUE(sVerifierPass->getData());
+    EXPECT_TRUE(sVerifierPass->getData().isSuccess());
 }
 
 void TestAllocation(const std::string program) {

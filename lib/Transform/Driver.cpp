@@ -61,14 +61,16 @@ QModule::uRef efd::Compile(QModule::uRef qmod, CompilationSettings settings) {
         success = success && aVerifierPass->getData();
 
         PassCache::Run(qmod.get(), sVerifierPass.get());
-        success = success && sVerifierPass->getData();
+        auto sVerifierData = sVerifierPass->getData();
+        success = success && sVerifierData.isSuccess();
 
         if (!aVerifierPass->getData()) {
             ERR << "Architecture restrictions violated in compiled code." << std::endl;
         }
 
-        if (!sVerifierPass->getData()) {
+        if (sVerifierData.isError()) {
             ERR << "Compiled code is semantically different from source code." << std::endl;
+            ERR << sVerifierData.getErrorMessage() << std::endl;
         }
 
         if (!success) ERR << "Compilation failed." << std::endl;
