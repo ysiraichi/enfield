@@ -7,6 +7,9 @@
 
 namespace efd {
     /// \brief Port of IBM's allocator.
+    ///
+    /// Main python implementation can be found at:
+    /// https://github.com/Qiskit/qiskit-terra/blob/master/qiskit/mapper/_mapping.py
     class IBMQAllocator : public StdSolutionQAllocator {
         public:
             typedef IBMQAllocator* Ref;
