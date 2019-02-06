@@ -5,6 +5,14 @@
 #include "enfield/Support/BFSCachedDistance.h"
 
 namespace efd {
+
+    /// \brief The IBM Challenge winner algorithm.
+    ///
+    /// Implemented from Zulehner et. al.:
+    /// Compiling SU(4) Quantum Circuits to IBM QX Architectures.
+    /// 
+    /// Main python implementation can be found at:
+    /// http://iic.jku.at/eda/research/ibm_qx_mapping/
     class ChallengeWinnerQAllocator : public QbitAllocator {
         public:
             typedef ChallengeWinnerQAllocator* Ref;
