@@ -20,6 +20,9 @@ namespace jku {
     /// Implemented from Zulehner et. al.:
     /// An Efficient Methodology for Mapping Quantum Circuits to the
     /// IBM QX Architectures
+    ///
+    /// Main C implementation can be found at:
+    /// http://iic.jku.at/eda/research/ibm_qx_mapping/
     class JKUQAllocator : public QbitAllocator {
         public:
             typedef JKUQAllocator* Ref;
