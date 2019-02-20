@@ -35,6 +35,49 @@ $ make && make test
 It is possible to specify the root folder of the GTest framework. In order to do that,
 you should pass to ```cmake``` the option ```-DGTEST_ROOT=<path-to-gtest-libs>```.
 
+## Compiling OpenQASM Programs
+
+Suppose that you compiled enfield inside ```$BUILD_DIR``` folder.
+The enfield compiler will be located at ```$BUILD_DIR/tools```.
+There you will find some programs, one of which is ```efd```, the compiler itself.
+
+The only required argument for compiling an OpenQASM program is the program itself.
+If you do not specify anything, enfield will compiile the input program with the
+default parameters.
+One can check the available parameter, as well as the default ones by executing the
+following command:
+
+```
+$ efd --help
+```
+
+The general form for compiling programs is:
+
+```
+$ efd -i <qasm-file> --alloc <allocator> --arch <architecture> -o <output-file>
+```
+
+For example: if we wanted to compile program ```tests/files/qft.qasm``` for architecture
+```ibmqx2```, using allocator ```wpm```, while storing the compiled program inside
+```qft_ibmqx2.qasm```, we would have to execute the following:
+
+```
+$ efd -i tests/files/qft.qasm --alloc Q_wpm --arch A_ibmqx2 -o qft_ibmqx2.qasm
+```
+
+One could add the ```-stats``` flag, in order for enfield to print statistical data
+of the compilation, such as the weighted cost, depth, and number of gates of the
+compiled program.
+
+It is also possible to feed the compiler a new architecture, and use it to compile
+the same program.
+So, for example, if we wanted to compile using architecture ```archfiles/tokyo.json```,
+we would have to execute the following:
+
+```
+$ efd -i tests/files/qft.qasm --alloc Q_wpm --arch-file archfiles/tokyo.json -o qft_tokyo.qasm
+```
+
 ## Hacking
 
 Even though this project is pretty new, it was designed to be extensible. So, here are
