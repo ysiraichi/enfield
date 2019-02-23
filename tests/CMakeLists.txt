@@ -145,3 +145,6 @@ efd_test (JKUQAllocatorTests
 
 efd_test (ChallengeWinnerQAllocatorTests
     EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
+
+efd_test (LayeredBMTQAllocatorTests
+    EfdAllocator EfdTransform EfdArch EfdAnalysis EfdSupport)
