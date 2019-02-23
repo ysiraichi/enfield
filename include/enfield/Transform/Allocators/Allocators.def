@@ -5,6 +5,7 @@ EFD_ALLOCATOR(sabre, SabreQAllocator)
 EFD_ALLOCATOR(jku, JKUQAllocator)
 EFD_ALLOCATOR(chw, ChallengeWinnerQAllocator)
 EFD_ALLOCATOR(opt_bmt, OptBMTQAllocator)
+EFD_ALLOCATOR(layered_bmt, LayeredBMTQAllocator)
 EFD_ALLOCATOR_BMT(bmt, SeqNCandidatesGenerator,
                        FirstCandidateSelector,
                        FirstCandidateSelector,
