@@ -13,4 +13,5 @@ add_library (EfdAllocator
     SabreQAllocator.cpp
     JKUQAllocator.cpp
     OptBMTQAllocator.cpp
+    LayeredBMTQAllocator.cpp
     ChallengeWinnerQAllocator.cpp)
