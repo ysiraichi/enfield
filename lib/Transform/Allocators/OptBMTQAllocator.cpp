@@ -236,14 +236,12 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
         // to different results if we change the the order of CircuitNodes.
         std::set<CircuitNode::Ref> circuitNodeCandidatesSet;
         std::vector<CircuitNode::Ref> circuitNodeCandidatesVector;
+        std::set<CircuitNode::Ref> toBeIssued;
 
         for (uint32_t i = 0; i < mXbitSize; ++i) {
             if (it[i]->isGateNode() && reached[it.get(i)] == it[i]->numberOfXbits()) {
                 if (mDBuilder.getDeps(it.get(i)).empty()) {
-                    mPP.back().push_back(it.get(i));
-                    it.next(i);
-                    ++reached[it.get(i)];
-                    redo = true;
+                    toBeIssued.insert(it[i].get());
                 } else {
                     auto node = it[i].get();
                     if (circuitNodeCandidatesSet.find(node) == circuitNodeCandidatesSet.end()) {
@@ -252,6 +250,17 @@ std::vector<std::vector<MappingCandidate>> OptBMTQAllocator::phase1(QModule::Ref
                     }
                 }
             }
+        }
+
+        for (auto& cnode : toBeIssued) {
+            mPP.back().push_back(cnode->node());
+
+            for (auto& i : cnode->getXbitsId()) {
+                it.next(i);
+                ++reached[it.get(i)];
+            }
+
+            redo = true;
         }
 
         // Whenever we reach something like a `barrier` or a `measure` statement,
