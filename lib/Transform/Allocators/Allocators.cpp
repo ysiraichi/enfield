@@ -8,6 +8,7 @@
 #include "enfield/Transform/Allocators/JKUQAllocator.h"
 #include "enfield/Transform/Allocators/ChallengeWinnerQAllocator.h"
 #include "enfield/Transform/Allocators/OptBMTQAllocator.h"
+#include "enfield/Transform/Allocators/LayeredBMTQAllocator.h"
 
 #include "enfield/Transform/Allocators/BMT/DefaultBMTQAllocatorImpl.h"
 #include "enfield/Transform/Allocators/BMT/ImprovedBMTQAllocatorImpl.h"
